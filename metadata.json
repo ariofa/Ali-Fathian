@@ -1,0 +1,6 @@
+{
+  "name": "IranBIMhub",
+  "description": "The first dedicated bilingual BIM content marketplace and manufacturer showcase for the Iranian AEC industry, featuring advanced parametric search, product comparison, and comprehensive manufacturer onboarding.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
