@@ -24,11 +24,16 @@ import { ForManufacturersView } from './components/views/ForManufacturersView';
 import { AdminControlPanel } from './components/admin/AdminControlPanel';
 import { PrivacyPolicyView } from './components/views/PrivacyPolicyView';
 import { TermsOfServiceView } from './components/views/TermsOfServiceView';
+import { PaymentView } from './components/views/PaymentView';
 
 // Inner App with context
 const MainAppContent: React.FC = () => {
   const { language, t, isRtl } = useLanguage();
   const { triggerTransition } = useLoading();
+
+  // Payment states
+  const [paymentPlanId, setPaymentPlanId] = useState<string>('modeler-vip');
+  const [previousViewBeforePayment, setPreviousViewBeforePayment] = useState<string>('home');
   
   // Navigation View State
   const [currentView, setCurrentView] = useState<string>(() => {
@@ -49,8 +54,19 @@ const MainAppContent: React.FC = () => {
       }
     };
     window.addEventListener('hashchange', handleHashChange);
-    (window as any).onNavigateToView = (view: string) => {
-      navigateTo(view);
+    (window as any).onNavigateToView = (view: string, param?: string) => {
+      if (view === 'brand' && param) {
+        handleViewBrand(param);
+      } else if (view === 'payment') {
+        if (param) setPaymentPlanId(param);
+        setCurrentView(prev => {
+          setPreviousViewBeforePayment(prev);
+          return 'payment';
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        navigateTo(view);
+      }
     };
     return () => {
       window.removeEventListener('hashchange', handleHashChange);
@@ -58,7 +74,16 @@ const MainAppContent: React.FC = () => {
     };
   }, []);
 
-  const navigateTo = (view: string, customTextFa?: string, customTextEn?: string) => {
+  const navigateTo = (view: string, customTextFa?: string, customTextEn?: string, param?: string) => {
+    if (view === 'payment') {
+      if (param) setPaymentPlanId(param);
+      setCurrentView(prev => {
+        setPreviousViewBeforePayment(prev);
+        return 'payment';
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     triggerTransition(() => {
       setCurrentView(view);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -473,6 +498,7 @@ const MainAppContent: React.FC = () => {
             companyProfile={companyProfile}
             onPublishNewObject={handlePublishNewObject}
             onSelectObject={handleSelectObject}
+            onViewBrand={handleViewBrand}
             onLogout={() => {
               triggerTransition(() => {
                 setCurrentUser(null);
@@ -561,6 +587,34 @@ const MainAppContent: React.FC = () => {
           />
         );
 
+      case 'payment':
+        return (
+          <PaymentView
+            planId={paymentPlanId}
+            onBack={() => {
+              navigateTo(previousViewBeforePayment || 'home');
+            }}
+            onPaymentSuccess={(userType, tier) => {
+              if (userType === 'Modeler') {
+                const updated = { ...currentUser, isPremium: true };
+                setCurrentUser(updated);
+                localStorage.setItem('iranbimhub_user_session', JSON.stringify(updated));
+              } else {
+                const localMfg = localStorage.getItem('iranbimhub_mfg_profile');
+                const parsed = localMfg ? JSON.parse(localMfg) : null;
+                const updatedProfile = parsed 
+                  ? { ...parsed, tier: tier } 
+                  : { tier: tier };
+                setCompanyProfile(updatedProfile);
+                localStorage.setItem('iranbimhub_mfg_profile', JSON.stringify(updatedProfile));
+                
+                // Also trigger a window reload or custom event to keep states in sync
+                window.dispatchEvent(new CustomEvent('mfg-profile-updated', { detail: updatedProfile }));
+              }
+            }}
+          />
+        );
+
       default:
         return (
           <div className="max-w-xl mx-auto py-16 px-4 text-center">
@@ -635,6 +689,9 @@ const MainAppContent: React.FC = () => {
         {/* Categories / Catalog */}
         <button
           onClick={() => {
+            if (currentView !== 'categories') {
+              navigateTo('categories');
+            }
             const event = new CustomEvent('toggle-categories-menu');
             window.dispatchEvent(event);
           }}

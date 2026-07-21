@@ -40,7 +40,11 @@ import {
   Filter,
   Check,
   Upload,
-  AlertTriangle
+  AlertTriangle,
+  Users,
+  Lock,
+  Calendar,
+  Edit
 } from 'lucide-react';
 
 interface ManufacturerDashboardProps {
@@ -55,6 +59,7 @@ interface ManufacturerDashboardProps {
   onPublishNewObject: (newObj: BIMObject) => void;
   onSelectObject: (obj: BIMObject) => void;
   onLogout: () => void;
+  onViewBrand?: (mfgId: string) => void;
 }
 
 type MFGTab = 
@@ -63,23 +68,23 @@ type MFGTab =
   | 'catalog'
   | 'subscription'
   | 'analytics'
-  | 'crm'
-  | 'standards'
-  | 'awards'
+  | 'requests'
   | 'approval-chat'
-  | 'notifications'
-  | 'object-requests';
+  | 'notifications';
 
 export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
   companyProfile,
   onPublishNewObject,
   onSelectObject,
-  onLogout
+  onLogout,
+  onViewBrand
 }) => {
   const { language, t, isRtl, formatNumber } = useLanguage();
   const [activeTab, setActiveTab] = useState<MFGTab>('overview');
   const [isSidebarOpenMobile, setIsSidebarOpenMobile] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [profileSubTab, setProfileSubTab] = useState<'info' | 'standards' | 'awards' | 'projects'>('info');
+  const [requestsSubTab, setRequestsSubTab] = useState<'leads' | 'objects'>('leads');
 
   // Listen for custom event to change active tab from Header
   useEffect(() => {
@@ -124,9 +129,57 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
       linkedin: 'https://linkedin.com/company/alupan',
       tier: currentTier,
       verificationDocs: [
-        { id: 'doc-1', nameFa: 'پروانه بهره‌برداری وزارت صمت', nameEn: 'Industrial Operating License', type: 'PDF', status: 'Verified', date: '۱۴۰۴/۰۲/۱۵' },
-        { id: 'doc-2', nameFa: 'گواهینامه تایید صلاحیت فنی مرکز تحقیقات مسکن', nameEn: 'BHRC Quality Certification', type: 'PDF', status: 'Verified', date: '۱۴۰۴/۰۶/۱۰' },
-        { id: 'doc-3', nameFa: 'مالیات بر ارزش افزوده ۱۴۰۴', nameEn: 'VAT Declaration Certificate', type: 'PDF', status: 'Pending', date: '۱۴۰۵/۰۲/۲۸' }
+        { 
+          id: 'doc-gazette', 
+          nameFa: 'روزنامه رسمی کشور (آگهی تأسیس یا آخرین تغییرات)', 
+          nameEn: 'Official Gazette (Registration or Amendments Notice)', 
+          type: 'PDF', 
+          status: 'Pending', 
+          date: '۱۴۰۵/۰۴/۰۱',
+          isGazette: true,
+          description: '',
+          url: 'https://rrk.ir',
+          fileUrl: '',
+          fileName: ''
+        },
+        { 
+          id: 'doc-1', 
+          nameFa: 'پروانه بهره‌برداری وزارت صمت', 
+          nameEn: 'Industrial Operating License', 
+          type: 'PDF', 
+          status: 'Verified', 
+          date: '۱۴۰۴/۰۲/۱۵',
+          description: 'پروانه بهره‌برداری صنایع نوین ساختمانی صادر شده توسط صمت البرز.',
+          url: 'https://mimt.gov.ir',
+          fileUrl: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=400&q=80',
+          fileName: 'MIMT_Industrial_License.pdf'
+        },
+        { 
+          id: 'doc-2', 
+          nameFa: 'گواهینامه تایید صلاحیت فنی مرکز تحقیقات مسکن', 
+          nameEn: 'BHRC Quality Certification', 
+          type: 'PDF', 
+          status: 'Verified', 
+          date: '۱۴۰۴/۰۶/۱۰',
+          description: 'تاییدیه فنی سیستم‌های آلومینیومی دوجداره هافمن آلو-۹۰.',
+          url: 'https://bhrc.ac.ir',
+          fileUrl: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=400&q=80',
+          fileName: 'BHRC_Technical_Certificate.pdf'
+        },
+        { 
+          id: 'doc-3', 
+          nameFa: 'گواهینامه مالیات بر ارزش افزوده سال جاری', 
+          nameEn: 'VAT Registration Certificate', 
+          type: 'PDF', 
+          status: 'Rejected', 
+          date: '۱۴۰۵/۰۲/۲۸',
+          description: 'گواهی ثبت‌نام موقت مالیاتی دوره‌ای.',
+          url: 'https://intamedia.ir',
+          fileUrl: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=400&q=80',
+          fileName: 'VAT_Certificate_1404.pdf',
+          rejectionReasonFa: 'اعتبار گواهی ارزش افزوده بارگذاری شده منقضی شده است. لطفا آخرین تمدیدیه را تمدید و ارسال کنید.',
+          rejectionReasonEn: 'The uploaded VAT certificate has expired. Please upload the latest renewal.'
+        }
       ]
     };
   });
@@ -134,6 +187,10 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
   // Verification document state updates
   const [newDocName, setNewDocName] = useState('');
   const [newDocFile, setNewDocFile] = useState<string | null>(null);
+  const [newDocUrl, setNewDocUrl] = useState('');
+  const [newDocDesc, setNewDocDesc] = useState('');
+  const [newDocFileName, setNewDocFileName] = useState('');
+  const [newDocFileUrl, setNewDocFileUrl] = useState('');
 
   // Products / Catalog State
   const mfgId = 'm1';
@@ -287,21 +344,147 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
   const [newSupportSubject, setNewSupportSubject] = useState('');
   const [newSupportMsg, setNewSupportMsg] = useState('');
 
-  // Brand standards Checklist
+  // Brand standards Checklist with detailed properties
   const [standards, setStandards] = useState([
-    { id: 'std-1', name: 'ISO 9001 (Quality Management)', code: 'ISO-9001', country: 'International', verified: true },
-    { id: 'std-2', name: 'CE Mark (European Conformity)', code: 'CE-AEC', country: 'Europe', verified: true },
-    { id: 'std-3', name: 'نشان استاندارد ملی ایران (INSO)', code: 'INSO-7090', country: 'Iran', verified: true },
-    { id: 'std-4', name: 'گواهینامه فنی مرکز تحقیقات راه، مسکن و شهرسازی', code: 'BHRC-A2', country: 'Iran', verified: false }
+    { 
+      id: 'std-1', 
+      name: 'ISO 9001 (Quality Management)', 
+      code: 'ISO-9001', 
+      country: 'International', 
+      verified: true,
+      description: 'استاندارد جهانی مدیریت سیستم‌های کیفیت و ارزیابی فرایندها.',
+      issueDate: '۱۴۰۲/۰۶/۱۵',
+      validityDate: '۱۴۰۵/۰۶/۱۵',
+      verificationUrl: 'https://www.iso.org',
+      fileName: 'ISO9001_Alupan.pdf',
+      fileUrl: '#'
+    },
+    { 
+      id: 'std-2', 
+      name: 'CE Mark (European Conformity)', 
+      code: 'CE-AEC', 
+      country: 'Europe', 
+      verified: true,
+      description: 'نشان انطباق محصول با استانداردهای بهداشت، ایمنی و حفاظت محیط زیست اروپا.',
+      issueDate: '۱۴۰۳/۰۴/۱۰',
+      validityDate: '۱۴۰۶/۰۴/۱۰',
+      verificationUrl: 'https://ec.europa.eu',
+      fileName: 'CE_Alupan_Facade.pdf',
+      fileUrl: '#'
+    },
+    { 
+      id: 'std-3', 
+      name: 'نشان استاندارد ملی ایران (INSO)', 
+      code: 'INSO-7090', 
+      country: 'Iran', 
+      verified: true,
+      description: 'نشان استاندارد ملی اجباری برای در و پنجره‌های آلومینیومی ساختمان.',
+      issueDate: '۱۴۰۱/۰۹/۲۰',
+      validityDate: '۱۴۰۴/۰۹/۲۰',
+      verificationUrl: 'https://isiri.gov.ir',
+      fileName: 'INSO_7090_License.pdf',
+      fileUrl: '#'
+    },
+    { 
+      id: 'std-4', 
+      name: 'گواهینامه فنی مرکز تحقیقات راه، مسکن و شهرسازی', 
+      code: 'BHRC-A2', 
+      country: 'Iran', 
+      verified: false,
+      description: 'گواهینامه فنی رده کیفیت A2 از مرکز تحقیقات ساختمان برای دوام حرارتی و هوابندی.',
+      issueDate: '۱۴۰۴/۰۱/۰۵',
+      validityDate: '۱۴۰۵/۰۱/۰۵',
+      verificationUrl: 'https://bhrc.ac.ir',
+      fileName: 'BHRC_A2_Facade_Certificate.pdf',
+      fileUrl: '#'
+    }
   ]);
 
-  // Brand Portfolio & Awards Case Studies
+  // Brand Portfolio & Awards Case Studies with full details
   const [portfolioProjects, setPortfolioProjects] = useState([
-    { id: 'p-1', titleFa: 'مجتمع مسکونی رویال الهیه', titleEn: 'Royal Elahiyeh Residences', architect: 'دفتر معماری دلیری', location: 'تهران، الهیه', year: '۱۴۰۳' },
-    { id: 'p-2', titleFa: 'برج باغ نیاوران', titleEn: 'Niavaran Garden Tower', architect: 'مهندس فرزاد دلیری', location: 'تهران، نیاوران', year: '۱۴۰۴' }
+    { 
+      id: 'p-1', 
+      titleFa: 'رتبه نخست مسابقه ملی طراحی و نمای آلومینیوم ایران', 
+      titleEn: '1st Place in Iranian Aluminum Facade Design Award', 
+      architect: 'دفتر معماری دلیری / همکاران', 
+      location: 'تهران، الهیه', 
+      year: '۱۴۰۳',
+      description: 'کسب عنوان برترین نماساز با محصول سری آلو-۹۰ در مسابقات سالانه.',
+      fileName: 'Facade_Award_Certificate_1403.pdf',
+      fileUrl: '#'
+    },
+    { 
+      id: 'p-2', 
+      titleFa: 'تندیس زرین برند محبوب سال در صنعت در و پنجره', 
+      titleEn: 'Golden Statue of Popular Brand of the Year', 
+      architect: 'صنایع ساختمانی ایران', 
+      location: 'تهران، مرکز همایش‌ها', 
+      year: '۱۴۰۴',
+      description: 'انتخاب مردمی و مهندسی برند برتر تولیدکننده پروفیل اختصاصی.',
+      fileName: 'Popular_Brand_Statue_1404.pdf',
+      fileUrl: '#'
+    }
   ]);
-  const [newProjectTitle, setNewProjectTitle] = useState('');
-  const [newProjectArch, setNewProjectArch] = useState('');
+
+  // Brand Projects
+  const [projects, setProjects] = useState([
+    { 
+      id: 'proj-1', 
+      titleFa: 'مجتمع تجاری اداری روشا تهران', 
+      titleEn: 'Rosha Department Store Tehran', 
+      architect: 'مهندس محمدرضا نیکبخت', 
+      location: 'تهران، نیاوران', 
+      year: '۱۴۰۲',
+      description: 'اجرای نمای شیشه‌ای و کرتین‌وال آلومینیومی با مقاطع اختصاصی آلوپن.',
+      fileName: 'Rosha_Project_Brief.pdf',
+      fileUrl: '#'
+    },
+    { 
+      id: 'proj-2', 
+      titleFa: 'برج آرمیتاژ گلشن مشهد', 
+      titleEn: 'Armitage Golshan Tower Mashhad', 
+      architect: 'دفتر فنی آرمیتاژ', 
+      location: 'مشهد، هفت تیر', 
+      year: '۱۴۰۳',
+      description: 'پوشش کامل پنجره‌های ترمال‌بریک کشویی و لولایی با ضریب عایق بسیار بالا.',
+      fileName: 'Armitage_Tower_SpecSheet.pdf',
+      fileUrl: '#'
+    }
+  ]);
+
+  // Form states for Standards
+  const [newStdName, setNewStdName] = useState('');
+  const [newStdCode, setNewStdCode] = useState('');
+  const [newStdCountry, setNewStdCountry] = useState('');
+  const [newStdUrl, setNewStdUrl] = useState('');
+  const [newStdDesc, setNewStdDesc] = useState('');
+  const [newStdIssueDate, setNewStdIssueDate] = useState('');
+  const [newStdValidityDate, setNewStdValidityDate] = useState('');
+  const [newStdFileName, setNewStdFileName] = useState('');
+  const [newStdFileUrl, setNewStdFileUrl] = useState('');
+  const [editingStdId, setEditingStdId] = useState<string | null>(null);
+
+  // Form states for Awards
+  const [newAwardTitle, setNewAwardTitle] = useState('');
+  const [newAwardTitleEn, setNewAwardTitleEn] = useState('');
+  const [newAwardArch, setNewAwardArch] = useState('');
+  const [newAwardLocation, setNewAwardLocation] = useState('');
+  const [newAwardYear, setNewAwardYear] = useState('');
+  const [newAwardDesc, setNewAwardDesc] = useState('');
+  const [newAwardFileName, setNewAwardFileName] = useState('');
+  const [newAwardFileUrl, setNewAwardFileUrl] = useState('');
+  const [editingAwardId, setEditingAwardId] = useState<string | null>(null);
+
+  // Form states for Projects
+  const [newProjTitle, setNewProjTitle] = useState('');
+  const [newProjTitleEn, setNewProjTitleEn] = useState('');
+  const [newProjArch, setNewProjArch] = useState('');
+  const [newProjLocation, setNewProjLocation] = useState('');
+  const [newProjYear, setNewProjYear] = useState('');
+  const [newProjDesc, setNewProjDesc] = useState('');
+  const [newProjFileName, setNewProjFileName] = useState('');
+  const [newProjFileUrl, setNewProjFileUrl] = useState('');
+  const [editingProjId, setEditingProjId] = useState<string | null>(null);
 
   // ADD PRODUCT WIZARD STATE
   const [wizardStep, setWizardStep] = useState<1 | 2 | 3>(1);
@@ -362,7 +545,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
   }, [brandInfo.descFa]);
 
   const isDocsCompleted = useMemo(() => {
-    return !!(brandInfo.verificationDocs && brandInfo.verificationDocs.length > 0);
+    return !!(brandInfo.verificationDocs && brandInfo.verificationDocs.some(doc => doc.status === 'Verified' || doc.fileUrl));
   }, [brandInfo.verificationDocs]);
 
   const isProductCompleted = useMemo(() => {
@@ -491,8 +674,12 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
       nameFa: newDocName,
       nameEn: 'Supplementary Verification File',
       type: 'PDF',
-      status: 'Pending',
-      date: isRtl ? '۱۴۰۵/۰۴/۰۱' : '2026-07-01'
+      status: 'Pending' as const,
+      date: isRtl ? '۱۴۰۵/۰۴/۰۱' : '2026-07-01',
+      url: newDocUrl || undefined,
+      description: newDocDesc || undefined,
+      fileUrl: newDocFileUrl || undefined,
+      fileName: newDocFileName || undefined
     };
 
     setBrandInfo(prev => ({
@@ -501,31 +688,162 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
     }));
 
     setNewDocName('');
+    setNewDocUrl('');
+    setNewDocDesc('');
+    setNewDocFileName('');
+    setNewDocFileUrl('');
     alert(isRtl ? 'سند رسمی جهت راستی‌آزمایی بارگذاری شد.' : 'Verification documentation uploaded successfully.');
   };
 
-  // Add brand portfolio project
-  const handleAddPortfolio = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newProjectTitle.trim()) return;
-
-    const newProj = {
-      id: `p-${Math.random().toString(36).substring(2, 6)}`,
-      titleFa: newProjectTitle,
-      titleEn: 'AEC Case Study Installation',
-      architect: newProjectArch || 'آرشیتکت معاصر',
-      location: isRtl ? 'تهران' : 'Tehran',
-      year: '۱۴۰۵'
-    };
-
-    setPortfolioProjects(prev => [...prev, newProj]);
-    setNewProjectTitle('');
-    setNewProjectArch('');
-    alert(isRtl ? 'نمونه پروژه اجرایی برند ثبت شد.' : 'Portfolio study logged.');
+  const handleUpdateDocumentDetails = (docId: string, updates: Partial<any>) => {
+    setBrandInfo(prev => ({
+      ...prev,
+      verificationDocs: prev.verificationDocs.map(doc => {
+        if (doc.id === docId) {
+          return {
+            ...doc,
+            ...updates,
+            status: 'Pending' as const
+          };
+        }
+        return doc;
+      })
+    }));
   };
 
-  // Public Preview Visitor Modal State
-  const [showPublicPreview, setShowPublicPreview] = useState(false);
+  // Standards CRUD Handlers
+  const handleAddStandard = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (brandInfo.tier === 'Free') {
+      alert(isRtl ? 'افزودن استاندارد جدید ویژه اشتراک‌های Premium و VIP است.' : 'Adding a new standard is only available for Premium and VIP subscribers.');
+      return;
+    }
+    if (!newStdName.trim()) return;
+
+    const newStd = {
+      id: `std-${Math.random().toString(36).substring(2, 6)}`,
+      name: newStdName,
+      code: newStdCode || 'N/A',
+      country: newStdCountry || 'Iran',
+      verified: false,
+      description: newStdDesc,
+      issueDate: newStdIssueDate,
+      validityDate: newStdValidityDate,
+      verificationUrl: newStdUrl,
+      fileName: newStdFileName,
+      fileUrl: newStdFileUrl || '#'
+    };
+
+    setStandards(prev => [...prev, newStd]);
+    setNewStdName('');
+    setNewStdCode('');
+    setNewStdCountry('');
+    setNewStdUrl('');
+    setNewStdDesc('');
+    setNewStdIssueDate('');
+    setNewStdValidityDate('');
+    setNewStdFileName('');
+    setNewStdFileUrl('');
+    alert(isRtl ? 'استاندارد جدید با موفقیت ثبت شد و در وضعیت بررسی قرار گرفت.' : 'New standard added successfully and is under review.');
+  };
+
+  const handleEditStandard = (id: string, updatedFields: Partial<typeof standards[0]>) => {
+    setStandards(prev => prev.map(std => std.id === id ? { ...std, ...updatedFields } : std));
+  };
+
+  const handleDeleteStandard = (id: string) => {
+    if (confirm(isRtl ? 'آیا از حذف این استاندارد اطمینان دارید؟' : 'Are you sure you want to delete this standard?')) {
+      setStandards(prev => prev.filter(std => std.id !== id));
+    }
+  };
+
+  // Awards CRUD Handlers
+  const handleAddAward = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (brandInfo.tier === 'Free') {
+      alert(isRtl ? 'افزودن افتخار جدید ویژه اشتراک‌های Premium و VIP است.' : 'Adding a new award is only available for Premium and VIP subscribers.');
+      return;
+    }
+    if (!newAwardTitle.trim()) return;
+
+    const newAward = {
+      id: `p-${Math.random().toString(36).substring(2, 6)}`,
+      titleFa: newAwardTitle,
+      titleEn: newAwardTitleEn || 'Award Case',
+      architect: newAwardArch || 'N/A',
+      location: newAwardLocation || 'Iran',
+      year: newAwardYear || '۱۴۰۵',
+      description: newAwardDesc,
+      fileName: newAwardFileName,
+      fileUrl: newAwardFileUrl || '#'
+    };
+
+    setPortfolioProjects(prev => [...prev, newAward]);
+    setNewAwardTitle('');
+    setNewAwardTitleEn('');
+    setNewAwardArch('');
+    setNewAwardLocation('');
+    setNewAwardYear('');
+    setNewAwardDesc('');
+    setNewAwardFileName('');
+    setNewAwardFileUrl('');
+    alert(isRtl ? 'افتخار جدید با موفقیت ثبت شد.' : 'New award registered successfully.');
+  };
+
+  const handleEditAward = (id: string, updatedFields: Partial<typeof portfolioProjects[0]>) => {
+    setPortfolioProjects(prev => prev.map(award => award.id === id ? { ...award, ...updatedFields } : award));
+  };
+
+  const handleDeleteAward = (id: string) => {
+    if (confirm(isRtl ? 'آیا از حذف این افتخار اطمینان دارید؟' : 'Are you sure you want to delete this award?')) {
+      setPortfolioProjects(prev => prev.filter(award => award.id !== id));
+    }
+  };
+
+  // Projects CRUD Handlers
+  const handleAddProject = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (brandInfo.tier === 'Free') {
+      alert(isRtl ? 'افزودن پروژه جدید ویژه اشتراک‌های Premium و VIP است.' : 'Adding a new project is only available for Premium and VIP subscribers.');
+      return;
+    }
+    if (!newProjTitle.trim()) return;
+
+    const newProj = {
+      id: `proj-${Math.random().toString(36).substring(2, 6)}`,
+      titleFa: newProjTitle,
+      titleEn: newProjTitleEn || 'AEC Case Study',
+      architect: newProjArch || 'N/A',
+      location: newProjLocation || 'Iran',
+      year: newProjYear || '۱۴۰۵',
+      description: newProjDesc,
+      fileName: newProjFileName,
+      fileUrl: newProjFileUrl || '#'
+    };
+
+    setProjects(prev => [...prev, newProj]);
+    setNewProjTitle('');
+    setNewProjTitleEn('');
+    setNewProjArch('');
+    setNewProjLocation('');
+    setNewProjYear('');
+    setNewProjDesc('');
+    setNewProjFileName('');
+    setNewProjFileUrl('');
+    alert(isRtl ? 'پروژه جدید با موفقیت ثبت شد.' : 'New project registered successfully.');
+  };
+
+  const handleEditProject = (id: string, updatedFields: Partial<typeof projects[0]>) => {
+    setProjects(prev => prev.map(p => p.id === id ? { ...p, ...updatedFields } : p));
+  };
+
+  const handleDeleteProject = (id: string) => {
+    if (confirm(isRtl ? 'آیا از حذف این پروژه اطمینان دارید؟' : 'Are you sure you want to delete this project?')) {
+      setProjects(prev => prev.filter(p => p.id !== id));
+    }
+  };
+
+
 
   // Filter products catalog
   const filteredCatalog = useMemo(() => {
@@ -604,21 +922,14 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                 activeTab={activeTab} 
                 onSelectTab={(tab) => {
                   setActiveTab(tab);
+                  if (tab === 'profile') setProfileSubTab('info');
+                  if (tab === 'requests') setRequestsSubTab('leads');
                   setIsSidebarOpenMobile(false);
                 }} 
                 isRtl={isRtl}
                 unansweredLeadsCount={unansweredLeadsCount}
+                onLogout={onLogout}
               />
-            </div>
-
-            <div className="pt-4 border-t border-gray-100 dark:border-gray-800">
-              <button
-                onClick={onLogout}
-                className="w-full flex items-center justify-center gap-2 py-2 bg-rose-50 dark:bg-rose-950/20 text-rose-500 rounded-xl text-xs font-bold cursor-pointer"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>{isRtl ? 'خروج کارفرمایی' : 'B2B Log Out'}</span>
-              </button>
             </div>
           </div>
         </div>
@@ -667,22 +978,16 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
         <div className="flex-1 overflow-y-auto px-3 space-y-1">
           <MfgSidebarNavList 
             activeTab={activeTab} 
-            onSelectTab={setActiveTab} 
+            onSelectTab={(tab) => {
+              setActiveTab(tab);
+              if (tab === 'profile') setProfileSubTab('info');
+              if (tab === 'requests') setRequestsSubTab('leads');
+            }} 
             isRtl={isRtl}
             unansweredLeadsCount={unansweredLeadsCount}
             collapsed={isSidebarCollapsed}
+            onLogout={onLogout}
           />
-        </div>
-
-        {/* Footer actions */}
-        <div className="p-3 border-t border-gray-100 dark:border-gray-800">
-          <button
-            onClick={onLogout}
-            className={`w-full flex items-center gap-2.5 py-2.5 bg-rose-50 dark:bg-rose-950/10 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-950/30 rounded-xl text-xs font-bold transition-all cursor-pointer ${isSidebarCollapsed ? 'justify-center' : 'px-3'}`}
-          >
-            <LogOut className="w-4 h-4 shrink-0" />
-            {!isSidebarCollapsed && <span>{isRtl ? 'خروج' : 'Exit Panel'}</span>}
-          </button>
         </div>
       </div>
 
@@ -713,7 +1018,13 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                 </div>
 
                 <button 
-                  onClick={() => setShowPublicPreview(true)}
+                  onClick={() => {
+                    if (typeof window !== 'undefined' && (window as any).onNavigateToView) {
+                      (window as any).onNavigateToView('brand', mfgId);
+                    } else if (onViewBrand) {
+                      onViewBrand(mfgId);
+                    }
+                  }}
                   className="bg-white/10 hover:bg-white/20 text-white border border-white/10 px-4.5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer"
                 >
                   <Eye className="w-4 h-4" />
@@ -917,7 +1228,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
             )}
 
             {/* KPI Cards Board */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
               <div className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-1.5 shadow-2xs">
                 <div className="flex justify-between items-center text-gray-400 text-[10px] font-bold uppercase tracking-wider">
                   <span>{isRtl ? 'کل بازدید کاتالوگ' : 'Total Catalog Views'}</span>
@@ -962,6 +1273,39 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                   {isRtl ? 'تایید هویت شده' : 'Identity Verified'}
                 </span>
               </div>
+
+              <div className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-2.5 shadow-2xs relative flex flex-col justify-between">
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center text-gray-400 text-[10px] font-bold uppercase tracking-wider">
+                    <span>{isRtl ? 'دنبال‌کنندگان برند' : 'Brand Followers'}</span>
+                    <Users className="w-4 h-4 text-[#26B6B6]" />
+                  </div>
+                  <span className="block text-2xl font-black font-mono text-gray-800 dark:text-white">۱۴۲</span>
+                  <span className="text-[9px] text-emerald-500 font-bold flex items-center gap-1">
+                    <TrendingUp className="w-3 h-3" />
+                    <span>{isRtl ? 'رشد ۸٪ این ماه' : '+8% growth'}</span>
+                  </span>
+                </div>
+                
+                <button
+                  onClick={() => {
+                    if ((window as any).onNavigateToView) {
+                      (window as any).onNavigateToView('payment', 'mfg-vip');
+                    }
+                  }}
+                  className="w-full flex items-center justify-center gap-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-gray-800/50 dark:hover:bg-gray-800 border border-slate-100 dark:border-gray-700/80 rounded-xl text-[9px] font-bold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 cursor-pointer group relative"
+                >
+                  <Lock className="w-3 h-3 text-amber-500 shrink-0" />
+                  <span>{isRtl ? 'مشاهده لیست' : 'View Follower List'}</span>
+                  
+                  {/* Tooltip on hover */}
+                  <div className="absolute bottom-full mb-2 hidden group-hover:block w-48 p-2 bg-slate-950 text-white text-[8px] rounded-lg shadow-xl z-50 text-center font-normal leading-normal">
+                    {isRtl 
+                      ? 'این قابلیت به‌زودی برای اعضای اشتراک ویژه فعال می‌شود' 
+                      : 'This feature will be available soon for premium subscribers'}
+                  </div>
+                </button>
+              </div>
             </div>
 
             {/* Attention Center & Forecast Widget */}
@@ -983,7 +1327,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                           {isRtl ? `شما تعداد ${unansweredLeadsCount} پیام معلق پاسخ داده نشده از معماران دارید.` : `You have ${unansweredLeadsCount} unresolved leads from architects.`}
                         </span>
                       </div>
-                      <button onClick={() => setActiveTab('crm')} className="text-xs text-[#26B6B6] hover:underline font-bold shrink-0">{isRtl ? 'پاسخ‌دهی' : 'Reply'}</button>
+                      <button onClick={() => { setActiveTab('requests'); setRequestsSubTab('leads'); }} className="text-xs text-[#26B6B6] hover:underline font-bold shrink-0">{isRtl ? 'پاسخ‌دهی' : 'Reply'}</button>
                     </div>
                   )}
 
@@ -1004,7 +1348,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                       <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
                       <span className="text-gray-700 dark:text-gray-300">{isRtl ? 'کلیه گواهی‌های استاندارد نما با کیفیت بالا فعال است.' : 'All system compliance certifications are fully active.'}</span>
                     </div>
-                    <button onClick={() => setActiveTab('standards')} className="text-xs text-[#26B6B6] hover:underline font-bold shrink-0">{isRtl ? 'مشاهده' : 'View'}</button>
+                    <button onClick={() => { setActiveTab('profile'); setProfileSubTab('standards'); }} className="text-xs text-[#26B6B6] hover:underline font-bold shrink-0">{isRtl ? 'مشاهده' : 'View'}</button>
                   </div>
                 </div>
               </div>
@@ -1047,26 +1391,115 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
         {/* BRAND PROFILE TAB */}
         {activeTab === 'profile' && (
           <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-6 space-y-8 animate-fadeIn">
-            <div>
-              <h2 className="text-sm font-bold text-gray-800 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-3">
-                <Building className="w-5 h-5 text-[#26B6B6]" />
-                <span>{isRtl ? 'مشخصات رسمی و حقوقی برند کارخانه' : 'B2B Brand Profile & Verification'}</span>
-              </h2>
-              <p className="text-[11px] text-gray-400 mt-1">
-                {isRtl ? 'تصویر لوگو، کاتالوگ‌های چاپی، شبکه‌های اجتماعی و اسناد شرکت برای جلب اعتماد معماران ساختمانی.' : 'Manage public presentation specs, company registration files and website links.'}
-              </p>
+            {/* Secondary Tab Bar (pill-style) */}
+            <div className="flex gap-2 border-b border-gray-100 dark:border-gray-800 pb-4 mb-6 overflow-x-auto scrollbar-none text-start">
+              <button
+                type="button"
+                onClick={() => setProfileSubTab('info')}
+                className={`px-4.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+                  profileSubTab === 'info'
+                    ? 'bg-[#26B6B6]/10 text-[#26B6B6] ring-1 ring-[#26B6B6]/20'
+                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-slate-50 dark:hover:bg-gray-800/50'
+                }`}
+              >
+                <Building className="w-4 h-4" />
+                <span>{isRtl ? 'اطلاعات برند' : 'Brand Info'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setProfileSubTab('standards')}
+                className={`px-4.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+                  profileSubTab === 'standards'
+                    ? 'bg-[#26B6B6]/10 text-[#26B6B6] ring-1 ring-[#26B6B6]/20'
+                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-slate-50 dark:hover:bg-gray-800/50'
+                }`}
+              >
+                <ShieldCheck className="w-4 h-4" />
+                <span>{isRtl ? 'گواهی‌ها و استانداردها' : 'Certifications & Standards'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setProfileSubTab('awards')}
+                className={`px-4.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+                  profileSubTab === 'awards'
+                    ? 'bg-[#26B6B6]/10 text-[#26B6B6] ring-1 ring-[#26B6B6]/20'
+                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-slate-50 dark:hover:bg-gray-800/50'
+                }`}
+              >
+                <Award className="w-4 h-4" />
+                <span>{isRtl ? 'افتخارات و نشان‌ها' : 'Awards & Honors'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setProfileSubTab('projects')}
+                className={`px-4.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+                  profileSubTab === 'projects'
+                    ? 'bg-[#26B6B6]/10 text-[#26B6B6] ring-1 ring-[#26B6B6]/20'
+                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-slate-50 dark:hover:bg-gray-800/50'
+                }`}
+              >
+                <Briefcase className="w-4 h-4" />
+                <span>{isRtl ? 'پروژه‌های اجرایی' : 'Projects'}</span>
+              </button>
             </div>
+
+            {profileSubTab === 'info' && (
+              <div className="space-y-8 animate-fadeIn text-start">
+                <div>
+                  <h2 className="text-sm font-bold text-gray-800 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-3">
+                    <Building className="w-5 h-5 text-[#26B6B6]" />
+                    <span>{isRtl ? 'مشخصات رسمی و حقوقی برند کارخانه' : 'B2B Brand Profile & Verification'}</span>
+                  </h2>
+                  <p className="text-[11px] text-gray-400 mt-1">
+                    {isRtl ? 'تصویر لوگو، کاتالوگ‌های چاپی، شبکه‌های اجتماعی و اسناد شرکت برای جلب اعتماد معماران ساختمانی.' : 'Manage public presentation specs, company registration files and website links.'}
+                  </p>
+                </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Left Column: Logos & Covers previews */}
               <div className="space-y-6">
                 {/* Logo Section */}
                 <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-gray-500 uppercase block">{isRtl ? 'لوگو برند چاپی' : 'Company Logo'}</label>
+                  <div className="flex items-center gap-1.5">
+                    <label className="text-[11px] font-bold text-gray-500 uppercase block">{isRtl ? 'لوگو برند چاپی' : 'Company Logo'}</label>
+                    <div className="relative group cursor-help inline-block">
+                      <span className="text-[#26B6B6] font-bold text-xs hover:scale-110 transition-transform select-none">ⓘ</span>
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-64 p-3 bg-slate-900/95 dark:bg-gray-950 border border-slate-800 text-white text-[10px] rounded-xl shadow-xl z-50 leading-relaxed font-normal">
+                        {isRtl 
+                          ? 'فرمت PNG با پس‌زمینه شفاف، حداقل ۵۱۲×۵۱۲ پیکسل، حداکثر ۲ مگابایت' 
+                          : 'PNG format with transparent background, minimum 512×512px, max 2MB'}
+                      </div>
+                    </div>
+                  </div>
                   <div className="flex items-center gap-4">
-                    <img src={brandInfo.logoUrl} alt="logo" className="w-16 h-16 rounded-xl object-cover border border-gray-100" />
+                    <img src={brandInfo.logoUrl} alt="logo" className="w-16 h-16 rounded-xl object-cover border border-gray-100 dark:border-gray-800" />
+                    <input 
+                      type="file" 
+                      id="logo-upload-input"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        if (!file.type.startsWith('image/')) {
+                          alert(isRtl ? 'خطا: فایل انتخابی باید تصویر باشد.' : 'Error: Selected file must be an image.');
+                          return;
+                        }
+                        if (file.size > 2 * 1024 * 1024) {
+                          alert(isRtl ? 'خطا: حجم لوگو نباید بیشتر از ۲ مگابایت باشد.' : 'Error: Logo size must not exceed 2MB.');
+                          return;
+                        }
+                        const localUrl = URL.createObjectURL(file);
+                        setBrandInfo(prev => ({ ...prev, logoUrl: localUrl }));
+                        // Backend Integration Spot:
+                        // Connect to Firestore/Firebase Storage here to upload the logo
+                        // e.g. uploadBytes(ref(storage, `logos/${file.name}`), file)
+                        console.log("Logo updated with local url:", localUrl, "File details:", file.name);
+                      }}
+                    />
                     <button 
-                      onClick={() => alert(isRtl ? 'شبیه‌ساز بارگذاری عکس با موفقیت اجرا شد' : 'Simulated photo uploader triggered')} 
+                      type="button"
+                      onClick={() => document.getElementById('logo-upload-input')?.click()} 
                       className="text-xs bg-slate-50 hover:bg-slate-100 dark:bg-gray-800 border border-slate-100 dark:border-gray-700 py-1.5 px-3 rounded-lg cursor-pointer"
                     >
                       {isRtl ? 'بارگذاری لوگو جدید' : 'Change logo'}
@@ -1076,11 +1509,46 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
 
                 {/* Cover Section */}
                 <div className="space-y-2">
-                  <label className="text-[11px] font-bold text-gray-500 uppercase block">{isRtl ? 'تصویر کاور هدر پروفایل' : 'Profile Cover Photo'}</label>
-                  <img src={brandInfo.coverUrl} alt="cover" className="w-full h-24 rounded-xl object-cover border border-gray-100" />
+                  <div className="flex items-center gap-1.5">
+                    <label className="text-[11px] font-bold text-gray-500 uppercase block">{isRtl ? 'تصویر کاور هدر پروفایل' : 'Profile Cover Photo'}</label>
+                    <div className="relative group cursor-help inline-block">
+                      <span className="text-[#26B6B6] font-bold text-xs hover:scale-110 transition-transform select-none">ⓘ</span>
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-64 p-3 bg-slate-900/95 dark:bg-gray-950 border border-slate-800 text-white text-[10px] rounded-xl shadow-xl z-50 leading-relaxed font-normal">
+                        {isRtl 
+                          ? 'فرمت JPG یا PNG، حداقل عرض ۱۲۰۰ پیکسل، نسبت تصویر ۳:۱ (پهن)، حداکثر ۵ مگابایت' 
+                          : 'JPG or PNG format, minimum 1200px width, 3:1 wide aspect ratio, max 5MB'}
+                      </div>
+                    </div>
+                  </div>
+                  <img src={brandInfo.coverUrl} alt="cover" className="w-full h-24 rounded-xl object-cover border border-gray-100 dark:border-gray-800" />
+                  <input 
+                    type="file" 
+                    id="cover-upload-input"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      if (!file.type.startsWith('image/')) {
+                        alert(isRtl ? 'خطا: فایل انتخابی باید تصویر باشد.' : 'Error: Selected file must be an image.');
+                        return;
+                      }
+                      if (file.size > 5 * 1024 * 1024) {
+                        alert(isRtl ? 'خطا: حجم تصویر کاور هدر نباید بیشتر از ۵ مگابایت باشد.' : 'Error: Cover image size must not exceed 5MB.');
+                        return;
+                      }
+                      const localUrl = URL.createObjectURL(file);
+                      setBrandInfo(prev => ({ ...prev, coverUrl: localUrl }));
+                      // Backend Integration Spot:
+                      // Connect to Firestore/Firebase Storage here to upload the cover photo
+                      // e.g. uploadBytes(ref(storage, `covers/${file.name}`), file)
+                      console.log("Cover image updated with local url:", localUrl, "File details:", file.name);
+                    }}
+                  />
                   <button 
-                    onClick={() => alert(isRtl ? 'بارگذاری تصویر کاور هدر برند' : 'Simulating cover image update')} 
-                    className="text-xs text-[#26B6B6] hover:underline"
+                    type="button"
+                    onClick={() => document.getElementById('cover-upload-input')?.click()} 
+                    className="text-xs text-[#26B6B6] hover:underline cursor-pointer"
                   >
                     {isRtl ? 'تعویض تصویر هدر...' : 'Change cover image'}
                   </button>
@@ -1131,44 +1599,293 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                 </div>
 
                 {/* Verification Documents Upload */}
-                <div className="border-t border-gray-100 dark:border-gray-800 pt-6 space-y-4">
-                  <h4 className="text-xs font-bold text-gray-700 dark:text-gray-200">{isRtl ? 'مدارک و گواهی صلاحیت تجاری جهت تایید هویت' : 'Company Verification Documents'}</h4>
-                  
-                  <div className="space-y-2">
+                <div className="border-t border-gray-100 dark:border-gray-800 pt-6 space-y-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="space-y-0.5 text-start">
+                      <h4 className="text-xs font-bold text-gray-700 dark:text-gray-200">
+                        {isRtl ? 'اسناد رسمی و مدارک احراز صلاحیت کارخانه' : 'Official Credentials & Verification Docs'}
+                      </h4>
+                      <p className="text-[10.5px] text-gray-400">
+                        {isRtl ? 'جهت بررسی هویت حقوقی، تایید برند و صدور دسترسی انتشار فایل‌ها.' : 'For corporate identity verification, brand approval, and BIM catalog release permissions.'}
+                      </p>
+                    </div>
+
+                    {/* Guidelines Tooltip Button */}
+                    <div className="relative group cursor-help self-start sm:self-auto shrink-0">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 rounded-xl text-[10.5px] font-bold hover:bg-slate-100 transition-all select-none">
+                        <HelpCircle className="w-3.5 h-3.5 text-[#26B6B6]" />
+                        <span>{isRtl ? 'راهنمای بارگذاری مدارک' : 'Document Guidelines'}</span>
+                      </span>
+                      <div className="absolute bottom-full right-0 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 mb-2 hidden group-hover:block w-72 p-3.5 bg-slate-900/95 dark:bg-gray-950 border border-slate-800 text-white text-[10.5px] rounded-2xl shadow-xl z-50 leading-relaxed font-normal">
+                        <div className="font-extrabold text-[#26B6B6] mb-1">{isRtl ? 'ضوابط پذیرش اسناد رسمی:' : 'Acceptable Document Guidelines:'}</div>
+                        <p>{isRtl ? '• فرمت مجاز: PDF یا تصاویر اسکن‌شده با فرمت JPG یا PNG' : '• Formats: PDF or high-resolution JPG / PNG scans'}</p>
+                        <p>{isRtl ? '• حداکثر حجم مجاز: ۵ مگابایت برای هر مدرک' : '• Max size: 5MB per document'}</p>
+                        <p>{isRtl ? '• تصویر یا اسکن مدرک ارسالی باید کاملاً خوانا، بدون خط‌خوردگی و با حاشیه کامل باشد.' : '• Scans must be fully legible, uncropped, and free of physical damage.'}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4">
                     {brandInfo.verificationDocs.map(doc => (
-                      <div key={doc.id} className="p-3 bg-slate-50 dark:bg-gray-950 border border-slate-100 dark:border-gray-800 rounded-xl flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-2">
-                          <FileText className="w-4 h-4 text-[#26B6B6]" />
-                          <span className="font-semibold text-gray-700 dark:text-gray-300">{isRtl ? doc.nameFa : doc.nameEn}</span>
+                      <div key={doc.id} className="p-4 bg-slate-50 dark:bg-gray-950/40 border border-slate-100 dark:border-gray-800 rounded-2xl space-y-4 text-xs transition-all hover:shadow-xs">
+                        {/* Hidden File Input just for this doc */}
+                        <input 
+                          type="file" 
+                          id={`file-input-${doc.id}`}
+                          accept=".pdf,image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+                            if (!allowedTypes.includes(file.type)) {
+                              alert(isRtl ? 'خطا: فرمت فایل غیرمجاز است. تنها فایل‌های PDF و تصاویر (JPG/PNG) پذیرفته می‌شوند.' : 'Error: Unsupported format. Only PDF and image files (JPG/PNG) are accepted.');
+                              return;
+                            }
+                            if (file.size > 5 * 1024 * 1024) {
+                              alert(isRtl ? 'خطا: حجم فایل نباید بیشتر از ۵ مگابایت باشد.' : 'Error: File size must not exceed 5MB.');
+                              return;
+                            }
+                            const localUrl = URL.createObjectURL(file);
+                            handleUpdateDocumentDetails(doc.id, {
+                              fileName: file.name,
+                              fileUrl: localUrl,
+                              date: isRtl ? '۱۴۰۵/۰۴/۰۱' : '2026-07-01'
+                            });
+                            alert(isRtl ? `فایل ${file.name} با موفقیت پیوست شد و وضعیت سند به در حال بررسی تغییر یافت.` : `File ${file.name} attached successfully. Status set to Pending review.`);
+                          }}
+                        />
+
+                        {/* Top Info Header */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-gray-100/60 dark:border-gray-800/60">
+                          <div className="flex items-start gap-2.5">
+                            <div className="p-2 bg-slate-100 dark:bg-gray-800 text-[#26B6B6] rounded-xl shrink-0 mt-0.5">
+                              <FileText className="w-4 h-4" />
+                            </div>
+                            <div className="text-start">
+                              <h5 className="font-extrabold text-gray-800 dark:text-gray-100">
+                                {isRtl ? doc.nameFa : doc.nameEn}
+                              </h5>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className="text-[10px] text-gray-400 font-mono flex items-center gap-1">
+                                  <Clock className="w-3 h-3" />
+                                  <span>{doc.date}</span>
+                                </span>
+                                {doc.isGazette && (
+                                  <span className="text-[9px] bg-sky-500/10 text-sky-600 dark:text-sky-400 px-2 py-0.5 rounded-full font-bold">
+                                    {isRtl ? 'مدرک پایه الزامی' : 'Required Prerequisite'}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Status Badge */}
+                          <div className="flex items-center gap-2 self-end sm:self-auto">
+                            <span className={`text-[10px] font-extrabold px-3 py-1 rounded-full ${
+                              doc.status === 'Verified' 
+                                ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' 
+                                : doc.status === 'Rejected'
+                                ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 font-black'
+                                : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold'
+                            }`}>
+                              {doc.status === 'Verified' ? (isRtl ? 'تایید شده ✓' : 'Verified ✓') : 
+                               doc.status === 'Rejected' ? (isRtl ? 'رد شده ✗' : 'Rejected ✗') : 
+                               (isRtl ? 'در انتظار تایید ⏳' : 'Pending Review ⏳')}
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <span className="text-[10px] text-gray-400 font-mono">{doc.date}</span>
-                          <span className={`text-[9.5px] font-bold px-2 py-0.5 rounded-full ${
-                            doc.status === 'Verified' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'
-                          }`}>
-                            {doc.status}
-                          </span>
+
+                        {/* Special Explanation Row for Official Gazette */}
+                        {doc.isGazette && (
+                          <div className="p-3 bg-sky-500/5 border border-sky-100 dark:border-sky-950/40 rounded-xl text-start">
+                            <p className="text-[10.5px] text-sky-700/90 dark:text-sky-400 font-light leading-relaxed">
+                              {isRtl 
+                                ? 'ℹ️ آگهی رسمی ثبت شرکت که در روزنامه رسمی کشور منتشر شده است.' 
+                                : 'ℹ️ The official company registration notice published in the national Official Gazette.'}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Custom Rejection Reason Alert Box */}
+                        {doc.status === 'Rejected' && (
+                          <div className="p-3.5 bg-rose-500/5 border border-rose-100 dark:border-rose-950/40 rounded-xl text-start space-y-1">
+                            <div className="text-[11px] font-extrabold text-rose-700 dark:text-rose-400 flex items-center gap-1.5">
+                              <span>⚠️ {isRtl ? 'علت رد صلاحیت سند تجاری:' : 'Rejection Reason Details:'}</span>
+                            </div>
+                            <p className="text-[10.5px] text-rose-600 dark:text-rose-400/90 leading-relaxed font-light">
+                              {isRtl ? (doc.rejectionReasonFa || 'اعتبار زمانی سند منقضی شده است یا کیفیت تصویر خوانا نیست.') : (doc.rejectionReasonEn || 'The quality of the upload is insufficient or the credential period has expired.')}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Custom VAT Expiry Warning Alert Box */}
+                        {doc.id === 'doc-3' && (
+                          <div className="p-3 bg-amber-500/5 border border-amber-100 dark:border-amber-950/40 rounded-xl text-start space-y-0.5">
+                            <p className="text-[10.5px] text-amber-700 dark:text-amber-400 font-medium">
+                              {isRtl 
+                                ? '🔔 زمان تمدید یا ممیزی سالانه این سند فرا رسیده است. لطفاً فایل معتبر جدید را ارسال فرمایید.' 
+                                : '🔔 Annual renewal/auditing period has arrived. Please upload your updated certificate.'}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* File Details & Inline Inputs */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                          {/* Left Details: Attached File info */}
+                          <div className="space-y-2 text-start flex flex-col justify-center">
+                            <span className="text-[10.5px] font-bold text-gray-400 block">{isRtl ? 'فایل ضمیمه‌شده:' : 'Attached File:'}</span>
+                            {doc.fileName ? (
+                              <div className="p-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-2 truncate">
+                                  <FileText className="w-4 h-4 text-[#26B6B6] shrink-0" />
+                                  <span className="text-[10.5px] text-gray-700 dark:text-gray-300 font-mono truncate">{doc.fileName}</span>
+                                </div>
+                                <div className="flex items-center gap-1.5 shrink-0">
+                                  {doc.fileUrl && (
+                                    <a 
+                                      href={doc.fileUrl} 
+                                      target="_blank" 
+                                      rel="noreferrer" 
+                                      className="p-1.5 text-gray-400 hover:text-[#26B6B6] transition-colors"
+                                      title={isRtl ? 'مشاهده سند' : 'View Document'}
+                                    >
+                                      <ExternalLink className="w-3.5 h-3.5" />
+                                    </a>
+                                  )}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUpdateDocumentDetails(doc.id, { fileName: '', fileUrl: '' })}
+                                    className="p-1.5 text-gray-400 hover:text-rose-500 transition-colors cursor-pointer"
+                                    title={isRtl ? 'حذف فایل' : 'Delete File'}
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="py-3 px-4 bg-slate-100/50 dark:bg-gray-900/50 border border-dashed border-gray-200 dark:border-gray-800 rounded-xl text-center text-gray-400 text-[10.5px]">
+                                {isRtl ? 'فایلی بارگذاری نشده است.' : 'No file attached yet.'}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Right Details: Inline Description & Lookup URL fields */}
+                          <div className="space-y-2 text-start">
+                            <span className="text-[10.5px] font-bold text-gray-400 block">{isRtl ? 'اطلاعات تکمیلی:' : 'Supplementary Details:'}</span>
+                            <div className="space-y-2">
+                              <input 
+                                type="text"
+                                placeholder={isRtl ? 'آدرس اینترنتی استعلام مدرک (اختیاری)...' : 'Verification lookup URL (optional)...'}
+                                value={doc.url || ''}
+                                onChange={(e) => handleUpdateDocumentDetails(doc.id, { url: e.target.value })}
+                                className="w-full text-[10.5px] p-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl focus:outline-none"
+                              />
+                              <input 
+                                type="text"
+                                placeholder={isRtl ? 'توضیحات کوتاه یا یادداشت...' : 'Short description or notes...'}
+                                value={doc.description || ''}
+                                onChange={(e) => handleUpdateDocumentDetails(doc.id, { description: e.target.value })}
+                                className="w-full text-[10.5px] p-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl focus:outline-none"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Row action: Trigger file picker */}
+                        <div className="flex justify-end pt-2 border-t border-gray-100/40 dark:border-gray-800/40">
+                          <button
+                            type="button"
+                            onClick={() => document.getElementById(`file-input-${doc.id}`)?.click()}
+                            className="bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800 text-slate-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 text-[10.5px] font-extrabold px-3 py-1.5 rounded-xl cursor-pointer flex items-center gap-1.5 shadow-3xs transition-all hover:scale-102"
+                          >
+                            <Upload className="w-3.5 h-3.5 text-[#26B6B6]" />
+                            <span>{doc.fileName ? (isRtl ? 'جایگزینی فایل ضمیمه' : 'Replace File') : (isRtl ? 'بارگذاری فایل ضمیمه' : 'Upload File')}</span>
+                          </button>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  <form onSubmit={handleVerifyDocumentSubmit} className="flex gap-2">
-                    <input 
-                      type="text" 
-                      required
-                      placeholder={isRtl ? 'نام مدرک جدید (پروانه کسب، گواهی ثبت برند و...)' : 'New legal document name'}
-                      value={newDocName}
-                      onChange={(e) => setNewDocName(e.target.value)}
-                      className="flex-1 text-xs p-2.5 border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl focus:outline-none"
-                    />
-                    <button 
-                      type="submit" 
-                      className="bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shrink-0"
-                    >
-                      {isRtl ? 'بارگذاری سند رسمی' : 'Upload doc'}
-                    </button>
-                  </form>
+                  {/* Add New Custom Document */}
+                  <div className="bg-[#26B6B6]/5 border border-[#26B6B6]/15 rounded-2xl p-4.5 space-y-3 text-start">
+                    <h5 className="text-[11px] font-extrabold text-[#26B6B6]">
+                      {isRtl ? '＋ افزودن سند یا مدرک جدید' : '＋ Add New Credential or Document'}
+                    </h5>
+                    <form onSubmit={handleVerifyDocumentSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <input 
+                          type="text" 
+                          required
+                          placeholder={isRtl ? 'نام سند رسمی (مثلاً: پروانه کسب، گواهی ثبت برند)' : 'Legal document name (e.g. Trademark Cert)'}
+                          value={newDocName}
+                          onChange={(e) => setNewDocName(e.target.value)}
+                          className="w-full text-[10.5px] p-2.5 bg-white dark:bg-gray-900 border border-gray-200/60 dark:border-gray-800 rounded-xl focus:outline-none"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <input 
+                          type="text" 
+                          placeholder={isRtl ? 'لینک استعلام اینترنتی مدرک (اختیاری)' : 'Lookup verification URL (optional)'}
+                          value={newDocUrl}
+                          onChange={(e) => setNewDocUrl(e.target.value)}
+                          className="w-full text-[10.5px] p-2.5 bg-white dark:bg-gray-900 border border-gray-200/60 dark:border-gray-800 rounded-xl focus:outline-none"
+                        />
+                      </div>
+                      <div className="sm:col-span-2 space-y-1">
+                        <textarea 
+                          rows={1}
+                          placeholder={isRtl ? 'توضیحات کوتاه یا یادداشت مربوط به سند ارسالی...' : 'Short description or notes...'}
+                          value={newDocDesc}
+                          onChange={(e) => setNewDocDesc(e.target.value)}
+                          className="w-full text-[10.5px] p-2.5 bg-white dark:bg-gray-900 border border-gray-200/60 dark:border-gray-800 rounded-xl focus:outline-none resize-none"
+                        />
+                      </div>
+
+                      {/* Attach File for New Doc Form */}
+                      <div className="sm:col-span-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
+                        <div className="flex items-center gap-2">
+                          <input 
+                            type="file" 
+                            id="new-doc-file-picker"
+                            accept=".pdf,image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              if (file.size > 5 * 1024 * 1024) {
+                                alert(isRtl ? 'خطا: حجم فایل نباید بیشتر از ۵ مگابایت باشد.' : 'Error: File size must not exceed 5MB.');
+                                return;
+                              }
+                              setNewDocFileName(file.name);
+                              setNewDocFileUrl(URL.createObjectURL(file));
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => document.getElementById('new-doc-file-picker')?.click()}
+                            className="bg-white hover:bg-slate-50 dark:bg-gray-900 text-slate-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 text-[10px] font-bold px-3 py-2 rounded-lg cursor-pointer flex items-center gap-1.5"
+                          >
+                            <Upload className="w-3.5 h-3.5 text-[#26B6B6]" />
+                            <span>{newDocFileName ? (isRtl ? 'تغییر فایل ضمیمه' : 'Change Attached File') : (isRtl ? 'ضمیمه کردن فایل (PDF/عکس)' : 'Attach Document File (PDF/Image)')}</span>
+                          </button>
+                          {newDocFileName && (
+                            <span className="text-[10px] text-gray-500 font-mono truncate max-w-xs block">
+                              ✓ {newDocFileName}
+                            </span>
+                          )}
+                        </div>
+
+                        <button 
+                          type="submit" 
+                          className="bg-[#26B6B6] hover:bg-[#1e9494] text-white text-[10.5px] font-extrabold px-4 py-2 rounded-xl cursor-pointer shadow-xs transition-all hover:scale-102"
+                        >
+                          {isRtl ? 'ثبت و ارسال سند رسمی' : 'Add Legal Credential'}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+
                   <p className="text-[10px] text-gray-400 mt-2.5">
                     {isRtl ? (
                       <span>
@@ -1268,6 +1985,994 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
 
               </div>
             </div>
+          </div>
+        )}
+
+            {profileSubTab === 'standards' && (
+              <div className="space-y-8 animate-fadeIn text-start">
+                <div>
+                  <h2 className="text-sm font-bold text-gray-800 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-3">
+                    <ShieldCheck className="w-5 h-5 text-[#26B6B6]" />
+                    <span>{isRtl ? 'پایش استانداردهای کیفی در سطح کارخانه' : 'Quality Standards & Compliance Certifications'}</span>
+                  </h2>
+                  <p className="text-[11px] text-gray-400 mt-1">
+                    {isRtl ? 'مدیریت و افزودن ایزوها و گواهی‌های استاندارد معتبر ملی و بین‌المللی برند شما.' : 'Link regional structural standards and international ISO ratings to the brand page.'}
+                  </p>
+                </div>
+
+                {/* Standards list */}
+                <div className="space-y-4">
+                  {standards.map(std => {
+                    const isEditing = editingStdId === std.id;
+                    return (
+                      <div key={std.id} className="p-5 bg-slate-50 dark:bg-gray-950/45 border border-slate-100 dark:border-gray-800 rounded-2xl transition-all hover:shadow-xs space-y-4">
+                        {isEditing ? (
+                          /* IN-PLACE EDIT FORM */
+                          <div className="space-y-3.5 text-xs">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'نام استاندارد' : 'Standard Name'}</label>
+                                <input 
+                                  type="text" 
+                                  className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl"
+                                  value={std.name}
+                                  onChange={(e) => handleEditStandard(std.id, { name: e.target.value })}
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'کد یا شناسه گواهینامه' : 'Certificate Code'}</label>
+                                <input 
+                                  type="text" 
+                                  className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl font-mono"
+                                  value={std.code}
+                                  onChange={(e) => handleEditStandard(std.id, { code: e.target.value })}
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'مرجع صادرکننده / کشور' : 'Issuer / Country'}</label>
+                                <input 
+                                  type="text" 
+                                  className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl"
+                                  value={std.country}
+                                  onChange={(e) => handleEditStandard(std.id, { country: e.target.value })}
+                                />
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'تاریخ صدور (شمسی یا میلادی)' : 'Issue Date'}</label>
+                                <input 
+                                  type="text" 
+                                  placeholder="۱۴۰۴/۰۱/۰۱"
+                                  className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl"
+                                  value={std.issueDate || ''}
+                                  onChange={(e) => handleEditStandard(std.id, { issueDate: e.target.value })}
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'تاریخ اعتبار / انقضا' : 'Expiry Date'}</label>
+                                <input 
+                                  type="text" 
+                                  placeholder="۱۴۰۷/۰۱/۰۱"
+                                  className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl"
+                                  value={std.validityDate || ''}
+                                  onChange={(e) => handleEditStandard(std.id, { validityDate: e.target.value })}
+                                />
+                              </div>
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'آدرس اینترنتی استعلام مدرک' : 'Verification Lookup URL'}</label>
+                              <input 
+                                type="text" 
+                                placeholder="https://example.com/verify"
+                                className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl font-mono text-left"
+                                value={std.verificationUrl || ''}
+                                onChange={(e) => handleEditStandard(std.id, { verificationUrl: e.target.value })}
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'توضیحات استاندارد' : 'Standard Description'}</label>
+                              <textarea 
+                                rows={2}
+                                className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl resize-none"
+                                value={std.description || ''}
+                                onChange={(e) => handleEditStandard(std.id, { description: e.target.value })}
+                              />
+                            </div>
+
+                            <div className="flex justify-between items-center pt-2 border-t border-gray-100 dark:border-gray-800">
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteStandard(std.id)}
+                                className="text-rose-500 hover:text-rose-600 font-extrabold flex items-center gap-1 cursor-pointer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                <span>{isRtl ? 'حذف دائمی' : 'Permanently Delete'}</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setEditingStdId(null)}
+                                className="bg-[#26B6B6] text-white text-[10px] font-bold px-4 py-2 rounded-xl cursor-pointer hover:bg-[#1e9494]"
+                              >
+                                {isRtl ? 'ذخیره تغییرات' : 'Save Changes'}
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          /* STANDARD PREVIEW DISPLAY */
+                          <div className="space-y-3.5 text-xs">
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="space-y-1">
+                                <h4 className="font-extrabold text-gray-800 dark:text-gray-100 text-sm">{std.name}</h4>
+                                <div className="flex flex-wrap items-center gap-2 text-gray-400 text-[10px] font-mono">
+                                  <span>ID: {std.code}</span>
+                                  <span>•</span>
+                                  <span>Region: {std.country}</span>
+                                  {(std.issueDate || std.validityDate) && (
+                                    <>
+                                      <span>•</span>
+                                      <span className="flex items-center gap-1">
+                                        <Calendar className="w-3 h-3" />
+                                        <span>{isRtl ? 'اعتبار:' : 'Validity:'} {std.issueDate || 'N/A'} {isRtl ? 'تا' : 'to'} {std.validityDate || 'N/A'}</span>
+                                      </span>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <span className={`text-[9px] font-extrabold px-2.5 py-0.5 rounded-full ${
+                                  std.verified ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                                }`}>
+                                  {std.verified ? (isRtl ? 'تایید شده ✓' : 'Verified ✓') : (isRtl ? 'در حال بررسی ⏳' : 'Under Review ⏳')}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingStdId(std.id)}
+                                  className="p-1.5 bg-white dark:bg-gray-900 hover:bg-slate-100 border rounded-xl text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 cursor-pointer"
+                                  title={isRtl ? 'ویرایش استاندارد' : 'Edit Standard'}
+                                >
+                                  <Edit className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
+
+                            {std.description && (
+                              <p className="text-gray-500 dark:text-gray-400 leading-relaxed bg-white dark:bg-gray-900/40 p-2.5 rounded-xl border border-gray-100/60 dark:border-gray-800/60">
+                                {std.description}
+                              </p>
+                            )}
+
+                            {/* Verification URL link if present */}
+                            {std.verificationUrl && (
+                              <div className="flex items-center gap-1.5 text-[10px] text-[#26B6B6]">
+                                <ExternalLink className="w-3 h-3 shrink-0" />
+                                <span className="font-bold">{isRtl ? 'آدرس استعلام مدرک:' : 'Verification URL:'}</span>
+                                <a href={std.verificationUrl} target="_blank" rel="noreferrer" className="underline truncate font-mono max-w-md">
+                                  {std.verificationUrl}
+                                </a>
+                              </div>
+                            )}
+
+                            {/* Standard Attached Document Section */}
+                            <div className="pt-2.5 border-t border-gray-100/60 dark:border-gray-800/60 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-gray-400 font-bold text-[10px]">{isRtl ? 'سند ضمیمه:' : 'Certificate Doc:'}</span>
+                                {std.fileName ? (
+                                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white dark:bg-gray-900 border border-gray-100 rounded-lg">
+                                    <FileText className="w-3.5 h-3.5 text-[#26B6B6]" />
+                                    <span className="text-[10px] text-gray-700 dark:text-gray-300 font-mono max-w-[200px] truncate">{std.fileName}</span>
+                                    {std.fileUrl && std.fileUrl !== '#' && (
+                                      <a href={std.fileUrl} target="_blank" rel="noreferrer" className="text-[#26B6B6] hover:underline p-0.5">
+                                        <ExternalLink className="w-3 h-3" />
+                                      </a>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <span className="text-[10px] text-gray-400 font-light italic">{isRtl ? 'سندی پیوست نشده است.' : 'No document attached.'}</span>
+                                )}
+                              </div>
+
+                              <div>
+                                <input 
+                                  type="file"
+                                  id={`std-file-input-${std.id}`}
+                                  accept=".pdf,image/*"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
+                                    const localUrl = URL.createObjectURL(file);
+                                    handleEditStandard(std.id, {
+                                      fileName: file.name,
+                                      fileUrl: localUrl
+                                    });
+                                    alert(isRtl ? 'سند استاندارد به این گواهی پیوست شد.' : 'Certificate file attached successfully.');
+                                  }}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => document.getElementById(`std-file-input-${std.id}`)?.click()}
+                                  className="bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800 border rounded-xl text-[10px] px-3 py-1.5 text-gray-700 dark:text-gray-200 cursor-pointer flex items-center gap-1"
+                                >
+                                  <Upload className="w-3.5 h-3.5 text-[#26B6B6]" />
+                                  <span>{std.fileName ? (isRtl ? 'جایگزینی سند' : 'Replace Doc') : (isRtl ? 'بارگذاری سند گواهی' : 'Upload Doc')}</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Form to Add New Standard */}
+                <div className="bg-slate-50 dark:bg-gray-950 p-5 rounded-2xl border border-slate-100 dark:border-gray-800/80 space-y-4">
+                  <h3 className="text-xs font-bold text-gray-800 dark:text-white flex items-center gap-1.5">
+                    <Plus className="w-4 h-4 text-[#26B6B6]" />
+                    <span>{isRtl ? 'ثبت استاندارد یا گواهی جدید برند' : 'Register New Quality Standard'}</span>
+                  </h3>
+
+                  {brandInfo.tier === 'Free' ? (
+                    /* TIER GATED NOTIFICATION */
+                    <div className="p-5 bg-[#26B6B6]/5 border border-dashed border-[#26B6B6]/30 rounded-2xl flex flex-col items-center text-center space-y-3">
+                      <Lock className="w-8 h-8 text-amber-500" />
+                      <div className="space-y-1">
+                        <p className="text-xs font-bold text-gray-800 dark:text-white">
+                          {isRtl ? 'افزودن استاندارد یا افتخار جدید، ویژه اشتراک‌های Premium و VIP است.' : 'Adding a new standard or award is reserved for Premium and VIP tiers.'}
+                        </p>
+                        <p className="text-[10px] text-gray-400">
+                          {isRtl ? 'برای فعال‌سازی و ثبت نامحدود گواهینامه‌های استاندارد، افتخارات و پروژه‌های کارخانه، اشتراک خود را ارتقا دهید.' : 'Upgrade your brand plan to upload quality standards, certificates and portfolio items without limits.'}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if ((window as any).onNavigateToView) {
+                            (window as any).onNavigateToView('payment', 'mfg-vip');
+                          }
+                        }}
+                        className="bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-bold px-5 py-2.5 rounded-xl cursor-pointer transition-all hover:scale-103 shadow-xs"
+                      >
+                        {isRtl ? 'ارتقای اشتراک برند' : 'Upgrade Brand Plan'}
+                      </button>
+                    </div>
+                  ) : (
+                    /* FULL STANDARD FORM */
+                    <form onSubmit={handleAddStandard} className="space-y-4 text-xs">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="space-y-1">
+                          <input 
+                            type="text" 
+                            required
+                            placeholder={isRtl ? 'نام استاندارد (مثال: ISO 14001)' : 'Standard Name (e.g. ISO 14001)'}
+                            value={newStdName}
+                            onChange={(e) => setNewStdName(e.target.value)}
+                            className="w-full p-2.5 border rounded-xl bg-white dark:bg-gray-900"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <input 
+                            type="text" 
+                            placeholder={isRtl ? 'کد گواهی (مثال: ISO-14001-2015)' : 'Certificate Code'}
+                            value={newStdCode}
+                            onChange={(e) => setNewStdCode(e.target.value)}
+                            className="w-full p-2.5 border rounded-xl bg-white dark:bg-gray-900 font-mono"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <input 
+                            type="text" 
+                            placeholder={isRtl ? 'مرجع یا کشور صادرکننده' : 'Country / Issuer'}
+                            value={newStdCountry}
+                            onChange={(e) => setNewStdCountry(e.target.value)}
+                            className="w-full p-2.5 border rounded-xl bg-white dark:bg-gray-900"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <input 
+                            type="text" 
+                            placeholder={isRtl ? 'تاریخ صدور مدرک (مثال: ۱۴۰۴/۰۱/۱۵)' : 'Issue Date (e.g. 2025-04-01)'}
+                            value={newStdIssueDate}
+                            onChange={(e) => setNewStdIssueDate(e.target.value)}
+                            className="w-full p-2.5 border rounded-xl bg-white dark:bg-gray-900"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <input 
+                            type="text" 
+                            placeholder={isRtl ? 'تاریخ انقضا / ممیزی بعدی' : 'Expiry / Audit Date'}
+                            value={newStdValidityDate}
+                            onChange={(e) => setNewStdValidityDate(e.target.value)}
+                            className="w-full p-2.5 border rounded-xl bg-white dark:bg-gray-900"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <input 
+                          type="text" 
+                          placeholder={isRtl ? 'آدرس اینترنتی معتبر جهت استعلام گواهی...' : 'Verification look-up URL...'}
+                          value={newStdUrl}
+                          onChange={(e) => setNewStdUrl(e.target.value)}
+                          className="w-full p-2.5 border rounded-xl bg-white dark:bg-gray-900 font-mono"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <textarea 
+                          rows={2}
+                          placeholder={isRtl ? 'توضیحات کوتاه درباره دامنه کیفیت استاندارد...' : 'Short description regarding standard compliance scope...'}
+                          value={newStdDesc}
+                          onChange={(e) => setNewStdDesc(e.target.value)}
+                          className="w-full p-2.5 border rounded-xl bg-white dark:bg-gray-900 resize-none"
+                        />
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-1">
+                        <div className="flex items-center gap-2">
+                          <input 
+                            type="file" 
+                            id="new-std-file-picker"
+                            accept=".pdf,image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              setNewStdFileName(file.name);
+                              setNewStdFileUrl(URL.createObjectURL(file));
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => document.getElementById('new-std-file-picker')?.click()}
+                            className="bg-white hover:bg-slate-100 border rounded-xl text-[10px] font-bold px-3 py-2 cursor-pointer flex items-center gap-1"
+                          >
+                            <Upload className="w-3.5 h-3.5 text-[#26B6B6]" />
+                            <span>{newStdFileName ? (isRtl ? 'تغییر فایل مدرک' : 'Change Document') : (isRtl ? 'ضمیمه فایل گواهی استاندارد' : 'Attach Certificate File')}</span>
+                          </button>
+                          {newStdFileName && (
+                            <span className="text-[10px] text-gray-500 font-mono truncate max-w-[200px]">✓ {newStdFileName}</span>
+                          )}
+                        </div>
+
+                        <button 
+                          type="submit" 
+                          className="bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-bold px-5 py-2.5 rounded-xl cursor-pointer shadow-xs"
+                        >
+                          {isRtl ? 'ثبت و بارگذاری نهایی استاندارد' : 'Save & Publish Standard'}
+                        </button>
+                      </div>
+                    </form>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {profileSubTab === 'awards' && (
+              <div className="space-y-8 animate-fadeIn text-start">
+                <div>
+                  <h2 className="text-sm font-bold text-gray-800 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-3">
+                    <Award className="w-5 h-5 text-[#26B6B6]" />
+                    <span>{isRtl ? 'افتخارات، نشان‌ها و دستاوردهای برند کارخانه' : 'Brand Awards & National Honors'}</span>
+                  </h2>
+                  <p className="text-[11px] text-gray-400 mt-1">
+                    {isRtl ? 'مدیریت تندیس‌ها، گواهینامه‌های حامی مصرف‌کننده، رتبه‌های برتر جشنواره‌ها و گواهی‌های ثبت اختراع.' : 'Display national awards, design prizes, consumer satisfaction plaques and patents.'}
+                  </p>
+                </div>
+
+                {/* Awards list */}
+                <div className="space-y-4">
+                  {portfolioProjects.map(award => {
+                    const isEditing = editingAwardId === award.id;
+                    return (
+                      <div key={award.id} className="p-5 bg-slate-50 dark:bg-gray-950/45 border border-slate-100 dark:border-gray-800 rounded-2xl transition-all hover:shadow-xs space-y-4">
+                        {isEditing ? (
+                          /* EDIT AWARD FORM */
+                          <div className="space-y-3.5 text-xs">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'عنوان افتخار (فارسی)' : 'Award Title (Persian)'}</label>
+                                <input 
+                                  type="text" 
+                                  className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl"
+                                  value={award.titleFa}
+                                  onChange={(e) => handleEditAward(award.id, { titleFa: e.target.value })}
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'عنوان افتخار (انگلیسی)' : 'Award Title (English)'}</label>
+                                <input 
+                                  type="text" 
+                                  className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl text-left"
+                                  value={award.titleEn}
+                                  onChange={(e) => handleEditAward(award.id, { titleEn: e.target.value })}
+                                />
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'مرجع صادرکننده' : 'Issuer / Architect'}</label>
+                                <input 
+                                  type="text" 
+                                  className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl"
+                                  value={award.architect}
+                                  onChange={(e) => handleEditAward(award.id, { architect: e.target.value })}
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'مکان صادرکننده' : 'Location'}</label>
+                                <input 
+                                  type="text" 
+                                  className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl"
+                                  value={award.location}
+                                  onChange={(e) => handleEditAward(award.id, { location: e.target.value })}
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'سال اخذ' : 'Year'}</label>
+                                <input 
+                                  type="text" 
+                                  className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl"
+                                  value={award.year}
+                                  onChange={(e) => handleEditAward(award.id, { year: e.target.value })}
+                                />
+                              </div>
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'شرح یا جزئیات افتخار' : 'Description'}</label>
+                              <textarea 
+                                rows={2}
+                                className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl resize-none"
+                                value={award.description || ''}
+                                onChange={(e) => handleEditAward(award.id, { description: e.target.value })}
+                              />
+                            </div>
+
+                            <div className="flex justify-between items-center pt-2 border-t border-gray-100 dark:border-gray-800">
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteAward(award.id)}
+                                className="text-rose-500 hover:text-rose-600 font-extrabold flex items-center gap-1 cursor-pointer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                <span>{isRtl ? 'حذف دائمی' : 'Permanently Delete'}</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setEditingAwardId(null)}
+                                className="bg-[#26B6B6] text-white text-[10px] font-bold px-4 py-2 rounded-xl cursor-pointer hover:bg-[#1e9494]"
+                              >
+                                {isRtl ? 'ذخیره تغییرات' : 'Save Changes'}
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          /* AWARD PREVIEW MODE */
+                          <div className="space-y-3.5 text-xs">
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="space-y-1">
+                                <h4 className="font-extrabold text-gray-800 dark:text-gray-100 text-sm">
+                                  {isRtl ? award.titleFa : award.titleEn}
+                                </h4>
+                                <div className="flex flex-wrap items-center gap-2 text-gray-400 text-[10px] font-mono">
+                                  <span>Issuer: {award.architect}</span>
+                                  <span>•</span>
+                                  <span>{award.location}</span>
+                                  <span>•</span>
+                                  <span>Year: {award.year}</span>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingAwardId(award.id)}
+                                  className="p-1.5 bg-white dark:bg-gray-900 hover:bg-slate-100 border rounded-xl text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 cursor-pointer"
+                                  title={isRtl ? 'ویرایش افتخار' : 'Edit Award'}
+                                >
+                                  <Edit className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
+
+                            {award.description && (
+                              <p className="text-gray-500 dark:text-gray-400 leading-relaxed bg-white dark:bg-gray-900/40 p-2.5 rounded-xl border border-gray-100/60 dark:border-gray-800/60">
+                                {award.description}
+                              </p>
+                            )}
+
+                            {/* Award Associated Document */}
+                            <div className="pt-2.5 border-t border-gray-100/60 dark:border-gray-800/60 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-gray-400 font-bold text-[10px]">{isRtl ? 'فایل پیوست:' : 'Attached File:'}</span>
+                                {award.fileName ? (
+                                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white dark:bg-gray-900 border border-gray-100 rounded-lg">
+                                    <FileText className="w-3.5 h-3.5 text-[#26B6B6]" />
+                                    <span className="text-[10px] text-gray-700 dark:text-gray-300 font-mono max-w-[200px] truncate">{award.fileName}</span>
+                                    {award.fileUrl && award.fileUrl !== '#' && (
+                                      <a href={award.fileUrl} target="_blank" rel="noreferrer" className="text-[#26B6B6] hover:underline p-0.5">
+                                        <ExternalLink className="w-3 h-3" />
+                                      </a>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <span className="text-[10px] text-gray-400 font-light italic">{isRtl ? 'سندی پیوست نشده است.' : 'No document attached.'}</span>
+                                )}
+                              </div>
+
+                              <div>
+                                <input 
+                                  type="file"
+                                  id={`award-file-input-${award.id}`}
+                                  accept=".pdf,image/*"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
+                                    const localUrl = URL.createObjectURL(file);
+                                    handleEditAward(award.id, {
+                                      fileName: file.name,
+                                      fileUrl: localUrl
+                                    });
+                                    alert(isRtl ? 'فایل تاییدیه به این افتخار ضمیمه شد.' : 'Document attached to award.');
+                                  }}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => document.getElementById(`award-file-input-${award.id}`)?.click()}
+                                  className="bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800 border rounded-xl text-[10px] px-3 py-1.5 text-gray-700 dark:text-gray-200 cursor-pointer flex items-center gap-1"
+                                >
+                                  <Upload className="w-3.5 h-3.5 text-[#26B6B6]" />
+                                  <span>{award.fileName ? (isRtl ? 'جایگزینی سند' : 'Replace Doc') : (isRtl ? 'بارگذاری سند افتخار' : 'Upload Doc')}</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Add New Award Form */}
+                <div className="bg-slate-50 dark:bg-gray-950 p-5 rounded-2xl border border-slate-100 dark:border-gray-800/80 space-y-4">
+                  <h3 className="text-xs font-bold text-gray-800 dark:text-white flex items-center gap-1.5">
+                    <Plus className="w-4 h-4 text-[#26B6B6]" />
+                    <span>{isRtl ? 'ثبت رکورد افتخار یا مدال جدید برند' : 'Register New Brand Award'}</span>
+                  </h3>
+
+                  {brandInfo.tier === 'Free' ? (
+                    <div className="p-5 bg-[#26B6B6]/5 border border-dashed border-[#26B6B6]/30 rounded-2xl flex flex-col items-center text-center space-y-3">
+                      <Lock className="w-8 h-8 text-amber-500" />
+                      <div className="space-y-1">
+                        <p className="text-xs font-bold text-gray-800 dark:text-white">
+                          {isRtl ? 'افزودن استاندارد یا افتخار جدید، ویژه اشتراک‌های Premium و VIP است.' : 'Adding a new standard or award is reserved for Premium and VIP tiers.'}
+                        </p>
+                        <p className="text-[10px] text-gray-400">
+                          {isRtl ? 'برای فعال‌سازی و ثبت نامحدود گواهینامه‌های استاندارد، افتخارات و پروژه‌های کارخانه، اشتراک خود را ارتقا دهید.' : 'Upgrade your brand plan to upload quality standards, certificates and portfolio items without limits.'}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if ((window as any).onNavigateToView) {
+                            (window as any).onNavigateToView('payment', 'mfg-vip');
+                          }
+                        }}
+                        className="bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-bold px-5 py-2.5 rounded-xl cursor-pointer transition-all hover:scale-103 shadow-xs"
+                      >
+                        {isRtl ? 'ارتقای اشتراک برند' : 'Upgrade Brand Plan'}
+                      </button>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleAddAward} className="space-y-4 text-xs">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <input 
+                          type="text" 
+                          required
+                          placeholder={isRtl ? 'عنوان افتخار یا نشان به فارسی (مثال: برند محبوب سال ۱۴۰۳)' : 'Award Title in Persian'}
+                          value={newAwardTitle}
+                          onChange={(e) => setNewAwardTitle(e.target.value)}
+                          className="w-full p-2.5 border rounded-xl bg-white dark:bg-gray-900"
+                        />
+                        <input 
+                          type="text" 
+                          placeholder={isRtl ? 'عنوان افتخار یا نشان به انگلیسی (اختیاری)' : 'Award Title in English (optional)'}
+                          value={newAwardTitleEn}
+                          onChange={(e) => setNewAwardTitleEn(e.target.value)}
+                          className="w-full p-2.5 border rounded-xl bg-white dark:bg-gray-900 text-left"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <input 
+                          type="text" 
+                          placeholder={isRtl ? 'مرجع صادرکننده افتخار' : 'Issuing Organization'}
+                          value={newAwardArch}
+                          onChange={(e) => setNewAwardArch(e.target.value)}
+                          className="w-full p-2.5 border rounded-xl bg-white dark:bg-gray-900"
+                        />
+                        <input 
+                          type="text" 
+                          placeholder={isRtl ? 'مکان صادرکننده (مثال: تهران)' : 'Location'}
+                          value={newAwardLocation}
+                          onChange={(e) => setNewAwardLocation(e.target.value)}
+                          className="w-full p-2.5 border rounded-xl bg-white dark:bg-gray-900"
+                        />
+                        <input 
+                          type="text" 
+                          placeholder={isRtl ? 'سال اخذ نشان (مثال: ۱۴۰۳)' : 'Year'}
+                          value={newAwardYear}
+                          onChange={(e) => setNewAwardYear(e.target.value)}
+                          className="w-full p-2.5 border rounded-xl bg-white dark:bg-gray-900"
+                        />
+                      </div>
+
+                      <textarea 
+                        rows={2}
+                        placeholder={isRtl ? 'جزئیات تکمیلی، دلایل انتخاب یا حوزه کاربری محصولات...' : 'Supplementary details or compliance scope...'}
+                        value={newAwardDesc}
+                        onChange={(e) => setNewAwardDesc(e.target.value)}
+                        className="w-full p-2.5 border rounded-xl bg-white dark:bg-gray-900 resize-none"
+                      />
+
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-1">
+                        <div className="flex items-center gap-2">
+                          <input 
+                            type="file" 
+                            id="new-award-file-picker"
+                            accept=".pdf,image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              setNewAwardFileName(file.name);
+                              setNewAwardFileUrl(URL.createObjectURL(file));
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => document.getElementById('new-award-file-picker')?.click()}
+                            className="bg-white hover:bg-slate-100 border rounded-xl text-[10px] font-bold px-3 py-2 cursor-pointer flex items-center gap-1"
+                          >
+                            <Upload className="w-3.5 h-3.5 text-[#26B6B6]" />
+                            <span>{newAwardFileName ? (isRtl ? 'تغییر فایل تاییدیه' : 'Change Document') : (isRtl ? 'ضمیمه فایل تاییدیه نشان' : 'Attach Supporting Document')}</span>
+                          </button>
+                          {newAwardFileName && (
+                            <span className="text-[10px] text-gray-500 font-mono truncate max-w-[200px]">✓ {newAwardFileName}</span>
+                          )}
+                        </div>
+
+                        <button 
+                          type="submit" 
+                          className="bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-bold px-5 py-2.5 rounded-xl cursor-pointer shadow-xs"
+                        >
+                          {isRtl ? 'ثبت نهایی نشان و افتخار' : 'Publish Award Record'}
+                        </button>
+                      </div>
+                    </form>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {profileSubTab === 'projects' && (
+              <div className="space-y-8 animate-fadeIn text-start">
+                <div>
+                  <h2 className="text-sm font-bold text-gray-800 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-3">
+                    <Briefcase className="w-5 h-5 text-[#26B6B6]" />
+                    <span>{isRtl ? 'پروژه‌های شاخص اجرا شده با محصولات برند شما' : 'Key AEC Reference Projects'}</span>
+                  </h2>
+                  <p className="text-[11px] text-gray-400 mt-1">
+                    {isRtl ? 'مدیریت و افزودن پروژه‌های معروفی که مجهز به محصولات کارخانه‌ای یا بلوک‌های بیم شما شده‌اند.' : 'Showcase major structural design builds equipped with your catalog specification objects.'}
+                  </p>
+                </div>
+
+                {/* Projects list */}
+                <div className="space-y-4">
+                  {projects.map(proj => {
+                    const isEditing = editingProjId === proj.id;
+                    return (
+                      <div key={proj.id} className="p-5 bg-slate-50 dark:bg-gray-950/45 border border-slate-100 dark:border-gray-800 rounded-2xl transition-all hover:shadow-xs space-y-4">
+                        {isEditing ? (
+                          /* EDIT PROJECT FORM */
+                          <div className="space-y-3.5 text-xs">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'نام پروژه (فارسی)' : 'Project Title (Persian)'}</label>
+                                <input 
+                                  type="text" 
+                                  className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl"
+                                  value={proj.titleFa}
+                                  onChange={(e) => handleEditProject(proj.id, { titleFa: e.target.value })}
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'نام پروژه (انگلیسی)' : 'Project Title (English)'}</label>
+                                <input 
+                                  type="text" 
+                                  className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl text-left"
+                                  value={proj.titleEn}
+                                  onChange={(e) => handleEditProject(proj.id, { titleEn: e.target.value })}
+                                />
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'دفتر معماری یا طراح نما' : 'Architect / Designer'}</label>
+                                <input 
+                                  type="text" 
+                                  className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl"
+                                  value={proj.architect}
+                                  onChange={(e) => handleEditProject(proj.id, { architect: e.target.value })}
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'موقعیت پروژه' : 'Location'}</label>
+                                <input 
+                                  type="text" 
+                                  className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl"
+                                  value={proj.location}
+                                  onChange={(e) => handleEditProject(proj.id, { location: e.target.value })}
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'سال اجرا' : 'Year'}</label>
+                                <input 
+                                  type="text" 
+                                  className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl"
+                                  value={proj.year}
+                                  onChange={(e) => handleEditProject(proj.id, { year: e.target.value })}
+                                />
+                              </div>
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'توضیحات کوتاه پروژه' : 'Description'}</label>
+                              <textarea 
+                                rows={2}
+                                className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl resize-none"
+                                value={proj.description || ''}
+                                onChange={(e) => handleEditProject(proj.id, { description: e.target.value })}
+                              />
+                            </div>
+
+                            <div className="flex justify-between items-center pt-2 border-t border-gray-100 dark:border-gray-800">
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteProject(proj.id)}
+                                className="text-rose-500 hover:text-rose-600 font-extrabold flex items-center gap-1 cursor-pointer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                <span>{isRtl ? 'حذف دائمی' : 'Permanently Delete'}</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setEditingProjId(null)}
+                                className="bg-[#26B6B6] text-white text-[10px] font-bold px-4 py-2 rounded-xl cursor-pointer hover:bg-[#1e9494]"
+                              >
+                                {isRtl ? 'ذخیره تغییرات' : 'Save Changes'}
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          /* PROJECT PREVIEW MODE */
+                          <div className="space-y-3.5 text-xs">
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="space-y-1">
+                                <h4 className="font-extrabold text-gray-800 dark:text-gray-100 text-sm">
+                                  {isRtl ? proj.titleFa : proj.titleEn}
+                                </h4>
+                                <div className="flex flex-wrap items-center gap-2 text-gray-400 text-[10px] font-mono">
+                                  <span>Architect: {proj.architect}</span>
+                                  <span>•</span>
+                                  <span>{proj.location}</span>
+                                  <span>•</span>
+                                  <span>Year: {proj.year}</span>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingProjId(proj.id)}
+                                  className="p-1.5 bg-white dark:bg-gray-900 hover:bg-slate-100 border rounded-xl text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 cursor-pointer"
+                                  title={isRtl ? 'ویرایش پروژه' : 'Edit Project'}
+                                >
+                                  <Edit className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
+
+                            {proj.description && (
+                              <p className="text-gray-500 dark:text-gray-400 leading-relaxed bg-white dark:bg-gray-900/40 p-2.5 rounded-xl border border-gray-100/60 dark:border-gray-800/60">
+                                {proj.description}
+                              </p>
+                            )}
+
+                            {/* Project Attached Brief/Specs file */}
+                            <div className="pt-2.5 border-t border-gray-100/60 dark:border-gray-800/60 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-gray-400 font-bold text-[10px]">{isRtl ? 'دفترچه پروژه:' : 'Project Brief:'}</span>
+                                {proj.fileName ? (
+                                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white dark:bg-gray-900 border border-gray-100 rounded-lg">
+                                    <FileText className="w-3.5 h-3.5 text-[#26B6B6]" />
+                                    <span className="text-[10px] text-gray-700 dark:text-gray-300 font-mono max-w-[200px] truncate">{proj.fileName}</span>
+                                    {proj.fileUrl && proj.fileUrl !== '#' && (
+                                      <a href={proj.fileUrl} target="_blank" rel="noreferrer" className="text-[#26B6B6] hover:underline p-0.5">
+                                        <ExternalLink className="w-3 h-3" />
+                                      </a>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <span className="text-[10px] text-gray-400 font-light italic">{isRtl ? 'سندی پیوست نشده است.' : 'No specs document attached.'}</span>
+                                )}
+                              </div>
+
+                              <div>
+                                <input 
+                                  type="file"
+                                  id={`proj-file-input-${proj.id}`}
+                                  accept=".pdf,image/*"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
+                                    const localUrl = URL.createObjectURL(file);
+                                    handleEditProject(proj.id, {
+                                      fileName: file.name,
+                                      fileUrl: localUrl
+                                    });
+                                    alert(isRtl ? 'دفترچه مشخصات فنی به پروژه ضمیمه شد.' : 'Document attached to project.');
+                                  }}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => document.getElementById(`proj-file-input-${proj.id}`)?.click()}
+                                  className="bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800 border rounded-xl text-[10px] px-3 py-1.5 text-gray-700 dark:text-gray-200 cursor-pointer flex items-center gap-1"
+                                >
+                                  <Upload className="w-3.5 h-3.5 text-[#26B6B6]" />
+                                  <span>{proj.fileName ? (isRtl ? 'جایگزینی مدرک' : 'Replace Doc') : (isRtl ? 'بارگذاری مدرک پروژه' : 'Upload Brief/Specs')}</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Add New Project Form */}
+                <div className="bg-slate-50 dark:bg-gray-950 p-5 rounded-2xl border border-slate-100 dark:border-gray-800/80 space-y-4">
+                  <h3 className="text-xs font-bold text-gray-800 dark:text-white flex items-center gap-1.5">
+                    <Plus className="w-4 h-4 text-[#26B6B6]" />
+                    <span>{isRtl ? 'ثبت رکورد پروژه ساختمانی جدید' : 'Register New Project Reference'}</span>
+                  </h3>
+
+                  {brandInfo.tier === 'Free' ? (
+                    <div className="p-5 bg-[#26B6B6]/5 border border-dashed border-[#26B6B6]/30 rounded-2xl flex flex-col items-center text-center space-y-3">
+                      <Lock className="w-8 h-8 text-amber-500" />
+                      <div className="space-y-1">
+                        <p className="text-xs font-bold text-gray-800 dark:text-white">
+                          {isRtl ? 'افزودن پروژه جدید، ویژه اشتراک‌های Premium و VIP است.' : 'Adding a new project is reserved for Premium and VIP tiers.'}
+                        </p>
+                        <p className="text-[10px] text-gray-400">
+                          {isRtl ? 'برای فعال‌سازی و ثبت نامحدود گواهینامه‌های استاندارد، افتخارات و پروژه‌های کارخانه، اشتراک خود را ارتقا دهید.' : 'Upgrade your brand plan to upload quality standards, certificates and portfolio items without limits.'}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if ((window as any).onNavigateToView) {
+                            (window as any).onNavigateToView('payment', 'mfg-vip');
+                          }
+                        }}
+                        className="bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-bold px-5 py-2.5 rounded-xl cursor-pointer transition-all hover:scale-103 shadow-xs"
+                      >
+                        {isRtl ? 'ارتقای اشتراک برند' : 'Upgrade Brand Plan'}
+                      </button>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleAddProject} className="space-y-4 text-xs">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <input 
+                          type="text" 
+                          required
+                          placeholder={isRtl ? 'نام مجتمع یا پروژه به فارسی (مثال: برج مسکونی باران)' : 'Project Name in Persian'}
+                          value={newProjTitle}
+                          onChange={(e) => setNewProjTitle(e.target.value)}
+                          className="w-full p-2.5 border rounded-xl bg-white dark:bg-gray-900"
+                        />
+                        <input 
+                          type="text" 
+                          placeholder={isRtl ? 'نام مجتمع یا پروژه به انگلیسی (اختیاری)' : 'Project Name in English (optional)'}
+                          value={newProjTitleEn}
+                          onChange={(e) => setNewProjTitleEn(e.target.value)}
+                          className="w-full p-2.5 border rounded-xl bg-white dark:bg-gray-900 text-left"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <input 
+                          type="text" 
+                          placeholder={isRtl ? 'دفتر معماری، آرشیتکت یا پیمانکار نما' : 'Architect or Design Team'}
+                          value={newProjArch}
+                          onChange={(e) => setNewProjArch(e.target.value)}
+                          className="w-full p-2.5 border rounded-xl bg-white dark:bg-gray-900"
+                        />
+                        <input 
+                          type="text" 
+                          placeholder={isRtl ? 'مکان پروژه (مثال: تهران، فرمانیه)' : 'Project Location'}
+                          value={newProjLocation}
+                          onChange={(e) => setNewProjLocation(e.target.value)}
+                          className="w-full p-2.5 border rounded-xl bg-white dark:bg-gray-900"
+                        />
+                        <input 
+                          type="text" 
+                          placeholder={isRtl ? 'سال اتمام یا اجرای پروژه (مثال: ۱۴۰۴)' : 'Year of Completion'}
+                          value={newProjYear}
+                          onChange={(e) => setNewProjYear(e.target.value)}
+                          className="w-full p-2.5 border rounded-xl bg-white dark:bg-gray-900"
+                        />
+                      </div>
+
+                      <textarea 
+                        rows={2}
+                        placeholder={isRtl ? 'توضیحات پیرامون نحوه پیاده‌سازی، متراژ محصول مصرفی یا سایر ویژگی‌های مهندسی...' : 'Short description regarding architectural details and BIM blocks usage...'}
+                        value={newProjDesc}
+                        onChange={(e) => setNewProjDesc(e.target.value)}
+                        className="w-full p-2.5 border rounded-xl bg-white dark:bg-gray-900 resize-none"
+                      />
+
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-1">
+                        <div className="flex items-center gap-2">
+                          <input 
+                            type="file" 
+                            id="new-proj-file-picker"
+                            accept=".pdf,image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              setNewProjFileName(file.name);
+                              setNewProjFileUrl(URL.createObjectURL(file));
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => document.getElementById('new-proj-file-picker')?.click()}
+                            className="bg-white hover:bg-slate-100 border rounded-xl text-[10px] font-bold px-3 py-2 cursor-pointer flex items-center gap-1"
+                          >
+                            <Upload className="w-3.5 h-3.5 text-[#26B6B6]" />
+                            <span>{newProjFileName ? (isRtl ? 'تغییر فایل ضمیمه' : 'Change Attached Brief') : (isRtl ? 'ضمیمه دفترچه یا تصاویر پروژه' : 'Attach Technical Case study/Brief')}</span>
+                          </button>
+                          {newProjFileName && (
+                            <span className="text-[10px] text-gray-500 font-mono truncate max-w-[200px]">✓ {newProjFileName}</span>
+                          )}
+                        </div>
+
+                        <button 
+                          type="submit" 
+                          className="bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-bold px-5 py-2.5 rounded-xl cursor-pointer shadow-xs"
+                        >
+                          {isRtl ? 'ثبت نهایی پروژه ساختمانی' : 'Publish Reference Case'}
+                        </button>
+                      </div>
+                    </form>
+                  )}
+                </div>
+              </div>
+            )}
+
           </div>
         )}
 
@@ -1595,6 +3300,33 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                     : (isRtl ? 'شما دسترسی رایگان محدود به بارگذاری ۵ محصول دارید.' : 'Free basic tier with 5 object uploads support.')}
                 </p>
               </div>
+
+              <div className="flex flex-wrap gap-3">
+                {brandInfo.tier === 'Free' && (
+                  <>
+                    <button
+                      onClick={() => (window as any).onNavigateToView?.('payment', 'mfg-premium')}
+                      className="bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-xs cursor-pointer"
+                    >
+                      {isRtl ? 'ارتقا به ممتاز (Premium)' : 'Upgrade to Premium'}
+                    </button>
+                    <button
+                      onClick={() => (window as any).onNavigateToView?.('payment', 'mfg-vip')}
+                      className="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-xs cursor-pointer"
+                    >
+                      👑 {isRtl ? 'ارتقا به ویژه (VIP)' : 'Upgrade to VIP'}
+                    </button>
+                  </>
+                )}
+                {brandInfo.tier === 'Premium' && (
+                  <button
+                    onClick={() => (window as any).onNavigateToView?.('payment', 'mfg-vip')}
+                    className="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-xs cursor-pointer"
+                  >
+                    👑 {isRtl ? 'ارتقا به ویژه (VIP)' : 'Upgrade to VIP'}
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Plan Matrix */}
@@ -1652,217 +3384,413 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
           />
         )}
 
-        {/* CRM MESSAGES & platform tickets */}
-        {activeTab === 'crm' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fadeIn">
-            {/* Leads list column */}
-            <div className="lg:col-span-1 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-4 space-y-4">
-              <h3 className="text-xs font-bold text-gray-800 dark:text-white uppercase tracking-wider border-b pb-2">{isRtl ? 'پیام‌های دریافتی از طراحان (سرنخ)' : 'AEC Leads & Queries'}</h3>
-              
-              <div className="space-y-2">
-                {leads.map(lead => (
-                  <div 
-                    key={lead.id}
-                    onClick={() => {
-                      setActiveLeadId(lead.id);
-                      setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, read: true } : l));
-                    }}
-                    className={`p-3 rounded-xl border transition-all cursor-pointer ${
-                      activeLeadId === lead.id 
-                        ? 'border-[#26B6B6] bg-[#26B6B6]/5' 
-                        : 'border-slate-100 hover:border-[#26B6B6]/30 bg-slate-50/50'
-                    }`}
-                  >
-                    <div className="flex justify-between items-start gap-2">
-                      <span className="text-[11px] font-bold text-gray-800 truncate block">{lead.senderName}</span>
-                      {!lead.read && <span className="w-2 h-2 rounded-full bg-[#26B6B6] shrink-0" />}
-                    </div>
-                    <span className="text-[9.5px] text-gray-400 font-mono block mt-1">{lead.date}</span>
-                    <span className="inline-block bg-slate-100 text-gray-500 text-[8.5px] px-1.5 py-0.5 rounded font-bold mt-1.5">{lead.tag}</span>
-                  </div>
-                ))}
-              </div>
+        {/* REQUESTS & LEADS TAB */}
+        {activeTab === 'requests' && (
+          <div className="space-y-6 animate-fadeIn">
+            {/* Secondary Tab Bar for Requests */}
+            <div className="flex gap-2 border-b border-gray-100 dark:border-gray-800 pb-4 mb-6 overflow-x-auto scrollbar-none text-start">
+              <button
+                type="button"
+                onClick={() => setRequestsSubTab('leads')}
+                className={`px-4.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+                  requestsSubTab === 'leads'
+                    ? 'bg-[#26B6B6]/10 text-[#26B6B6] ring-1 ring-[#26B6B6]/20'
+                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-slate-50 dark:hover:bg-gray-800/50'
+                }`}
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span>{isRtl ? 'سرنخ‌های فروش (CRM)' : 'Purchase Leads'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setRequestsSubTab('objects')}
+                className={`px-4.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+                  requestsSubTab === 'objects'
+                    ? 'bg-[#26B6B6]/10 text-[#26B6B6] ring-1 ring-[#26B6B6]/20'
+                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-slate-50 dark:hover:bg-gray-800/50'
+                }`}
+              >
+                <HelpCircle className="w-4 h-4" />
+                <span>{isRtl ? 'فمیلی‌های درخواستی معماران' : 'Requested BIM Objects'}</span>
+              </button>
             </div>
 
-            {/* Conversation detail and Support ticket box */}
-            <div className="lg:col-span-2 space-y-6">
-              {activeLeadId ? (
-                <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-5 rounded-2xl space-y-4">
-                  {(() => {
-                    const lead = leads.find(l => l.id === activeLeadId);
-                    if (!lead) return null;
-                    return (
-                      <div className="space-y-4">
-                        <div className="border-b pb-3">
-                          <h4 className="text-xs font-extrabold text-gray-800 dark:text-white">{lead.senderName}</h4>
-                          <p className="text-[10px] text-gray-400 mt-1">Product: <span className="text-[#26B6B6] font-bold">{lead.productName}</span></p>
+            {requestsSubTab === 'leads' && (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fadeIn">
+                {/* Leads list column */}
+                <div className="lg:col-span-1 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-4 space-y-4">
+                  <h3 className="text-xs font-bold text-gray-800 dark:text-white uppercase tracking-wider border-b pb-2">{isRtl ? 'پیام‌های دریافتی از طراحان (سرنخ)' : 'AEC Leads & Queries'}</h3>
+                  
+                  <div className="space-y-2">
+                    {leads.map(lead => (
+                      <div 
+                        key={lead.id}
+                        onClick={() => {
+                          setActiveLeadId(lead.id);
+                          setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, read: true } : l));
+                        }}
+                        className={`p-3 rounded-xl border transition-all cursor-pointer text-start ${
+                          activeLeadId === lead.id 
+                            ? 'border-[#26B6B6] bg-[#26B6B6]/5' 
+                            : 'border-slate-100 hover:border-[#26B6B6]/30 bg-slate-50/50'
+                        }`}
+                      >
+                        <div className="flex justify-between items-start gap-2">
+                          <span className="text-[11px] font-bold text-gray-800 truncate block">{lead.senderName}</span>
+                          {!lead.read && <span className="w-2 h-2 rounded-full bg-[#26B6B6] shrink-0" />}
                         </div>
+                        <span className="text-[9.5px] text-gray-400 font-mono block mt-1">{lead.date}</span>
+                        <span className="inline-block bg-slate-100 text-gray-500 text-[8.5px] px-1.5 py-0.5 rounded font-bold mt-1.5">{lead.tag}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
-                        <div className="p-3 bg-slate-50 dark:bg-gray-950 rounded-xl text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
-                          {lead.message}
-                        </div>
+                {/* Conversation detail and Support ticket box */}
+                <div className="lg:col-span-2 space-y-6">
+                  {activeLeadId ? (
+                    <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-5 rounded-2xl space-y-4">
+                      {(() => {
+                        const lead = leads.find(l => l.id === activeLeadId);
+                        if (!lead) return null;
+                        return (
+                          <div className="space-y-4 text-start">
+                            <div className="border-b pb-3">
+                              <h4 className="text-xs font-extrabold text-gray-800 dark:text-white">{lead.senderName}</h4>
+                              <p className="text-[10px] text-gray-400 mt-1">Product: <span className="text-[#26B6B6] font-bold">{lead.productName}</span></p>
+                            </div>
 
-                        {/* Thread of replies */}
-                        {lead.replies.map((rep: any, idx: number) => (
-                          <div key={idx} className="p-3 bg-indigo-50/30 rounded-xl text-xs flex flex-col justify-between">
-                            <span className="text-[9.5px] text-gray-400 font-bold">{isRtl ? 'پاسخ کارفرما:' : 'Your Response:'}</span>
-                            <p className="mt-1">{rep.text}</p>
+                            <div className="p-3 bg-slate-50 dark:bg-gray-950 rounded-xl text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+                              {lead.message}
+                            </div>
+
+                            {/* Thread of replies */}
+                            {lead.replies.map((rep: any, idx: number) => (
+                              <div key={idx} className="p-3 bg-indigo-50/30 rounded-xl text-xs flex flex-col justify-between">
+                                <span className="text-[9.5px] text-gray-400 font-bold">{isRtl ? 'پاسخ کارفرما:' : 'Your Response:'}</span>
+                                <p className="mt-1">{rep.text}</p>
+                              </div>
+                            ))}
+
+                            <div className="space-y-2">
+                              <textarea 
+                                rows={3} 
+                                placeholder={isRtl ? 'پاسخ فنی خود را به معمار ارسال کنید...' : 'Type your technical quote response...'}
+                                value={crmReplyText}
+                                onChange={(e) => setCrmReplyText(e.target.value)}
+                                className="w-full text-xs p-3 border rounded-xl"
+                              />
+                              <button 
+                                onClick={() => handleSendCrmReply(lead.id)}
+                                className="bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-bold py-2 px-4.5 rounded-xl cursor-pointer"
+                              >
+                                {isRtl ? 'ارسال پاسخ نهایی' : 'Dispatch Message'}
+                              </button>
+                            </div>
                           </div>
-                        ))}
+                        );
+                      })()}
+                    </div>
+                  ) : (
+                    <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-8 rounded-2xl text-center text-xs text-gray-400">
+                      {isRtl ? 'جهت بررسی پیام معماران، یک مورد را از لیست چپ انتخاب کنید.' : 'Select an active lead from the left pane to initialize chat.'}
+                    </div>
+                  )}
 
-                        <div className="space-y-2">
-                          <textarea 
-                            rows={3} 
-                            placeholder={isRtl ? 'پاسخ فنی خود را به معمار ارسال کنید...' : 'Type your technical quote response...'}
-                            value={crmReplyText}
-                            onChange={(e) => setCrmReplyText(e.target.value)}
-                            className="w-full text-xs p-3 border rounded-xl"
-                          />
-                          <button 
-                            onClick={() => handleSendCrmReply(lead.id)}
-                            className="bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-bold py-2 px-4.5 rounded-xl cursor-pointer"
-                          >
-                            {isRtl ? 'ارسال پاسخ نهایی' : 'Dispatch Message'}
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })()}
-                </div>
-              ) : (
-                <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-8 rounded-2xl text-center text-xs text-gray-400">
-                  {isRtl ? 'جهت بررسی پیام معماران، یک مورد را از لیست چپ انتخاب کنید.' : 'Select an active lead from the left pane to initialize chat.'}
-                </div>
-              )}
+                  {/* Support ticket thread to platform */}
+                  <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-5 rounded-2xl space-y-4">
+                    <h3 className="text-xs font-bold text-gray-800 dark:text-white uppercase tracking-wider flex items-center gap-1.5 border-b pb-2">
+                      <HelpCircle className="w-4.5 h-4.5 text-[#26B6B6]" />
+                      <span>{isRtl ? 'تیکت‌های پشتیبانی به تیم ایران‌بیم‌هاب' : 'Official SLA Support Tickets'}</span>
+                    </h3>
 
-              {/* Support ticket thread to platform */}
-              <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-5 rounded-2xl space-y-4">
-                <h3 className="text-xs font-bold text-gray-800 dark:text-white uppercase tracking-wider flex items-center gap-1.5 border-b pb-2">
-                  <HelpCircle className="w-4.5 h-4.5 text-[#26B6B6]" />
-                  <span>{isRtl ? 'تیکت‌های پشتیبانی به تیم ایران‌بیم‌هاب' : 'Official SLA Support Tickets'}</span>
-                </h3>
-
-                <div className="space-y-3">
-                  {supportTickets.map(tick => (
-                    <div key={tick.id} className="p-4 bg-slate-50 dark:bg-gray-950 rounded-xl border border-slate-100 dark:border-gray-800 space-y-2">
-                      <div className="flex justify-between items-center text-xs font-bold">
-                        <span className="text-gray-800 dark:text-white">{tick.subject}</span>
-                        <span className="bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full text-[9px]">{tick.status}</span>
-                      </div>
-                      
-                      {tick.chat.map((m: any, idx: number) => (
-                        <div key={idx} className="p-2.5 bg-white dark:bg-gray-900 rounded-lg text-[11px] text-gray-600 dark:text-gray-300">
-                          <span className="font-bold text-[9.5px] block text-gray-400">{m.sender === 'mfg' ? (isRtl ? 'من' : 'Brand') : (isRtl ? 'پشتیبان سیستم' : 'Mod Desk')}</span>
-                          <p className="mt-0.5">{m.text}</p>
+                    <div className="space-y-3">
+                      {supportTickets.map(tick => (
+                        <div key={tick.id} className="p-4 bg-slate-50 dark:bg-gray-950 rounded-xl border border-slate-100 dark:border-gray-800 space-y-2 text-start">
+                          <div className="flex justify-between items-center text-xs font-bold">
+                            <span className="text-gray-800 dark:text-white">{tick.subject}</span>
+                            <span className="bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full text-[9px]">{tick.status}</span>
+                          </div>
+                          
+                          {tick.chat.map((m: any, idx: number) => (
+                            <div key={idx} className="p-2.5 bg-white dark:bg-gray-900 rounded-lg text-[11px] text-gray-600 dark:text-gray-300">
+                              <span className="font-bold text-[9.5px] block text-gray-400">{m.sender === 'mfg' ? (isRtl ? 'من' : 'Brand') : (isRtl ? 'پشتیبان سیستم' : 'Mod Desk')}</span>
+                              <p className="mt-0.5">{m.text}</p>
+                            </div>
+                          ))}
                         </div>
                       ))}
                     </div>
-                  ))}
+
+                    <form onSubmit={handleCreateTicket} className="space-y-3 pt-3 border-t dark:border-gray-800">
+                      <input 
+                        type="text" 
+                        required
+                        placeholder={isRtl ? 'موضوع تیکت فنی...' : 'Ticket Subject...'}
+                        value={newSupportSubject}
+                        onChange={(e) => setNewSupportSubject(e.target.value)}
+                        className="w-full text-xs p-2.5 border rounded-xl"
+                      />
+                      <textarea 
+                        rows={2} 
+                        required
+                        placeholder={isRtl ? 'جزئیات تداخل مدل، ایراد فاکتور یا سوال فنی...' : 'Type message detail...'}
+                        value={newSupportMsg}
+                        onChange={(e) => setNewSupportMsg(e.target.value)}
+                        className="w-full text-xs p-2.5 border rounded-xl"
+                      />
+                      <button type="submit" className="bg-[#26B6B6] text-white text-xs font-bold py-2 px-4.5 rounded-xl cursor-pointer">
+                        {isRtl ? 'ثبت تیکت فنی جدید' : 'Open Ticket'}
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {requestsSubTab === 'objects' && (
+              <div className="space-y-8 animate-fadeIn text-start">
+                <div>
+                  <h2 className="text-sm font-bold text-gray-800 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-3">
+                    <HelpCircle className="w-5 h-5 text-[#26B6B6]" />
+                    <span>{isRtl ? 'آبجکت‌ها و فمیلی‌های درخواستی معماران (BIM)' : 'Requested BIM Families from Designers'}</span>
+                  </h2>
+                  <p className="text-[11px] text-gray-400 mt-1">
+                    {isRtl 
+                      ? 'مشاهده و مدیریت درخواست‌های مدل‌سازی که توسط کاربران بیم‌هاب در صفحه برند شما ثبت شده است.' 
+                      : 'Review, accept and update statuses of custom modeling requests submitted by designers.'}
+                  </p>
                 </div>
 
-                <form onSubmit={handleCreateTicket} className="space-y-3 pt-3 border-t dark:border-gray-800">
-                  <input 
-                    type="text" 
-                    required
-                    placeholder={isRtl ? 'موضوع تیکت فنی...' : 'Ticket Subject...'}
-                    value={newSupportSubject}
-                    onChange={(e) => setNewSupportSubject(e.target.value)}
-                    className="w-full text-xs p-2.5 border rounded-xl"
-                  />
-                  <textarea 
-                    rows={2} 
-                    required
-                    placeholder={isRtl ? 'جزئیات تداخل مدل، ایراد فاکتور یا سوال فنی...' : 'Type message detail...'}
-                    value={newSupportMsg}
-                    onChange={(e) => setNewSupportMsg(e.target.value)}
-                    className="w-full text-xs p-2.5 border rounded-xl"
-                  />
-                  <button type="submit" className="bg-[#26B6B6] text-white text-xs font-bold py-2 px-4.5 rounded-xl cursor-pointer">
-                    {isRtl ? 'ثبت تیکت فنی جدید' : 'Open Ticket'}
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* STANDARDS & CERTIFICATIONS */}
-        {activeTab === 'standards' && (
-          <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-6 space-y-8 animate-fadeIn">
-            <div>
-              <h2 className="text-sm font-bold text-gray-800 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-3">
-                <ShieldCheck className="w-5 h-5 text-[#26B6B6]" />
-                <span>{isRtl ? 'پایش استانداردهای کیفی در سطح کارخانه' : 'Quality Standards & Compliance Certifications'}</span>
-              </h2>
-              <p className="text-[11px] text-gray-400 mt-1">
-                {isRtl ? 'مدیریت و افزودن ایزوها و گواهی‌های استاندارد معتبر ملی و بین‌المللی برند شما.' : 'Link regional structural standards and international ISO ratings to the brand page.'}
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              {standards.map(std => (
-                <div key={std.id} className="p-4 bg-slate-50 dark:bg-gray-950 border border-slate-100 dark:border-gray-800 rounded-xl flex items-center justify-between text-xs">
-                  <div className="space-y-1">
-                    <span className="font-extrabold text-gray-800 dark:text-white block">{std.name}</span>
-                    <span className="text-[10px] text-gray-400 font-mono">Code: {std.code} | Region: {std.country}</span>
+                {/* Quick stats for requested objects */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-800 space-y-1">
+                    <span className="text-[10px] text-gray-400 block font-bold uppercase">{isRtl ? 'کل درخواست‌ها' : 'Total Requests'}</span>
+                    <span className="text-lg font-black text-gray-800 dark:text-white font-mono">{objectRequests.length}</span>
                   </div>
-                  <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${
-                    std.verified ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-500'
-                  }`}>
-                    {std.verified ? 'Verified ✓' : 'Under Review'}
+                  <div className="bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-800 space-y-1">
+                    <span className="text-[10px] text-gray-400 block font-bold uppercase text-red-500">{isRtl ? 'اولویت بالا (فوری)' : 'High Priority'}</span>
+                    <span className="text-lg font-black text-red-500 font-mono">{objectRequests.filter(r => r.priority === 'High').length}</span>
+                  </div>
+                  <div className="bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-800 space-y-1">
+                    <span className="text-[10px] text-gray-400 block font-bold uppercase text-amber-500">{isRtl ? 'در حال بررسی' : 'Pending Review'}</span>
+                    <span className="text-lg font-black text-amber-500 font-mono">{objectRequests.filter(r => r.status === 'Pending').length}</span>
+                  </div>
+                  <div className="bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-800 space-y-1">
+                    <span className="text-[10px] text-gray-400 block font-bold uppercase text-emerald-500">{isRtl ? 'مدل‌سازی شده' : 'Completed'}</span>
+                    <span className="text-lg font-black text-emerald-500 font-mono">{objectRequests.filter(r => r.status === 'Completed').length}</span>
+                  </div>
+                </div>
+
+                {/* Filter bar */}
+                <div className="flex flex-wrap gap-4 items-center justify-between bg-white dark:bg-gray-900 border p-4 rounded-2xl dark:border-gray-800">
+                  <div className="flex flex-wrap items-center gap-4">
+                    <div className="space-y-0.5">
+                      <label className="block text-[10px] text-gray-400 font-bold">{isRtl ? 'وضعیت بررسی' : 'Status Filter'}</label>
+                      <select 
+                        value={selectedRequestFilterStatus}
+                        onChange={e => setSelectedRequestFilterStatus(e.target.value)}
+                        className="text-xs p-1.5 border rounded-lg bg-gray-50 dark:bg-gray-950 focus:outline-none"
+                      >
+                        <option value="all">{isRtl ? 'همه وضعیت‌ها' : 'All Statuses'}</option>
+                        <option value="Pending">{isRtl ? 'در انتظار بررسی' : 'Pending'}</option>
+                        <option value="In Progress">{isRtl ? 'در حال مدلسازی' : 'In Progress'}</option>
+                        <option value="Completed">{isRtl ? 'تکمیل شده' : 'Completed'}</option>
+                        <option value="Rejected">{isRtl ? 'رد شده' : 'Rejected'}</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-0.5">
+                      <label className="block text-[10px] text-gray-400 font-bold">{isRtl ? 'اولویت پروژه' : 'Priority Filter'}</label>
+                      <select 
+                        value={selectedRequestFilterPriority}
+                        onChange={e => setSelectedRequestFilterPriority(e.target.value)}
+                        className="text-xs p-1.5 border rounded-lg bg-gray-50 dark:bg-gray-950 focus:outline-none"
+                      >
+                        <option value="all">{isRtl ? 'همه اولویت‌ها' : 'All Priorities'}</option>
+                        <option value="High">{isRtl ? 'بالا (فوری)' : 'High'}</option>
+                        <option value="Medium">{isRtl ? 'متوسط' : 'Medium'}</option>
+                        <option value="Low">{isRtl ? 'کم' : 'Low'}</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <span className="text-xs text-gray-400 font-medium">
+                    {isRtl 
+                      ? `${objectRequests.filter(r => {
+                          const ms = selectedRequestFilterStatus === 'all' || r.status === selectedRequestFilterStatus;
+                          const mp = selectedRequestFilterPriority === 'all' || r.priority === selectedRequestFilterPriority;
+                          return ms && mp;
+                        }).length} مورد یافت شد`
+                      : `${objectRequests.filter(r => {
+                          const ms = selectedRequestFilterStatus === 'all' || r.status === selectedRequestFilterStatus;
+                          const mp = selectedRequestFilterPriority === 'all' || r.priority === selectedRequestFilterPriority;
+                          return ms && mp;
+                        }).length} items matching`
+                    }
                   </span>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
 
-        {/* AWARDS & PORTFOLIO */}
-        {activeTab === 'awards' && (
-          <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-6 space-y-8 animate-fadeIn">
-            <div>
-              <h2 className="text-sm font-bold text-gray-800 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-3">
-                <Award className="w-5 h-5 text-[#26B6B6]" />
-                <span>{isRtl ? 'افتخارات، نشان‌ها و نمونه پروژه‌های اجرایی' : 'Awards & Case Study Portfolio'}</span>
-              </h2>
-              <p className="text-[11px] text-gray-400 mt-1">
-                {isRtl ? 'ثبت پروژه‌های بزرگی که از محصولات شما استفاده کرده‌اند برای جلب نظر دفاتر طراح نما.' : 'Display notable buildings outfitted with your catalog spec blocks.'}
-              </p>
-            </div>
+                {/* Content list & Detail view */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Left Column: list */}
+                  <div className="lg:col-span-1 space-y-3 max-h-[500px] overflow-y-auto pr-1">
+                    {(() => {
+                      const items = objectRequests.filter(r => {
+                        const ms = selectedRequestFilterStatus === 'all' || r.status === selectedRequestFilterStatus;
+                        const mp = selectedRequestFilterPriority === 'all' || r.priority === selectedRequestFilterPriority;
+                        return ms && mp;
+                      });
 
-            {/* Portfolio Grid list */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {portfolioProjects.map(proj => (
-                <div key={proj.id} className="p-4 bg-slate-50 dark:bg-gray-950 rounded-xl border border-slate-100 dark:border-gray-800 space-y-1 text-xs">
-                  <h4 className="font-extrabold text-gray-800 dark:text-white">{isRtl ? proj.titleFa : proj.titleEn}</h4>
-                  <p className="text-gray-400 font-medium">Architect: {proj.architect} | {proj.location}</p>
+                      if (items.length === 0) {
+                        return (
+                          <div className="bg-white dark:bg-gray-900 border rounded-2xl p-8 text-center text-xs text-gray-400">
+                            {isRtl ? 'هیچ درخواستی با فیلترهای کنونی مطابقت ندارد.' : 'No requests match current filters.'}
+                          </div>
+                        );
+                      }
+
+                      return items.map(req => (
+                        <div
+                          key={req.id}
+                          onClick={() => setActiveObjectRequestId(req.id)}
+                          className={`p-4 bg-white dark:bg-gray-900 border rounded-2xl transition-all cursor-pointer text-start space-y-2.5 ${
+                            activeObjectRequestId === req.id 
+                              ? 'border-amber-500 bg-amber-50/10' 
+                              : 'border-gray-100 hover:border-amber-300 dark:border-gray-800'
+                          }`}
+                        >
+                          <div className="flex justify-between items-start gap-2">
+                            <h4 className="text-xs font-bold text-gray-800 dark:text-white truncate">{req.objectName}</h4>
+                            <span className={`text-[8.5px] px-2 py-0.5 rounded-full shrink-0 font-black tracking-wide ${
+                              req.priority === 'High' 
+                                ? 'bg-rose-100 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400' 
+                                : req.priority === 'Medium'
+                                  ? 'bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400'
+                                  : 'bg-blue-100 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400'
+                            }`}>
+                              {req.priority.toUpperCase()}
+                            </span>
+                          </div>
+
+                          <p className="text-[10px] text-gray-400 font-medium truncate leading-tight">
+                            {req.senderName}
+                          </p>
+
+                          <div className="flex justify-between items-center text-[9.5px] text-gray-400 pt-1.5 border-t dark:border-gray-800/60">
+                            <span className="font-mono">{req.date}</span>
+                            <span className={`font-bold px-2 py-0.5 rounded ${
+                              req.status === 'Completed' 
+                                ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400' 
+                                : req.status === 'In Progress'
+                                  ? 'bg-blue-100 text-blue-600 dark:bg-blue-950/30 dark:text-blue-400'
+                                  : req.status === 'Rejected'
+                                    ? 'bg-rose-100 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400'
+                                    : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+                            }`}>
+                              {isRtl 
+                                ? req.status === 'Completed' ? 'تکمیل شده' : req.status === 'In Progress' ? 'در حال مدلسازی' : req.status === 'Rejected' ? 'رد شده' : 'در انتظار بررسی'
+                                : req.status
+                              }
+                            </span>
+                          </div>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+
+                  {/* Right Column: details */}
+                  <div className="lg:col-span-2">
+                    {activeObjectRequestId ? (
+                      (() => {
+                        const req = objectRequests.find(r => r.id === activeObjectRequestId);
+                        if (!req) return null;
+                        return (
+                          <div className="bg-white dark:bg-gray-900 border rounded-2xl p-6 dark:border-gray-800 space-y-6 text-start">
+                            <div className="flex justify-between items-start gap-4 border-b pb-4 dark:border-gray-800">
+                              <div>
+                                <h3 className="text-sm font-extrabold text-gray-800 dark:text-white leading-tight">{req.objectName}</h3>
+                                <div className="flex flex-wrap gap-3 items-center text-[10px] text-gray-400 mt-2 font-bold">
+                                  <span>Format: <span className="text-amber-600">{req.format}</span></span>
+                                  <span>•</span>
+                                  <span>Category: <span className="text-[#26B6B6]">{req.category.replace('_', ' ')}</span></span>
+                                  <span>•</span>
+                                  <span className="font-mono">{req.date}</span>
+                                </div>
+                              </div>
+                              <span className={`text-[10px] px-3 py-1 rounded-full font-black tracking-widest ${
+                                req.priority === 'High' 
+                                  ? 'bg-rose-100 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400' 
+                                  : req.priority === 'Medium'
+                                    ? 'bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400'
+                                    : 'bg-blue-100 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400'
+                              }`}>
+                                {req.priority.toUpperCase()} PRIORITY
+                              </span>
+                            </div>
+
+                            <div className="space-y-1 text-xs">
+                              <h4 className="font-extrabold text-gray-400 uppercase tracking-wider text-[10px]">{isRtl ? 'جزئیات فنی درخواست شده' : 'Requested Details & Specs'}</h4>
+                              <div className="p-4 bg-slate-50 dark:bg-gray-950 rounded-xl leading-relaxed text-gray-700 dark:text-gray-300 whitespace-pre-wrap font-light border dark:border-gray-800/50">
+                                {req.description}
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50/50 dark:bg-gray-950 p-4 rounded-xl text-xs border dark:border-gray-800/30">
+                              <div className="space-y-1">
+                                <h5 className="font-bold text-gray-400 uppercase tracking-wider text-[9.5px]">{isRtl ? 'درخواست دهنده (معمار)' : 'AEC Contact Person'}</h5>
+                                <p className="font-extrabold text-gray-800 dark:text-white">{req.senderName}</p>
+                              </div>
+                              <div className="space-y-1">
+                                <h5 className="font-bold text-gray-400 uppercase tracking-wider text-[9.5px]">{isRtl ? 'مختصات تماس مستقیم' : 'Direct Coordinates'}</h5>
+                                <p className="text-gray-600 dark:text-gray-400">{req.email}</p>
+                                <p className="font-mono text-[11px] text-gray-500">{req.phone}</p>
+                              </div>
+                            </div>
+
+                            {/* Interactive status updater */}
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-4 border-t dark:border-gray-800">
+                              <div className="flex items-center gap-2.5">
+                                <span className="text-xs text-gray-500 font-bold">{isRtl ? 'تغییر وضعیت مدلسازی فمیلی:' : 'Transition Modeling Status:'}</span>
+                                <select
+                                  value={req.status}
+                                  onChange={e => {
+                                    const newStatus = e.target.value;
+                                    setObjectRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: newStatus } : r));
+                                    alert(isRtl ? 'وضعیت درخواست با موفقیت به روز شد.' : 'Modeling request status updated successfully.');
+                                  }}
+                                  className="text-xs p-2 border rounded-xl bg-gray-50 dark:bg-gray-950 font-bold focus:ring-1 focus:ring-amber-500 focus:outline-none"
+                                >
+                                  <option value="Pending">{isRtl ? 'در انتظار بررسی' : 'Pending Review'}</option>
+                                  <option value="In Progress">{isRtl ? 'در حال مدلسازی فمیلی' : 'In Modeling Queue'}</option>
+                                  <option value="Completed">{isRtl ? 'تکمیل شده و انتشار یافته' : 'Completed & Released'}</option>
+                                  <option value="Rejected">{isRtl ? 'رد شده (غیر قابل مدلسازی)' : 'Rejected'}</option>
+                                </select>
+                              </div>
+
+                              <button
+                                onClick={() => {
+                                  // Automatically complete and transition to catalog
+                                  setObjectRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: 'Completed' } : r));
+                                  alert(isRtl ? 'این فمیلی رسماً تایید شد و کاتالوگ آن آماده اتصال به آرشیو رویت گردید.' : 'Family released. Added to standard Revit spec libraries.');
+                                }}
+                                className="bg-amber-500 hover:bg-amber-600 text-white text-xs font-black py-2.5 px-4.5 rounded-xl transition-colors cursor-pointer shadow-sm self-stretch sm:self-auto text-center"
+                              >
+                                {isRtl ? 'تایید نهایی و آماده سازی انتشار' : 'Approve & Release Family'}
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })()
+                    ) : (
+                      <div className="bg-white dark:bg-gray-900 border rounded-2xl p-12 text-center text-xs text-gray-400 dark:border-gray-800">
+                        {isRtl ? 'جهت مشاهده جزئیات فنی درخواست و مشخصات معمار، یک مورد را از لیست سمت چپ انتخاب کنید.' : 'Select an active modeling request from the left list to view technical specs and contact coordinates.'}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              ))}
-            </div>
-
-            <form onSubmit={handleAddPortfolio} className="bg-slate-50 dark:bg-gray-950 p-4 rounded-xl space-y-3">
-              <h4 className="text-xs font-bold text-gray-700 dark:text-gray-200">{isRtl ? 'ثبت رکورد پروژه جدید' : 'Log portfolio study'}</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <input 
-                  type="text" 
-                  required
-                  placeholder={isRtl ? 'نام مجتمع یا پروژه ساختمانی...' : 'Project Name'}
-                  value={newProjectTitle}
-                  onChange={(e) => setNewProjectTitle(e.target.value)}
-                  className="text-xs p-2.5 border rounded-lg bg-white dark:bg-gray-900"
-                />
-                <input 
-                  type="text" 
-                  placeholder={isRtl ? 'دفتر معماری یا آرشیتکت...' : 'Architect/Design team'}
-                  value={newProjectArch}
-                  onChange={(e) => setNewProjectArch(e.target.value)}
-                  className="text-xs p-2.5 border rounded-lg bg-white dark:bg-gray-900"
-                />
               </div>
-              <button type="submit" className="bg-[#26B6B6] text-white text-xs font-bold py-2 px-4 rounded-lg cursor-pointer">
-                {isRtl ? 'ثبت نهایی پروژه' : 'Add Project Case'}
-              </button>
-            </form>
+            )}
           </div>
         )}
 
@@ -1920,281 +3848,9 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
           </div>
         )}
 
-        {/* OBJECT REQUESTS TAB */}
-        {activeTab === 'object-requests' && (
-          <div className="space-y-8 animate-fadeIn text-start">
-            <div>
-              <h2 className="text-sm font-bold text-gray-800 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-3">
-                <HelpCircle className="w-5 h-5 text-amber-500" />
-                <span>{isRtl ? 'آبجکت‌ها و فمیلی‌های درخواستی معماران (BIM)' : 'Requested BIM Families from Designers'}</span>
-              </h2>
-              <p className="text-[11px] text-gray-400 mt-1">
-                {isRtl 
-                  ? 'مشاهده و مدیریت درخواست‌های مدل‌سازی که توسط کاربران بیم‌هاب در صفحه برند شما ثبت شده است.' 
-                  : 'Review, accept and update statuses of custom modeling requests submitted by designers.'}
-              </p>
-            </div>
-
-            {/* Quick stats for requested objects */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-800 space-y-1">
-                <span className="text-[10px] text-gray-400 block font-bold uppercase">{isRtl ? 'کل درخواست‌ها' : 'Total Requests'}</span>
-                <span className="text-lg font-black text-gray-800 dark:text-white font-mono">{objectRequests.length}</span>
-              </div>
-              <div className="bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-800 space-y-1">
-                <span className="text-[10px] text-gray-400 block font-bold uppercase text-red-500">{isRtl ? 'اولویت بالا (فوری)' : 'High Priority'}</span>
-                <span className="text-lg font-black text-red-500 font-mono">{objectRequests.filter(r => r.priority === 'High').length}</span>
-              </div>
-              <div className="bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-800 space-y-1">
-                <span className="text-[10px] text-gray-400 block font-bold uppercase text-amber-500">{isRtl ? 'در حال بررسی' : 'Pending Review'}</span>
-                <span className="text-lg font-black text-amber-500 font-mono">{objectRequests.filter(r => r.status === 'Pending').length}</span>
-              </div>
-              <div className="bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-800 space-y-1">
-                <span className="text-[10px] text-gray-400 block font-bold uppercase text-emerald-500">{isRtl ? 'مدل‌سازی شده' : 'Completed'}</span>
-                <span className="text-lg font-black text-emerald-500 font-mono">{objectRequests.filter(r => r.status === 'Completed').length}</span>
-              </div>
-            </div>
-
-            {/* Filter bar */}
-            <div className="flex flex-wrap gap-4 items-center justify-between bg-white dark:bg-gray-900 border p-4 rounded-2xl dark:border-gray-800">
-              <div className="flex flex-wrap items-center gap-4">
-                <div className="space-y-0.5">
-                  <label className="block text-[10px] text-gray-400 font-bold">{isRtl ? 'وضعیت بررسی' : 'Status Filter'}</label>
-                  <select 
-                    value={selectedRequestFilterStatus}
-                    onChange={e => setSelectedRequestFilterStatus(e.target.value)}
-                    className="text-xs p-1.5 border rounded-lg bg-gray-50 dark:bg-gray-950 focus:outline-none"
-                  >
-                    <option value="all">{isRtl ? 'همه وضعیت‌ها' : 'All Statuses'}</option>
-                    <option value="Pending">{isRtl ? 'در انتظار بررسی' : 'Pending'}</option>
-                    <option value="In Progress">{isRtl ? 'در حال مدلسازی' : 'In Progress'}</option>
-                    <option value="Completed">{isRtl ? 'تکمیل شده' : 'Completed'}</option>
-                    <option value="Rejected">{isRtl ? 'رد شده' : 'Rejected'}</option>
-                  </select>
-                </div>
-
-                <div className="space-y-0.5">
-                  <label className="block text-[10px] text-gray-400 font-bold">{isRtl ? 'اولویت پروژه' : 'Priority Filter'}</label>
-                  <select 
-                    value={selectedRequestFilterPriority}
-                    onChange={e => setSelectedRequestFilterPriority(e.target.value)}
-                    className="text-xs p-1.5 border rounded-lg bg-gray-50 dark:bg-gray-950 focus:outline-none"
-                  >
-                    <option value="all">{isRtl ? 'همه اولویت‌ها' : 'All Priorities'}</option>
-                    <option value="High">{isRtl ? 'بالا (فوری)' : 'High'}</option>
-                    <option value="Medium">{isRtl ? 'متوسط' : 'Medium'}</option>
-                    <option value="Low">{isRtl ? 'کم' : 'Low'}</option>
-                  </select>
-                </div>
-              </div>
-
-              <span className="text-xs text-gray-400 font-medium">
-                {isRtl 
-                  ? `${objectRequests.filter(r => {
-                      const ms = selectedRequestFilterStatus === 'all' || r.status === selectedRequestFilterStatus;
-                      const mp = selectedRequestFilterPriority === 'all' || r.priority === selectedRequestFilterPriority;
-                      return ms && mp;
-                    }).length} مورد یافت شد`
-                  : `${objectRequests.filter(r => {
-                      const ms = selectedRequestFilterStatus === 'all' || r.status === selectedRequestFilterStatus;
-                      const mp = selectedRequestFilterPriority === 'all' || r.priority === selectedRequestFilterPriority;
-                      return ms && mp;
-                    }).length} items matching`
-                }
-              </span>
-            </div>
-
-            {/* Content list & Detail view */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Left Column: list */}
-              <div className="lg:col-span-1 space-y-3 max-h-[500px] overflow-y-auto pr-1">
-                {(() => {
-                  const items = objectRequests.filter(r => {
-                    const ms = selectedRequestFilterStatus === 'all' || r.status === selectedRequestFilterStatus;
-                    const mp = selectedRequestFilterPriority === 'all' || r.priority === selectedRequestFilterPriority;
-                    return ms && mp;
-                  });
-
-                  if (items.length === 0) {
-                    return (
-                      <div className="bg-white dark:bg-gray-900 border rounded-2xl p-8 text-center text-xs text-gray-400">
-                        {isRtl ? 'هیچ درخواستی با فیلترهای کنونی مطابقت ندارد.' : 'No requests match current filters.'}
-                      </div>
-                    );
-                  }
-
-                  return items.map(req => (
-                    <div
-                      key={req.id}
-                      onClick={() => setActiveObjectRequestId(req.id)}
-                      className={`p-4 bg-white dark:bg-gray-900 border rounded-2xl transition-all cursor-pointer text-start space-y-2.5 ${
-                        activeObjectRequestId === req.id 
-                          ? 'border-amber-500 bg-amber-50/10' 
-                          : 'border-gray-100 hover:border-amber-300 dark:border-gray-800'
-                      }`}
-                    >
-                      <div className="flex justify-between items-start gap-2">
-                        <h4 className="text-xs font-bold text-gray-800 dark:text-white truncate">{req.objectName}</h4>
-                        <span className={`text-[8.5px] px-2 py-0.5 rounded-full shrink-0 font-black tracking-wide ${
-                          req.priority === 'High' 
-                            ? 'bg-rose-100 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400' 
-                            : req.priority === 'Medium'
-                              ? 'bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400'
-                              : 'bg-blue-100 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400'
-                        }`}>
-                          {req.priority.toUpperCase()}
-                        </span>
-                      </div>
-
-                      <p className="text-[10px] text-gray-400 font-medium truncate leading-tight">
-                        {req.senderName}
-                      </p>
-
-                      <div className="flex justify-between items-center text-[9.5px] text-gray-400 pt-1.5 border-t dark:border-gray-800/60">
-                        <span className="font-mono">{req.date}</span>
-                        <span className={`font-bold px-2 py-0.5 rounded ${
-                          req.status === 'Completed' 
-                            ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400' 
-                            : req.status === 'In Progress'
-                              ? 'bg-blue-100 text-blue-600 dark:bg-blue-950/30 dark:text-blue-400'
-                              : req.status === 'Rejected'
-                                ? 'bg-rose-100 text-rose-600 dark:bg-rose-950/30 dark:text-rose-400'
-                                : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
-                        }`}>
-                          {isRtl 
-                            ? req.status === 'Completed' ? 'تکمیل شده' : req.status === 'In Progress' ? 'در حال مدلسازی' : req.status === 'Rejected' ? 'رد شده' : 'در انتظار بررسی'
-                            : req.status
-                          }
-                        </span>
-                      </div>
-                    </div>
-                  ));
-                })()}
-              </div>
-
-              {/* Right Column: details */}
-              <div className="lg:col-span-2">
-                {activeObjectRequestId ? (
-                  (() => {
-                    const req = objectRequests.find(r => r.id === activeObjectRequestId);
-                    if (!req) return null;
-                    return (
-                      <div className="bg-white dark:bg-gray-900 border rounded-2xl p-6 dark:border-gray-800 space-y-6 text-start">
-                        <div className="flex justify-between items-start gap-4 border-b pb-4 dark:border-gray-800">
-                          <div>
-                            <h3 className="text-sm font-extrabold text-gray-800 dark:text-white leading-tight">{req.objectName}</h3>
-                            <div className="flex flex-wrap gap-3 items-center text-[10px] text-gray-400 mt-2 font-bold">
-                              <span>Format: <span className="text-amber-600">{req.format}</span></span>
-                              <span>•</span>
-                              <span>Category: <span className="text-[#26B6B6]">{req.category.replace('_', ' ')}</span></span>
-                              <span>•</span>
-                              <span className="font-mono">{req.date}</span>
-                            </div>
-                          </div>
-                          <span className={`text-[10px] px-3 py-1 rounded-full font-black tracking-widest ${
-                            req.priority === 'High' 
-                              ? 'bg-rose-100 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400' 
-                              : req.priority === 'Medium'
-                                ? 'bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400'
-                                : 'bg-blue-100 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400'
-                          }`}>
-                            {req.priority.toUpperCase()} PRIORITY
-                          </span>
-                        </div>
-
-                        <div className="space-y-1 text-xs">
-                          <h4 className="font-extrabold text-gray-400 uppercase tracking-wider text-[10px]">{isRtl ? 'جزئیات فنی درخواست شده' : 'Requested Details & Specs'}</h4>
-                          <div className="p-4 bg-slate-50 dark:bg-gray-950 rounded-xl leading-relaxed text-gray-700 dark:text-gray-300 whitespace-pre-wrap font-light border dark:border-gray-800/50">
-                            {req.description}
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50/50 dark:bg-gray-950 p-4 rounded-xl text-xs border dark:border-gray-800/30">
-                          <div className="space-y-1">
-                            <h5 className="font-bold text-gray-400 uppercase tracking-wider text-[9.5px]">{isRtl ? 'درخواست دهنده (معمار)' : 'AEC Contact Person'}</h5>
-                            <p className="font-extrabold text-gray-800 dark:text-white">{req.senderName}</p>
-                          </div>
-                          <div className="space-y-1">
-                            <h5 className="font-bold text-gray-400 uppercase tracking-wider text-[9.5px]">{isRtl ? 'مختصات تماس مستقیم' : 'Direct Coordinates'}</h5>
-                            <p className="text-gray-600 dark:text-gray-400">{req.email}</p>
-                            <p className="font-mono text-[11px] text-gray-500">{req.phone}</p>
-                          </div>
-                        </div>
-
-                        {/* Interactive status updater */}
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-4 border-t dark:border-gray-800">
-                          <div className="flex items-center gap-2.5">
-                            <span className="text-xs text-gray-500 font-bold">{isRtl ? 'تغییر وضعیت مدلسازی فمیلی:' : 'Transition Modeling Status:'}</span>
-                            <select
-                              value={req.status}
-                              onChange={e => {
-                                const newStatus = e.target.value;
-                                setObjectRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: newStatus } : r));
-                                alert(isRtl ? 'وضعیت درخواست با موفقیت به روز شد.' : 'Modeling request status updated successfully.');
-                              }}
-                              className="text-xs p-2 border rounded-xl bg-gray-50 dark:bg-gray-950 font-bold focus:ring-1 focus:ring-amber-500 focus:outline-none"
-                            >
-                              <option value="Pending">{isRtl ? 'در انتظار بررسی' : 'Pending Review'}</option>
-                              <option value="In Progress">{isRtl ? 'در حال مدلسازی فمیلی' : 'In Modeling Queue'}</option>
-                              <option value="Completed">{isRtl ? 'تکمیل شده و انتشار یافته' : 'Completed & Released'}</option>
-                              <option value="Rejected">{isRtl ? 'رد شده (غیر قابل مدلسازی)' : 'Rejected'}</option>
-                            </select>
-                          </div>
-
-                          <button
-                            onClick={() => {
-                              // Automatically complete and transition to catalog
-                              setObjectRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: 'Completed' } : r));
-                              alert(isRtl ? 'این فمیلی رسماً تایید شد و کاتالوگ آن آماده اتصال به آرشیو رویت گردید.' : 'Family released. Added to standard Revit spec libraries.');
-                            }}
-                            className="bg-amber-500 hover:bg-amber-600 text-white text-xs font-black py-2.5 px-4.5 rounded-xl transition-colors cursor-pointer shadow-sm self-stretch sm:self-auto text-center"
-                          >
-                            {isRtl ? 'تایید نهایی و آماده سازی انتشار' : 'Approve & Release Family'}
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })()
-                ) : (
-                  <div className="bg-white dark:bg-gray-900 border rounded-2xl p-12 text-center text-xs text-gray-400 dark:border-gray-800">
-                    {isRtl ? 'جهت مشاهده جزئیات فنی درخواست و مشخصات معمار، یک مورد را از لیست سمت چپ انتخاب کنید.' : 'Select an active modeling request from the left list to view technical specs and contact coordinates.'}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* Visitor Public Preview Modal Representation */}
-      {showPublicPreview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-xs" onClick={() => setShowPublicPreview(false)} />
-          <div className="relative w-full max-w-md bg-white dark:bg-gray-900 border dark:border-gray-800 rounded-3xl p-6 shadow-2xl space-y-4">
-            <div className="flex justify-between items-center pb-3 border-b dark:border-gray-800">
-              <h4 className="text-xs font-bold text-gray-800 dark:text-white uppercase tracking-wider">{isRtl ? 'مشاهده پروفایل برند از دید طراحان' : 'Public Visitor Preview'}</h4>
-              <button onClick={() => setShowPublicPreview(false)} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5" /></button>
-            </div>
 
-            <div className="space-y-4 text-xs">
-              <div className="text-center space-y-2">
-                <img src={brandInfo.logoUrl} alt="logo" className="w-16 h-16 rounded-2xl mx-auto object-cover border" />
-                <h3 className="font-black text-sm text-gray-800 dark:text-white">{isRtl ? brandInfo.nameFa : brandInfo.nameEn}</h3>
-                <span className="bg-emerald-100 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400 font-bold px-2.5 py-0.5 rounded-full text-[9px]">Verified Producer</span>
-              </div>
-
-              <p className="text-gray-500 dark:text-gray-400 text-center leading-relaxed">
-                {isRtl ? brandInfo.descFa : brandInfo.descEn}
-              </p>
-
-              <div className="bg-slate-50 dark:bg-gray-950 p-3 rounded-xl space-y-1.5 text-center text-gray-400">
-                <p>Website: <span className="text-[#26B6B6] font-bold">{brandInfo.website}</span></p>
-                <p>Phone: <span className="font-mono">{brandInfo.phone}</span></p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
     </div>
   );
@@ -2207,6 +3863,7 @@ interface MfgSidebarNavListProps {
   isRtl: boolean;
   unansweredLeadsCount: number;
   collapsed?: boolean;
+  onLogout: () => void;
 }
 
 const MfgSidebarNavList: React.FC<MfgSidebarNavListProps> = ({
@@ -2214,20 +3871,19 @@ const MfgSidebarNavList: React.FC<MfgSidebarNavListProps> = ({
   onSelectTab,
   isRtl,
   unansweredLeadsCount,
-  collapsed = false
+  collapsed = false,
+  onLogout
 }) => {
   const items = [
-    { id: 'overview' as const, labelFa: 'پیشخوان اصلی', labelEn: 'Overview Home', icon: Grid },
-    { id: 'profile' as const, labelFa: 'پروفایل برند کارخانه', labelEn: 'Brand Profile', icon: Building },
-    { id: 'catalog' as const, labelFa: 'کاتالوگ محصولات', labelEn: 'BIM SKUs Inventory', icon: Layers },
-    { id: 'subscription' as const, labelFa: 'اشتراک و کارمزد', labelEn: 'Subscription SLA', icon: DollarSign },
-    { id: 'analytics' as const, labelFa: 'گزارش و تحلیل آماری', labelEn: 'Catalog Analytics', icon: BarChart3 },
-    { id: 'crm' as const, labelFa: 'سرنخ‌ها و تیکت‌ها', labelEn: 'Leads Inbox CRM', icon: Mail, leadBadge: unansweredLeadsCount > 0 },
-    { id: 'object-requests' as const, labelFa: 'آبجکت‌های درخواستی کاربران', labelEn: 'Requested BIM Families', icon: HelpCircle },
-    { id: 'standards' as const, labelFa: 'گواهی‌ها و استانداردها', labelEn: 'Standards ISO', icon: ShieldCheck },
-    { id: 'awards' as const, labelFa: 'افتخارات و پروژه‌ها', labelEn: 'Portfolio Awards', icon: Award },
+    { id: 'overview' as const, labelFa: 'پیشخوان', labelEn: 'Overview', icon: Grid },
+    { id: 'profile' as const, labelFa: 'پروفایل برند', labelEn: 'Brand Profile', icon: Building },
+    { id: 'catalog' as const, labelFa: 'انبار آبجکت‌های بیم', labelEn: 'BIM SKUs Inventory', icon: Layers },
+    { id: 'subscription' as const, labelFa: 'اشتراک و صورتحساب', labelEn: 'Subscription & Billing', icon: DollarSign },
+    { id: 'analytics' as const, labelFa: 'تحلیل عملکرد کاتالوگ', labelEn: 'Catalog Analytics', icon: BarChart3 },
+    { id: 'requests' as const, labelFa: 'درخواست‌ها و سرنخ‌ها', labelEn: 'Requests & Leads', icon: Mail, leadBadge: unansweredLeadsCount > 0 },
     { id: 'approval-chat' as const, labelFa: 'گفتگو با ناظر ممیزی', labelEn: 'Supervisor Chat', icon: FileCheck },
-    { id: 'notifications' as const, labelFa: 'اعلان‌های سازمانی', labelEn: 'Administrative Alerts', icon: Bell }
+    { id: 'notifications' as const, labelFa: 'اعلان‌ها', labelEn: 'Notifications', icon: Bell },
+    { id: 'logout' as const, labelFa: 'خروج از حساب کاربری', labelEn: 'Sign Out', icon: LogOut, isLogout: true }
   ];
 
   return (
@@ -2237,10 +3893,34 @@ const MfgSidebarNavList: React.FC<MfgSidebarNavListProps> = ({
         const active = activeTab === item.id;
         const label = isRtl ? item.labelFa : item.labelEn;
 
+        if (item.isLogout) {
+          return (
+            <React.Fragment key={item.id}>
+              {/* Horizontal divider line with spacing */}
+              <li className="my-3 border-t border-gray-150 dark:border-gray-800" />
+              <li>
+                <button
+                  type="button"
+                  onClick={onLogout}
+                  className={`w-full flex items-center gap-2.5 py-3 rounded-xl transition-all cursor-pointer font-bold border ${
+                    collapsed 
+                      ? 'justify-center px-0 border-rose-500/20 text-rose-500 bg-rose-500/5 hover:bg-rose-500/10' 
+                      : 'px-4 border-rose-500/20 text-rose-600 bg-rose-500/5 hover:bg-rose-500/10 dark:text-rose-400 dark:bg-rose-500/10 dark:hover:bg-rose-500/15'
+                  }`}
+                >
+                  <Icon className="w-4 h-4 shrink-0" />
+                  {!collapsed && <span className="truncate">{label}</span>}
+                </button>
+              </li>
+            </React.Fragment>
+          );
+        }
+
         return (
           <li key={item.id}>
             <button
-              onClick={() => onSelectTab(item.id)}
+              type="button"
+              onClick={() => onSelectTab(item.id as MFGTab)}
               className={`w-full flex items-center justify-between py-3 rounded-xl transition-all cursor-pointer ${
                 active 
                   ? 'bg-[#26B6B6]/10 text-[#26B6B6] font-bold' 
@@ -2253,8 +3933,8 @@ const MfgSidebarNavList: React.FC<MfgSidebarNavListProps> = ({
               </div>
 
               {!collapsed && item.leadBadge && (
-                <span className="bg-[#26B6B6] text-white text-[8px] font-black px-1.5 py-0.5 rounded-full animate-pulse">
-                  NEW
+                <span className="bg-[#26B6B6] text-white text-[8px] font-black px-1.5 py-0.5 rounded-full animate-pulse shrink-0">
+                  {isRtl ? 'جدید' : 'NEW'}
                 </span>
               )}
             </button>

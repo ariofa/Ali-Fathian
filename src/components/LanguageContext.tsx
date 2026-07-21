@@ -40,8 +40,8 @@ const translations: Record<string, { fa: string; en: string }> = {
   
   // Home Sections
   browseByCategory: { fa: 'مرور بر اساس دسته‌بندی موضوعی', en: 'Browse by Technical Category' },
-  trustedPartners: { fa: 'برندهای معتبر صنعتی عضو شده', en: 'Verified Manufacturer Partners' },
-  trustedPartnersSub: { fa: 'شرکت‌های تولیدی برتر ایرانی که کاتالوگ رسمی BIM خود را منتشر کرده‌اند', en: 'Leading Iranian building manufacturers who publish their certified digital catalogs here' },
+  trustedPartners: { fa: 'اعضای برگزیده و برندهای پیشروی حوزه BIM', en: 'Featured Members & Leading Brands in BIM' },
+  trustedPartnersSub: { fa: 'محصولات خود را در دایرکتوری رسمی قطعات مدرن ساختمان ثبت کنید و مستقیماً به ویترین طراحان و مهندسان بزرگ کشور وارد شوید.', en: 'Register your products in the official directory of modern building components and directly enter the showcase of the country’s leading designers and engineers.' },
   newAndTrending: { fa: 'جدیدترین و پردانلودترین آبجکت‌ها', en: 'New & Trending BIM Objects' },
   manufacturerPromoTitle: { fa: 'آیا تولیدکننده مصالح یا تجهیزات ساختمانی هستید؟', en: 'Are You a Building Product Manufacturer?' },
   manufacturerPromoDesc: { fa: 'کاتالوگ محصولات خود را به آبجکت‌های هوشمند BIM تبدیل کنید و مستقیماً در نقشه‌های فاز دو مهندسین معمار و سازه ایران حضور یابید. مشخص شدن در مدل یعنی فروش قطعی در کارگاه ساختمانی.', en: 'Convert your physical products into smart BIM families. Get discovered and specified directly inside the design stage of top Iranian projects. Getting specified means secured project sales.' },

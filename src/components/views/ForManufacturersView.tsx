@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 
 interface ForManufacturersViewProps {
-  onNavigate: (view: string) => void;
+  onNavigate: (view: string, customTextFa?: string, customTextEn?: string, param?: string) => void;
   onOpenAuthModal: () => void;
   currentUser: any;
 }
@@ -444,7 +444,17 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
                     <li>✓ {isRtl ? 'دریافت سرنخ‌های کامل طراحان (نام، تلفن، ایمیل)' : 'Full specification contact details'}</li>
                     <li>✓ {isRtl ? 'آمار روزانه تفکیک‌شده و تحلیل جستجوها' : 'Daily searches and category logs'}</li>
                   </ul>
-                  <button onClick={handleRegisterBrand} className="w-full py-2 bg-[#26B6B6] text-white text-[10px] font-black rounded-lg cursor-pointer">
+                  <button 
+                    onClick={() => {
+                      const savedProfile = localStorage.getItem('iranbimhub_mfg_profile');
+                      if (savedProfile) {
+                        onNavigate('payment', undefined, undefined, 'mfg-premium');
+                      } else {
+                        onNavigate('manufacturer-onboarding');
+                      }
+                    }} 
+                    className="w-full py-2 bg-[#26B6B6] text-white text-[10px] font-black rounded-lg cursor-pointer"
+                  >
                     {isRtl ? 'خرید اشتراک ممتاز' : 'Purchase Premium'}
                   </button>
                 </>
@@ -460,7 +470,17 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
                     <li>✓ {isRtl ? 'سرنخ‌های مستقیم هوشمند به اضافه پیامرسان' : 'Leads + custom communications'}</li>
                     <li>✓ {isRtl ? 'موقعیت ویژه در صفحه اصلی و نتایج جستجو' : 'Homepage spotlight placements'}</li>
                   </ul>
-                  <button onClick={handleRegisterBrand} className="w-full py-2 bg-gray-800 text-white text-[10px] font-black rounded-lg cursor-pointer">
+                  <button 
+                    onClick={() => {
+                      const savedProfile = localStorage.getItem('iranbimhub_mfg_profile');
+                      if (savedProfile) {
+                        onNavigate('payment', undefined, undefined, 'mfg-vip');
+                      } else {
+                        onNavigate('manufacturer-onboarding');
+                      }
+                    }} 
+                    className="w-full py-2 bg-gray-800 text-white text-[10px] font-black rounded-lg cursor-pointer"
+                  >
                     {isRtl ? 'خرید اشتراک ویژه' : 'Purchase VIP'}
                   </button>
                 </>

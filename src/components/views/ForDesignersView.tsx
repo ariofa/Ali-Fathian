@@ -20,7 +20,7 @@ import { CATEGORIES, BIM_OBJECTS } from '../../data';
 import { BIMObjectCard } from '../BIMObjectCard';
 
 interface ForDesignersViewProps {
-  onNavigate: (view: string) => void;
+  onNavigate: (view: string, customTextFa?: string, customTextEn?: string, param?: string) => void;
   onOpenAuthModal: () => void;
   savedObjects: string[];
   onToggleSave: (id: string) => void;
@@ -502,7 +502,13 @@ export const ForDesignersView: React.FC<ForDesignersViewProps> = ({
                     <li className="flex items-center gap-2">✓ {isRtl ? 'پشتیبانی مهندسی و بازبینی کاتالوگ' : 'Priority support desk'}</li>
                   </ul>
                   <button
-                    onClick={handleStartFree}
+                    onClick={() => {
+                      if (currentUser) {
+                        onNavigate('payment', undefined, undefined, 'modeler-vip');
+                      } else {
+                        onOpenAuthModal();
+                      }
+                    }}
                     className="w-full py-2.5 bg-[#26B6B6] text-white rounded-xl text-xs font-black hover:bg-[#1e9494] transition-colors cursor-pointer"
                   >
                     {isRtl ? 'ارتقا به حساب VIP' : 'Upgrade to VIP'}

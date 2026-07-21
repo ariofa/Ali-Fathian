@@ -105,6 +105,9 @@ export const Header: React.FC<HeaderProps> = ({
   }, []);
 
   useEffect(() => {
+    if (categoriesDropdownOpen) {
+      setMobileSearchOpen(false);
+    }
     const event = new CustomEvent('categories-menu-changed', {
       detail: { open: categoriesDropdownOpen }
     });
@@ -407,7 +410,7 @@ export const Header: React.FC<HeaderProps> = ({
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-800 shadow-sm transition-colors" dir={isRtl ? 'rtl' : 'ltr'}>
+    <header className={`sticky top-0 z-50 bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-800 shadow-sm transition-colors ${currentView === 'home' ? 'is-landing-page' : ''}`} dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* DESKTOP LAYOUT (md:flex) */}
@@ -422,142 +425,230 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           </div>
 
-          {/* Desktop Persistent Search Bar (BIMobject style) */}
-          <div 
-            ref={desktopSearchRef} 
-            className={`transition-all duration-300 ease-in-out relative mx-4 ${
-              currentView === 'home' 
-                ? (isSearchExpanded || isSearchFocused || searchQuery.trim().length > 0 ? 'flex-1 max-w-xl' : 'w-11 max-w-[44px]') 
-                : 'flex-1 max-w-xl'
-            }`}
-          >
-            <form 
-              onSubmit={handleSearchSubmit} 
-              className="flex items-center bg-gray-50 dark:bg-slate-50 border border-gray-200 dark:border-gray-300 rounded-full p-1 focus-within:ring-2 focus-within:ring-[#26B6B6]/20 focus-within:border-[#26B6B6] transition-all h-11 w-full"
+          {/* Desktop Persistent Search Bar (BIMobject style) - Rendered ONLY on non-landing pages */}
+          {currentView !== 'home' && (
+            <div 
+              ref={desktopSearchRef} 
+              className="transition-all duration-300 ease-in-out relative mx-4 flex-1 max-w-xl"
             >
-              <input
-                type="text"
-                placeholder={isRtl ? 'جستجو در آبجکت‌های بیم، دسته‌بندی‌ها یا برندها' : 'Search BIM objects, categories or brands'}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={handleKeyDown}
-                onFocus={() => {
-                  setIsSearchFocused(true);
-                  if (currentView === 'home') setIsSearchExpanded(true);
-                }}
-                className={`text-xs bg-transparent border-0 focus:outline-none focus:ring-0 placeholder-gray-400 dark:placeholder-gray-400 text-gray-800 dark:text-gray-900 transition-all duration-300 ${
-                  currentView === 'home' && !(isSearchExpanded || isSearchFocused || searchQuery.trim().length > 0)
-                    ? 'w-0 opacity-0 p-0 pointer-events-none'
-                    : 'w-full px-4 opacity-100'
-                }`}
-              />
-              <button 
-                type="submit"
-                onClick={(e) => {
-                  if (currentView === 'home' && !(isSearchExpanded || isSearchFocused || searchQuery.trim().length > 0)) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setIsSearchExpanded(true);
-                    setTimeout(() => {
-                      const input = desktopSearchRef.current?.querySelector('input');
-                      if (input) input.focus();
-                    }, 100);
-                  }
-                }}
-                className={`rounded-full flex items-center justify-center transition-all duration-300 active:scale-95 shrink-0 cursor-pointer ${
-                  currentView === 'home' && !(isSearchExpanded || isSearchFocused || searchQuery.trim().length > 0)
-                    ? 'w-9 h-9 bg-transparent hover:bg-gray-100 text-[#464E56]' 
-                    : 'bg-[#464E56] hover:bg-[#2c3136] text-white dark:bg-[#26B6B6] dark:hover:bg-[#1e9494] px-5 h-8 gap-1.5 text-xs font-black'
-                }`}
+              <form 
+                onSubmit={handleSearchSubmit} 
+                className="flex items-center bg-gray-50 dark:bg-slate-50 border border-gray-200 dark:border-gray-300 rounded-full p-1 focus-within:ring-2 focus-within:ring-[#26B6B6]/20 focus-within:border-[#26B6B6] transition-all h-11 w-full"
               >
-                <Search className="w-3.5 h-3.5" />
-                <span className={`transition-all duration-300 ${
-                  currentView === 'home' && !(isSearchExpanded || isSearchFocused || searchQuery.trim().length > 0)
-                    ? 'hidden' 
-                    : 'hidden lg:inline'
-                }`}>{isRtl ? 'جستجو' : 'Search'}</span>
-              </button>
-            </form>
+                <input
+                  type="text"
+                  placeholder={isRtl ? 'جستجو در آبجکت‌های بیم، دسته‌بندی‌ها یا برندها' : 'Search BIM objects, categories or brands'}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  onFocus={() => setIsSearchFocused(true)}
+                  className="text-xs bg-transparent border-0 focus:outline-none focus:ring-0 placeholder-gray-400 dark:placeholder-gray-400 text-gray-800 dark:text-gray-900 w-full px-4 opacity-100"
+                />
+                <button 
+                  type="submit"
+                  className="rounded-full flex items-center justify-center transition-all duration-300 active:scale-95 shrink-0 cursor-pointer bg-[#464E56] hover:bg-[#2c3136] text-white dark:bg-[#26B6B6] dark:hover:bg-[#1e9494] px-5 h-8 gap-1.5 text-xs font-black"
+                >
+                  <Search className="w-3.5 h-3.5" />
+                  <span className="hidden lg:inline">{isRtl ? 'جستجو' : 'Search'}</span>
+                </button>
+              </form>
 
-            {/* Recent Searches & Autocomplete Dropdown */}
-            {isSearchFocused && (
-              <div className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl overflow-hidden z-50 text-xs">
-                {searchQuery.trim().length < 2 && recentSearches.length > 0 ? (
-                  <div className="py-2 px-1">
-                    <div className="flex items-center justify-between px-3 py-1.5 border-b border-gray-100 dark:border-gray-800/60 mb-1">
-                      <span className="font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-[#26B6B6]" />
-                        {isRtl ? 'جستجوهای اخیر' : 'Recent Searches'}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={clearAllRecentSearches}
-                        className="text-[10px] text-gray-400 dark:text-gray-500 hover:text-red-500 hover:dark:text-red-400 transition-colors cursor-pointer font-bold"
-                      >
-                        {isRtl ? 'پاک کردن همه' : 'Clear All'}
-                      </button>
-                    </div>
-                    <div className="space-y-0.5 max-h-60 overflow-y-auto">
-                      {recentSearches.map((query, index) => (
-                        <div
-                          key={`recent-${index}`}
-                          onClick={() => handleRecentSearchClick(query)}
-                          className="w-full flex items-center justify-between px-3 py-2 text-start rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/40 cursor-pointer transition-colors group"
+              {/* Recent Searches & Autocomplete Dropdown */}
+              {isSearchFocused && (
+                <div className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl overflow-hidden z-50 text-xs">
+                  {searchQuery.trim().length < 2 && recentSearches.length > 0 ? (
+                    <div className="py-2 px-1">
+                      <div className="flex items-center justify-between px-3 py-1.5 border-b border-gray-100 dark:border-gray-800/60 mb-1">
+                        <span className="font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 text-[#26B6B6]" />
+                          {isRtl ? 'جستجوهای اخیر' : 'Recent Searches'}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={clearAllRecentSearches}
+                          className="text-[10px] text-gray-400 dark:text-gray-500 hover:text-red-500 hover:dark:text-red-400 transition-colors cursor-pointer font-bold"
                         >
-                          <span className="text-gray-700 dark:text-gray-300 group-hover:text-[#26B6B6] truncate flex-1 font-medium">
-                            {query}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={(e) => removeRecentSearch(query, e)}
-                            className="p-1 text-gray-400 hover:text-red-500 dark:hover:text-red-400 rounded transition-colors"
-                            title={isRtl ? 'حذف' : 'Remove'}
+                          {isRtl ? 'پاک کردن همه' : 'Clear All'}
+                        </button>
+                      </div>
+                      <div className="space-y-0.5 max-h-60 overflow-y-auto">
+                        {recentSearches.map((query, index) => (
+                          <div
+                            key={`recent-${index}`}
+                            onClick={() => handleRecentSearchClick(query)}
+                            className="w-full flex items-center justify-between px-3 py-2 text-start rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/40 cursor-pointer transition-colors group"
                           >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      ))}
+                            <span className="text-gray-700 dark:text-gray-300 group-hover:text-[#26B6B6] truncate flex-1 font-medium">
+                              {query}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={(e) => removeRecentSearch(query, e)}
+                              className="p-1 text-gray-400 hover:text-red-500 dark:hover:text-red-400 rounded transition-colors"
+                              title={isRtl ? 'حذف' : 'Remove'}
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  showAutocomplete && suggestions.length > 0 && (
-                    <div className="py-1">
-                      {suggestions.map((sug, idx) => {
-                        const Icon = sug.type === 'object' ? Package : (sug.type === 'category' ? Folder : Tag);
-                        const isSelected = idx === autocompleteIndex;
-                        return (
-                          <button
-                            key={sug.id}
-                            type="button"
-                            onClick={() => handleSelectSuggestion(sug)}
-                            onMouseEnter={() => setAutocompleteIndex(idx)}
-                            className={`w-full flex items-center gap-3 px-4 py-2.5 text-start border-b border-gray-50 dark:border-gray-800/50 last:border-0 transition-colors ${
-                              isSelected 
-                                ? 'bg-[#26B6B6]/5 dark:bg-[#26B6B6]/10 text-[#26B6B6]' 
-                                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/40'
-                            }`}
-                          >
-                            <Icon className={`w-4 h-4 shrink-0 ${isSelected ? 'text-[#26B6B6]' : 'text-gray-400'}`} />
-                            <div className="flex-1 min-w-0">
-                              <p className="font-extrabold truncate">{sug.label}</p>
-                              {sug.secondaryLabel && (
-                                <p className="text-[10px] text-gray-400 dark:text-gray-500 font-medium truncate mt-0.5">
-                                  {sug.secondaryLabel}
-                                </p>
-                              )}
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )
-                )}
-              </div>
-            )}
-          </div>
+                  ) : (
+                    showAutocomplete && suggestions.length > 0 && (
+                      <div className="py-1">
+                        {suggestions.map((sug, idx) => {
+                          const Icon = sug.type === 'object' ? Package : (sug.type === 'category' ? Folder : Tag);
+                          const isSelected = idx === autocompleteIndex;
+                          return (
+                            <button
+                              key={sug.id}
+                              type="button"
+                              onClick={() => handleSelectSuggestion(sug)}
+                              onMouseEnter={() => setAutocompleteIndex(idx)}
+                              className={`w-full flex items-center gap-3 px-4 py-2.5 text-start border-b border-gray-50 dark:border-gray-800/50 last:border-0 transition-colors ${
+                                isSelected 
+                                  ? 'bg-[#26B6B6]/5 dark:bg-[#26B6B6]/10 text-[#26B6B6]' 
+                                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/40'
+                              }`}
+                            >
+                              <Icon className={`w-4 h-4 shrink-0 ${isSelected ? 'text-[#26B6B6]' : 'text-gray-400'}`} />
+                              <div className="flex-1 min-w-0">
+                                <p className="font-extrabold truncate">{sug.label}</p>
+                                {sug.secondaryLabel && (
+                                  <p className="text-[10px] text-gray-400 dark:text-gray-500 font-medium truncate mt-0.5">
+                                    {sug.secondaryLabel}
+                                  </p>
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Right Side Icons: Language, Notifications, Account */}
           <div className="flex items-center gap-2.5">
+            {/* Conditional Search Icon inside action group (Only visible on Landing Page) */}
+            {currentView === 'home' && (
+              <div ref={desktopSearchRef} className="relative flex items-center">
+                {isSearchExpanded ? (
+                  <form 
+                    onSubmit={handleSearchSubmit} 
+                    className="flex items-center bg-gray-50 dark:bg-slate-50 border border-gray-200 dark:border-gray-300 rounded-full p-1 focus-within:ring-2 focus-within:ring-[#26B6B6]/20 focus-within:border-[#26B6B6] transition-all h-9 w-64 animate-fadeIn"
+                  >
+                    <input
+                      type="text"
+                      autoFocus
+                      placeholder={isRtl ? 'جستجو...' : 'Search...'}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      onFocus={() => setIsSearchFocused(true)}
+                      className="text-xs bg-transparent border-0 focus:outline-none focus:ring-0 placeholder-gray-400 dark:placeholder-gray-400 text-gray-800 dark:text-gray-900 w-full px-3 py-1"
+                    />
+                    <button 
+                      type="submit"
+                      className="bg-[#464E56] hover:bg-[#2c3136] text-white dark:bg-[#26B6B6] dark:hover:bg-[#1e9494] rounded-full p-1.5 h-7 w-7 flex items-center justify-center cursor-pointer transition-all active:scale-95 shrink-0"
+                    >
+                      <Search className="w-3.5 h-3.5" />
+                    </button>
+                  </form>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setIsSearchExpanded(true);
+                      setIsSearchFocused(true);
+                    }}
+                    className="p-2 border border-gray-200/60 dark:border-gray-800/80 rounded-full hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors text-gray-500 dark:text-gray-400 hover:text-[#26B6B6] cursor-pointer h-9 w-9 flex items-center justify-center shrink-0"
+                    title={isRtl ? 'جستجو' : 'Search'}
+                  >
+                    <Search className="w-4 h-4" />
+                  </button>
+                )}
+
+                {/* Suggestions / Dropdown for search icon inside group */}
+                {isSearchFocused && (
+                  <div className={`absolute ${isRtl ? 'left-0' : 'right-0'} top-full mt-2 w-64 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl overflow-hidden z-50 text-xs`}>
+                    {searchQuery.trim().length < 2 && recentSearches.length > 0 ? (
+                      <div className="py-2 px-1">
+                        <div className="flex items-center justify-between px-3 py-1.5 border-b border-gray-100 dark:border-gray-800/60 mb-1">
+                          <span className="font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                            <Clock className="w-3.5 h-3.5 text-[#26B6B6]" />
+                            {isRtl ? 'جستجوهای اخیر' : 'Recent Searches'}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={clearAllRecentSearches}
+                            className="text-[10px] text-gray-400 dark:text-gray-500 hover:text-red-500 hover:dark:text-red-400 transition-colors cursor-pointer font-bold"
+                          >
+                            {isRtl ? 'پاک کردن همه' : 'Clear All'}
+                          </button>
+                        </div>
+                        <div className="space-y-0.5 max-h-60 overflow-y-auto">
+                          {recentSearches.map((query, index) => (
+                            <div
+                              key={`recent-lp-${index}`}
+                              onClick={() => handleRecentSearchClick(query)}
+                              className="w-full flex items-center justify-between px-3 py-2 text-start rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/40 cursor-pointer transition-colors group"
+                            >
+                              <span className="text-gray-700 dark:text-gray-300 group-hover:text-[#26B6B6] truncate flex-1 font-medium">
+                                {query}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={(e) => removeRecentSearch(query, e)}
+                                className="p-1 text-gray-400 hover:text-red-500 dark:hover:text-red-400 rounded transition-colors"
+                                title={isRtl ? 'حذف' : 'Remove'}
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      showAutocomplete && suggestions.length > 0 && (
+                        <div className="py-1">
+                          {suggestions.map((sug, idx) => {
+                            const Icon = sug.type === 'object' ? Package : (sug.type === 'category' ? Folder : Tag);
+                            const isSelected = idx === autocompleteIndex;
+                            return (
+                              <button
+                                key={`suggest-lp-${sug.id}`}
+                                type="button"
+                                onClick={() => handleSelectSuggestion(sug)}
+                                onMouseEnter={() => setAutocompleteIndex(idx)}
+                                className={`w-full flex items-center gap-3 px-4 py-2.5 text-start border-b border-gray-50 dark:border-gray-800/50 last:border-0 transition-colors ${
+                                  isSelected 
+                                    ? 'bg-[#26B6B6]/5 dark:bg-[#26B6B6]/10 text-[#26B6B6]' 
+                                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/40'
+                                }`}
+                              >
+                                <Icon className={`w-4 h-4 shrink-0 ${isSelected ? 'text-[#26B6B6]' : 'text-gray-400'}`} />
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-extrabold truncate">{sug.label}</p>
+                                  {sug.secondaryLabel && (
+                                    <p className="text-[10px] text-gray-400 dark:text-gray-500 font-medium truncate mt-0.5">
+                                      {sug.secondaryLabel}
+                                    </p>
+                                  )}
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* 1. Language Toggle */}
             <button
               onClick={() => setLanguage(language === 'fa' ? 'en' : 'fa')}
@@ -766,20 +857,33 @@ export const Header: React.FC<HeaderProps> = ({
         {/* MOBILE LAYOUT (md:hidden) */}
         <div className="flex md:hidden flex-col gap-2 py-2.5 relative">
           {/* ROW 1: Logo & Logotype + Compact Icon Cluster */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             {/* Logo & Logotype */}
             <div className="flex items-center shrink-0">
               <button 
                 onClick={() => onNavigate('home')} 
                 className="focus:outline-none cursor-pointer transition-transform duration-200 active:scale-95"
               >
-                <Logo className="h-10" iconOnly={false} />
+                <Logo className="h-9 sm:h-10" iconOnly={false} />
               </button>
             </div>
 
             {/* Compact Icon Cluster */}
             <div className="flex items-center gap-1.5 shrink-0">
-              {/* 1. Language Toggle */}
+              {/* 1. Search Toggle Icon (Aligned horizontally, same size as other peers) */}
+              <button
+                onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+                className={`p-1.5 rounded-full transition-all cursor-pointer flex items-center justify-center h-8 w-8 border ${
+                  mobileSearchOpen 
+                    ? 'border-[#26B6B6]/40 bg-[#26B6B6]/5 text-[#26B6B6]' 
+                    : 'border-gray-200/60 dark:border-gray-800/80 hover:bg-gray-50 dark:hover:bg-gray-900 text-gray-500 dark:text-gray-400 hover:text-[#26B6B6]'
+                }`}
+                title={isRtl ? 'جستجو' : 'Search'}
+              >
+                <Search className="w-3.5 h-3.5" />
+              </button>
+
+              {/* 2. Language Toggle */}
               <button
                 onClick={() => setLanguage(language === 'fa' ? 'en' : 'fa')}
                 className="flex items-center justify-center p-1.5 border border-gray-200/60 dark:border-gray-800/80 rounded-full hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors text-[10px] font-extrabold text-[#464E56] dark:text-gray-300 cursor-pointer h-8 w-8 gap-0.5 shrink-0"
@@ -789,7 +893,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <span className="text-[8px]">{language === 'fa' ? 'EN' : 'فا'}</span>
               </button>
 
-              {/* 2. Notifications Bell */}
+              {/* 3. Notifications Bell */}
               <div className="relative" ref={mobileNotificationsRef}>
                 <button
                   onClick={() => setNotificationsOpen(!notificationsOpen)}
@@ -835,6 +939,8 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
                 )}
               </div>
+
+
 
               {/* 3. Account Dropdown */}
               <div className="relative" ref={mobileAccountRef}>
@@ -981,6 +1087,105 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           </div>
 
+          {/* Expandable Mobile Search Bar (under row 1, visible only when search toggled) */}
+          {mobileSearchOpen && (
+            <div ref={mobileSearchRefCombined} className="w-full relative mt-1.5 animate-fadeIn">
+              <form 
+                onSubmit={handleSearchSubmit} 
+                className="w-full flex items-center bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-full p-1.5 focus-within:ring-2 focus-within:ring-[#26B6B6]/20 focus-within:border-[#26B6B6] transition-all h-9.5"
+              >
+                <input
+                  id="header-search-input-mobile"
+                  type="text"
+                  autoFocus
+                  placeholder={isRtl ? 'جستجو...' : 'Search...'}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  onFocus={() => setIsSearchFocused(true)}
+                  className="w-full text-xs bg-transparent border-0 focus:outline-none focus:ring-0 placeholder-gray-400 dark:placeholder-gray-500 text-gray-800 dark:text-gray-105 px-3 py-1"
+                />
+                <button 
+                  type="submit"
+                  className="bg-[#464E56] dark:bg-[#26B6B6] text-white rounded-full p-1 h-7.5 w-7.5 flex items-center justify-center cursor-pointer transition-all active:scale-95 shrink-0 mr-1 ml-1"
+                >
+                  <Search className="w-3.5 h-3.5" />
+                </button>
+              </form>
+
+              {/* Suggestions / Dropdown for mobile */}
+              {isSearchFocused && (
+                <div className={`absolute ${isRtl ? 'left-0' : 'right-0'} top-full mt-1.5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl overflow-hidden z-50 text-[11px] w-full max-w-sm`}>
+                  {searchQuery.trim().length < 2 && recentSearches.length > 0 ? (
+                    <div className="py-1.5 px-0.5">
+                      <div className="flex items-center justify-between px-2.5 py-1.5 border-b border-gray-100 dark:border-gray-800/60 mb-1">
+                        <span className="font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-[#26B6B6]" />
+                          {isRtl ? 'جستجوهای اخیر' : 'Recent'}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={clearAllRecentSearches}
+                          className="text-[9px] text-gray-400 dark:text-gray-500 hover:text-red-500 hover:dark:text-red-400 transition-colors cursor-pointer font-bold"
+                        >
+                          {isRtl ? 'پاک کردن' : 'Clear'}
+                        </button>
+                      </div>
+                      <div className="space-y-0.5 max-h-36 overflow-y-auto">
+                        {recentSearches.map((query, index) => (
+                          <div
+                            key={`recent-mob-${index}`}
+                            onClick={() => handleRecentSearchClick(query)}
+                            className="w-full flex items-center justify-between px-2.5 py-1.5 text-start rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/40 cursor-pointer transition-colors group"
+                          >
+                            <span className="text-gray-700 dark:text-gray-300 group-hover:text-[#26B6B6] truncate flex-1 font-medium">
+                              {query}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={(e) => removeRecentSearch(query, e)}
+                              className="p-1 text-gray-400 hover:text-red-500 dark:hover:text-red-400 rounded transition-colors"
+                              title={isRtl ? 'حذف' : 'Remove'}
+                            >
+                              <X className="w-2.5 h-2.5" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    showAutocomplete && suggestions.length > 0 && (
+                      <div className="py-1">
+                        {suggestions.slice(0, 5).map((sug, idx) => {
+                          const Icon = sug.type === 'object' ? Package : (sug.type === 'category' ? Folder : Tag);
+                          const isSelected = idx === autocompleteIndex;
+                          return (
+                            <button
+                              key={`suggest-mob-${sug.id}`}
+                              type="button"
+                              onClick={() => handleSelectSuggestion(sug)}
+                              onMouseEnter={() => setAutocompleteIndex(idx)}
+                              className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-start border-b border-gray-50 dark:border-gray-800/50 last:border-0 transition-colors ${
+                                isSelected 
+                                  ? 'bg-[#26B6B6]/5 dark:bg-[#26B6B6]/10 text-[#26B6B6]' 
+                                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/40'
+                              }`}
+                            >
+                              <Icon className="w-3 h-3 shrink-0 text-gray-400" />
+                              <div className="flex-1 min-w-0">
+                                <p className="font-extrabold truncate text-[10px]">{sug.label}</p>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* ROW 2: Persistent Search Bar (Only visible on tablet widths between 640px and 768px) */}
           <div ref={mobileSearchRef} className="w-full relative hidden sm:block md:hidden">
             <form 
@@ -1101,9 +1306,9 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <button
                   id="nav-categories"
-                  onClick={() => {
-                    onNavigate('categories');
-                    setCategoriesDropdownOpen(false);
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setCategoriesDropdownOpen(prev => !prev);
                   }}
                   className={`px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer flex items-center gap-1 font-extrabold shadow-2xs hover:shadow-xs hover:scale-102 ${
                     currentView === 'categories' || categoriesDropdownOpen
@@ -1162,7 +1367,7 @@ export const Header: React.FC<HeaderProps> = ({
                 className={`px-3 py-2 rounded-lg transition-colors cursor-pointer ${
                   currentView === 'contact'
                     ? 'text-[#26B6B6] bg-[#26B6B6]/5 font-black' 
-                    : 'text-gray-600 dark:text-gray-400 hover:text-[#26B6B6]'
+                    : 'text-gray-650 dark:text-gray-305 hover:text-[#26B6B6]'
                 }`}
               >
                 {isRtl ? 'تماس با ما' : 'Contact Us'}
@@ -1170,112 +1375,32 @@ export const Header: React.FC<HeaderProps> = ({
 
             </div>
 
-          </div>
-
-          {/* Mobile responsive view: Horizontal scrollable secondary menu */}
-          <div className="flex sm:hidden items-center justify-between gap-3 px-4 py-1 select-none w-full" id="mobile-nav-bar-combined">
-            
-            {/* Search bar inside navigation bar */}
-            <div ref={mobileSearchRefCombined} className="flex-1 relative min-w-[140px]">
-              <form 
-                onSubmit={handleSearchSubmit} 
-                className="w-full flex items-center bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-full p-0.5 focus-within:ring-2 focus-within:ring-[#26B6B6]/20 focus-within:border-[#26B6B6] transition-all h-9"
+            {/* Desktop Join Platform CTA Button */}
+            <div className="flex items-center">
+              <button
+                onClick={currentUser ? () => handleDashboardNavigate('profile') : onOpenAuthModal}
+                className="relative group overflow-hidden px-4.5 py-1.5 bg-[#26B6B6] hover:bg-[#1e9494] text-white dark:text-gray-950 dark:bg-[#26B6B6] dark:hover:bg-[#1e9494] rounded-full text-xs font-black shadow-xs hover:shadow-md transition-all duration-300 active:scale-97 cursor-pointer flex items-center gap-1.5 hover:scale-102"
               >
-                <input
-                  id="header-search-input"
-                  type="text"
-                  placeholder={isRtl ? 'جستجو...' : 'Search...'}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  onFocus={() => setIsSearchFocused(true)}
-                  className="w-full text-[11px] bg-transparent border-0 focus:outline-none focus:ring-0 placeholder-gray-400 dark:placeholder-gray-500 text-gray-800 dark:text-gray-105 px-3 py-1"
-                />
-                <button 
-                  type="submit"
-                  className="bg-[#464E56] dark:bg-[#26B6B6] text-white rounded-full p-1 h-7.5 w-7.5 flex items-center justify-center cursor-pointer transition-all active:scale-95 shrink-0"
-                >
-                  <Search className="w-3.5 h-3.5" />
-                </button>
-              </form>
-
-              {/* Recent Searches & Autocomplete Dropdown inside mobile menu */}
-              {isSearchFocused && (
-                <div className="absolute left-0 right-0 top-full mt-1.5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl overflow-hidden z-50 text-xs">
-                  {searchQuery.trim().length < 2 && recentSearches.length > 0 ? (
-                    <div className="py-2 px-1">
-                      <div className="flex items-center justify-between px-3 py-1.5 border-b border-gray-100 dark:border-gray-800/60 mb-1">
-                        <span className="font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
-                          <Clock className="w-3 h-3 text-[#26B6B6]" />
-                          {isRtl ? 'جستجوهای اخیر' : 'Recent Searches'}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={clearAllRecentSearches}
-                          className="text-[10px] text-gray-400 dark:text-gray-500 hover:text-red-500 hover:dark:text-red-400 transition-colors cursor-pointer font-bold"
-                        >
-                          {isRtl ? 'پاک کردن' : 'Clear'}
-                        </button>
-                      </div>
-                      <div className="space-y-0.5 max-h-48 overflow-y-auto">
-                        {recentSearches.map((query, index) => (
-                          <div
-                            key={`recent-mob-${index}`}
-                            onClick={() => handleRecentSearchClick(query)}
-                            className="w-full flex items-center justify-between px-3 py-2 text-start rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/40 cursor-pointer transition-colors group"
-                          >
-                            <span className="text-gray-700 dark:text-gray-300 group-hover:text-[#26B6B6] truncate flex-1 font-medium text-[11px]">
-                              {query}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={(e) => removeRecentSearch(query, e)}
-                              className="p-1 text-gray-400 hover:text-red-500 dark:hover:text-red-400 rounded transition-colors"
-                            >
-                              <X className="w-3 h-3" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ) : (
-                    showAutocomplete && suggestions.length > 0 && (
-                      <div className="py-1 max-h-48 overflow-y-auto">
-                        {suggestions.map((sug, idx) => {
-                          const Icon = sug.type === 'object' ? Package : (sug.type === 'category' ? Folder : Tag);
-                          const isSelected = idx === autocompleteIndex;
-                          return (
-                            <button
-                              key={`sug-mob-${sug.id}`}
-                              type="button"
-                              onClick={() => handleSelectSuggestion(sug)}
-                              onMouseEnter={() => setAutocompleteIndex(idx)}
-                              className={`w-full flex items-center gap-3 px-3 py-2 text-start border-b border-gray-50 dark:border-gray-800/50 last:border-0 transition-colors ${
-                                isSelected 
-                                  ? 'bg-[#26B6B6]/5 dark:bg-[#26B6B6]/10 text-[#26B6B6]' 
-                                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/40'
-                              }`}
-                            >
-                              <Icon className="w-3.5 h-3.5 shrink-0 text-gray-400" />
-                              <div className="flex-1 min-w-0">
-                                <p className="font-extrabold truncate text-[11px]">{sug.label}</p>
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )
-                  )}
-                </div>
-              )}
+                <User className="w-3.5 h-3.5" />
+                <span>
+                  {currentUser 
+                    ? (isRtl ? 'پنل کاربری' : 'Go to Dashboard')
+                    : (isRtl ? 'ورود/ثبت نام' : 'Join Platform')
+                  }
+                </span>
+              </button>
             </div>
 
-            {/* Navigation buttons: About Us & Contact */}
-            <div className="flex items-center gap-1.5 shrink-0">
+          </div>
+
+          {/* Mobile responsive view: Centered horizontal secondary menu containing navigation links */}
+          <div className="flex sm:hidden items-center justify-center gap-4 px-4 py-1.5 select-none w-full border-t border-gray-150/40 dark:border-gray-800/40" id="mobile-nav-bar-combined">
+            {/* Navigation buttons: About Us, Contact & Join */}
+            <div className="flex items-center justify-center gap-3">
               <button
                 id="mobile-nav-about"
                 onClick={() => onNavigate('about')}
-                className={`py-1.5 px-2.5 text-[11px] transition-colors shrink-0 font-extrabold rounded-md ${
+                className={`py-1.5 px-2.5 text-xs transition-colors shrink-0 font-extrabold rounded-lg ${
                   currentView === 'about' ? 'text-[#26B6B6] bg-[#26B6B6]/5 font-black' : 'text-gray-650 dark:text-gray-300 hover:text-[#26B6B6]'
                 }`}
               >
@@ -1284,14 +1409,26 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 id="mobile-nav-contact"
                 onClick={() => onNavigate('contact')}
-                className={`py-1.5 px-2.5 text-[11px] transition-colors shrink-0 font-extrabold rounded-md ${
+                className={`py-1.5 px-2.5 text-xs transition-colors shrink-0 font-extrabold rounded-lg ${
                   currentView === 'contact' ? 'text-[#26B6B6] bg-[#26B6B6]/5 font-black' : 'text-gray-650 dark:text-gray-300 hover:text-[#26B6B6]'
                 }`}
               >
                 {isRtl ? 'تماس با ما' : 'Contact Us'}
               </button>
+              <button
+                id="mobile-nav-auth"
+                onClick={currentUser ? () => handleDashboardNavigate('profile') : onOpenAuthModal}
+                className="py-1 px-3 bg-[#26B6B6] hover:bg-[#1e9494] text-white rounded-full text-xs font-black transition-all duration-150 active:scale-95 shrink-0 cursor-pointer shadow-xs flex items-center gap-1.5 hover:scale-102"
+              >
+                <User className="w-3.5 h-3.5" />
+                <span>
+                  {currentUser 
+                    ? (isRtl ? 'پنل کاربری' : 'Dashboard')
+                    : (isRtl ? 'ورود/ثبت نام' : 'Join')
+                  }
+                </span>
+              </button>
             </div>
-            
           </div>
 
         </div>
@@ -1304,6 +1441,7 @@ export const Header: React.FC<HeaderProps> = ({
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         onSelect={(catId, subId, format) => handleCategorySelect(catId, subId || null, format || null)}
+        onNavigate={onNavigate}
       />
     </header>
   );

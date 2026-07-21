@@ -5,6 +5,7 @@ import { BIMObject, FilterState } from '../../types';
 import { BIMObjectCard } from '../BIMObjectCard';
 import { CategoryIcon } from '../CategoryIcon';
 import { ARTICLES } from './LearnView';
+import { Logo } from '../Logo';
 import { 
   Search, 
   Download, 
@@ -13,6 +14,7 @@ import {
   Users, 
   FileCheck2, 
   ArrowRight,
+  ArrowLeft,
   TrendingUp,
   Cpu,
   BadgePercent,
@@ -32,11 +34,68 @@ import {
   CheckCircle2,
   Check,
   Building,
-  MessageSquare
+  MessageSquare,
+  Compass,
+  Factory,
+  Package,
+  Ruler,
+  FolderOpen,
+  DoorOpen
 } from 'lucide-react';
 
+const toPersianDigits = (num: string | number) => {
+  const id = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+  return num.toString().replace(/[0-9]/g, function (w) {
+    return id[+w];
+  });
+};
+
+const CountUp: React.FC<{ end: number; duration?: number; prefix?: string; suffix?: string; isRtl?: boolean }> = ({ 
+  end, 
+  duration = 1200, 
+  prefix = '', 
+  suffix = '',
+  isRtl = false
+}) => {
+  const [value, setValue] = useState(0);
+
+  useEffect(() => {
+    let startTimestamp: number | null = null;
+    let animFrameId: number;
+
+    const step = (timestamp: number) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      // Easing out quad
+      const easeProgress = progress * (2 - progress);
+      setValue(Math.floor(easeProgress * end));
+      if (progress < 1) {
+        animFrameId = window.requestAnimationFrame(step);
+      }
+    };
+    animFrameId = window.requestAnimationFrame(step);
+
+    return () => {
+      if (animFrameId) {
+        window.cancelAnimationFrame(animFrameId);
+      }
+    };
+  }, [end, duration]);
+
+  const formatted = value.toLocaleString();
+  const displayVal = isRtl ? toPersianDigits(formatted) : formatted;
+
+  return (
+    <span>
+      {prefix}
+      {displayVal}
+      {suffix}
+    </span>
+  );
+};
+
 interface HomeViewProps {
-  onNavigate: (view: string) => void;
+  onNavigate: (view: string, customTextFa?: string, customTextEn?: string, param?: string) => void;
   onFilterChange: (updates: Partial<FilterState>) => void;
   onSelectObject: (obj: BIMObject) => void;
   savedObjects: string[];
@@ -419,7 +478,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   };
 
   return (
-    <div className="space-y-16 pb-12">
+    <div className="space-y-8 sm:space-y-10 lg:space-y-12 pb-12">
       
       {/* Dynamic Animated Styles for High-Tech BIM effects */}
       <style>{`
@@ -445,6 +504,18 @@ export const HomeView: React.FC<HomeViewProps> = ({
           0%, 100% { opacity: 0.15; transform: scale(0.98); }
           50% { opacity: 0.4; transform: scale(1.02); }
         }
+        @keyframes downArrow {
+          0% { transform: translateY(-4px); opacity: 0; }
+          50% { opacity: 1; }
+          100% { transform: translateY(4px); opacity: 0; }
+        }
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-33.3333%); }
+        }
+        .animate-marquee {
+          animation: marquee 35s linear infinite;
+        }
         .animate-bim-grid {
           animation: bimGridMove 25s linear infinite;
         }
@@ -459,6 +530,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
         }
         .animate-tech-pulse {
           animation: techPulse 4s ease-in-out infinite;
+        }
+        .animate-down-arrow {
+          animation: downArrow 1.5s ease-in-out infinite;
         }
       `}</style>
 
@@ -522,57 +596,108 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-white/10 backdrop-blur-md rounded-full text-[9px] sm:text-xs font-semibold text-[#26B6B6] self-start">
                 <Sparkles className="w-3 h-3" />
                 <span>
-                  {activeSlide === 0 && (isRtl ? 'پایگاه نوآوری صنعت ساختمان بومی' : 'The Definitive AEC Marketplace')}
-                  {activeSlide === 1 && (isRtl ? 'مهندسی هماهنگ، کاهش ریسک فاز دو' : 'Smart Interference Coordination')}
-                  {activeSlide === 2 && (isRtl ? 'مهندسی فروش و رشد سهم بازار مصالح' : 'High-Converting BIM Specification')}
-                  {activeSlide === 3 && (isRtl ? 'پویایی بازار و شفافیت آماری' : 'National AEC Digital Trust')}
-                  {activeSlide === 4 && (isRtl ? 'آسان و کم ریسک برای تولیدکننده ایرانی' : 'Unlocking Digital Value for Suppliers')}
+                  {activeSlide === 0 && (isRtl ? 'اولین اکوسیستم ملی بیم ایران' : "Iran's National BIM Ecosystem")}
+                  {activeSlide === 1 && (isRtl ? 'برای طراحان، مهندسان و مدلرهای بیم' : 'For Architects, Engineers & BIM Modelers')}
+                  {activeSlide === 2 && (isRtl ? 'برای تولیدکنندگان و صاحبان برند' : 'For Manufacturers & Brand Owners')}
+                  {activeSlide === 3 && (isRtl ? 'پویایی بازار ایران‌بیم‌هاب' : 'IranBIMhub Market Momentum')}
+                  {activeSlide === 4 && (isRtl ? 'عضویت رایگان' : 'Free Start')}
                 </span>
               </div>
 
               {/* Slide Heading */}
-              <h1 className="text-sm sm:text-lg md:text-2xl font-black tracking-tight leading-snug transition-all duration-300">
-                {activeSlide === 0 && (isRtl ? 'اولین پلتفرم ملی کاتالوگ دیجیتال و آبجکت‌های بیم (BIM)' : "Iran's Definitive BIM Objects Hub & Brand Catalog")}
-                {activeSlide === 1 && (isRtl ? 'چرا بیم (BIM)؟ تا ۴۰٪ کاهش خطای تداخل کارگاهی' : 'Why BIM? Up to 40% Reduction in Structural Clashes')}
-                {activeSlide === 2 && (isRtl ? 'کالای صنعتی شما مستقیماً در اسناد خرید پروژه' : 'Your Products Specified Directly into National Blueprints')}
-                {activeSlide === 3 && (isRtl ? 'اعتماد و پویایی در ارقام زنده بازار ایران‌بیم‌هاب' : 'Verified Growth: Real-Time Network Statistics')}
-                {activeSlide === 4 && (isRtl ? 'از سطح پایه به صورت کاملاً رایگان شروع کنید' : 'Start Completely Free. Upgrade at Your Pace.')}
+              <h1 className="text-sm sm:text-lg md:text-2xl font-black tracking-tight leading-snug transition-all duration-300 text-white">
+                {activeSlide === 0 && (isRtl ? 'ایران‌بیم‌هاب، خانه صنعت ساختمان هوشمند ایران' : "IranBIMhub — Home of Iran's Smart Construction Industry")}
+                {activeSlide === 1 && (isRtl ? 'هر آبجکتی که برای پروژه‌تان نیاز دارید، همین‌جاست' : 'Every Object Your Project Needs, Right Here')}
+                {activeSlide === 2 && (isRtl ? 'برند شما، در دستان مهندسانی که تصمیم می‌گیرند' : 'Your Brand, In the Hands of Decision-Making Engineers')}
+                {activeSlide === 3 && (isRtl ? 'اعتمادی که هر روز رشد می‌کند' : 'Trust That Grows Every Day')}
+                {activeSlide === 4 && (isRtl ? 'شروع، بدون هیچ هزینه‌ای' : 'Start — At No Cost')}
               </h1>
 
               {/* Slide Description */}
               <p className="text-[9px] sm:text-[11px] md:text-[13px] text-gray-300 leading-normal font-light transition-all duration-300">
-                {activeSlide === 0 && (isRtl ? 'پیونددهنده تخصصی برندهای کارخانجات صنعتی با جامعه معماران، مهندسان و برنامه‌ریزان پروژه.' : 'Connecting domestic manufacturing giants with verified AEC specifiers, architects, and designers.')}
-                {activeSlide === 1 && (isRtl ? 'طراحی هوشمند سه‌بعدی به شما اجازه می‌دهد پیش از شروع بتن‌ریزی، تمام مسیرهای عبور تجهیزات و کانال‌ها را هماهنگ کنید.' : 'Virtual coordination resolves interferences before real-world installation, shortening completion timelines.')}
-                {activeSlide === 2 && (isRtl ? 'وقتی معماران کاتالوگ بیم شما را در طرح‌های خود استفاده کنند، محصول شما به طور خودکار وارد زنجیره خرید می‌شود.' : 'Design specs translate into firm procurement sheets. Place your digital models on active CAD terminals.')}
-                {activeSlide === 3 && (isRtl ? 'بستری امن برای بیش از ۱۵,۰۰0 مدل استاندارد و ده‌ها برند صنعتی که برآورد کالا را هوشمند کرده‌اند.' : 'Durable, peer-reviewed building families accessed daily by certified domestic specifiers.')}
-                {activeSlide === 4 && (isRtl ? 'هیچ هزینه‌ای برای معرفی اولین محصولات شما وجود ندارد. قابلیت‌های پیشرفته برای برندهای طراز اول.' : 'Zero upfront friction. Scale up to VIP analytics dashboards when your marketing needs expand.')}
+                {activeSlide === 0 && (isRtl ? 'جایی که مهندسان و معماران، دقیق‌ترین آبجکت‌های بیم را می‌یابند؛ و تولیدکنندگان ایرانی، محصولات خود را وارد آینده دیجیتال ساخت‌وساز می‌کنند.' : 'Where engineers and architects find precise BIM objects, and Iranian manufacturers step into the digital future of construction.')}
+                {activeSlide === 1 && (isRtl ? 'دسترسی به هزاران آبجکت بیم استاندارد ایرانی، آماده دانلود مستقیم. با عضویت ویژه، دانلود نامحدود و ابزارهای مدیریت پروژه را تجربه کنید.' : 'Access thousands of standardized Iranian BIM objects, ready to download instantly. Upgrade to VIP for unlimited downloads and advanced project tools.')}
+                {activeSlide === 2 && (isRtl ? 'کاتالوگ محصولات خود را به زبان مهندسی امروز ترجمه کنید و مستقیماً در پروژه‌های واقعی ساختمانی ایران دیده شوید. با اشتراک ویژه، از تحلیل بازار و اولویت نمایش بهره‌مند شوید.' : "Translate your product catalog into today's engineering language and get specified directly into real Iranian construction projects. Upgrade for market analytics and priority placement.")}
+                {activeSlide === 3 && (isRtl ? 'بستری پویا برای دسترسی به باکیفیت‌ترین مدل‌های BIM استاندارد و بومی، به پشتوانه تولیدکنندگان طراز اول کشور و بازخورد زنده بازار ساختمان ایران.' : 'A dynamic ecosystem for accessing high-quality standardized domestic BIM models, backed by top-tier suppliers and real-time market momentum.')}
+                {activeSlide === 4 && (isRtl ? 'چه به‌دنبال آبجکت بیم هستید، چه می‌خواهید برندتان دیده شود؛ ایران‌بیم‌هاب رایگان شروع می‌شود.' : "Whether you're looking for a BIM object or want your brand seen, IranBIMhub starts free.")}
               </p>
 
               {/* Slide Button Action */}
-              <div className="flex gap-2 pt-0.5">
-                <button
-                  onClick={() => {
-                    if (activeSlide === 0) {
-                      const el = document.getElementById('search-and-browse-categories');
-                      if (el) el.scrollIntoView({ behavior: 'smooth' });
-                    } else if (activeSlide === 1) {
-                      onNavigate('learn');
-                    } else if (activeSlide === 2) {
-                      onNavigate('for-manufacturers');
-                    } else if (activeSlide === 3) {
-                      onNavigate('for-manufacturers');
-                    } else if (activeSlide === 4) {
-                      onNavigate('for-manufacturers');
-                    }
-                  }}
-                  className="bg-[#26B6B6] hover:bg-[#1e9494] text-white px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-xs font-black shadow-xs transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
-                >
-                  {activeSlide === 0 && (isRtl ? 'کاوش و فیلتر تجهیزات' : 'Explore Objects')}
-                  {activeSlide === 1 && (isRtl ? 'آموزش ۹۰ ثانیه‌ای بیم چیست؟' : 'Learn BIM Basics')}
-                  {activeSlide === 2 && (isRtl ? 'ثبت برند و کاتالوگ مصالح' : 'Grow Your Brand - Join Free')}
-                  {activeSlide === 3 && (isRtl ? 'عضویت در پورتال فعالان' : 'Join the Network')}
-                  {activeSlide === 4 && (isRtl ? 'ثبت کاتالوگ رایگان' : 'Start Free Listing')}
-                </button>
+              <div className="flex flex-wrap gap-2 pt-1">
+                {activeSlide === 0 && (
+                  <button
+                    onClick={() => onNavigate('about')}
+                    className="bg-[#26B6B6] hover:bg-[#1e9494] text-white px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-xs font-black shadow-xs transition-all hover:scale-105 cursor-pointer whitespace-nowrap animate-fadeIn"
+                  >
+                    {isRtl ? 'کشف پلتفرم ←' : 'Discover the Platform →'}
+                  </button>
+                )}
+
+                {activeSlide === 1 && (
+                  <>
+                    <button
+                      onClick={() => {
+                        const el = document.getElementById('search-and-browse-categories');
+                        if (el) el.scrollIntoView({ behavior: 'smooth' });
+                        else onNavigate('categories');
+                      }}
+                      className="bg-[#26B6B6] hover:bg-[#1e9494] text-white px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-xs font-black shadow-xs transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
+                    >
+                      {isRtl ? 'مشاهده کاتالوگ' : 'Browse Catalog'}
+                    </button>
+                    <button
+                      onClick={() => onNavigate('payment', undefined, undefined, 'modeler-vip')}
+                      className="bg-white/10 hover:bg-white/15 text-white border border-white/20 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-xs font-black transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
+                    >
+                      {isRtl ? 'ارتقا به عضویت ویژه' : 'Upgrade to VIP'}
+                    </button>
+                  </>
+                )}
+
+                {activeSlide === 2 && (
+                  <>
+                    <button
+                      onClick={() => onNavigate('for-manufacturers')}
+                      className="bg-[#26B6B6] hover:bg-[#1e9494] text-white px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-xs font-black shadow-xs transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
+                    >
+                      {isRtl ? 'ثبت‌نام برند' : 'Register Your Brand'}
+                    </button>
+                    <button
+                      onClick={() => onNavigate('for-manufacturers')}
+                      className="bg-white/10 hover:bg-white/15 text-white border border-white/20 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-xs font-black transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
+                    >
+                      {isRtl ? 'مشاهده پلن‌های اشتراک' : 'View Subscription Plans'}
+                    </button>
+                  </>
+                )}
+
+                {activeSlide === 3 && (
+                  <button
+                    onClick={() => {
+                      if (onOpenAuthModal) onOpenAuthModal();
+                    }}
+                    className="bg-[#26B6B6] hover:bg-[#1e9494] text-white px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-xs font-black shadow-xs transition-all hover:scale-105 cursor-pointer whitespace-nowrap animate-fadeIn"
+                  >
+                    {isRtl ? 'عضویت در پورتال فعالان' : 'Join the Network'}
+                  </button>
+                )}
+
+                {activeSlide === 4 && (
+                  <>
+                    <button
+                      onClick={() => onNavigate('for-designers')}
+                      className="bg-[#26B6B6] hover:bg-[#1e9494] text-white px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-xs font-black shadow-xs transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
+                    >
+                      {isRtl ? 'ثبت‌نام طراحان' : 'Register as a Designer'}
+                    </button>
+                    <button
+                      onClick={() => onNavigate('for-manufacturers')}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-xs font-black shadow-xs transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
+                    >
+                      {isRtl ? 'ثبت‌نام تولیدکنندگان' : 'Register as a Manufacturer'}
+                    </button>
+                  </>
+                )}
               </div>
 
             </div>
@@ -581,111 +706,173 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <div className="md:col-span-5 flex items-center justify-center min-h-[160px] sm:min-h-[180px] md:min-h-[200px] scale-100 sm:scale-105 md:scale-110 lg:scale-120 animate-float-3d">
               {activeSlide === 0 && (
                 <div className="relative w-full h-full flex items-center justify-center select-none" dir="ltr">
+                  {/* Glowing Orbit Rings */}
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-44 h-44 border-2 border-dashed border-[#26B6B6]/40 rounded-full animate-spin [animation-duration:15s] flex items-center justify-center">
-                      <div className="w-32 h-32 border border-dotted border-[#26B6B6]/60 rounded-full animate-spin [animation-duration:8s] [animation-direction:reverse]"></div>
+                    {/* Ring 1 (Inner) - Carrying Building icon */}
+                    <div className="w-32 h-32 border border-[#26B6B6]/30 rounded-full animate-spin [animation-duration:12s] absolute">
+                      <div className="w-6 h-6 bg-slate-900 border border-[#26B6B6]/50 rounded-full flex items-center justify-center absolute -top-3 left-1/2 -translate-x-1/2 shadow-[0_0_8px_rgba(38,182,182,0.4)]">
+                        <Building className="w-3.5 h-3.5 text-[#26B6B6]" />
+                      </div>
+                    </div>
+                    {/* Ring 2 (Middle) - Carrying Factory & Cpu icons */}
+                    <div className="w-44 h-44 border border-[#26B6B6]/20 rounded-full animate-spin [animation-duration:20s] [animation-direction:reverse] absolute">
+                      <div className="w-6 h-6 bg-slate-900 border border-[#26B6B6]/40 rounded-full flex items-center justify-center absolute -top-3 left-1/2 -translate-x-1/2 shadow-[0_0_8px_rgba(38,182,182,0.3)]">
+                        <Factory className="w-3.5 h-3.5 text-[#26B6B6]" />
+                      </div>
+                      <div className="w-6 h-6 bg-slate-900 border border-[#26B6B6]/40 rounded-full flex items-center justify-center absolute -bottom-3 left-1/2 -translate-x-1/2 shadow-[0_0_8px_rgba(38,182,182,0.3)]">
+                        <Cpu className="w-3.5 h-3.5 text-[#26B6B6]" />
+                      </div>
+                    </div>
+                    {/* Ring 3 (Outer) - Carrying BookOpen icon */}
+                    <div className="w-56 h-56 border border-dashed border-[#26B6B6]/15 rounded-full animate-spin [animation-duration:32s] absolute">
+                      <div className="w-6 h-6 bg-slate-900 border border-[#26B6B6]/30 rounded-full flex items-center justify-center absolute -top-3 left-1/2 -translate-x-1/2 shadow-[0_0_8px_rgba(38,182,182,0.2)]">
+                        <BookOpen className="w-3.5 h-3.5 text-[#26B6B6]" />
+                      </div>
                     </div>
                   </div>
-                  <div className="relative w-36 h-36 border-2 border-[#26B6B6] bg-slate-950/85 backdrop-blur-md rounded-3xl flex flex-col items-center justify-center shadow-[0_0_25px_rgba(38,182,182,0.3)] border-t-[#26B6B6]/80 transition-all hover:scale-105">
-                    <Building className="w-14 h-14 text-[#26B6B6] drop-shadow-[0_0_8px_rgba(38,182,182,0.6)]" />
-                    <span className="text-[10px] font-black text-gray-300 mt-2 tracking-widest uppercase">BIM SYSTEM</span>
-                    <div className="absolute -top-3.5 -right-3 bg-gradient-to-r from-[#26B6B6] to-emerald-500 text-white text-[9px] font-black px-2.5 py-1 rounded-lg shadow-lg">
-                      RFA 2026
+
+                  {/* Central Hub Node */}
+                  <div className="relative w-32 h-32 border border-[#26B6B6]/40 bg-slate-950/85 backdrop-blur-md rounded-full flex flex-col items-center justify-center shadow-[0_0_35px_rgba(38,182,182,0.45)] transition-all hover:scale-105">
+                    <Logo iconOnly={true} className="w-12 h-12" />
+                    
+                    {/* floating identity labels */}
+                    <div className="absolute -top-3.5 -right-3 bg-gradient-to-r from-[#26B6B6] to-emerald-500 text-white text-[9px] font-black px-2 py-0.5 rounded-lg shadow-lg">
+                      {isRtl ? 'پایگاه ملی بیم' : 'National BIM Hub'}
                     </div>
-                    <div className="absolute -bottom-3.5 -left-3 bg-[#464E56] border border-gray-600 text-white text-[9px] font-black px-2.5 py-1 rounded-lg shadow-lg">
-                      IFC 4.3
-                    </div>
-                    <div className="absolute top-1/2 -translate-y-1/2 -right-8 bg-emerald-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full animate-pulse shadow-md">
-                      LOD 350
+                    <div className="absolute -bottom-3.5 -left-3 bg-[#464E56] border border-gray-600 text-white text-[9px] font-black px-2 py-0.5 rounded-lg shadow-lg">
+                      {isRtl ? '+۱۴ دسته صنعتی' : '+14 Industries'}
                     </div>
                   </div>
                 </div>
               )}
 
               {activeSlide === 1 && (
-                <div className="w-full h-full flex flex-col items-center justify-center select-none">
-                  <div className="bg-slate-950/85 backdrop-blur-md border border-[#26B6B6]/50 rounded-2xl p-4 w-full max-w-[260px] space-y-3 shadow-2xl relative overflow-hidden">
-                    <div className="absolute -right-6 -top-6 w-16 h-16 bg-red-500/10 rounded-full blur-xl"></div>
-                    <div className="flex justify-between items-center text-[10px] font-black uppercase text-amber-400">
-                      <span className="flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping"></span>
-                        {isRtl ? 'آنالیز خودکار برخوردها' : 'Auto Clash System'}
-                      </span>
-                      <span className="bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-0.5 rounded font-mono font-bold">-40% Clashes</span>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-[9px] text-gray-300 font-bold">
-                          <span>{isRtl ? 'سازه و تاسیسات مکانیکال' : 'Structure vs HVAC'}</span>
-                          <span className="font-mono text-emerald-400">Resolved • AutoFix</span>
-                        </div>
-                        <div className="h-2 bg-gray-900 rounded-full w-full overflow-hidden border border-gray-800">
-                          <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 w-full rounded-full animate-pulse"></div>
-                        </div>
+                <div className="relative w-full h-full flex items-center justify-center select-none" dir="ltr">
+                  {/* Layered Stacked Cards */}
+                  <div className="relative w-64 h-48 flex items-center justify-center">
+                    
+                    {/* 3rd Card (Back) */}
+                    <div className="absolute bg-slate-900/60 backdrop-blur-md border border-[#26B6B6]/20 rounded-xl p-3 w-40 h-28 shadow-lg transform -translate-x-8 -translate-y-6 rotate-[-6deg] opacity-40">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-[7px] text-[#26B6B6] font-mono">ARCHICAD LCF</span>
+                        <div className="w-2 h-2 rounded-full bg-slate-700"></div>
                       </div>
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-[9px] text-gray-300 font-bold">
-                          <span>{isRtl ? 'سینی کابل و لوله‌های آتش‌نشانی' : 'Cable Tray vs Fire Pipe'}</span>
-                          <span className="font-mono text-[#26B6B6]">95% Solved</span>
-                        </div>
-                        <div className="h-2 bg-gray-900 rounded-full w-full overflow-hidden border border-gray-800">
-                          <div className="h-full bg-gradient-to-r from-[#26B6B6] to-cyan-400 w-[95%] rounded-full"></div>
-                        </div>
+                      <div className="flex items-center justify-center h-14">
+                        <Grid3X3 className="w-8 h-8 text-gray-500" />
                       </div>
                     </div>
-                    <div className="pt-1 border-t border-white/10 flex items-center justify-between text-[8px] text-gray-400">
-                      <span>{isRtl ? 'هماهنگی فاز دو معماری' : 'BIM Coordination Tool'}</span>
-                      <span className="font-mono text-[#26B6B6]">v2.4 Live</span>
+
+                    {/* 2nd Card (Middle) */}
+                    <div className="absolute bg-slate-900/80 backdrop-blur-md border border-[#26B6B6]/30 rounded-xl p-3 w-40 h-28 shadow-lg transform translate-x-4 -translate-y-3 rotate-[3deg] opacity-70">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-[7px] text-[#26B6B6] font-mono">IFC FAMILY</span>
+                        <div className="w-2 h-2 rounded-full bg-[#26B6B6]/50"></div>
+                      </div>
+                      <div className="flex items-center justify-center h-14">
+                        <DoorOpen className="w-8 h-8 text-[#26B6B6]/70" />
+                      </div>
                     </div>
+
+                    {/* 1st Card (Front with active download pulse) */}
+                    <div className="absolute bg-slate-950/90 backdrop-blur-md border border-[#26B6B6]/70 rounded-xl p-3 w-44 h-32 shadow-[0_15px_30px_rgba(0,0,0,0.5)] transform translate-x-0 translate-y-2 rotate-0 opacity-100">
+                      <div className="flex justify-between items-center mb-1.5 border-b border-white/10 pb-1">
+                        <span className="text-[8px] text-white font-black tracking-wide">REVIT RFA</span>
+                        <span className="text-[7px] bg-[#26B6B6]/20 text-[#26B6B6] px-1 rounded-sm font-mono font-bold">LOD 350</span>
+                      </div>
+                      
+                      <div className="flex justify-between items-center h-16 px-1">
+                        <div className="flex flex-col text-left">
+                          <span className="text-[9px] font-black text-gray-200">{isRtl ? 'پمپ آبرسانی طبقاتی' : 'Multistage Water Pump'}</span>
+                          <span className="text-[7px] text-gray-400 font-mono">Size: 4.8 MB • Ver: 2024</span>
+                        </div>
+                        {/* Download Micro-interaction */}
+                        <div className="relative w-8 h-8 bg-[#26B6B6]/15 rounded-lg flex items-center justify-center border border-[#26B6B6]/40 overflow-hidden">
+                          <Download className="w-4 h-4 text-[#26B6B6] animate-down-arrow" />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1 text-[7px] text-emerald-400 pt-1 border-t border-white/10">
+                        <Check className="w-2.5 h-2.5" />
+                        <span>{isRtl ? 'سازگار با استانداردهای نظام فنی' : 'Verified Building Code Compliant'}</span>
+                      </div>
+                    </div>
+
                   </div>
                 </div>
               )}
 
               {activeSlide === 2 && (
-                <div className="w-full h-full flex items-center justify-center select-none">
-                  <div className="bg-slate-950/85 backdrop-blur-md border border-[#26B6B6]/45 rounded-2xl p-4 w-full max-w-[260px] space-y-3 shadow-2xl text-start relative overflow-hidden">
-                    <div className="flex justify-between items-center pb-2 border-b border-white/10">
-                      <h4 className="text-[11px] font-black text-gray-100 flex items-center gap-1.5">
-                        <CheckCircle2 className="w-4 h-4 text-[#26B6B6]" />
-                        <span>{isRtl ? 'پورتال اختصاصی سازندگان' : 'Supplier Sync Hub'}</span>
-                      </h4>
-                      <span className="text-[8px] bg-[#26B6B6]/20 text-[#26B6B6] px-1.5 py-0.5 rounded-full font-mono font-bold">SPEC-IN READY</span>
+                <div className="relative w-full h-full flex items-center justify-center select-none" dir="ltr">
+                  {/* Spotlight light beam */}
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-48 h-36 bg-gradient-to-t from-[#26B6B6]/20 to-transparent blur-xl rounded-t-full pointer-events-none"></div>
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[35px] border-l-transparent border-r-[35px] border-r-transparent border-b-[120px] border-b-[#26B6B6]/10 origin-bottom opacity-60 blur-xs"></div>
+
+                  <div className="relative w-64 h-48 flex items-center justify-center">
+                    
+                    {/* Glowing brand product node */}
+                    <div className="relative w-16 h-16 bg-slate-900 border border-[#26B6B6] rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(38,182,182,0.4)] z-10">
+                      <Logo iconOnly={true} className="w-10 h-10" />
                     </div>
-                    <ul className="space-y-2 text-[10px] text-gray-200">
-                      <li className="flex items-start gap-2">
-                        <span className="w-1.5 h-1.5 bg-[#26B6B6] rounded-full mt-1 shrink-0 shadow-[0_0_6px_#26B6B6]"></span>
-                        <span>{isRtl ? 'درج کدهای تجاری در جدول برآورد خرید پروژه' : 'Automatic brand specification in bills of quantities'}</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="w-1.5 h-1.5 bg-[#26B6B6] rounded-full mt-1 shrink-0 shadow-[0_0_6px_#26B6B6]"></span>
-                        <span>{isRtl ? 'افزودن مستقیم کات‌شیت و اطلاعات فنی کالا' : 'Verified Revit/CAD technical files linked directly'}</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="w-1.5 h-1.5 bg-[#26B6B6] rounded-full mt-1 shrink-0 shadow-[0_0_6px_#26B6B6]"></span>
-                        <span>{isRtl ? 'گزارش‌های آماری میزان دانلود و علاقه‌مندی‌ها' : 'Instant client download and specification reports'}</span>
-                      </li>
-                    </ul>
+
+                    {/* Floating statistics card (Analytics) */}
+                    <div className="absolute right-4 top-2 bg-slate-950/90 border border-[#26B6B6]/30 rounded-lg p-2.5 space-y-1.5 shadow-lg max-w-[110px] z-20 text-left">
+                      <div className="flex items-center gap-1 text-[8px] text-emerald-400 font-bold">
+                        <TrendingUp className="w-3 h-3" />
+                        <span>{isRtl ? 'رشد بازدید' : 'Views Up'}</span>
+                      </div>
+                      {/* Mini bar chart */}
+                      <div className="h-6 flex items-end gap-1.5 pt-0.5">
+                        <div className="w-1.5 h-2 bg-[#26B6B6]/30 rounded-xs"></div>
+                        <div className="w-1.5 h-3 bg-[#26B6B6]/50 rounded-xs"></div>
+                        <div className="w-1.5 h-4 bg-[#26B6B6]/70 rounded-xs"></div>
+                        <div className="w-1.5 h-5 bg-emerald-400 rounded-xs animate-pulse"></div>
+                      </div>
+                    </div>
+
+                    {/* Floating views/leads notification bubble */}
+                    <div className="absolute left-2 bottom-6 bg-[#464E56]/95 border border-gray-600 rounded-full py-1 px-2.5 flex items-center gap-1.5 shadow-md z-20 animate-pulse text-left">
+                      <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span>
+                      <span className="text-[8px] font-black text-white">
+                        {isRtl ? 'سرنخ جدید +۱' : 'New Lead +1'}
+                      </span>
+                    </div>
+
                   </div>
                 </div>
               )}
 
               {activeSlide === 3 && (
-                <div className="w-full h-full flex items-center justify-center select-none" dir="ltr">
+                <div className="w-full h-full flex items-center justify-center select-none animate-fadeIn" dir="ltr">
                   <div className="grid grid-cols-2 gap-2.5 w-full max-w-[260px]">
-                    <div className="bg-slate-950/80 border border-white/10 rounded-xl p-3 text-center space-y-1 backdrop-blur-md shadow-lg transition-transform hover:scale-105">
-                      <span className="text-sm font-black text-[#26B6B6] font-mono tracking-wide">+۱۵,۰۰۰</span>
+                    
+                    {/* Stat Card 1 - Active Objects */}
+                    <div className="bg-slate-950/80 border border-white/10 rounded-xl p-3 text-center space-y-1 backdrop-blur-md shadow-lg relative overflow-hidden transition-transform hover:scale-105">
+                      <div className="absolute right-1.5 top-1.5 w-1 h-1 bg-[#26B6B6] rounded-full animate-ping"></div>
+                      <span className="text-sm font-black text-[#26B6B6] font-mono tracking-wide">
+                        <CountUp key={activeSlide} end={15000} prefix="+" isRtl={isRtl} />
+                      </span>
                       <span className="text-[9px] text-gray-300 font-bold block">{isRtl ? 'آبجکت فعال' : 'BIM Objects'}</span>
                     </div>
-                    <div className="bg-slate-950/80 border border-white/10 rounded-xl p-3 text-center space-y-1 backdrop-blur-md shadow-lg transition-transform hover:scale-105">
-                      <span className="text-sm font-black text-[#26B6B6] font-mono tracking-wide">+۱۴۰</span>
+
+                    {/* Stat Card 2 - Brand Houses */}
+                    <div className="bg-slate-950/80 border border-white/10 rounded-xl p-3 text-center space-y-1 backdrop-blur-md shadow-lg relative overflow-hidden transition-transform hover:scale-105">
+                      <div className="absolute right-1.5 top-1.5 w-1 h-1 bg-[#26B6B6] rounded-full animate-ping"></div>
+                      <span className="text-sm font-black text-[#26B6B6] font-mono tracking-wide">
+                        <CountUp key={activeSlide} end={140} prefix="+" isRtl={isRtl} />
+                      </span>
                       <span className="text-[9px] text-gray-300 font-bold block">{isRtl ? 'تولیدکننده ایرانی' : 'Brand Houses'}</span>
                     </div>
+
+                    {/* Stat Card 3 - Successful Downloads */}
                     <div className="bg-gradient-to-br from-[#26B6B6]/20 to-[#26B6B6]/5 border-2 border-[#26B6B6]/40 rounded-xl p-3 text-center space-y-1.5 col-span-2 shadow-inner relative overflow-hidden">
                       <div className="absolute right-2 top-2 w-1.5 h-1.5 bg-[#26B6B6] rounded-full animate-ping"></div>
-                      <span className="text-base font-black text-emerald-400 font-mono tracking-wide">+۲۸,۰۰۰</span>
+                      <span className="text-base font-black text-emerald-400 font-mono tracking-wide">
+                        <CountUp key={activeSlide} end={28000} prefix="+" isRtl={isRtl} />
+                      </span>
                       <span className="text-[9px] text-gray-100 font-black block tracking-tight">
                         {isRtl ? 'دانلود موفق فمیلی در ماه جاری' : 'Monthly Successful Downloads'}
                       </span>
+                      
                       {/* Stylized miniature mini chart line */}
                       <div className="h-1.5 flex items-end gap-1.5 justify-center pt-1">
                         <div className="w-1.5 h-1 bg-[#26B6B6]/30 rounded"></div>
@@ -695,28 +882,44 @@ export const HomeView: React.FC<HomeViewProps> = ({
                         <div className="w-1.5 h-4 bg-emerald-400 rounded animate-pulse"></div>
                       </div>
                     </div>
+
                   </div>
                 </div>
               )}
 
               {activeSlide === 4 && (
-                <div className="w-full h-full flex items-center justify-center select-none">
-                  <div className="bg-slate-950/85 backdrop-blur-md border border-emerald-500/30 rounded-2xl p-4 w-full max-w-[260px] space-y-3 shadow-2xl relative overflow-hidden">
-                    <div className="absolute -left-6 -top-6 w-16 h-16 bg-emerald-500/10 rounded-full blur-xl"></div>
-                    <div className="flex justify-between items-center pb-2 border-b border-white/10">
-                      <span className="text-emerald-400 text-[10px] font-black uppercase flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                        {isRtl ? 'بسته پایه رایگان (FREE)' : 'Base Tier (FREE)'}
+                <div className="relative w-full h-full flex items-center justify-center select-none" dir="ltr">
+                  <div className="relative w-64 h-48 flex items-center justify-center">
+                    
+                    {/* Connecting path lines */}
+                    <div className="absolute left-[15%] right-[50%] h-[1.5px] bg-gradient-to-r from-transparent via-[#26B6B6]/40 to-[#26B6B6] top-1/2 -translate-y-1/2 z-0">
+                      <div className="absolute right-0 w-2 h-2 rounded-full bg-[#26B6B6] blur-xs animate-ping"></div>
+                    </div>
+                    <div className="absolute left-[50%] right-[15%] h-[1.5px] bg-gradient-to-l from-transparent via-emerald-500/40 to-emerald-500 top-1/2 -translate-y-1/2 z-0">
+                      <div className="absolute left-0 w-2 h-2 rounded-full bg-emerald-500 blur-xs animate-ping"></div>
+                    </div>
+
+                    {/* Left Capsule - Designer Path */}
+                    <div className="absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 bg-[#464E56]/90 border border-gray-600 rounded-2xl flex flex-col items-center justify-center shadow-lg hover:border-[#26B6B6] transition-colors z-10">
+                      <Compass className="w-5 h-5 text-[#26B6B6]" />
+                      <span className="absolute -bottom-5 text-[8px] font-black text-gray-300 whitespace-nowrap">
+                        {isRtl ? 'طراحان' : 'Designers'}
                       </span>
-                      <span className="font-mono text-xs text-white font-bold">0 Toman</span>
                     </div>
-                    <p className="text-[10px] text-gray-300 font-light leading-relaxed text-start">
-                      {isRtl ? 'بدون محدودیت زمانی، اولین کاتالوگ محصولات صنعتی خود را بارگذاری و به صنعت ساختمان معرفی کنید.' : 'Zero upfront cost. Publish fully featured BIM catalogs to showcase your building products.'}
-                    </p>
-                    <div className="flex justify-between items-center pt-2 border-t border-white/10 text-[9px] text-gray-400 font-medium">
-                      <span className="text-[#26B6B6] font-extrabold">{isRtl ? 'بسته حرفه‌ای (PRO)' : 'Professional Upgrade'}</span>
-                      <span className="font-mono text-[9px] bg-white/5 px-2 py-0.5 rounded text-gray-300">Advanced Analytics</span>
+
+                    {/* Center Node - Shared Platform */}
+                    <div className="relative w-16 h-16 bg-slate-950/95 border-2 border-slate-800 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(38,182,182,0.3)] z-10">
+                      <Logo iconOnly={true} className="w-9 h-9" />
                     </div>
+
+                    {/* Right Capsule - Manufacturer Path */}
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 bg-[#464E56]/90 border border-gray-600 rounded-2xl flex flex-col items-center justify-center shadow-lg hover:border-emerald-500 transition-colors z-10">
+                      <Factory className="w-5 h-5 text-emerald-400" />
+                      <span className="absolute -bottom-5 text-[8px] font-black text-gray-300 whitespace-nowrap">
+                        {isRtl ? 'تولیدکنندگان' : 'Manufacturers'}
+                      </span>
+                    </div>
+
                   </div>
                 </div>
               )}
@@ -748,7 +951,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       </section>
 
       {/* 3. PRECISION SEARCH AND BROWSE BY CATEGORY - MERGED WITH CATEGORIES */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 relative z-20" id="search-and-browse-categories">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20" id="search-and-browse-categories">
         
         {/* Unified Search Engine & Categories Row */}
         <div 
@@ -1064,8 +1267,60 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
       </section>
 
+      {/* 3. NEWEST BIM OBJECTS SECTION */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 space-y-8" id="homepage-newest-objects">
+        
+        {/* Section Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-gray-150/50 dark:border-gray-800/60 pb-5">
+          <div className="space-y-2 text-start">
+            <div className="inline-flex items-center gap-2 bg-[#26B6B6]/5 text-[#26B6B6] px-3 py-1 rounded-full text-[10px] font-black">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
+              <span>{isRtl ? 'به‌روزرسانی‌های جدید' : 'New Releases'}</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 dark:text-white leading-tight">
+              {isRtl ? 'جدیدترین آبجکت‌های منتشر شده' : 'Newest Standardized BIM Objects'}
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-400 dark:text-gray-400 leading-relaxed font-light max-w-2xl">
+              {isRtl 
+                ? 'آخرین مدل‌های پارامتریک تاییدشده، فمیلی‌های رویت و جزئیات فنی قطعات که به تازگی به دایرکتوری اضافه شده‌اند.' 
+                : 'Browse the latest architect-approved families, Revit models, and parametric building objects added this week.'}
+            </p>
+          </div>
+
+          <div className="shrink-0 text-start">
+            <button
+              onClick={() => {
+                onFilterChange({});
+                onNavigate('library');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="inline-flex items-center gap-1.5 text-xs font-black text-[#26B6B6] hover:text-[#1e9494] transition-colors cursor-pointer group"
+            >
+              <span>{isRtl ? 'مشاهده همه محصولات کتابخانه' : 'Explore Entire Library'}</span>
+              <ArrowRight className={`w-3.5 h-3.5 transition-transform group-hover:translate-x-1 ${isRtl ? 'rotate-180 group-hover:-translate-x-1' : ''}`} />
+            </button>
+          </div>
+        </div>
+
+        {/* Objects Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {BIM_OBJECTS.slice(-4).reverse().map((obj) => (
+            <BIMObjectCard
+              key={`new-obj-${obj.id}`}
+              object={obj}
+              isSaved={savedObjects.includes(obj.id)}
+              onToggleSave={() => onToggleSave(obj.id)}
+              onClick={() => onSelectObject(obj)}
+              onQuickDownload={(format) => onQuickDownload(obj, format)}
+              onViewBrand={onViewBrand}
+            />
+          ))}
+        </div>
+
+      </section>
+
       {/* 4. TRUSTED COMPANIES & VALUE PROPOSITION FOR MANUFACTURERS */}
-      <section className="bg-slate-50 dark:bg-gray-950/40 border-y border-gray-150 dark:border-gray-800/60 py-12" id="homepage-trusted-brands">
+      <section className="bg-slate-50 dark:bg-gray-950/40 border-y border-gray-150 dark:border-gray-800/60 py-6 sm:py-8 lg:py-10" id="homepage-trusted-brands">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           
           {/* Header row and Carousel block */}
@@ -1073,28 +1328,29 @@ export const HomeView: React.FC<HomeViewProps> = ({
             
             {/* Title Column */}
             <div className="md:col-span-5 space-y-4 text-center md:text-start animate-fadeIn">
-              <div className="space-y-2 text-start">
+              <div className="space-y-2 text-center md:text-start">
                 <button
                   type="button"
                   onClick={() => onNavigate('manufacturers')}
-                  className="group inline-flex items-center gap-2 text-xl md:text-2xl font-black text-[#464E56] dark:text-gray-200 hover:text-[#26B6B6] transition-colors cursor-pointer text-start"
+                  className="group inline-flex items-center gap-2 text-xl md:text-2xl font-black text-[#464E56] dark:text-gray-200 hover:text-[#26B6B6] transition-colors cursor-pointer text-center md:text-start"
                 >
                   <span>{t('trustedPartners')}</span>
-                  <span className="text-xs font-bold text-[#26B6B6] bg-[#26B6B6]/5 group-hover:bg-[#26B6B6] group-hover:text-white px-2 py-0.5 rounded transition-all">
+                  <span className="text-xs font-bold text-[#26B6B6] bg-[#26B6B6]/5 group-hover:bg-[#26B6B6] group-hover:text-white px-2 py-0.5 rounded transition-all shrink-0">
                     {isRtl ? 'مشاهده دایرکتوری ←' : 'View Directory →'}
                   </span>
                 </button>
-                <p className="text-xs text-gray-400 leading-relaxed font-light max-w-md">
+                <p className="text-xs text-gray-400 dark:text-gray-400 leading-relaxed font-light max-w-md mx-auto md:mx-0">
                   {t('trustedPartnersSub')}
                 </p>
               </div>
-              <div className="pt-2 text-start hidden md:block">
+              <div className="pt-2 text-center md:text-start block">
                 <button
                   type="button"
                   onClick={() => onNavigate('for-manufacturers')}
-                  className="bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 hover:border-[#26B6B6]/40 text-[#464E56] dark:text-gray-300 hover:text-[#26B6B6] text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-2xs hover:shadow-xs cursor-pointer"
+                  className="bg-gradient-to-r from-[#26B6B6] to-[#1e9494] text-white hover:from-[#1e9494] hover:to-[#177373] text-xs font-extrabold px-5 py-3 rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-102 active:scale-98 cursor-pointer inline-flex items-center gap-1.5 border-0 focus:outline-none focus:ring-2 focus:ring-[#26B6B6]/50"
                 >
-                  {isRtl ? 'ثبت‌نام تولیدکنندگان صنعتی' : 'Join as Industrial Partner'}
+                  <Sparkles className="w-4 h-4 shrink-0 text-amber-300 animate-pulse" />
+                  <span>{isRtl ? 'معرفی برند و ثبت کاتالوگ شما' : 'Introduce Brand & Register Your Catalog'}</span>
                 </button>
               </div>
             </div>
@@ -1158,75 +1414,83 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="border-t border-gray-200/50 dark:border-gray-800/80 my-2" />
 
           {/* 4 Manufacturer Value Columns Directly Below inside the unified card/section */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-start pt-2">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-start pt-6">
             
-            {/* Column 1 */}
-            <div className="flex gap-4 items-start bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 p-5 rounded-2xl shadow-3xs transition-all hover:border-[#26B6B6]/30">
-              <div className="w-10 h-10 rounded-xl bg-[#26B6B6]/10 text-[#26B6B6] flex items-center justify-center shrink-0">
-                <Search className="w-5 h-5 animate-pulse" />
+            {/* Box 1 (Rightmost) */}
+            <div className="flex flex-col bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-800 p-6 rounded-2xl shadow-xs transition-all duration-300 hover:shadow-md hover:-translate-y-1 group">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 rounded-xl bg-[#26B6B6]/5 text-[#26B6B6] flex items-center justify-center shrink-0 border border-[#26B6B6]/10 group-hover:scale-110 transition-transform duration-350">
+                  <Layers className="w-5.5 h-5.5" />
+                </div>
               </div>
-              <div className="space-y-1">
-                <h4 className="text-xs font-black text-gray-800 dark:text-gray-100">
-                  {isRtl ? 'دیده شدن هدفمند کاتالوگ' : 'Targeted Specification'}
+              <div className="space-y-2.5">
+                <h4 className="text-sm font-black text-gray-900 dark:text-white leading-snug group-hover:text-[#26B6B6] transition-colors">
+                  {isRtl ? 'حضور در میز طراحی مهندسان' : 'Presence on Drafting Desks'}
                 </h4>
-                <p className="text-[10px] text-gray-400 dark:text-gray-500 leading-relaxed font-light">
+                <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed font-light">
                   {isRtl 
-                    ? 'طراحان و مهندسان معمار، مصالح شما را پیش از گودبرداری بررسی و وارد نقشه‌های رویت می‌کنند.' 
-                    : 'Iranian architects and engineers search here first for BIM-ready products.'
+                    ? 'محصولات و مصالح شما دقیقاً در زمانِ کلیدیِ طراحی و پیش از شروع پروژه، به دست معماران، مهندسان مشاور و گودبرداران بررسی و وارد نقشه‌های رویت (Revit) می‌شوند.' 
+                    : 'Your products and materials are reviewed and integrated into Revit plans by architects, consultants, and developers during the key design phase.'
                   }
                 </p>
               </div>
             </div>
 
-            {/* Column 2 */}
-            <div className="flex gap-4 items-start bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 p-5 rounded-2xl shadow-3xs transition-all hover:border-[#26B6B6]/30">
-              <div className="w-10 h-10 rounded-xl bg-[#26B6B6]/10 text-[#26B6B6] flex items-center justify-center shrink-0">
-                <TrendingUp className="w-5 h-5" />
+            {/* Box 2 */}
+            <div className="flex flex-col bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-800 p-6 rounded-2xl shadow-xs transition-all duration-300 hover:shadow-md hover:-translate-y-1 group">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 rounded-xl bg-[#26B6B6]/5 text-[#26B6B6] flex items-center justify-center shrink-0 border border-[#26B6B6]/10 group-hover:scale-110 transition-transform duration-350">
+                  <Users className="w-5.5 h-5.5" />
+                </div>
               </div>
-              <div className="space-y-1">
-                <h4 className="text-xs font-black text-gray-800 dark:text-gray-100">
-                  {isRtl ? 'سرنخ‌های واقعی خرید' : 'High-Quality Digital Leads'}
+              <div className="space-y-2.5">
+                <h4 className="text-sm font-black text-gray-900 dark:text-white leading-snug group-hover:text-[#26B6B6] transition-colors">
+                  {isRtl ? 'جذب تقاضای واقعی بازار' : 'Capture Real Market Demand'}
                 </h4>
-                <p className="text-[10px] text-gray-400 dark:text-gray-500 leading-relaxed font-light">
+                <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed font-light">
                   {isRtl 
-                    ? 'هر بازدید، دانلود آبجکت یا کلیک روی برگه مشخصات فنی، یک فرصت فروش و سفارش مستقیم است.' 
-                    : 'Every product view and download translates into potential supply specifications.'
+                    ? 'هر بازدید، دانلود کاتالوگ یا کلیک روی برگه مشخصات فنی محصولات شما، یک فرصت فروش مستقیم و ارجاعِ مستقیمِ یک خریدارِ بالقوه به بخش بازرگانی شماست.' 
+                    : 'Every page view, catalog download, or click on technical sheets is a direct sales lead, routing a hot prospect straight to your sales desk.'
                   }
                 </p>
               </div>
             </div>
 
-            {/* Column 3 */}
-            <div className="flex gap-4 items-start bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 p-5 rounded-2xl shadow-3xs transition-all hover:border-[#26B6B6]/30">
-              <div className="w-10 h-10 rounded-xl bg-[#26B6B6]/10 text-[#26B6B6] flex items-center justify-center shrink-0">
-                <LineChart className="w-5 h-5" />
+            {/* Box 3 */}
+            <div className="flex flex-col bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-800 p-6 rounded-2xl shadow-xs transition-all duration-300 hover:shadow-md hover:-translate-y-1 group">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 rounded-xl bg-[#26B6B6]/5 text-[#26B6B6] flex items-center justify-center shrink-0 border border-[#26B6B6]/10 group-hover:scale-110 transition-transform duration-350">
+                  <LineChart className="w-5.5 h-5.5" />
+                </div>
               </div>
-              <div className="space-y-1">
-                <h4 className="text-xs font-black text-gray-800 dark:text-gray-100">
-                  {isRtl ? 'آمارهای زنده دانلود' : 'Real-Time Catalog Analytics'}
+              <div className="space-y-2.5">
+                <h4 className="text-sm font-black text-gray-900 dark:text-white leading-snug group-hover:text-[#26B6B6] transition-colors">
+                  {isRtl ? 'رصد هوشمند رفتار بازار' : 'Smart Behavior Tracking'}
                 </h4>
-                <p className="text-[10px] text-gray-400 dark:text-gray-500 leading-relaxed font-light">
+                <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed font-light">
                   {isRtl 
-                    ? 'ببینید کدام مهندسان و پروژه‌ها کدهای تجاری محصولات شما را دانلود کرده‌اند.' 
-                    : 'Track exact downloads, views, and spec trends with build-in dashboards.'
+                    ? 'به صورت زنده و شفاف رصد کنید که کدام شرکت‌های مهندسی، مشاوران بزرگ و پروژه‌های ساختمانی، کدهای تجاری و مدل‌های محصولات شما را دانلود و انتخاب کرده‌اند.' 
+                    : 'Monitor in real-time which engineering firms, major consultancies, and construction projects are downloading and specifying your catalog codes.'
                   }
                 </p>
               </div>
             </div>
 
-            {/* Column 4 */}
-            <div className="flex gap-4 items-start bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 p-5 rounded-2xl shadow-3xs transition-all hover:border-[#26B6B6]/30">
-              <div className="w-10 h-10 rounded-xl bg-[#26B6B6]/10 text-[#26B6B6] flex items-center justify-center shrink-0">
-                <BadgePercent className="w-5 h-5" />
+            {/* Box 4 (Leftmost) */}
+            <div className="flex flex-col bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-800 p-6 rounded-2xl shadow-xs transition-all duration-300 hover:shadow-md hover:-translate-y-1 group">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 rounded-xl bg-[#26B6B6]/5 text-[#26B6B6] flex items-center justify-center shrink-0 border border-[#26B6B6]/10 group-hover:scale-110 transition-transform duration-350">
+                  <Sparkles className="w-5.5 h-5.5 text-[#26B6B6]" />
+                </div>
               </div>
-              <div className="space-y-1">
-                <h4 className="text-xs font-black text-gray-800 dark:text-gray-100">
-                  {isRtl ? 'رایگان شروع کنید' : 'Free To Publish Base'}
+              <div className="space-y-2.5">
+                <h4 className="text-sm font-black text-gray-900 dark:text-white leading-snug group-hover:text-[#26B6B6] transition-colors">
+                  {isRtl ? 'ورود به دنیای BIM بدون هزینه' : 'Zero-Cost BIM Onboarding'}
                 </h4>
-                <p className="text-[10px] text-gray-400 dark:text-gray-500 leading-relaxed font-light">
+                <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed font-light">
                   {isRtl 
-                    ? 'اولین فایل‌های BIM خود را بدون کارت یا تعهد مالی بارگذاری کنید و سهم بازارتان را بسنجید.' 
-                    : 'List your first products at zero cost, analyze market fit, and upgrade anytime.'
+                    ? 'بدون نیاز به کارت اعتباری یا تعهد مالی، اولین فایل‌های BIM و محصولات خود را بارگذاری کنید؛ بازخورد بازار را بسنجید و سهم فروش خود را توسعه دهید.' 
+                    : 'Upload your first BIM files and products without a credit card or financial commitment; analyze market fit and grow your sales pipeline.'
                   }
                 </p>
               </div>
@@ -1342,39 +1606,15 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </p>
         </div>
 
-        <div className="relative group/testimonials px-1">
-          {/* Left Scroll Button */}
-          <button
-            type="button"
-            onClick={() => scrollTestimonials('left')}
-            className="absolute -left-2 sm:-left-3.5 top-1/2 -translate-y-1/2 z-25 w-7 h-7 bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-full shadow-md hover:shadow-lg flex items-center justify-center text-gray-500 hover:text-[#26B6B6] hover:scale-105 transition-all cursor-pointer opacity-90 sm:opacity-0 sm:group-hover/testimonials:opacity-100 focus:opacity-100"
-            aria-label="Scroll left"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-
-          {/* Right Scroll Button */}
-          <button
-            type="button"
-            onClick={() => scrollTestimonials('right')}
-            className="absolute -right-2 sm:-right-3.5 top-1/2 -translate-y-1/2 z-25 w-7 h-7 bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-full shadow-md hover:shadow-lg flex items-center justify-center text-gray-500 hover:text-[#26B6B6] hover:scale-105 transition-all cursor-pointer opacity-90 sm:opacity-0 sm:group-hover/testimonials:opacity-100 focus:opacity-100"
-            aria-label="Scroll right"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
-
+        <div className="relative group/testimonials px-1 overflow-hidden">
           <div
-            ref={testimonialScrollRef}
-            onMouseEnter={() => setIsTestimonialHovered(true)}
-            onMouseLeave={() => setIsTestimonialHovered(false)}
-            onMouseDown={handleTestimonialMouseDown}
-            onMouseMove={handleTestimonialMouseMove}
-            onMouseUp={handleTestimonialMouseUpOrLeave}
-            onTouchStart={handleTestimonialTouchStart}
-            onTouchMove={handleTestimonialTouchMove}
-            onTouchEnd={handleTestimonialTouchEnd}
-            className="flex gap-4 overflow-x-auto py-3 px-0.5 scrollbar-none cursor-grab active:cursor-grabbing select-none scroll-smooth"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            className="flex gap-4 py-3 px-0.5 select-none animate-marquee hover:[animation-play-state:paused]"
+            dir="ltr"
+            style={{ 
+              width: 'max-content',
+              WebkitMaskImage: 'linear-gradient(to right, transparent, white 4%, white 96%, transparent)',
+              maskImage: 'linear-gradient(to right, transparent, white 4%, white 96%, transparent)'
+            }}
           >
             {[...MOCK_REVIEWS, ...MOCK_REVIEWS, ...MOCK_REVIEWS].map((rev, idx) => (
               <div 
@@ -1487,7 +1727,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       </section>
 
       {/* 8. LANDING FAQ SECTION */}
-      <section className="max-w-3xl mx-auto px-4 sm:px-6 py-16 text-start space-y-8 border-t border-gray-100 dark:border-gray-800/60 mt-16">
+      <section className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-10 lg:py-12 text-start space-y-8 border-t border-gray-100 dark:border-gray-800/60 mt-8 sm:mt-10 lg:mt-12">
         <div className="text-center">
           <HelpCircle className="w-8 h-8 text-[#26B6B6] mx-auto mb-2" />
           <h2 className="text-xl sm:text-2xl font-black text-gray-800 dark:text-white">

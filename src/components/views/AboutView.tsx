@@ -795,11 +795,17 @@ export const AboutView: React.FC<AboutViewProps> = ({
             <div className="space-y-4">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-850 dark:to-gray-950 border border-gray-150 dark:border-gray-800 flex items-center justify-center text-[#26B6B6] font-black text-sm select-none shadow-2xs">
+                  <div 
+                    onClick={() => onViewBrand && onViewBrand(mfg.id)}
+                    className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-850 dark:to-gray-950 border border-gray-150 dark:border-gray-800 flex items-center justify-center text-[#26B6B6] font-black text-sm select-none shadow-2xs cursor-pointer hover:border-[#26B6B6]/50 hover:text-[#1e9494] transition-all"
+                  >
                     {mfg.logo}
                   </div>
                   <div className="text-start">
-                    <h3 className="font-extrabold text-sm text-gray-800 dark:text-white flex items-center gap-1.5">
+                    <h3 
+                      onClick={() => onViewBrand && onViewBrand(mfg.id)}
+                      className="font-extrabold text-sm text-gray-800 dark:text-white flex items-center gap-1.5 hover:text-[#26B6B6] transition-colors cursor-pointer"
+                    >
                       <span>{isRtl ? mfg.nameFa : mfg.nameEn}</span>
                       {mfg.verified && (
                         <span className="inline-flex text-[#26B6B6]" title={isRtl ? 'برند تایید شده' : 'Verified Brand'}>

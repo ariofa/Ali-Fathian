@@ -264,14 +264,9 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
 
   // Handle premium upgrade
   const handleUpgradeToVIP = () => {
-    const updated = { ...currentUser, isPremium: true };
-    setCurrentUser(updated);
-    localStorage.setItem('iranbimhub_user_session', JSON.stringify(updated));
-    alert(isRtl 
-      ? 'تبریک! حساب شما با موفقیت به عضویت ویژه VIP ارتقا یافت. هم‌اکنون تمامی قابلیت‌ها بازگشایی شد.' 
-      : 'Congratulations! Your account has been upgraded to VIP membership. All features unlocked.'
-    );
-    setActiveTab('overview');
+    if ((window as any).onNavigateToView) {
+      (window as any).onNavigateToView('payment', 'modeler-vip');
+    }
   };
 
   const handleDowngrade = () => {
