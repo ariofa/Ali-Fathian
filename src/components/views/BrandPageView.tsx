@@ -571,8 +571,8 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
       {/* 1. Header Banner Image & Overlay navigation */}
       <div className="relative w-full h-56 sm:h-72 md:h-80 overflow-hidden bg-gray-100">
         <img 
-          src={ext.bannerUrl} 
-          alt={isRtl ? manufacturer.nameFa : manufacturer.nameEn}
+          src={activeMfg.coverUrl || ext.bannerUrl} 
+          alt={isRtl ? activeMfg.nameFa : activeMfg.nameEn}
           className="w-full h-full object-cover select-none"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/10"></div>
@@ -588,7 +588,7 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
           </button>
 
           <span className="text-[10px] bg-[#26B6B6] text-white px-3 py-1.5 rounded-full shadow-md font-bold uppercase tracking-wider">
-            {manufacturer.tier} {isRtl ? 'شریک طلایی' : 'Gold Partner'}
+            {activeMfg.tier || manufacturer.tier} {isRtl ? 'شریک طلایی' : 'Gold Partner'}
           </span>
         </div>
       </div>
@@ -601,16 +601,20 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
             {/* Left Col: Brand Logo, Name, Meta counts */}
             <div className="flex flex-col sm:flex-row gap-5 items-start sm:items-center">
               {/* Rounded Square Logo Box */}
-              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white border-2 border-gray-100 dark:border-gray-800 rounded-2xl flex items-center justify-center font-mono font-black text-lg sm:text-2xl tracking-widest text-[#26B6B6] shadow-md select-none shrink-0 shrink-0">
-                {manufacturer.logo}
+              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white border-2 border-gray-100 dark:border-gray-800 rounded-2xl flex items-center justify-center font-mono font-black text-lg sm:text-2xl tracking-widest text-[#26B6B6] shadow-md select-none shrink-0 overflow-hidden">
+                {activeMfg.logoUrl && (activeMfg.logoUrl.startsWith('http') || activeMfg.logoUrl.startsWith('data:image')) ? (
+                  <img src={activeMfg.logoUrl} alt={isRtl ? activeMfg.nameFa : activeMfg.nameEn} className="w-full h-full object-cover" />
+                ) : (
+                  <span>{activeMfg.logoUrl || manufacturer.logo}</span>
+                )}
               </div>
 
               <div className="space-y-1.5">
                 <div className="flex flex-wrap items-center gap-2">
                   <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">
-                    {isRtl ? manufacturer.nameFa : manufacturer.nameEn}
+                    {isRtl ? activeMfg.nameFa : activeMfg.nameEn}
                   </h1>
-                  {manufacturer.verified && (
+                  {activeMfg.verified && (
                     <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 font-extrabold text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-900 flex items-center gap-1 select-none">
                       ✓ {isRtl ? 'تایید شده' : 'Verified'}
                     </span>
@@ -1269,8 +1273,8 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
                 </h3>
                 <p className="text-xs text-gray-400 mt-1">
                   {isRtl 
-                    ? `ارسال مستقیم درخواست فنی و تجاری به کارشناسان شرکت ${manufacturer.nameFa}`
-                    : `Send directly to corporate design and technical engineers at ${manufacturer.nameEn}`
+                    ? `ارسال مستقیم درخواست فنی و تجاری به کارشناسان شرکت ${activeMfg.nameFa}`
+                    : `Send directly to corporate design and technical engineers at ${activeMfg.nameEn}`
                   }
                 </p>
               </div>
@@ -1448,8 +1452,8 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
                 </h3>
                 <p className="text-xs text-gray-400 mt-1">
                   {isRtl 
-                    ? `اگر محصول مورد نظر خود از شرکت ${manufacturer.nameFa} را در لیست آبجکت‌ها پیدا نکردید، از این قسمت درخواست مدلسازی آن را ارسال کنید.`
-                    : `If you cannot find a specific product from ${manufacturer.nameEn} in our library, request our engineers to model it for you.`
+                    ? `اگر محصول مورد نظر خود از شرکت ${activeMfg.nameFa} را در لیست آبجکت‌ها پیدا نکردید، از این قسمت درخواست مدلسازی آن را ارسال کنید.`
+                    : `If you cannot find a specific product from ${activeMfg.nameEn} in our library, request our engineers to model it for you.`
                   }
                 </p>
               </div>
