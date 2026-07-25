@@ -1231,6 +1231,17 @@ export const Header: React.FC<HeaderProps> = ({
                   <span>{isRtl ? 'دسته‌بندی‌ها' : 'Categories'}</span>
                   <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${categoriesDropdownOpen ? 'rotate-180 text-[#26B6B6]' : 'text-gray-400'}`} />
                 </button>
+
+                <div ref={categoryPanelRef}>
+                  <SplitPaneNavMenu
+                    isOpen={categoriesDropdownOpen}
+                    onClose={() => setCategoriesDropdownOpen(false)}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
+                    onSelect={(catId, subId, format) => handleCategorySelect(catId, subId || null, format || null)}
+                    onNavigate={onNavigate}
+                  />
+                </div>
               </div>
 
               {/* درباره ایران‌بیم‌هاب (About) */}
@@ -1319,17 +1330,6 @@ export const Header: React.FC<HeaderProps> = ({
 
         </div>
 
-      </div>
-      
-      <div ref={categoryPanelRef}>
-        <SplitPaneNavMenu
-          isOpen={categoriesDropdownOpen}
-          onClose={() => setCategoriesDropdownOpen(false)}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-          onSelect={(catId, subId, format) => handleCategorySelect(catId, subId || null, format || null)}
-          onNavigate={onNavigate}
-        />
       </div>
     </header>
   );

@@ -133,7 +133,7 @@ export const SplitPaneNavMenu: React.FC<SplitPaneNavMenuProps> = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="fixed inset-0 z-[90] bg-black/30 dark:bg-black/60 backdrop-blur-xs"
+            className="hidden md:block fixed inset-x-0 bottom-0 top-[108px] sm:top-[111px] z-[90] bg-black/30 dark:bg-black/60 backdrop-blur-xs"
             onClick={handleClose}
           />
 
