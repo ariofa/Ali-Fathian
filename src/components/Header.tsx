@@ -69,7 +69,8 @@ export const Header: React.FC<HeaderProps> = ({
   const mobileSearchRefCombined = useRef<HTMLDivElement>(null);
   const hoverTimeoutRef = useRef<any>(null);
 
-  const handleMouseEnter = () => {
+  const handleMouseEnter = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
       hoverTimeoutRef.current = null;
@@ -77,11 +78,24 @@ export const Header: React.FC<HeaderProps> = ({
     setCategoriesDropdownOpen(true);
   };
 
-  const handleMouseLeave = () => {
+  const handleMouseLeave = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
     hoverTimeoutRef.current = setTimeout(() => {
       setCategoriesDropdownOpen(false);
-    }, 250);
+    }, 300);
   };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Synchronize categories menu state globally
   useEffect(() => {
@@ -176,6 +190,7 @@ export const Header: React.FC<HeaderProps> = ({
   const mobileSearchRef = useRef<HTMLDivElement>(null);
 
   const categoriesRef = useRef<HTMLDivElement>(null);
+  const categoryPanelRef = useRef<HTMLDivElement>(null);
   const desktopAccountRef = useRef<HTMLDivElement>(null);
   const mobileAccountRef = useRef<HTMLDivElement>(null);
   const desktopNotificationsRef = useRef<HTMLDivElement>(null);
@@ -202,7 +217,11 @@ export const Header: React.FC<HeaderProps> = ({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
-      if (categoriesRef.current && !categoriesRef.current.contains(target)) {
+      if (
+        categoriesRef.current &&
+        !categoriesRef.current.contains(target) &&
+        (!categoryPanelRef.current || !categoryPanelRef.current.contains(target))
+      ) {
         setCategoriesDropdownOpen(false);
       }
       const clickedOutsideDesktopAccount = !desktopAccountRef.current || !desktopAccountRef.current.contains(target);
@@ -870,20 +889,7 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* Compact Icon Cluster */}
             <div className="flex items-center gap-1.5 shrink-0">
-              {/* 1. Search Toggle Icon (Aligned horizontally, same size as other peers) */}
-              <button
-                onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
-                className={`p-1.5 rounded-full transition-all cursor-pointer flex items-center justify-center h-8 w-8 border ${
-                  mobileSearchOpen 
-                    ? 'border-[#26B6B6]/40 bg-[#26B6B6]/5 text-[#26B6B6]' 
-                    : 'border-gray-200/60 dark:border-gray-800/80 hover:bg-gray-50 dark:hover:bg-gray-900 text-gray-500 dark:text-gray-400 hover:text-[#26B6B6]'
-                }`}
-                title={isRtl ? 'جستجو' : 'Search'}
-              >
-                <Search className="w-3.5 h-3.5" />
-              </button>
-
-              {/* 2. Language Toggle */}
+              {/* 1. Language Toggle */}
               <button
                 onClick={() => setLanguage(language === 'fa' ? 'en' : 'fa')}
                 className="flex items-center justify-center p-1.5 border border-gray-200/60 dark:border-gray-800/80 rounded-full hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors text-[10px] font-extrabold text-[#464E56] dark:text-gray-300 cursor-pointer h-8 w-8 gap-0.5 shrink-0"
@@ -1087,105 +1093,6 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           </div>
 
-          {/* Expandable Mobile Search Bar (under row 1, visible only when search toggled) */}
-          {mobileSearchOpen && (
-            <div ref={mobileSearchRefCombined} className="w-full relative mt-1.5 animate-fadeIn">
-              <form 
-                onSubmit={handleSearchSubmit} 
-                className="w-full flex items-center bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-full p-1.5 focus-within:ring-2 focus-within:ring-[#26B6B6]/20 focus-within:border-[#26B6B6] transition-all h-9.5"
-              >
-                <input
-                  id="header-search-input-mobile"
-                  type="text"
-                  autoFocus
-                  placeholder={isRtl ? 'جستجو...' : 'Search...'}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  onFocus={() => setIsSearchFocused(true)}
-                  className="w-full text-xs bg-transparent border-0 focus:outline-none focus:ring-0 placeholder-gray-400 dark:placeholder-gray-500 text-gray-800 dark:text-gray-105 px-3 py-1"
-                />
-                <button 
-                  type="submit"
-                  className="bg-[#464E56] dark:bg-[#26B6B6] text-white rounded-full p-1 h-7.5 w-7.5 flex items-center justify-center cursor-pointer transition-all active:scale-95 shrink-0 mr-1 ml-1"
-                >
-                  <Search className="w-3.5 h-3.5" />
-                </button>
-              </form>
-
-              {/* Suggestions / Dropdown for mobile */}
-              {isSearchFocused && (
-                <div className={`absolute ${isRtl ? 'left-0' : 'right-0'} top-full mt-1.5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl overflow-hidden z-50 text-[11px] w-full max-w-sm`}>
-                  {searchQuery.trim().length < 2 && recentSearches.length > 0 ? (
-                    <div className="py-1.5 px-0.5">
-                      <div className="flex items-center justify-between px-2.5 py-1.5 border-b border-gray-100 dark:border-gray-800/60 mb-1">
-                        <span className="font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                          <Clock className="w-3 h-3 text-[#26B6B6]" />
-                          {isRtl ? 'جستجوهای اخیر' : 'Recent'}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={clearAllRecentSearches}
-                          className="text-[9px] text-gray-400 dark:text-gray-500 hover:text-red-500 hover:dark:text-red-400 transition-colors cursor-pointer font-bold"
-                        >
-                          {isRtl ? 'پاک کردن' : 'Clear'}
-                        </button>
-                      </div>
-                      <div className="space-y-0.5 max-h-36 overflow-y-auto">
-                        {recentSearches.map((query, index) => (
-                          <div
-                            key={`recent-mob-${index}`}
-                            onClick={() => handleRecentSearchClick(query)}
-                            className="w-full flex items-center justify-between px-2.5 py-1.5 text-start rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/40 cursor-pointer transition-colors group"
-                          >
-                            <span className="text-gray-700 dark:text-gray-300 group-hover:text-[#26B6B6] truncate flex-1 font-medium">
-                              {query}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={(e) => removeRecentSearch(query, e)}
-                              className="p-1 text-gray-400 hover:text-red-500 dark:hover:text-red-400 rounded transition-colors"
-                              title={isRtl ? 'حذف' : 'Remove'}
-                            >
-                              <X className="w-2.5 h-2.5" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ) : (
-                    showAutocomplete && suggestions.length > 0 && (
-                      <div className="py-1">
-                        {suggestions.slice(0, 5).map((sug, idx) => {
-                          const Icon = sug.type === 'object' ? Package : (sug.type === 'category' ? Folder : Tag);
-                          const isSelected = idx === autocompleteIndex;
-                          return (
-                            <button
-                              key={`suggest-mob-${sug.id}`}
-                              type="button"
-                              onClick={() => handleSelectSuggestion(sug)}
-                              onMouseEnter={() => setAutocompleteIndex(idx)}
-                              className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-start border-b border-gray-50 dark:border-gray-800/50 last:border-0 transition-colors ${
-                                isSelected 
-                                  ? 'bg-[#26B6B6]/5 dark:bg-[#26B6B6]/10 text-[#26B6B6]' 
-                                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/40'
-                              }`}
-                            >
-                              <Icon className="w-3 h-3 shrink-0 text-gray-400" />
-                              <div className="flex-1 min-w-0">
-                                <p className="font-extrabold truncate text-[10px]">{sug.label}</p>
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-
           {/* ROW 2: Persistent Search Bar (Only visible on tablet widths between 640px and 768px) */}
           <div ref={mobileSearchRef} className="w-full relative hidden sm:block md:hidden">
             <form 
@@ -1294,8 +1201,8 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Desktop/Tablet secondary bar navigation (Hidden below sm, inline menu) */}
           <div className="hidden sm:flex justify-between items-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 select-none">
             
-            {/* Primary Navigation Menu (5 Items Centered) */}
-            <div className="flex items-center gap-4 md:gap-6 text-xs font-extrabold">
+            {/* Primary Navigation Menu */}
+            <div className="flex items-center gap-5 md:gap-7 text-sm font-extrabold">
               
               {/* Category Dropdown Menu anchor */}
               <div 
@@ -1308,46 +1215,25 @@ export const Header: React.FC<HeaderProps> = ({
                   id="nav-categories"
                   onClick={(e) => {
                     e.preventDefault();
+                    e.stopPropagation();
+                    if (hoverTimeoutRef.current) {
+                      clearTimeout(hoverTimeoutRef.current);
+                      hoverTimeoutRef.current = null;
+                    }
                     setCategoriesDropdownOpen(prev => !prev);
                   }}
-                  className={`px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer flex items-center gap-1 font-extrabold shadow-2xs hover:shadow-xs hover:scale-102 ${
+                  className={`px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer flex items-center gap-1.5 font-extrabold shadow-2xs hover:shadow-xs hover:scale-102 ${
                     currentView === 'categories' || categoriesDropdownOpen
                       ? 'text-[#26B6B6] bg-[#26B6B6]/10 border border-[#26B6B6]/20' 
-                      : 'text-gray-650 dark:text-gray-305 hover:text-[#26B6B6] border border-transparent hover:bg-gray-50 dark:hover:bg-gray-800/40'
+                      : 'text-gray-650 dark:text-gray-300 hover:text-[#26B6B6] border border-transparent hover:bg-gray-50 dark:hover:bg-gray-800/40'
                   }`}
                 >
                   <span>{isRtl ? 'دسته‌بندی‌ها' : 'Categories'}</span>
-                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${categoriesDropdownOpen ? 'rotate-180 text-[#26B6B6]' : 'text-gray-400'}`} />
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${categoriesDropdownOpen ? 'rotate-180 text-[#26B6B6]' : 'text-gray-400'}`} />
                 </button>
               </div>
 
-              {/* برای طراحان و مهندسان (For Designers) */}
-              <button
-                id="nav-designers"
-                onClick={() => onNavigate('for-designers')}
-                className={`px-3 py-2 rounded-lg transition-colors cursor-pointer ${
-                  currentView === 'for-designers'
-                    ? 'text-[#26B6B6] bg-[#26B6B6]/5 font-black' 
-                    : 'text-gray-600 dark:text-gray-400 hover:text-[#26B6B6]'
-                }`}
-              >
-                {isRtl ? 'برای طراحان و مهندسان' : 'For Designers'}
-              </button>
-
-              {/* برای تولیدکنندگان (For Manufacturers) */}
-              <button
-                id="nav-manufacturers-persuasion"
-                onClick={() => onNavigate('for-manufacturers')}
-                className={`px-3 py-2 rounded-lg transition-colors cursor-pointer ${
-                  currentView === 'for-manufacturers'
-                    ? 'text-[#26B6B6] bg-[#26B6B6]/5 font-black' 
-                    : 'text-gray-600 dark:text-gray-400 hover:text-[#26B6B6]'
-                }`}
-              >
-                {isRtl ? 'برای تولیدکنندگان' : 'For Manufacturers'}
-              </button>
-
-              {/* معرفی ایران‌بیم‌هاب (About) */}
+              {/* درباره ایران‌بیم‌هاب (About) */}
               <button
                 id="nav-about"
                 onClick={() => onNavigate('about')}
@@ -1357,7 +1243,7 @@ export const Header: React.FC<HeaderProps> = ({
                     : 'text-gray-600 dark:text-gray-400 hover:text-[#26B6B6]'
                 }`}
               >
-                {isRtl ? 'معرفی ایران‌بیم‌هاب' : 'About IranBIMhub'}
+                {isRtl ? 'درباره ایران‌بیم‌هاب' : 'About IranBIMhub'}
               </button>
 
               {/* تماس با ما (Contact Us) */}
@@ -1379,9 +1265,9 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="flex items-center">
               <button
                 onClick={currentUser ? () => handleDashboardNavigate('profile') : onOpenAuthModal}
-                className="relative group overflow-hidden px-4.5 py-1.5 bg-[#26B6B6] hover:bg-[#1e9494] text-white dark:text-gray-950 dark:bg-[#26B6B6] dark:hover:bg-[#1e9494] rounded-full text-xs font-black shadow-xs hover:shadow-md transition-all duration-300 active:scale-97 cursor-pointer flex items-center gap-1.5 hover:scale-102"
+                className="relative group overflow-hidden px-5.5 py-2 bg-[#26B6B6] hover:bg-[#1e9494] text-white dark:text-gray-950 dark:bg-[#26B6B6] dark:hover:bg-[#1e9494] rounded-full text-sm font-black shadow-xs hover:shadow-md transition-all duration-300 active:scale-97 cursor-pointer flex items-center gap-2 hover:scale-102"
               >
-                <User className="w-3.5 h-3.5" />
+                <User className="w-4.5 h-4.5" />
                 <span>
                   {currentUser 
                     ? (isRtl ? 'پنل کاربری' : 'Go to Dashboard')
@@ -1435,14 +1321,16 @@ export const Header: React.FC<HeaderProps> = ({
 
       </div>
       
-      <SplitPaneNavMenu
-        isOpen={categoriesDropdownOpen}
-        onClose={() => setCategoriesDropdownOpen(false)}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        onSelect={(catId, subId, format) => handleCategorySelect(catId, subId || null, format || null)}
-        onNavigate={onNavigate}
-      />
+      <div ref={categoryPanelRef}>
+        <SplitPaneNavMenu
+          isOpen={categoriesDropdownOpen}
+          onClose={() => setCategoriesDropdownOpen(false)}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          onSelect={(catId, subId, format) => handleCategorySelect(catId, subId || null, format || null)}
+          onNavigate={onNavigate}
+        />
+      </div>
     </header>
   );
 };

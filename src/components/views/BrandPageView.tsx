@@ -291,6 +291,58 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
 
   const ext = BRAND_EXTENSIONS[manufacturer.id] || BRAND_EXTENSIONS['m1'];
 
+  const [savedProfile, setSavedProfile] = useState(() => {
+    try {
+      const saved = localStorage.getItem(`iranbimhub_mfg_profile_${manufacturer.id}`) ||
+        (manufacturer.id === 'm1' ? localStorage.getItem('iranbimhub_mfg_profile') : null);
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    const handleProfileSync = () => {
+      try {
+        const saved = localStorage.getItem(`iranbimhub_mfg_profile_${manufacturer.id}`) ||
+          (manufacturer.id === 'm1' ? localStorage.getItem('iranbimhub_mfg_profile') : null);
+        if (saved) setSavedProfile(JSON.parse(saved));
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    window.addEventListener('iranbimhub_brand_profile_updated', handleProfileSync);
+    return () => window.removeEventListener('iranbimhub_brand_profile_updated', handleProfileSync);
+  }, [manufacturer.id]);
+
+  const activeMfg = {
+    ...manufacturer,
+    nameFa: savedProfile?.nameFa || manufacturer.nameFa,
+    nameEn: savedProfile?.nameEn || manufacturer.nameEn,
+    descriptionFa: savedProfile?.descFa || manufacturer.descriptionFa,
+    descriptionEn: savedProfile?.descEn || manufacturer.descriptionEn,
+    website: savedProfile?.website !== undefined ? savedProfile.website : manufacturer.website,
+    email: savedProfile?.email !== undefined ? savedProfile.email : manufacturer.email,
+    phone: savedProfile?.phone !== undefined ? savedProfile.phone : manufacturer.phone,
+    addressFa: savedProfile?.addressFa !== undefined ? savedProfile.addressFa : manufacturer.addressFa,
+    addressEn: savedProfile?.addressEn !== undefined ? savedProfile.addressEn : manufacturer.addressEn,
+    verified: savedProfile?.verified !== undefined ? savedProfile.verified : manufacturer.verified,
+    logoUrl: savedProfile?.logoUrl || manufacturer.logo,
+    coverUrl: savedProfile?.coverUrl || ext.bannerUrl,
+    promoVideoUrl: savedProfile?.promoVideoUrl !== undefined ? savedProfile.promoVideoUrl : 'https://www.aparat.com/v/a1',
+    portfolioPdfName: savedProfile?.portfolioPdfName !== undefined ? savedProfile.portfolioPdfName : 'Alupan_Corporate_Catalog_2026.pdf',
+    portfolioPdfUrl: savedProfile?.portfolioPdfUrl !== undefined ? savedProfile.portfolioPdfUrl : 'https://alupan.com/catalog.pdf',
+  };
+
+  const activeSocials: Record<string, string> = {
+    instagram: savedProfile?.instagram !== undefined ? savedProfile.instagram : (ext.socials.instagram || ''),
+    linkedin: savedProfile?.linkedin !== undefined ? savedProfile.linkedin : (ext.socials.linkedin || ''),
+    youtube: savedProfile?.youtube !== undefined ? savedProfile.youtube : (ext.socials.youtube || ''),
+    pinterest: savedProfile?.pinterest !== undefined ? savedProfile.pinterest : (ext.socials.pinterest || ''),
+    telegram: savedProfile?.telegram !== undefined ? savedProfile.telegram : (ext.socials.telegram || ''),
+    twitter: savedProfile?.twitter !== undefined ? savedProfile.twitter : (ext.socials.twitter || ''),
+  };
+
   // Handle follow toggle
   const handleFollowToggle = () => {
     try {
@@ -613,14 +665,35 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
           {/* Table of Contacts & Custom Stats Block */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-gray-100 dark:border-gray-800/60">
             {/* Brief Bio Section */}
-            <div className="md:col-span-2 space-y-3">
-              <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-gray-500 flex items-center gap-1.5">
-                <Info className="w-4 h-4 text-[#26B6B6]" />
-                <span>{isRtl ? 'درباره شرکت' : 'About Brand'}</span>
-              </h3>
-              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed font-light whitespace-pre-wrap">
-                {isRtl ? ext.longDescriptionFa : ext.longDescriptionEn}
-              </p>
+            <div className="md:col-span-2 space-y-4">
+              <div className="space-y-2">
+                <h3 className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-gray-500 flex items-center gap-1.5">
+                  <Info className="w-4 h-4 text-[#26B6B6]" />
+                  <span>{isRtl ? 'درباره شرکت' : 'About Brand'}</span>
+                </h3>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed font-light whitespace-pre-wrap">
+                  {isRtl ? (activeMfg.descriptionFa || ext.longDescriptionFa) : (activeMfg.descriptionEn || ext.longDescriptionEn)}
+                </p>
+              </div>
+
+              {/* Company Portfolio PDF Download Button */}
+              {(activeMfg.portfolioPdfName || activeMfg.portfolioPdfUrl) && (
+                <div className="pt-1">
+                  <a
+                    href={activeMfg.portfolioPdfUrl || '#'}
+                    target="_blank"
+                    rel="noreferrer"
+                    download={activeMfg.portfolioPdfName || 'Company_Portfolio.pdf'}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-extrabold rounded-xl shadow-xs transition-all hover:scale-102 active:scale-95 cursor-pointer"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>{isRtl ? 'دانلود پرتفولیوی شرکت (PDF)' : 'Download Portfolio Catalog'}</span>
+                    {activeMfg.portfolioPdfName && (
+                      <span className="text-[10px] opacity-80 font-mono font-normal">({activeMfg.portfolioPdfName})</span>
+                    )}
+                  </a>
+                </div>
+              )}
             </div>
 
             {/* Brand Contact Details Box */}
@@ -630,29 +703,37 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
               </h3>
               
               <div className="space-y-2.5 text-xs">
-                <div className="flex items-center gap-2.5 text-gray-600 dark:text-gray-300">
-                  <Globe className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                  <a href={manufacturer.website} target="_blank" rel="noreferrer" className="hover:text-[#26B6B6] underline font-medium truncate">
-                    {manufacturer.website.replace('https://', '').replace('http://', '')}
-                  </a>
-                </div>
+                {activeMfg.website && (
+                  <div className="flex items-center gap-2.5 text-gray-600 dark:text-gray-300">
+                    <Globe className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                    <a href={activeMfg.website} target="_blank" rel="noreferrer" className="hover:text-[#26B6B6] underline font-medium truncate">
+                      {activeMfg.website.replace('https://', '').replace('http://', '')}
+                    </a>
+                  </div>
+                )}
 
-                <div className="flex items-center gap-2.5 text-gray-600 dark:text-gray-300">
-                  <Mail className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                  <a href={`mailto:${manufacturer.email}`} className="hover:text-[#26B6B6] font-medium truncate">
-                    {manufacturer.email}
-                  </a>
-                </div>
+                {activeMfg.email && (
+                  <div className="flex items-center gap-2.5 text-gray-600 dark:text-gray-300">
+                    <Mail className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                    <a href={`mailto:${activeMfg.email}`} className="hover:text-[#26B6B6] font-medium truncate">
+                      {activeMfg.email}
+                    </a>
+                  </div>
+                )}
 
-                <div className="flex items-center gap-2.5 text-gray-600 dark:text-gray-300">
-                  <Phone className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                  <span className="font-mono font-medium">{manufacturer.phone}</span>
-                </div>
+                {activeMfg.phone && (
+                  <div className="flex items-center gap-2.5 text-gray-600 dark:text-gray-300">
+                    <Phone className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                    <span className="font-mono font-medium">{activeMfg.phone}</span>
+                  </div>
+                )}
 
-                <div className="flex items-start gap-2.5 text-gray-600 dark:text-gray-300 leading-normal">
-                  <MapPin className="w-3.5 h-3.5 text-gray-400 shrink-0 mt-0.5" />
-                  <span className="font-light">{isRtl ? manufacturer.addressFa : manufacturer.addressEn}</span>
-                </div>
+                {(activeMfg.addressFa || activeMfg.addressEn) && (
+                  <div className="flex items-start gap-2.5 text-gray-600 dark:text-gray-300 leading-normal">
+                    <MapPin className="w-3.5 h-3.5 text-gray-400 shrink-0 mt-0.5" />
+                    <span className="font-light">{isRtl ? (activeMfg.addressFa || activeMfg.addressEn) : (activeMfg.addressEn || activeMfg.addressFa)}</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -662,8 +743,10 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
             <span className="text-[10px] uppercase font-black tracking-wider text-gray-400">
               {isRtl ? 'شبکه‌های اجتماعی و ارتباطات رسمی:' : 'Corporate Social Connects:'}
             </span>
-            <div className="flex items-center gap-2">
-              {Object.entries(ext.socials).map(([key, url]) => {
+            <div className="flex flex-wrap items-center gap-2">
+              {Object.entries(activeSocials).map(([key, url]) => {
+                if (!url || typeof url !== 'string' || !url.trim()) return null;
+
                 let iconEl = null;
                 let colorClass = 'hover:text-[#26B6B6] hover:bg-[#26B6B6]/10';
                 
@@ -865,7 +948,7 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
       </div>
 
       {/* 4. Advertising/Introduction Video Clips from Aparat (Workable Mock Player) */}
-      {ext.clips.length > 0 && (
+      {(ext.clips.length > 0 || activeMfg.promoVideoUrl) && (
         <div className="bg-gray-50 dark:bg-gray-900/50 border-y border-gray-100 dark:border-gray-800/60 py-12 my-6">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
             <div className="flex justify-between items-end">
@@ -875,61 +958,76 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
                   <span>{isRtl ? 'ویدیوهای معرفی و راهنمای مدل‌سازی' : 'Brand Presentation & Modeling Guides'}</span>
                 </h2>
                 <p className="text-xs text-gray-400 mt-1">
-                  {isRtl ? 'ویدیوهای معرفی، تست محصول و دستورالعمل‌های فنی مدل‌سازی آپارات' : 'Official clips, product strength tests and instructional modeling movies'}
+                  {isRtl ? 'ویدیوهای معرفی، تست محصول و دستورالعمل‌های فنی مدل‌سازی' : 'Official clips, product strength tests and instructional modeling movies'}
                 </p>
               </div>
 
               <span className="text-[10px] bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 px-3 py-1.5 border border-rose-100 dark:border-rose-900/40 rounded-lg font-bold font-mono">
-                {isRtl ? 'کانال رسمی آپارات' : 'Aparat Channel Verified'}
+                {isRtl ? 'کانال ویدیویی رسمی' : 'Official Media Channel'}
               </span>
             </div>
 
             {/* Main Interactive Video Player Structure */}
-            {activeClip && (
+            {(activeClip || activeMfg.promoVideoUrl) && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Active Player Box */}
                 <div className="lg:col-span-2 space-y-4">
                   <div className="relative aspect-16/9 bg-black rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-800 group">
                     {isPlayingVideo ? (
-                      /* High fidelity active player interface with video stream loop simulations */
-                      <div className="w-full h-full bg-slate-900 flex flex-col items-center justify-center text-white relative animate-fadeIn">
-                        <img 
-                          src={activeClip.thumbnailUrl} 
-                          alt="Video playing bg" 
-                          className="absolute inset-0 w-full h-full object-cover opacity-15 blur-xs"
-                        />
-                        <div className="z-10 text-center space-y-4 px-6">
-                          <div className="w-16 h-16 bg-[#26B6B6]/25 border border-[#26B6B6]/50 rounded-full flex items-center justify-center mx-auto animate-pulse">
-                            <Video className="w-7 h-7 text-[#26B6B6]" />
+                      activeMfg.promoVideoUrl && (activeMfg.promoVideoUrl.includes('youtube.com') || activeMfg.promoVideoUrl.includes('youtu.be') || activeMfg.promoVideoUrl.includes('aparat.com')) ? (
+                        <iframe 
+                          src={
+                            activeMfg.promoVideoUrl.includes('aparat.com/v/') 
+                              ? `https://www.aparat.com/video/video/embed/videohash/${activeMfg.promoVideoUrl.split('aparat.com/v/')[1]?.split('/')[0]?.split('?')[0]}/vt/frame`
+                              : activeMfg.promoVideoUrl.includes('youtube.com/watch?v=')
+                              ? `https://www.youtube.com/embed/${activeMfg.promoVideoUrl.split('watch?v=')[1]?.split('&')[0]}`
+                              : activeMfg.promoVideoUrl
+                          } 
+                          title="Promo Video" 
+                          className="w-full h-full border-0" 
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        ></iframe>
+                      ) : (
+                        /* High fidelity active player interface with video stream loop simulations */
+                        <div className="w-full h-full bg-slate-900 flex flex-col items-center justify-center text-white relative animate-fadeIn">
+                          <img 
+                            src={activeClip?.thumbnailUrl || activeMfg.coverUrl} 
+                            alt="Video playing bg" 
+                            className="absolute inset-0 w-full h-full object-cover opacity-15 blur-xs"
+                          />
+                          <div className="z-10 text-center space-y-4 px-6">
+                            <div className="w-16 h-16 bg-[#26B6B6]/25 border border-[#26B6B6]/50 rounded-full flex items-center justify-center mx-auto animate-pulse">
+                              <Video className="w-7 h-7 text-[#26B6B6]" />
+                            </div>
+                            <div className="space-y-1">
+                              <p className="font-extrabold text-sm sm:text-base text-[#26B6B6]">
+                                {isRtl ? 'در حال پخش ویدیو رسمی معرفی...' : 'Playing Official Presentation Video...'}
+                              </p>
+                              <p className="text-xs text-gray-400 max-w-md font-light">
+                                {isRtl ? (activeClip?.titleFa || activeMfg.nameFa) : (activeClip?.titleEn || activeMfg.nameEn)}
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => setIsPlayingVideo(false)}
+                              className="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-4 py-1.5 rounded-full text-xs font-bold cursor-pointer transition-colors"
+                            >
+                              {isRtl ? 'توقف پخش' : 'Pause / Reset'}
+                            </button>
                           </div>
-                          <div className="space-y-1">
-                            <p className="font-extrabold text-sm sm:text-base text-[#26B6B6]">
-                              {isRtl ? 'در حال پخش ویدیو رسمی آپارات...' : 'Playing Official Aparat Broadcast...'}
-                            </p>
-                            <p className="text-xs text-gray-400 max-w-md font-light">
-                              {isRtl ? activeClip.titleFa : activeClip.titleEn}
-                            </p>
-                          </div>
-                          <button
-                            onClick={() => setIsPlayingVideo(false)}
-                            className="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-4 py-1.5 rounded-full text-xs font-bold cursor-pointer transition-colors"
-                          >
-                            {isRtl ? 'توقف پخش' : 'Pause / Reset'}
-                          </button>
-                        </div>
 
-                        {/* Aparat Watermark style bar */}
-                        <div className="absolute top-4 right-4 bg-rose-600/90 text-white font-black text-[9px] px-2 py-1 rounded shadow-md z-10 flex items-center gap-1">
-                          <span className="w-2 h-2 bg-white rounded-full animate-ping"></span>
-                          <span>aparat.com</span>
+                          <div className="absolute top-4 right-4 bg-rose-600/90 text-white font-black text-[9px] px-2 py-1 rounded shadow-md z-10 flex items-center gap-1">
+                            <span className="w-2 h-2 bg-white rounded-full animate-ping"></span>
+                            <span>Aparat / YouTube</span>
+                          </div>
                         </div>
-                      </div>
+                      )
                     ) : (
                       /* Custom cover preview before playing */
                       <div className="absolute inset-0 w-full h-full">
                         <img 
-                          src={activeClip.thumbnailUrl} 
-                          alt={isRtl ? activeClip.titleFa : activeClip.titleEn}
+                          src={activeClip?.thumbnailUrl || activeMfg.coverUrl} 
+                          alt={isRtl ? (activeClip?.titleFa || activeMfg.nameFa) : (activeClip?.titleEn || activeMfg.nameEn)}
                           className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
                         />
                         <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors flex items-center justify-center">
@@ -943,19 +1041,19 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
 
                         {/* Duration label */}
                         <span className="absolute bottom-4 left-4 bg-black/70 text-white text-[10px] font-mono px-2 py-1 rounded font-bold">
-                          {activeClip.duration}
+                          {activeClip?.duration || '03:45'}
                         </span>
 
-                        {/* Aparat Brand Badge */}
+                        {/* Aparat / Video Badge */}
                         <div className="absolute top-4 right-4 bg-rose-600 text-white font-extrabold text-[9px] px-2 py-1 rounded shadow-md">
-                          {isRtl ? 'آپارات برند' : 'Aparat Video'}
+                          {isRtl ? 'ویدیو رسمی' : 'Official Video'}
                         </div>
                       </div>
                     )}
                   </div>
 
                   <h3 className="font-extrabold text-sm sm:text-base text-gray-900 dark:text-white leading-snug">
-                    {isRtl ? activeClip.titleFa : activeClip.titleEn}
+                    {isRtl ? (activeClip?.titleFa || activeMfg.nameFa) : (activeClip?.titleEn || activeMfg.nameEn)}
                   </h3>
                 </div>
 

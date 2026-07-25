@@ -43,7 +43,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </li>
               <li>
                 <button id="footer-link-about" onClick={() => onNavigate('about')} className="hover:text-[#26B6B6] dark:hover:text-[#26B6B6] transition-colors cursor-pointer text-start block w-full font-bold">
-                  {isRtl ? 'معرفی ایران‌بیم‌هاب' : 'About IranBIMhub'}
+                  {isRtl ? 'درباره ایران‌بیم‌هاب' : 'About IranBIMhub'}
                 </button>
               </li>
               <li>

@@ -669,21 +669,21 @@ const MainAppContent: React.FC = () => {
         onNavigate={navigateTo}
       />
 
-      {/* Sticky App-like Mobile Bottom Navigation (Optimized for mobile phones) */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-gray-950/95 backdrop-blur-md border-t border-gray-100 dark:border-gray-800 shadow-xl flex justify-around items-center py-2 px-1 md:hidden select-none" dir={isRtl ? 'rtl' : 'ltr'}>
+      {/* Sticky App-like Mobile Bottom Navigation (Optimized for mobile phones with enhanced contrast and larger touch targets) */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 dark:bg-gray-950/98 backdrop-blur-xl border-t-2 border-[#26B6B6] shadow-[0_-10px_30px_rgba(0,0,0,0.3)] flex justify-around items-center py-2.5 px-2 md:hidden select-none text-white" dir={isRtl ? 'rtl' : 'ltr'}>
         {/* Home */}
         <button
           onClick={() => {
             navigateTo('home');
           }}
-          className={`flex flex-col items-center justify-center flex-1 py-1 transition-colors cursor-pointer ${
+          className={`flex flex-col items-center justify-center flex-1 py-1.5 px-1 rounded-xl transition-all cursor-pointer ${
             currentView === 'home' 
-              ? 'text-[#26B6B6] font-bold' 
-              : 'text-gray-400 dark:text-gray-500 hover:text-[#26B6B6]'
+              ? 'bg-[#26B6B6]/20 text-[#26B6B6] font-bold scale-105 shadow-xs border border-[#26B6B6]/30' 
+              : 'text-gray-300 dark:text-gray-400 hover:text-white hover:bg-white/5'
           }`}
         >
-          <Home className="w-5 h-5 mb-0.5" />
-          <span className="text-[10px]">{isRtl ? 'خانه' : 'Home'}</span>
+          <Home className="w-6 h-6 mb-0.5 shrink-0" />
+          <span className="text-xs font-semibold tracking-tight">{isRtl ? 'خانه' : 'Home'}</span>
         </button>
 
         {/* Categories / Catalog */}
@@ -695,14 +695,14 @@ const MainAppContent: React.FC = () => {
             const event = new CustomEvent('toggle-categories-menu');
             window.dispatchEvent(event);
           }}
-          className={`flex flex-col items-center justify-center flex-1 py-1 transition-colors cursor-pointer ${
+          className={`flex flex-col items-center justify-center flex-1 py-1.5 px-1 rounded-xl transition-all cursor-pointer ${
             currentView === 'categories' || isCategoriesMenuOpen
-              ? 'text-[#26B6B6] font-bold' 
-              : 'text-gray-400 dark:text-gray-500 hover:text-[#26B6B6]'
+              ? 'bg-[#26B6B6]/20 text-[#26B6B6] font-bold scale-105 shadow-xs border border-[#26B6B6]/30' 
+              : 'text-gray-300 dark:text-gray-400 hover:text-white hover:bg-white/5'
           }`}
         >
-          <Layers className="w-5 h-5 mb-0.5" />
-          <span className="text-[10px]">{isRtl ? 'کاتالوگ BIM' : 'BIM Catalog'}</span>
+          <Layers className="w-6 h-6 mb-0.5 shrink-0" />
+          <span className="text-xs font-semibold tracking-tight">{isRtl ? 'کاتالوگ BIM' : 'BIM Catalog'}</span>
         </button>
 
         {/* Manufacturers */}
@@ -710,14 +710,14 @@ const MainAppContent: React.FC = () => {
           onClick={() => {
             navigateTo('manufacturers');
           }}
-          className={`flex flex-col items-center justify-center flex-1 py-1 transition-colors cursor-pointer ${
+          className={`flex flex-col items-center justify-center flex-1 py-1.5 px-1 rounded-xl transition-all cursor-pointer ${
             currentView === 'manufacturers' 
-              ? 'text-[#26B6B6] font-bold' 
-              : 'text-gray-400 dark:text-gray-500 hover:text-[#26B6B6]'
+              ? 'bg-[#26B6B6]/20 text-[#26B6B6] font-bold scale-105 shadow-xs border border-[#26B6B6]/30' 
+              : 'text-gray-300 dark:text-gray-400 hover:text-white hover:bg-white/5'
           }`}
         >
-          <Building className="w-5 h-5 mb-0.5" />
-          <span className="text-[10px]">{isRtl ? 'برندها' : 'Brands'}</span>
+          <Building className="w-6 h-6 mb-0.5 shrink-0" />
+          <span className="text-xs font-semibold tracking-tight">{isRtl ? 'برندها' : 'Brands'}</span>
         </button>
 
         {/* Saved/Favorites */}
@@ -729,16 +729,16 @@ const MainAppContent: React.FC = () => {
               navigateTo('modeler-dashboard');
             }
           }}
-          className={`flex flex-col items-center justify-center flex-1 py-1 transition-colors cursor-pointer relative ${
+          className={`flex flex-col items-center justify-center flex-1 py-1.5 px-1 rounded-xl transition-all cursor-pointer relative ${
             currentView === 'modeler-dashboard' && currentUser
-              ? 'text-[#26B6B6] font-bold' 
-              : 'text-gray-400 dark:text-gray-500 hover:text-[#26B6B6]'
+              ? 'bg-[#26B6B6]/20 text-[#26B6B6] font-bold scale-105 shadow-xs border border-[#26B6B6]/30' 
+              : 'text-gray-300 dark:text-gray-400 hover:text-white hover:bg-white/5'
           }`}
         >
-          <Heart className="w-5 h-5 mb-0.5" />
-          <span className="text-[10px]">{isRtl ? 'نشان‌شده' : 'Saved'}</span>
+          <Heart className="w-6 h-6 mb-0.5 shrink-0" />
+          <span className="text-xs font-semibold tracking-tight">{isRtl ? 'نشان‌شده' : 'Saved'}</span>
           {savedObjects.length > 0 && (
-            <span className="absolute top-0.5 right-1/2 translate-x-3 bg-[#26B6B6] text-white font-sans text-[8px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center">
+            <span className="absolute top-1 right-1/2 translate-x-3 bg-[#26B6B6] text-white font-sans text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-md border border-slate-900">
               {savedObjects.length}
             </span>
           )}
@@ -753,14 +753,14 @@ const MainAppContent: React.FC = () => {
               navigateTo(userRole === 'Modeler' ? 'modeler-dashboard' : 'manufacturer-dashboard');
             }
           }}
-          className={`flex flex-col items-center justify-center flex-1 py-1 transition-colors cursor-pointer ${
+          className={`flex flex-col items-center justify-center flex-1 py-1.5 px-1 rounded-xl transition-all cursor-pointer ${
             (currentView === 'modeler-dashboard' || currentView === 'manufacturer-dashboard') && currentUser
-              ? 'text-[#26B6B6] font-bold' 
-              : 'text-gray-400 dark:text-gray-500 hover:text-[#26B6B6]'
+              ? 'bg-[#26B6B6]/20 text-[#26B6B6] font-bold scale-105 shadow-xs border border-[#26B6B6]/30' 
+              : 'text-gray-300 dark:text-gray-400 hover:text-white hover:bg-white/5'
           }`}
         >
-          <User className="w-5 h-5 mb-0.5" />
-          <span className="text-[10px]">{isRtl ? 'پنل کاربری' : 'Panel'}</span>
+          <User className="w-6 h-6 mb-0.5 shrink-0" />
+          <span className="text-xs font-semibold tracking-tight">{isRtl ? 'پنل کاربری' : 'Panel'}</span>
         </button>
       </div>
 

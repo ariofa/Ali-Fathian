@@ -3,6 +3,7 @@ import { useLanguage } from '../LanguageContext';
 import { CATEGORIES, MANUFACTURERS, BIM_OBJECTS } from '../../data';
 import { BIMObject } from '../../types';
 import { ManufacturerAnalyticsView } from './ManufacturerAnalyticsView';
+import { parseVideoEmbedUrl } from '../../lib/videoUtils';
 import { 
   BarChart3, 
   UploadCloud, 
@@ -44,7 +45,14 @@ import {
   Users,
   Lock,
   Calendar,
-  Edit
+  Edit,
+  Send,
+  Globe,
+  Video,
+  Instagram,
+  Linkedin,
+  Youtube,
+  Twitter
 } from 'lucide-react';
 
 interface ManufacturerDashboardProps {
@@ -113,6 +121,108 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
       else if (t === 'Professional' || t === 'Premium') currentTier = 'Premium';
       else if (t === 'Enterprise' || t === 'VIP') currentTier = 'VIP';
     }
+
+    try {
+      const saved = localStorage.getItem('iranbimhub_mfg_profile');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return {
+          nameFa: parsed.nameFa || companyProfile?.companyName || 'شرکت صنایع آلومینیوم آلوپن',
+          nameEn: parsed.nameEn || 'Alupan Aluminum Systems',
+          descFa: parsed.descFa || companyProfile?.desc || 'تولیدکننده انواع در، پنجره و نماهای مدرن آلومینیومی ترمال‌بریک تحت استانداردهای نوین ساختمانی در ایران.',
+          descEn: parsed.descEn || 'Pioneering thermal-break aluminum windows, doors and bespoke structural facade units compliant with international BIM standards.',
+          logoUrl: parsed.logoUrl || 'https://images.unsplash.com/photo-1516876437184-593fda40c7cf?auto=format&fit=crop&w=150&q=80',
+          coverUrl: parsed.coverUrl || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1000&q=80',
+          website: parsed.website || companyProfile?.website || 'https://alupan.com',
+          email: parsed.email || companyProfile?.email || 'info@alupan.com',
+          phone: parsed.phone || companyProfile?.phone || '+98 (21) 8877-4433',
+          addressFa: parsed.addressFa || 'تهران، خیابان ولیعصر، برج آفتاب، طبقه ۱۲',
+          addressEn: parsed.addressEn || '12th Flr, Aftab Tower, Vali-e-Asr Ave, Tehran',
+          twitter: parsed.twitter || 'https://twitter.com/alupan',
+          linkedin: parsed.linkedin || 'https://linkedin.com/company/alupan',
+          instagram: parsed.instagram || 'https://instagram.com/alupan',
+          youtube: parsed.youtube || 'https://youtube.com/alupan',
+          pinterest: parsed.pinterest || 'https://pinterest.com/alupan',
+          telegram: parsed.telegram || 'https://t.me/alupan',
+          socialLinks: parsed.socialLinks || [
+            { id: 'soc-1', platform: 'instagram', url: parsed.instagram || 'https://instagram.com/alupan' },
+            { id: 'soc-2', platform: 'linkedin', url: parsed.linkedin || 'https://linkedin.com/company/alupan' },
+            { id: 'soc-3', platform: 'youtube', url: parsed.youtube || 'https://youtube.com/alupan' },
+            { id: 'soc-4', platform: 'telegram', url: parsed.telegram || 'https://t.me/alupan' }
+          ],
+          promoVideoUrl: parsed.promoVideoUrl || 'https://www.aparat.com/v/a1',
+          promoVideos: parsed.promoVideos || [
+            { 
+              id: 'vid-1', 
+              titleFa: 'ویدیو معرفی خط تولید و کارخانه آلوپن', 
+              titleEn: 'Alupan Automated Factory & Production Line', 
+              url: parsed.promoVideoUrl || 'https://www.aparat.com/v/a1', 
+              embedUrl: parseVideoEmbedUrl(parsed.promoVideoUrl || 'https://www.aparat.com/v/a1').embedUrl, 
+              type: 'aparat' as const 
+            }
+          ],
+          portfolioPdfName: parsed.portfolioPdfName || 'Alupan_Corporate_Catalog_2026.pdf',
+          portfolioPdfUrl: parsed.portfolioPdfUrl || 'https://alupan.com/catalog.pdf',
+          tier: currentTier,
+          verificationDocs: parsed.verificationDocs || [
+            { 
+              id: 'doc-gazette', 
+              nameFa: 'روزنامه رسمی کشور (آگهی تأسیس یا آخرین تغییرات)', 
+              nameEn: 'Official Gazette (Registration or Amendments Notice)', 
+              type: 'PDF', 
+              status: 'Pending', 
+              date: '۱۴۰۵/۰۴/۰۱',
+              isGazette: true,
+              description: '',
+              url: 'https://rrk.ir',
+              fileUrl: '',
+              fileName: ''
+            },
+            { 
+              id: 'doc-1', 
+              nameFa: 'پروانه بهره‌برداری وزارت صمت', 
+              nameEn: 'Industrial Operating License', 
+              type: 'PDF', 
+              status: 'Verified', 
+              date: '۱۴۰۴/۰۲/۱۵',
+              description: 'پروانه بهره‌برداری صنایع نوین ساختمانی صادر شده توسط صمت البرز.',
+              url: 'https://mimt.gov.ir',
+              fileUrl: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=400&q=80',
+              fileName: 'MIMT_Industrial_License.pdf'
+            },
+            { 
+              id: 'doc-2', 
+              nameFa: 'گواهینامه تایید صلاحیت فنی مرکز تحقیقات مسکن', 
+              nameEn: 'BHRC Quality Certification', 
+              type: 'PDF', 
+              status: 'Verified', 
+              date: '۱۴۰۴/۰۶/۱۰',
+              description: 'تاییدیه فنی سیستم‌های آلومینیومی دوجداره هافمن آلو-۹۰.',
+              url: 'https://bhrc.ac.ir',
+              fileUrl: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=400&q=80',
+              fileName: 'BHRC_Technical_Certificate.pdf'
+            },
+            { 
+              id: 'doc-3', 
+              nameFa: 'گواهینامه مالیات بر ارزش افزوده‌ سال جاری', 
+              nameEn: 'VAT Registration Certificate', 
+              type: 'PDF', 
+              status: 'Rejected', 
+              date: '۱۴۰۵/۰۲/۲۸',
+              description: 'گواهی ثبت‌نام موقت مالیاتی دوره‌ای.',
+              url: 'https://intamedia.ir',
+              fileUrl: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=400&q=80',
+              fileName: 'VAT_Certificate_1404.pdf',
+              rejectionReasonFa: 'اعتبار گواهی ارزش افزوده بارگذاری شده منقضی شده است. لطفا آخرین تمدیدیه را تمدید و ارسال کنید.',
+              rejectionReasonEn: 'The uploaded VAT certificate has expired. Please upload the latest renewal.'
+            }
+          ]
+        };
+      }
+    } catch (e) {
+      console.error("Error reading saved brandInfo:", e);
+    }
+
     return {
       nameFa: companyProfile?.companyName || 'شرکت صنایع آلومینیوم آلوپن',
       nameEn: 'Alupan Aluminum Systems',
@@ -127,6 +237,29 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
       addressEn: '12th Flr, Aftab Tower, Vali-e-Asr Ave, Tehran',
       twitter: 'https://twitter.com/alupan',
       linkedin: 'https://linkedin.com/company/alupan',
+      instagram: 'https://instagram.com/alupan',
+      youtube: 'https://youtube.com/alupan',
+      pinterest: 'https://pinterest.com/alupan',
+      telegram: 'https://t.me/alupan',
+      socialLinks: [
+        { id: 'soc-1', platform: 'instagram', url: 'https://instagram.com/alupan' },
+        { id: 'soc-2', platform: 'linkedin', url: 'https://linkedin.com/company/alupan' },
+        { id: 'soc-3', platform: 'youtube', url: 'https://youtube.com/alupan' },
+        { id: 'soc-4', platform: 'telegram', url: 'https://t.me/alupan' }
+      ],
+      promoVideoUrl: 'https://www.aparat.com/v/a1',
+      promoVideos: [
+        { 
+          id: 'vid-1', 
+          titleFa: 'ویدیو معرفی خط تولید و کارخانه آلوپن', 
+          titleEn: 'Alupan Automated Factory & Production Line', 
+          url: 'https://www.aparat.com/v/a1', 
+          embedUrl: parseVideoEmbedUrl('https://www.aparat.com/v/a1').embedUrl, 
+          type: 'aparat' as const 
+        }
+      ],
+      portfolioPdfName: 'Alupan_Corporate_Catalog_2026.pdf',
+      portfolioPdfUrl: 'https://alupan.com/catalog.pdf',
       tier: currentTier,
       verificationDocs: [
         { 
@@ -345,112 +478,135 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
   const [newSupportMsg, setNewSupportMsg] = useState('');
 
   // Brand standards Checklist with detailed properties
-  const [standards, setStandards] = useState([
-    { 
-      id: 'std-1', 
-      name: 'ISO 9001 (Quality Management)', 
-      code: 'ISO-9001', 
-      country: 'International', 
-      verified: true,
-      description: 'استاندارد جهانی مدیریت سیستم‌های کیفیت و ارزیابی فرایندها.',
-      issueDate: '۱۴۰۲/۰۶/۱۵',
-      validityDate: '۱۴۰۵/۰۶/۱۵',
-      verificationUrl: 'https://www.iso.org',
-      fileName: 'ISO9001_Alupan.pdf',
-      fileUrl: '#'
-    },
-    { 
-      id: 'std-2', 
-      name: 'CE Mark (European Conformity)', 
-      code: 'CE-AEC', 
-      country: 'Europe', 
-      verified: true,
-      description: 'نشان انطباق محصول با استانداردهای بهداشت، ایمنی و حفاظت محیط زیست اروپا.',
-      issueDate: '۱۴۰۳/۰۴/۱۰',
-      validityDate: '۱۴۰۶/۰۴/۱۰',
-      verificationUrl: 'https://ec.europa.eu',
-      fileName: 'CE_Alupan_Facade.pdf',
-      fileUrl: '#'
-    },
-    { 
-      id: 'std-3', 
-      name: 'نشان استاندارد ملی ایران (INSO)', 
-      code: 'INSO-7090', 
-      country: 'Iran', 
-      verified: true,
-      description: 'نشان استاندارد ملی اجباری برای در و پنجره‌های آلومینیومی ساختمان.',
-      issueDate: '۱۴۰۱/۰۹/۲۰',
-      validityDate: '۱۴۰۴/۰۹/۲۰',
-      verificationUrl: 'https://isiri.gov.ir',
-      fileName: 'INSO_7090_License.pdf',
-      fileUrl: '#'
-    },
-    { 
-      id: 'std-4', 
-      name: 'گواهینامه فنی مرکز تحقیقات راه، مسکن و شهرسازی', 
-      code: 'BHRC-A2', 
-      country: 'Iran', 
-      verified: false,
-      description: 'گواهینامه فنی رده کیفیت A2 از مرکز تحقیقات ساختمان برای دوام حرارتی و هوابندی.',
-      issueDate: '۱۴۰۴/۰۱/۰۵',
-      validityDate: '۱۴۰۵/۰۱/۰۵',
-      verificationUrl: 'https://bhrc.ac.ir',
-      fileName: 'BHRC_A2_Facade_Certificate.pdf',
-      fileUrl: '#'
+  const [standards, setStandards] = useState(() => {
+    try {
+      const saved = localStorage.getItem('iranbimhub_mfg_standards');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error(e);
     }
-  ]);
+    return [
+      { 
+        id: 'std-1', 
+        name: 'ISO 9001 (Quality Management)', 
+        code: 'ISO-9001', 
+        country: 'International', 
+        verified: true,
+        description: 'استاندارد جهانی مدیریت سیستم‌های کیفیت و ارزیابی فرایندها.',
+        issueDate: '۱۴۰۲/۰۶/۱۵',
+        validityDate: '۱۴۰۵/۰۶/۱۵',
+        verificationUrl: 'https://www.iso.org',
+        fileName: 'ISO9001_Alupan.pdf',
+        fileUrl: '#'
+      },
+      { 
+        id: 'std-2', 
+        name: 'CE Mark (European Conformity)', 
+        code: 'CE-AEC', 
+        country: 'Europe', 
+        verified: true,
+        description: 'نشان انطباق محصول با استانداردهای بهداشت، ایمنی و حفاظت محیط زیست اروپا.',
+        issueDate: '۱۴۰۳/۰۴/۱۰',
+        validityDate: '۱۴۰۶/۰۴/۱۰',
+        verificationUrl: 'https://ec.europa.eu',
+        fileName: 'CE_Alupan_Facade.pdf',
+        fileUrl: '#'
+      },
+      { 
+        id: 'std-3', 
+        name: 'نشان استاندارد ملی ایران (INSO)', 
+        code: 'INSO-7090', 
+        country: 'Iran', 
+        verified: true,
+        description: 'نشان استاندارد ملی اجباری برای در و پنجره‌های آلومینیومی ساختمان.',
+        issueDate: '۱۴۰۱/۰۹/۲۰',
+        validityDate: '۱۴۰۴/۰۹/۲۰',
+        verificationUrl: 'https://isiri.gov.ir',
+        fileName: 'INSO_7090_License.pdf',
+        fileUrl: '#'
+      }
+    ];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('iranbimhub_mfg_standards', JSON.stringify(standards));
+  }, [standards]);
 
   // Brand Portfolio & Awards Case Studies with full details
-  const [portfolioProjects, setPortfolioProjects] = useState([
-    { 
-      id: 'p-1', 
-      titleFa: 'رتبه نخست مسابقه ملی طراحی و نمای آلومینیوم ایران', 
-      titleEn: '1st Place in Iranian Aluminum Facade Design Award', 
-      architect: 'دفتر معماری دلیری / همکاران', 
-      location: 'تهران، الهیه', 
-      year: '۱۴۰۳',
-      description: 'کسب عنوان برترین نماساز با محصول سری آلو-۹۰ در مسابقات سالانه.',
-      fileName: 'Facade_Award_Certificate_1403.pdf',
-      fileUrl: '#'
-    },
-    { 
-      id: 'p-2', 
-      titleFa: 'تندیس زرین برند محبوب سال در صنعت در و پنجره', 
-      titleEn: 'Golden Statue of Popular Brand of the Year', 
-      architect: 'صنایع ساختمانی ایران', 
-      location: 'تهران، مرکز همایش‌ها', 
-      year: '۱۴۰۴',
-      description: 'انتخاب مردمی و مهندسی برند برتر تولیدکننده پروفیل اختصاصی.',
-      fileName: 'Popular_Brand_Statue_1404.pdf',
-      fileUrl: '#'
+  const [portfolioProjects, setPortfolioProjects] = useState(() => {
+    try {
+      const saved = localStorage.getItem('iranbimhub_mfg_awards');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error(e);
     }
-  ]);
+    return [
+      { 
+        id: 'p-1', 
+        titleFa: 'رتبه نخست مسابقه ملی طراحی و نمای آلومینیوم ایران', 
+        titleEn: '1st Place in Iranian Aluminum Facade Design Award', 
+        architect: 'دفتر معماری دلیری / همکاران', 
+        location: 'تهران، الهیه', 
+        year: '۱۴۰۳',
+        description: 'کسب عنوان برترین نماساز با محصول سری آلو-۹۰ در مسابقات سالانه.',
+        fileName: 'Facade_Award_Certificate_1403.pdf',
+        fileUrl: '#'
+      },
+      { 
+        id: 'p-2', 
+        titleFa: 'تندیس زرین برند محبوب سال در صنعت در و پنجره', 
+        titleEn: 'Golden Statue of Popular Brand of the Year', 
+        architect: 'صنایع ساختمانی ایران', 
+        location: 'تهران، مرکز همایش‌ها', 
+        year: '۱۴۰۴',
+        description: 'انتخاب مردمی و مهندسی برند برتر تولیدکننده پروفیل اختصاصی.',
+        fileName: 'Popular_Brand_Statue_1404.pdf',
+        fileUrl: '#'
+      }
+    ];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('iranbimhub_mfg_awards', JSON.stringify(portfolioProjects));
+  }, [portfolioProjects]);
 
   // Brand Projects
-  const [projects, setProjects] = useState([
-    { 
-      id: 'proj-1', 
-      titleFa: 'مجتمع تجاری اداری روشا تهران', 
-      titleEn: 'Rosha Department Store Tehran', 
-      architect: 'مهندس محمدرضا نیکبخت', 
-      location: 'تهران، نیاوران', 
-      year: '۱۴۰۲',
-      description: 'اجرای نمای شیشه‌ای و کرتین‌وال آلومینیومی با مقاطع اختصاصی آلوپن.',
-      fileName: 'Rosha_Project_Brief.pdf',
-      fileUrl: '#'
-    },
-    { 
-      id: 'proj-2', 
-      titleFa: 'برج آرمیتاژ گلشن مشهد', 
-      titleEn: 'Armitage Golshan Tower Mashhad', 
-      architect: 'دفتر فنی آرمیتاژ', 
-      location: 'مشهد، هفت تیر', 
-      year: '۱۴۰۳',
-      description: 'پوشش کامل پنجره‌های ترمال‌بریک کشویی و لولایی با ضریب عایق بسیار بالا.',
-      fileName: 'Armitage_Tower_SpecSheet.pdf',
-      fileUrl: '#'
+  const [projects, setProjects] = useState(() => {
+    try {
+      const saved = localStorage.getItem('iranbimhub_mfg_projects');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error(e);
     }
-  ]);
+    return [
+      { 
+        id: 'proj-1', 
+        titleFa: 'مجتمع تجاری اداری روشا تهران', 
+        titleEn: 'Rosha Department Store Tehran', 
+        architect: 'مهندس محمدرضا نیکبخت', 
+        location: 'تهران، نیاوران', 
+        year: '۱۴۰۲',
+        description: 'اجرای نمای شیشه‌ای و کرتین‌وال آلومینیومی با مقاطع اختصاصی آلوپن.',
+        fileName: 'Rosha_Project_Brief.pdf',
+        fileUrl: '#'
+      },
+      { 
+        id: 'proj-2', 
+        titleFa: 'برج آرمیتاژ گلشن مشهد', 
+        titleEn: 'Armitage Golshan Tower Mashhad', 
+        architect: 'دفتر فنی آرمیتاژ', 
+        location: 'مشهد، هفت تیر', 
+        year: '۱۴۰۳',
+        description: 'پوشش کامل پنجره‌های ترمال‌بریک کشویی و لولایی با ضریب عایق بسیار بالا.',
+        fileName: 'Armitage_Tower_SpecSheet.pdf',
+        fileUrl: '#'
+      }
+    ];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('iranbimhub_mfg_projects', JSON.stringify(projects));
+  }, [projects]);
 
   // Form states for Standards
   const [newStdName, setNewStdName] = useState('');
@@ -714,10 +870,6 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
   // Standards CRUD Handlers
   const handleAddStandard = (e: React.FormEvent) => {
     e.preventDefault();
-    if (brandInfo.tier === 'Free') {
-      alert(isRtl ? 'افزودن استاندارد جدید ویژه اشتراک‌های Premium و VIP است.' : 'Adding a new standard is only available for Premium and VIP subscribers.');
-      return;
-    }
     if (!newStdName.trim()) return;
 
     const newStd = {
@@ -751,34 +903,84 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
     setStandards(prev => prev.map(std => std.id === id ? { ...std, ...updatedFields } : std));
   };
 
+  // Unified delete helper ensuring state consistency with prev => prev.filter(item => item.id !== targetId)
+  const deleteEntry = <T extends { id: string }>(
+    targetId: string,
+    setter: (updater: (prev: T[]) => T[]) => void,
+    onAfterDelete?: (updatedList: T[]) => void
+  ) => {
+    console.log(`[deleteEntry] Triggered deletion for target ID: "${targetId}"`);
+    setter(prev => {
+      const updatedList = prev.filter(item => item.id !== targetId);
+      if (onAfterDelete) {
+        onAfterDelete(updatedList);
+      }
+      return updatedList;
+    });
+  };
+
   const handleDeleteStandard = (id: string) => {
-    if (confirm(isRtl ? 'آیا از حذف این استاندارد اطمینان دارید؟' : 'Are you sure you want to delete this standard?')) {
-      setStandards(prev => prev.filter(std => std.id !== id));
+    if (confirm(isRtl ? 'آیا از حذف دائمی این مورد مطمئن هستید؟ این عمل قابل بازگشت نیست.' : 'Are you sure you want to permanently delete this item? This action cannot be undone.')) {
+      deleteEntry(id, setStandards, (next) => {
+        try {
+          localStorage.setItem('iranbimhub_mfg_standards', JSON.stringify(next));
+        } catch (e) {
+          console.error("Failed to save standards after delete:", e);
+        }
+      });
     }
   };
 
-  // Awards CRUD Handlers
+  const handleDeleteAward = (id: string) => {
+    if (confirm(isRtl ? 'آیا از حذف دائمی این مورد مطمئن هستید؟ این عمل قابل بازگشت نیست.' : 'Are you sure you want to permanently delete this item? This action cannot be undone.')) {
+      deleteEntry(id, setPortfolioProjects, (next) => {
+        try {
+          localStorage.setItem('iranbimhub_mfg_awards', JSON.stringify(next));
+        } catch (e) {
+          console.error("Failed to save awards after delete:", e);
+        }
+      });
+    }
+  };
+
+  const handleEditAward = (id: string, updatedFields: Partial<typeof portfolioProjects[0]>) => {
+    setPortfolioProjects(prev => {
+      const next = prev.map(a => a.id === id ? { ...a, ...updatedFields } : a);
+      try {
+        localStorage.setItem('iranbimhub_mfg_awards', JSON.stringify(next));
+      } catch (e) {
+        console.error(e);
+      }
+      return next;
+    });
+  };
+
   const handleAddAward = (e: React.FormEvent) => {
     e.preventDefault();
-    if (brandInfo.tier === 'Free') {
-      alert(isRtl ? 'افزودن افتخار جدید ویژه اشتراک‌های Premium و VIP است.' : 'Adding a new award is only available for Premium and VIP subscribers.');
-      return;
-    }
     if (!newAwardTitle.trim()) return;
 
     const newAward = {
       id: `p-${Math.random().toString(36).substring(2, 6)}`,
       titleFa: newAwardTitle,
-      titleEn: newAwardTitleEn || 'Award Case',
+      titleEn: newAwardTitleEn || newAwardTitle,
       architect: newAwardArch || 'N/A',
-      location: newAwardLocation || 'Iran',
-      year: newAwardYear || '۱۴۰۵',
+      location: newAwardLocation || 'N/A',
+      year: newAwardYear || '1403',
       description: newAwardDesc,
       fileName: newAwardFileName,
       fileUrl: newAwardFileUrl || '#'
     };
 
-    setPortfolioProjects(prev => [...prev, newAward]);
+    setPortfolioProjects(prev => {
+      const next = [...prev, newAward];
+      try {
+        localStorage.setItem('iranbimhub_mfg_awards', JSON.stringify(next));
+      } catch (e) {
+        console.error(e);
+      }
+      return next;
+    });
+
     setNewAwardTitle('');
     setNewAwardTitleEn('');
     setNewAwardArch('');
@@ -787,41 +989,59 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
     setNewAwardDesc('');
     setNewAwardFileName('');
     setNewAwardFileUrl('');
-    alert(isRtl ? 'افتخار جدید با موفقیت ثبت شد.' : 'New award registered successfully.');
+    alert(isRtl ? 'افتخار جدید با موفقیت ثبت شد.' : 'New award added successfully.');
   };
 
-  const handleEditAward = (id: string, updatedFields: Partial<typeof portfolioProjects[0]>) => {
-    setPortfolioProjects(prev => prev.map(award => award.id === id ? { ...award, ...updatedFields } : award));
-  };
-
-  const handleDeleteAward = (id: string) => {
-    if (confirm(isRtl ? 'آیا از حذف این افتخار اطمینان دارید؟' : 'Are you sure you want to delete this award?')) {
-      setPortfolioProjects(prev => prev.filter(award => award.id !== id));
+  const handleDeleteProject = (id: string) => {
+    if (confirm(isRtl ? 'آیا از حذف دائمی این مورد مطمئن هستید؟ این عمل قابل بازگشت نیست.' : 'Are you sure you want to permanently delete this item? This action cannot be undone.')) {
+      deleteEntry(id, setProjects, (next) => {
+        try {
+          localStorage.setItem('iranbimhub_mfg_projects', JSON.stringify(next));
+        } catch (e) {
+          console.error("Failed to save projects after delete:", e);
+        }
+      });
     }
   };
 
-  // Projects CRUD Handlers
+  const handleEditProject = (id: string, updatedFields: Partial<typeof projects[0]>) => {
+    setProjects(prev => {
+      const next = prev.map(p => p.id === id ? { ...p, ...updatedFields } : p);
+      try {
+        localStorage.setItem('iranbimhub_mfg_projects', JSON.stringify(next));
+      } catch (e) {
+        console.error(e);
+      }
+      return next;
+    });
+  };
+
   const handleAddProject = (e: React.FormEvent) => {
     e.preventDefault();
-    if (brandInfo.tier === 'Free') {
-      alert(isRtl ? 'افزودن پروژه جدید ویژه اشتراک‌های Premium و VIP است.' : 'Adding a new project is only available for Premium and VIP subscribers.');
-      return;
-    }
     if (!newProjTitle.trim()) return;
 
     const newProj = {
       id: `proj-${Math.random().toString(36).substring(2, 6)}`,
       titleFa: newProjTitle,
-      titleEn: newProjTitleEn || 'AEC Case Study',
+      titleEn: newProjTitleEn || newProjTitle,
       architect: newProjArch || 'N/A',
-      location: newProjLocation || 'Iran',
-      year: newProjYear || '۱۴۰۵',
+      location: newProjLocation || 'N/A',
+      year: newProjYear || '1403',
       description: newProjDesc,
       fileName: newProjFileName,
       fileUrl: newProjFileUrl || '#'
     };
 
-    setProjects(prev => [...prev, newProj]);
+    setProjects(prev => {
+      const next = [...prev, newProj];
+      try {
+        localStorage.setItem('iranbimhub_mfg_projects', JSON.stringify(next));
+      } catch (e) {
+        console.error(e);
+      }
+      return next;
+    });
+
     setNewProjTitle('');
     setNewProjTitleEn('');
     setNewProjArch('');
@@ -830,17 +1050,184 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
     setNewProjDesc('');
     setNewProjFileName('');
     setNewProjFileUrl('');
-    alert(isRtl ? 'پروژه جدید با موفقیت ثبت شد.' : 'New project registered successfully.');
+    alert(isRtl ? 'پروژه جدید با موفقیت ثبت گردید.' : 'New project added successfully.');
   };
 
-  const handleEditProject = (id: string, updatedFields: Partial<typeof projects[0]>) => {
-    setProjects(prev => prev.map(p => p.id === id ? { ...p, ...updatedFields } : p));
-  };
-
-  const handleDeleteProject = (id: string) => {
-    if (confirm(isRtl ? 'آیا از حذف این پروژه اطمینان دارید؟' : 'Are you sure you want to delete this project?')) {
-      setProjects(prev => prev.filter(p => p.id !== id));
+  const handleSaveBrandInfo = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    try {
+      localStorage.setItem('iranbimhub_mfg_profile', JSON.stringify(brandInfo));
+      localStorage.setItem('iranbimhub_mfg_profile_m1', JSON.stringify(brandInfo));
+      window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
+      alert(isRtl 
+        ? 'اطلاعات برند با موفقیت ذخیره شد و در صفحه عمومی برند به‌روزرسانی گردید.' 
+        : 'Brand profile details saved successfully and updated on the public page.'
+      );
+    } catch (err) {
+      console.error("Failed to save brand profile:", err);
     }
+  };
+
+  const SOCIAL_PLATFORM_OPTIONS = [
+    { id: 'instagram', labelFa: 'اینستاگرام (Instagram)', labelEn: 'Instagram', icon: Instagram, placeholder: 'https://instagram.com/alupan' },
+    { id: 'linkedin', labelFa: 'لینکدین (LinkedIn)', labelEn: 'LinkedIn', icon: Linkedin, placeholder: 'https://linkedin.com/company/alupan' },
+    { id: 'youtube', labelFa: 'یوتیوب (YouTube)', labelEn: 'YouTube', icon: Youtube, placeholder: 'https://youtube.com/alupan' },
+    { id: 'telegram', labelFa: 'تلگرام (Telegram)', labelEn: 'Telegram', icon: Send, placeholder: 'https://t.me/alupan' },
+    { id: 'twitter', labelFa: 'توئیتر / X', labelEn: 'X / Twitter', icon: Twitter, placeholder: 'https://x.com/alupan' },
+    { id: 'pinterest', labelFa: 'پینترست (Pinterest)', labelEn: 'Pinterest', icon: Globe, placeholder: 'https://pinterest.com/alupan' },
+    { id: 'aparat', labelFa: 'آپارات (Aparat)', labelEn: 'Aparat', icon: Video, placeholder: 'https://aparat.com/alupan' },
+    { id: 'whatsapp', labelFa: 'واتس‌اپ (WhatsApp)', labelEn: 'WhatsApp', icon: MessageSquare, placeholder: 'https://wa.me/989123456789' },
+    { id: 'website', labelFa: 'وب‌سایت رسمی', labelEn: 'Official Website', icon: Globe, placeholder: 'https://alupan.com' }
+  ];
+
+  const handleAddSocialLinkRow = () => {
+    setBrandInfo(prev => {
+      const existingPlatforms = (prev.socialLinks || []).map((r: any) => r.platform);
+      const available = SOCIAL_PLATFORM_OPTIONS.find(p => !existingPlatforms.includes(p.id));
+      if (!available) return prev;
+      const newRow = {
+        id: `soc-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        platform: available.id,
+        url: ''
+      };
+      const nextSocialLinks = [...(prev.socialLinks || []), newRow];
+      return {
+        ...prev,
+        socialLinks: nextSocialLinks,
+        [available.id]: ''
+      };
+    });
+  };
+
+  const handleUpdateSocialLinkRow = (rowId: string, updates: { platform?: string; url?: string }) => {
+    setBrandInfo(prev => {
+      const nextSocialLinks = (prev.socialLinks || []).map((r: any) => {
+        if (r.id === rowId) {
+          return { ...r, ...updates };
+        }
+        return r;
+      });
+
+      const keyValSync: Record<string, string> = {};
+      nextSocialLinks.forEach((row: any) => {
+        keyValSync[row.platform] = row.url;
+      });
+
+      return {
+        ...prev,
+        ...keyValSync,
+        socialLinks: nextSocialLinks
+      };
+    });
+  };
+
+  const handleDeleteSocialLinkRow = (rowId: string) => {
+    setBrandInfo(prev => {
+      const targetRow = (prev.socialLinks || []).find((r: any) => r.id === rowId);
+      const nextSocialLinks = (prev.socialLinks || []).filter((r: any) => r.id !== rowId);
+      const updated = {
+        ...prev,
+        socialLinks: nextSocialLinks
+      };
+      if (targetRow && targetRow.platform) {
+        updated[targetRow.platform] = '';
+      }
+      return updated;
+    });
+  };
+
+  const handleAddPromoVideoRow = () => {
+    setBrandInfo(prev => {
+      const currentVideos = prev.promoVideos || [];
+      if (currentVideos.length >= 3) {
+        alert(isRtl ? 'حداکثر می‌توانید تا ۳ ویدیو اضافه نمایید.' : 'Maximum 3 promo videos allowed.');
+        return prev;
+      }
+      const newVideo = {
+        id: `v-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`,
+        titleFa: `ویدیو معرفی شماره ${currentVideos.length + 1}`,
+        titleEn: `Presentation Video ${currentVideos.length + 1}`,
+        url: '',
+        embedUrl: '',
+        type: 'aparat' as const
+      };
+      return {
+        ...prev,
+        promoVideos: [...currentVideos, newVideo]
+      };
+    });
+  };
+
+  const handleUpdatePromoVideoRow = (vId: string, updates: { titleFa?: string; titleEn?: string; url?: string }) => {
+    setBrandInfo(prev => {
+      const nextVideos = (prev.promoVideos || []).map((v: any) => {
+        if (v.id === vId) {
+          const nextUrl = updates.url !== undefined ? updates.url : v.url;
+          const parsed = parseVideoEmbedUrl(nextUrl);
+          return {
+            ...v,
+            ...updates,
+            embedUrl: parsed.embedUrl,
+            type: parsed.type === 'invalid' ? 'aparat' : parsed.type
+          };
+        }
+        return v;
+      });
+
+      const firstVidUrl = nextVideos[0]?.url || '';
+      return {
+        ...prev,
+        promoVideoUrl: firstVidUrl,
+        promoVideos: nextVideos
+      };
+    });
+  };
+
+  const handleDeletePromoVideoRow = (vId: string) => {
+    setBrandInfo(prev => {
+      const nextVideos = (prev.promoVideos || []).filter((v: any) => v.id !== vId);
+      return {
+        ...prev,
+        promoVideoUrl: nextVideos[0]?.url || '',
+        promoVideos: nextVideos
+      };
+    });
+  };
+
+  const handleSendDocComment = (docId: string) => {
+    const inputEl = document.getElementById(`comment-input-${docId}`) as HTMLInputElement;
+    if (!inputEl || !inputEl.value.trim()) return;
+    const text = inputEl.value.trim();
+    inputEl.value = '';
+
+    const newComment = {
+      id: `c-${Date.now()}`,
+      sender: 'Manufacturer' as const,
+      senderName: brandInfo.nameFa || 'کارخانه',
+      text,
+      date: new Date().toLocaleDateString('fa-IR') + ' - ' + new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })
+    };
+
+    setBrandInfo(prev => {
+      const nextDocs = prev.verificationDocs.map((d: any) => {
+        if (d.id === docId) {
+          return {
+            ...d,
+            comments: [...(d.comments || []), newComment]
+          };
+        }
+        return d;
+      });
+      const next = { ...prev, verificationDocs: nextDocs };
+      try {
+        localStorage.setItem('iranbimhub_mfg_profile', JSON.stringify(next));
+        localStorage.setItem('iranbimhub_mfg_profile_m1', JSON.stringify(next));
+        window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
+      } catch (e) {
+        console.error(e);
+      }
+      return next;
+    });
   };
 
 
@@ -1455,7 +1842,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                   </p>
                 </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
               {/* Left Column: Logos & Covers previews */}
               <div className="space-y-6">
                 {/* Logo Section */}
@@ -1472,7 +1859,13 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <img src={brandInfo.logoUrl} alt="logo" className="w-16 h-16 rounded-xl object-cover border border-gray-100 dark:border-gray-800" />
+                    <img 
+                      src={brandInfo.logoUrl} 
+                      alt="logo" 
+                      onClick={() => document.getElementById('logo-upload-input')?.click()}
+                      className="w-16 h-16 rounded-xl object-cover border border-gray-100 dark:border-gray-800 cursor-pointer hover:opacity-80 transition-opacity" 
+                      title={isRtl ? 'جهت تغییر لوگو کلیک کنید' : 'Click to change logo'}
+                    />
                     <input 
                       type="file" 
                       id="logo-upload-input"
@@ -1489,18 +1882,31 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                           alert(isRtl ? 'خطا: حجم لوگو نباید بیشتر از ۲ مگابایت باشد.' : 'Error: Logo size must not exceed 2MB.');
                           return;
                         }
-                        const localUrl = URL.createObjectURL(file);
-                        setBrandInfo(prev => ({ ...prev, logoUrl: localUrl }));
-                        // Backend Integration Spot:
-                        // Connect to Firestore/Firebase Storage here to upload the logo
-                        // e.g. uploadBytes(ref(storage, `logos/${file.name}`), file)
-                        console.log("Logo updated with local url:", localUrl, "File details:", file.name);
+                        const reader = new FileReader();
+                        reader.onload = (evt) => {
+                          const dataUrl = evt.target?.result as string;
+                          if (dataUrl) {
+                            setBrandInfo(prev => {
+                              const updated = { ...prev, logoUrl: dataUrl };
+                              try {
+                                localStorage.setItem('iranbimhub_mfg_profile', JSON.stringify(updated));
+                                localStorage.setItem('iranbimhub_mfg_profile_m1', JSON.stringify(updated));
+                                window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
+                              } catch (err) {
+                                console.error("Failed to save logo to localStorage:", err);
+                              }
+                              return updated;
+                            });
+                            alert(isRtl ? 'لوگوی جدید برند با موفقیت به‌روزرسانی شد.' : 'Brand logo updated successfully.');
+                          }
+                        };
+                        reader.readAsDataURL(file);
                       }}
                     />
                     <button 
                       type="button"
                       onClick={() => document.getElementById('logo-upload-input')?.click()} 
-                      className="text-xs bg-slate-50 hover:bg-slate-100 dark:bg-gray-800 border border-slate-100 dark:border-gray-700 py-1.5 px-3 rounded-lg cursor-pointer"
+                      className="text-xs bg-slate-50 hover:bg-slate-100 dark:bg-gray-800 border border-slate-100 dark:border-gray-700 py-1.5 px-3 rounded-lg cursor-pointer font-bold text-gray-700 dark:text-gray-200 transition-colors"
                     >
                       {isRtl ? 'بارگذاری لوگو جدید' : 'Change logo'}
                     </button>
@@ -1520,7 +1926,13 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                       </div>
                     </div>
                   </div>
-                  <img src={brandInfo.coverUrl} alt="cover" className="w-full h-24 rounded-xl object-cover border border-gray-100 dark:border-gray-800" />
+                  <img 
+                    src={brandInfo.coverUrl} 
+                    alt="cover" 
+                    onClick={() => document.getElementById('cover-upload-input')?.click()}
+                    className="w-full h-24 rounded-xl object-cover border border-gray-100 dark:border-gray-800 cursor-pointer hover:opacity-85 transition-opacity" 
+                    title={isRtl ? 'جهت تغییر تصویر هدر کلیک کنید' : 'Click to change cover image'}
+                  />
                   <input 
                     type="file" 
                     id="cover-upload-input"
@@ -1537,18 +1949,31 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                         alert(isRtl ? 'خطا: حجم تصویر کاور هدر نباید بیشتر از ۵ مگابایت باشد.' : 'Error: Cover image size must not exceed 5MB.');
                         return;
                       }
-                      const localUrl = URL.createObjectURL(file);
-                      setBrandInfo(prev => ({ ...prev, coverUrl: localUrl }));
-                      // Backend Integration Spot:
-                      // Connect to Firestore/Firebase Storage here to upload the cover photo
-                      // e.g. uploadBytes(ref(storage, `covers/${file.name}`), file)
-                      console.log("Cover image updated with local url:", localUrl, "File details:", file.name);
+                      const reader = new FileReader();
+                      reader.onload = (evt) => {
+                        const dataUrl = evt.target?.result as string;
+                        if (dataUrl) {
+                          setBrandInfo(prev => {
+                            const updated = { ...prev, coverUrl: dataUrl };
+                            try {
+                              localStorage.setItem('iranbimhub_mfg_profile', JSON.stringify(updated));
+                              localStorage.setItem('iranbimhub_mfg_profile_m1', JSON.stringify(updated));
+                              window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
+                            } catch (err) {
+                              console.error("Failed to save cover image to localStorage:", err);
+                            }
+                            return updated;
+                          });
+                          alert(isRtl ? 'تصویر کاور برند با موفقیت به‌روزرسانی شد.' : 'Brand cover photo updated successfully.');
+                        }
+                      };
+                      reader.readAsDataURL(file);
                     }}
                   />
                   <button 
                     type="button"
                     onClick={() => document.getElementById('cover-upload-input')?.click()} 
-                    className="text-xs text-[#26B6B6] hover:underline cursor-pointer"
+                    className="text-xs text-[#26B6B6] hover:underline cursor-pointer font-bold"
                   >
                     {isRtl ? 'تعویض تصویر هدر...' : 'Change cover image'}
                   </button>
@@ -1598,391 +2023,724 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                   />
                 </div>
 
-                {/* Verification Documents Upload */}
-                <div className="border-t border-gray-100 dark:border-gray-800 pt-6 space-y-5">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div className="space-y-0.5 text-start">
+                {/* Official Contact Info */}
+                <div className="border-t border-gray-100 dark:border-gray-800 pt-5 space-y-4">
+                  <h4 className="text-xs font-bold text-gray-700 dark:text-gray-200">
+                    {isRtl ? 'اطلاعات تماس رسمی و آدرس' : 'Official Contact & Coordinates'}
+                  </h4>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-gray-400 block">{isRtl ? 'شماره تلفن رسمی' : 'Official Phone'}</label>
+                      <input 
+                        type="text" 
+                        value={brandInfo.phone || ''}
+                        onChange={(e) => setBrandInfo({...brandInfo, phone: e.target.value})}
+                        placeholder="+98 (21) 8877-4433"
+                        className="w-full text-xs p-3 border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl focus:outline-none font-mono"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-gray-400 block">{isRtl ? 'آدرس وب‌سایت' : 'Website URL'}</label>
+                      <input 
+                        type="text" 
+                        value={brandInfo.website || ''}
+                        onChange={(e) => setBrandInfo({...brandInfo, website: e.target.value})}
+                        placeholder="https://example.com"
+                        className="w-full text-xs p-3 border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl focus:outline-none font-mono"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-gray-400 block">{isRtl ? 'پست الکترونیکی (ایمیل)' : 'Official Email'}</label>
+                      <input 
+                        type="email" 
+                        value={brandInfo.email || ''}
+                        onChange={(e) => setBrandInfo({...brandInfo, email: e.target.value})}
+                        placeholder="info@example.com"
+                        className="w-full text-xs p-3 border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl focus:outline-none font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold text-gray-400 block">{isRtl ? 'آدرس دقیق دفتر مرکزی / کارخانه' : 'Physical Address'}</label>
+                    <textarea 
+                      rows={2}
+                      value={brandInfo.addressFa || ''}
+                      onChange={(e) => setBrandInfo({...brandInfo, addressFa: e.target.value})}
+                      placeholder={isRtl ? 'تهران، خیابان ولیعصر...' : '12th Flr, Tower, Ave...'}
+                      className="w-full text-xs p-3 border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Dynamic Social Media Links */}
+                <div className="border-t border-gray-100 dark:border-gray-800 pt-5 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
                       <h4 className="text-xs font-bold text-gray-700 dark:text-gray-200">
-                        {isRtl ? 'اسناد رسمی و مدارک احراز صلاحیت کارخانه' : 'Official Credentials & Verification Docs'}
+                        {isRtl ? 'شبکه‌های اجتماعی و کانال‌های رسمی' : 'Official Social Media Accounts'}
                       </h4>
-                      <p className="text-[10.5px] text-gray-400">
-                        {isRtl ? 'جهت بررسی هویت حقوقی، تایید برند و صدور دسترسی انتشار فایل‌ها.' : 'For corporate identity verification, brand approval, and BIM catalog release permissions.'}
+                      <p className="text-[10.5px] text-gray-400 mt-0.5">
+                        {isRtl ? 'افزودن و مدیریت لینک‌های شبکه‌های اجتماعی جهت نمایش در پروفایل عمومی برند' : 'Add and manage social media channels shown on your public brand page'}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleAddSocialLinkRow}
+                      className="bg-[#26B6B6]/10 hover:bg-[#26B6B6]/20 text-[#26B6B6] text-[11px] font-extrabold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>{isRtl ? 'افزودن شبکه اجتماعی' : 'Add Social Link'}</span>
+                    </button>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {(brandInfo.socialLinks && brandInfo.socialLinks.length > 0) ? (
+                      brandInfo.socialLinks.map((row: any) => {
+                        const activePlatform = SOCIAL_PLATFORM_OPTIONS.find(p => p.id === row.platform) || SOCIAL_PLATFORM_OPTIONS[0];
+                        const IconComp = activePlatform.icon;
+
+                        return (
+                          <div key={row.id} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-slate-50 dark:bg-gray-800/60 p-2.5 rounded-xl border border-gray-100 dark:border-gray-700/60">
+                            {/* Platform Selector */}
+                            <div className="relative w-full sm:w-52 shrink-0">
+                              <select
+                                value={row.platform}
+                                onChange={(e) => handleUpdateSocialLinkRow(row.id, { platform: e.target.value })}
+                                className={`w-full text-xs p-2.5 ${isRtl ? 'pr-9 pl-6' : 'pl-9 pr-6'} bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl focus:outline-none cursor-pointer appearance-none font-bold`}
+                              >
+                                {SOCIAL_PLATFORM_OPTIONS.map(opt => (
+                                  <option key={opt.id} value={opt.id}>
+                                    {isRtl ? opt.labelFa : opt.labelEn}
+                                  </option>
+                                ))}
+                              </select>
+                              <div className={`absolute ${isRtl ? 'right-2.5' : 'left-2.5'} top-1/2 -translate-y-1/2 pointer-events-none text-[#26B6B6]`}>
+                                <IconComp className="w-4 h-4" />
+                              </div>
+                            </div>
+
+                            {/* URL Input */}
+                            <div className="flex-1 relative">
+                              <input
+                                type="text"
+                                value={row.url || ''}
+                                onChange={(e) => handleUpdateSocialLinkRow(row.id, { url: e.target.value })}
+                                placeholder={activePlatform.placeholder}
+                                className="w-full text-xs p-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 dark:text-white rounded-xl focus:outline-none font-mono"
+                              />
+                            </div>
+
+                            {/* Delete Button */}
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteSocialLinkRow(row.id)}
+                              className="p-2.5 text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-xl transition-all shrink-0 cursor-pointer flex items-center justify-center"
+                              title={isRtl ? 'حذف این شبکه اجتماعی' : 'Remove Social Link'}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="text-center py-4 bg-slate-50 dark:bg-gray-800/40 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 text-xs text-gray-400">
+                        {isRtl ? 'هیچ شبکه اجتماعی ثبت نشده است. با دکمه بالا یکی اضافه کنید.' : 'No social links added yet. Click above to add one.'}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Promotional Videos & Portfolio PDF Upload */}
+                <div className="border-t border-gray-100 dark:border-gray-800 pt-5 space-y-5">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-xs font-bold text-gray-700 dark:text-gray-200">
+                        {isRtl ? 'ویدیوهای معرفی و تبلیغاتی (تا ۳ ویدیو)' : 'Promotional Presentation Videos (Up to 3)'}
+                      </h4>
+                      <p className="text-[10.5px] text-gray-400 mt-0.5">
+                        {isRtl ? 'لینک ویدیوهای آپارات یا یوتیوب جهت پخش تعاملی در صفحه برند' : 'Aparat or YouTube embeddable video links'}
                       </p>
                     </div>
 
-                    {/* Guidelines Tooltip Button */}
-                    <div className="relative group cursor-help self-start sm:self-auto shrink-0">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 rounded-xl text-[10.5px] font-bold hover:bg-slate-100 transition-all select-none">
-                        <HelpCircle className="w-3.5 h-3.5 text-[#26B6B6]" />
-                        <span>{isRtl ? 'راهنمای بارگذاری مدارک' : 'Document Guidelines'}</span>
-                      </span>
-                      <div className="absolute bottom-full right-0 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 mb-2 hidden group-hover:block w-72 p-3.5 bg-slate-900/95 dark:bg-gray-950 border border-slate-800 text-white text-[10.5px] rounded-2xl shadow-xl z-50 leading-relaxed font-normal">
-                        <div className="font-extrabold text-[#26B6B6] mb-1">{isRtl ? 'ضوابط پذیرش اسناد رسمی:' : 'Acceptable Document Guidelines:'}</div>
-                        <p>{isRtl ? '• فرمت مجاز: PDF یا تصاویر اسکن‌شده با فرمت JPG یا PNG' : '• Formats: PDF or high-resolution JPG / PNG scans'}</p>
-                        <p>{isRtl ? '• حداکثر حجم مجاز: ۵ مگابایت برای هر مدرک' : '• Max size: 5MB per document'}</p>
-                        <p>{isRtl ? '• تصویر یا اسکن مدرک ارسالی باید کاملاً خوانا، بدون خط‌خوردگی و با حاشیه کامل باشد.' : '• Scans must be fully legible, uncropped, and free of physical damage.'}</p>
+                    {(!brandInfo.promoVideos || brandInfo.promoVideos.length < 3) && (
+                      <button
+                        type="button"
+                        onClick={handleAddPromoVideoRow}
+                        className="bg-[#26B6B6]/10 hover:bg-[#26B6B6]/20 text-[#26B6B6] text-[11px] font-extrabold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>{isRtl ? 'افزودن ویدیو' : 'Add Video'}</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Promo Video List */}
+                  <div className="space-y-3">
+                    {(brandInfo.promoVideos && brandInfo.promoVideos.length > 0) ? (
+                      brandInfo.promoVideos.map((vid: any, idx: number) => (
+                        <div key={vid.id} className="p-3 bg-slate-50 dark:bg-gray-800/60 rounded-xl border border-gray-100 dark:border-gray-700/60 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] font-bold text-gray-700 dark:text-gray-200 flex items-center gap-1.5">
+                              <Video className="w-3.5 h-3.5 text-[#26B6B6]" />
+                              <span>{isRtl ? `ویدیو شماره ${idx + 1}` : `Video #${idx + 1}`}</span>
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleDeletePromoVideoRow(vid.id)}
+                              className="text-gray-400 hover:text-rose-500 text-xs flex items-center gap-1 cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              <span>{isRtl ? 'حذف ویدیو' : 'Delete'}</span>
+                            </button>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <input
+                              type="text"
+                              value={vid.titleFa || ''}
+                              onChange={(e) => handleUpdatePromoVideoRow(vid.id, { titleFa: e.target.value })}
+                              placeholder={isRtl ? 'عنوان یا موضوع ویدیو (مثال: خط تولید)' : 'Video Title (e.g. Factory Tour)'}
+                              className="text-xs p-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none"
+                            />
+                            <input
+                              type="text"
+                              value={vid.url || ''}
+                              onChange={(e) => handleUpdatePromoVideoRow(vid.id, { url: e.target.value })}
+                              placeholder="https://aparat.com/v/... یا https://youtube.com/watch?v=..."
+                              className="text-xs p-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none font-mono"
+                            />
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-4 bg-slate-50 dark:bg-gray-800/40 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 text-xs text-gray-400">
+                        {isRtl ? 'هیچ ویدیویی ثبت نشده است.' : 'No promo videos added yet.'}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Company Portfolio PDF Upload */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[11px] font-bold text-gray-400 block">
+                        {isRtl ? 'کاتالوگ جامع / پرتفولیوی شرکت (فایل PDF)' : 'Company Portfolio PDF'}
+                      </label>
+
+                      {/* Tooltip */}
+                      <div className="relative group cursor-help">
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#26B6B6]">
+                          <HelpCircle className="w-3 h-3" />
+                          <span>{isRtl ? 'راهنما' : 'Info'}</span>
+                        </span>
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block w-52 p-2.5 bg-slate-900 text-white text-[10px] rounded-xl shadow-lg z-50 leading-relaxed font-normal text-center">
+                          {isRtl ? 'فرمت PDF، حداکثر ۱۰ مگابایت' : 'PDF format, max 10MB size limit'}
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="grid grid-cols-1 gap-4">
-                    {brandInfo.verificationDocs.map(doc => (
-                      <div key={doc.id} className="p-4 bg-slate-50 dark:bg-gray-950/40 border border-slate-100 dark:border-gray-800 rounded-2xl space-y-4 text-xs transition-all hover:shadow-xs">
-                        {/* Hidden File Input just for this doc */}
-                        <input 
-                          type="file" 
-                          id={`file-input-${doc.id}`}
-                          accept=".pdf,image/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (!file) return;
-                            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
-                            if (!allowedTypes.includes(file.type)) {
-                              alert(isRtl ? 'خطا: فرمت فایل غیرمجاز است. تنها فایل‌های PDF و تصاویر (JPG/PNG) پذیرفته می‌شوند.' : 'Error: Unsupported format. Only PDF and image files (JPG/PNG) are accepted.');
-                              return;
-                            }
-                            if (file.size > 5 * 1024 * 1024) {
-                              alert(isRtl ? 'خطا: حجم فایل نباید بیشتر از ۵ مگابایت باشد.' : 'Error: File size must not exceed 5MB.');
-                              return;
-                            }
-                            const localUrl = URL.createObjectURL(file);
-                            handleUpdateDocumentDetails(doc.id, {
-                              fileName: file.name,
-                              fileUrl: localUrl,
-                              date: isRtl ? '۱۴۰۵/۰۴/۰۱' : '2026-07-01'
-                            });
-                            alert(isRtl ? `فایل ${file.name} با موفقیت پیوست شد و وضعیت سند به در حال بررسی تغییر یافت.` : `File ${file.name} attached successfully. Status set to Pending review.`);
-                          }}
-                        />
+                    <input 
+                      type="file" 
+                      id="portfolio-pdf-upload"
+                      accept=".pdf"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+                          alert(isRtl ? 'خطا: فقط فایل‌های با فرمت PDF پذیرفته می‌شوند.' : 'Error: Only PDF files are accepted.');
+                          return;
+                        }
+                        if (file.size > 10 * 1024 * 1024) {
+                          alert(isRtl ? 'خطا: حجم فایل PDF نباید بیشتر از ۱۰ مگابایت باشد.' : 'Error: PDF file size must not exceed 10MB.');
+                          return;
+                        }
+                        const localUrl = URL.createObjectURL(file);
+                        setBrandInfo(prev => ({
+                          ...prev,
+                          portfolioPdfName: file.name,
+                          portfolioPdfUrl: localUrl
+                        }));
+                        alert(isRtl ? `کاتالوگ ${file.name} با موفقیت پیوست گردید.` : `Portfolio catalog ${file.name} attached successfully.`);
+                      }}
+                    />
 
-                        {/* Top Info Header */}
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-gray-100/60 dark:border-gray-800/60">
-                          <div className="flex items-start gap-2.5">
-                            <div className="p-2 bg-slate-100 dark:bg-gray-800 text-[#26B6B6] rounded-xl shrink-0 mt-0.5">
-                              <FileText className="w-4 h-4" />
-                            </div>
-                            <div className="text-start">
-                              <h5 className="font-extrabold text-gray-800 dark:text-gray-100">
-                                {isRtl ? doc.nameFa : doc.nameEn}
-                              </h5>
-                              <div className="flex items-center gap-2 mt-1">
-                                <span className="text-[10px] text-gray-400 font-mono flex items-center gap-1">
-                                  <Clock className="w-3 h-3" />
-                                  <span>{doc.date}</span>
-                                </span>
-                                {doc.isGazette && (
-                                  <span className="text-[9px] bg-sky-500/10 text-sky-600 dark:text-sky-400 px-2 py-0.5 rounded-full font-bold">
-                                    {isRtl ? 'مدرک پایه الزامی' : 'Required Prerequisite'}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Status Badge */}
-                          <div className="flex items-center gap-2 self-end sm:self-auto">
-                            <span className={`text-[10px] font-extrabold px-3 py-1 rounded-full ${
-                              doc.status === 'Verified' 
-                                ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' 
-                                : doc.status === 'Rejected'
-                                ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 font-black'
-                                : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold'
-                            }`}>
-                              {doc.status === 'Verified' ? (isRtl ? 'تایید شده ✓' : 'Verified ✓') : 
-                               doc.status === 'Rejected' ? (isRtl ? 'رد شده ✗' : 'Rejected ✗') : 
-                               (isRtl ? 'در انتظار تایید ⏳' : 'Pending Review ⏳')}
-                            </span>
-                          </div>
+                    {brandInfo.portfolioPdfName ? (
+                      <div className="p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <FileText className="w-4 h-4 text-[#26B6B6] shrink-0" />
+                          <span className="text-xs font-mono text-gray-800 dark:text-gray-200 truncate">{brandInfo.portfolioPdfName}</span>
                         </div>
-
-                        {/* Special Explanation Row for Official Gazette */}
-                        {doc.isGazette && (
-                          <div className="p-3 bg-sky-500/5 border border-sky-100 dark:border-sky-950/40 rounded-xl text-start">
-                            <p className="text-[10.5px] text-sky-700/90 dark:text-sky-400 font-light leading-relaxed">
-                              {isRtl 
-                                ? 'ℹ️ آگهی رسمی ثبت شرکت که در روزنامه رسمی کشور منتشر شده است.' 
-                                : 'ℹ️ The official company registration notice published in the national Official Gazette.'}
-                            </p>
-                          </div>
-                        )}
-
-                        {/* Custom Rejection Reason Alert Box */}
-                        {doc.status === 'Rejected' && (
-                          <div className="p-3.5 bg-rose-500/5 border border-rose-100 dark:border-rose-950/40 rounded-xl text-start space-y-1">
-                            <div className="text-[11px] font-extrabold text-rose-700 dark:text-rose-400 flex items-center gap-1.5">
-                              <span>⚠️ {isRtl ? 'علت رد صلاحیت سند تجاری:' : 'Rejection Reason Details:'}</span>
-                            </div>
-                            <p className="text-[10.5px] text-rose-600 dark:text-rose-400/90 leading-relaxed font-light">
-                              {isRtl ? (doc.rejectionReasonFa || 'اعتبار زمانی سند منقضی شده است یا کیفیت تصویر خوانا نیست.') : (doc.rejectionReasonEn || 'The quality of the upload is insufficient or the credential period has expired.')}
-                            </p>
-                          </div>
-                        )}
-
-                        {/* Custom VAT Expiry Warning Alert Box */}
-                        {doc.id === 'doc-3' && (
-                          <div className="p-3 bg-amber-500/5 border border-amber-100 dark:border-amber-950/40 rounded-xl text-start space-y-0.5">
-                            <p className="text-[10.5px] text-amber-700 dark:text-amber-400 font-medium">
-                              {isRtl 
-                                ? '🔔 زمان تمدید یا ممیزی سالانه این سند فرا رسیده است. لطفاً فایل معتبر جدید را ارسال فرمایید.' 
-                                : '🔔 Annual renewal/auditing period has arrived. Please upload your updated certificate.'}
-                            </p>
-                          </div>
-                        )}
-
-                        {/* File Details & Inline Inputs */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-                          {/* Left Details: Attached File info */}
-                          <div className="space-y-2 text-start flex flex-col justify-center">
-                            <span className="text-[10.5px] font-bold text-gray-400 block">{isRtl ? 'فایل ضمیمه‌شده:' : 'Attached File:'}</span>
-                            {doc.fileName ? (
-                              <div className="p-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl flex items-center justify-between gap-2">
-                                <div className="flex items-center gap-2 truncate">
-                                  <FileText className="w-4 h-4 text-[#26B6B6] shrink-0" />
-                                  <span className="text-[10.5px] text-gray-700 dark:text-gray-300 font-mono truncate">{doc.fileName}</span>
-                                </div>
-                                <div className="flex items-center gap-1.5 shrink-0">
-                                  {doc.fileUrl && (
-                                    <a 
-                                      href={doc.fileUrl} 
-                                      target="_blank" 
-                                      rel="noreferrer" 
-                                      className="p-1.5 text-gray-400 hover:text-[#26B6B6] transition-colors"
-                                      title={isRtl ? 'مشاهده سند' : 'View Document'}
-                                    >
-                                      <ExternalLink className="w-3.5 h-3.5" />
-                                    </a>
-                                  )}
-                                  <button
-                                    type="button"
-                                    onClick={() => handleUpdateDocumentDetails(doc.id, { fileName: '', fileUrl: '' })}
-                                    className="p-1.5 text-gray-400 hover:text-rose-500 transition-colors cursor-pointer"
-                                    title={isRtl ? 'حذف فایل' : 'Delete File'}
-                                  >
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="py-3 px-4 bg-slate-100/50 dark:bg-gray-900/50 border border-dashed border-gray-200 dark:border-gray-800 rounded-xl text-center text-gray-400 text-[10.5px]">
-                                {isRtl ? 'فایلی بارگذاری نشده است.' : 'No file attached yet.'}
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Right Details: Inline Description & Lookup URL fields */}
-                          <div className="space-y-2 text-start">
-                            <span className="text-[10.5px] font-bold text-gray-400 block">{isRtl ? 'اطلاعات تکمیلی:' : 'Supplementary Details:'}</span>
-                            <div className="space-y-2">
-                              <input 
-                                type="text"
-                                placeholder={isRtl ? 'آدرس اینترنتی استعلام مدرک (اختیاری)...' : 'Verification lookup URL (optional)...'}
-                                value={doc.url || ''}
-                                onChange={(e) => handleUpdateDocumentDetails(doc.id, { url: e.target.value })}
-                                className="w-full text-[10.5px] p-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl focus:outline-none"
-                              />
-                              <input 
-                                type="text"
-                                placeholder={isRtl ? 'توضیحات کوتاه یا یادداشت...' : 'Short description or notes...'}
-                                value={doc.description || ''}
-                                onChange={(e) => handleUpdateDocumentDetails(doc.id, { description: e.target.value })}
-                                className="w-full text-[10.5px] p-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl focus:outline-none"
-                              />
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Row action: Trigger file picker */}
-                        <div className="flex justify-end pt-2 border-t border-gray-100/40 dark:border-gray-800/40">
+                        <div className="flex items-center gap-1.5 shrink-0">
                           <button
                             type="button"
-                            onClick={() => document.getElementById(`file-input-${doc.id}`)?.click()}
-                            className="bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800 text-slate-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 text-[10.5px] font-extrabold px-3 py-1.5 rounded-xl cursor-pointer flex items-center gap-1.5 shadow-3xs transition-all hover:scale-102"
+                            onClick={() => document.getElementById('portfolio-pdf-upload')?.click()}
+                            className="text-[10px] font-bold text-[#26B6B6] hover:underline cursor-pointer"
                           >
-                            <Upload className="w-3.5 h-3.5 text-[#26B6B6]" />
-                            <span>{doc.fileName ? (isRtl ? 'جایگزینی فایل ضمیمه' : 'Replace File') : (isRtl ? 'بارگذاری فایل ضمیمه' : 'Upload File')}</span>
+                            {isRtl ? 'تعویض' : 'Change'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setBrandInfo(prev => ({ ...prev, portfolioPdfName: '', portfolioPdfUrl: '' }))}
+                            className="p-1 text-gray-400 hover:text-rose-500 cursor-pointer"
+                            title={isRtl ? 'حذف کاتالوگ' : 'Remove PDF'}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       </div>
-                    ))}
-                  </div>
-
-                  {/* Add New Custom Document */}
-                  <div className="bg-[#26B6B6]/5 border border-[#26B6B6]/15 rounded-2xl p-4.5 space-y-3 text-start">
-                    <h5 className="text-[11px] font-extrabold text-[#26B6B6]">
-                      {isRtl ? '＋ افزودن سند یا مدرک جدید' : '＋ Add New Credential or Document'}
-                    </h5>
-                    <form onSubmit={handleVerifyDocumentSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="space-y-1">
-                        <input 
-                          type="text" 
-                          required
-                          placeholder={isRtl ? 'نام سند رسمی (مثلاً: پروانه کسب، گواهی ثبت برند)' : 'Legal document name (e.g. Trademark Cert)'}
-                          value={newDocName}
-                          onChange={(e) => setNewDocName(e.target.value)}
-                          className="w-full text-[10.5px] p-2.5 bg-white dark:bg-gray-900 border border-gray-200/60 dark:border-gray-800 rounded-xl focus:outline-none"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <input 
-                          type="text" 
-                          placeholder={isRtl ? 'لینک استعلام اینترنتی مدرک (اختیاری)' : 'Lookup verification URL (optional)'}
-                          value={newDocUrl}
-                          onChange={(e) => setNewDocUrl(e.target.value)}
-                          className="w-full text-[10.5px] p-2.5 bg-white dark:bg-gray-900 border border-gray-200/60 dark:border-gray-800 rounded-xl focus:outline-none"
-                        />
-                      </div>
-                      <div className="sm:col-span-2 space-y-1">
-                        <textarea 
-                          rows={1}
-                          placeholder={isRtl ? 'توضیحات کوتاه یا یادداشت مربوط به سند ارسالی...' : 'Short description or notes...'}
-                          value={newDocDesc}
-                          onChange={(e) => setNewDocDesc(e.target.value)}
-                          className="w-full text-[10.5px] p-2.5 bg-white dark:bg-gray-900 border border-gray-200/60 dark:border-gray-800 rounded-xl focus:outline-none resize-none"
-                        />
-                      </div>
-
-                      {/* Attach File for New Doc Form */}
-                      <div className="sm:col-span-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
-                        <div className="flex items-center gap-2">
-                          <input 
-                            type="file" 
-                            id="new-doc-file-picker"
-                            accept=".pdf,image/*"
-                            className="hidden"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (!file) return;
-                              if (file.size > 5 * 1024 * 1024) {
-                                alert(isRtl ? 'خطا: حجم فایل نباید بیشتر از ۵ مگابایت باشد.' : 'Error: File size must not exceed 5MB.');
-                                return;
-                              }
-                              setNewDocFileName(file.name);
-                              setNewDocFileUrl(URL.createObjectURL(file));
-                            }}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => document.getElementById('new-doc-file-picker')?.click()}
-                            className="bg-white hover:bg-slate-50 dark:bg-gray-900 text-slate-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 text-[10px] font-bold px-3 py-2 rounded-lg cursor-pointer flex items-center gap-1.5"
-                          >
-                            <Upload className="w-3.5 h-3.5 text-[#26B6B6]" />
-                            <span>{newDocFileName ? (isRtl ? 'تغییر فایل ضمیمه' : 'Change Attached File') : (isRtl ? 'ضمیمه کردن فایل (PDF/عکس)' : 'Attach Document File (PDF/Image)')}</span>
-                          </button>
-                          {newDocFileName && (
-                            <span className="text-[10px] text-gray-500 font-mono truncate max-w-xs block">
-                              ✓ {newDocFileName}
-                            </span>
-                          )}
-                        </div>
-
-                        <button 
-                          type="submit" 
-                          className="bg-[#26B6B6] hover:bg-[#1e9494] text-white text-[10.5px] font-extrabold px-4 py-2 rounded-xl cursor-pointer shadow-xs transition-all hover:scale-102"
-                        >
-                          {isRtl ? 'ثبت و ارسال سند رسمی' : 'Add Legal Credential'}
-                        </button>
-                      </div>
-                    </form>
-                  </div>
-
-                  <p className="text-[10px] text-gray-400 mt-2.5">
-                    {isRtl ? (
-                      <span>
-                        اطلاعات بارگذاری‌شده شما طبق ضوابط{' '}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (typeof window !== 'undefined' && (window as any).onNavigateToView) {
-                              (window as any).onNavigateToView('privacy');
-                            }
-                          }}
-                          className="text-[#26B6B6] hover:underline font-bold cursor-pointer"
-                        >
-                          سیاست حفظ حریم خصوصی
-                        </button>{' '}
-                        ایران‌بیم‌هاب به صورت کاملاً محرمانه محافظت خواهد شد.
-                      </span>
                     ) : (
-                      <span>
-                        Your corporate verification records are fully secured in compliance with our{' '}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (typeof window !== 'undefined' && (window as any).onNavigateToView) {
-                              (window as any).onNavigateToView('privacy');
-                            }
-                          }}
-                          className="text-[#26B6B6] hover:underline font-bold cursor-pointer"
-                        >
-                          Privacy Policy
-                        </button>
-                        .
-                      </span>
+                      <button
+                        type="button"
+                        onClick={() => document.getElementById('portfolio-pdf-upload')?.click()}
+                        className="w-full py-3 px-4 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl hover:border-[#26B6B6] hover:bg-[#26B6B6]/5 text-gray-500 dark:text-gray-400 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                      >
+                        <Upload className="w-4 h-4 text-[#26B6B6]" />
+                        <span>{isRtl ? 'بارگذاری کاتالوگ شرکت (فایل PDF)' : 'Upload Company Portfolio (PDF File)'}</span>
+                      </button>
                     )}
+                  </div>
+                </div>
+                <div className="pt-2">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-4 bg-slate-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700/60 shadow-2xs">
+                    <div className="text-start space-y-0.5">
+                      <span className="text-xs font-bold text-gray-800 dark:text-gray-100 block">
+                        {isRtl ? 'ثبت و اعمال تغییرات مشخصات برند' : 'Save Brand Profile Updates'}
+                      </span>
+                      <span className="text-[10.5px] text-gray-400 block">
+                        {isRtl ? 'جهت نمایش آخرین لوگو، کاور، شبکه‌های اجتماعی و کاتالوگ شرکت در صفحه عمومی برند.' : 'Update public showcase with latest logo, promo videos, catalog PDF, and social links.'}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleSaveBrandInfo()}
+                      className="bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-extrabold px-6 py-2.5 rounded-xl cursor-pointer shadow-sm transition-all hover:scale-102 flex items-center justify-center gap-2 shrink-0"
+                    >
+                      <Check className="w-4 h-4" />
+                      <span>{isRtl ? 'ذخیره تغییرات مشخصات برند' : 'Save Brand Profile Changes'}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* FULL WIDTH SECTION 1: Verification Documents Upload */}
+            <div className="border-t border-gray-100 dark:border-gray-800 pt-8 mt-8 space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="space-y-0.5 text-start">
+                  <h4 className="text-xs font-bold text-gray-700 dark:text-gray-200">
+                    {isRtl ? 'اسناد رسمی و مدارک احراز صلاحیت کارخانه' : 'Official Credentials & Verification Docs'}
+                  </h4>
+                  <p className="text-[10.5px] text-gray-400">
+                    {isRtl ? 'جهت بررسی هویت حقوقی، تایید برند و صدور دسترسی انتشار فایل‌ها.' : 'For corporate identity verification, brand approval, and BIM catalog release permissions.'}
                   </p>
                 </div>
 
-                {/* LINK / REGISTER PROFESSIONAL ACCOUNT OPTION */}
-                <div className="border-t border-gray-100 dark:border-gray-800 pt-6 mt-6">
-                  <div className="bg-slate-50/50 dark:bg-gray-950 p-6 rounded-2xl border border-gray-200/60 dark:border-gray-800 space-y-4 max-w-xl text-start">
-                    <div className="flex gap-3 items-start">
-                      <div className="w-10 h-10 bg-[#26B6B6]/10 text-[#26B6B6] rounded-xl flex items-center justify-center shrink-0">
-                        <Briefcase className="w-5 h-5" />
+                {/* Guidelines Tooltip Button */}
+                <div className="relative group cursor-help self-start sm:self-auto shrink-0">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 rounded-xl text-[10.5px] font-bold hover:bg-slate-100 transition-all select-none">
+                    <HelpCircle className="w-3.5 h-3.5 text-[#26B6B6]" />
+                    <span>{isRtl ? 'راهنمای بارگذاری مدارک' : 'Document Guidelines'}</span>
+                  </span>
+                  <div className="absolute bottom-full right-0 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 mb-2 hidden group-hover:block w-72 p-3.5 bg-slate-900/95 dark:bg-gray-950 border border-slate-800 text-white text-[10.5px] rounded-2xl shadow-xl z-50 leading-relaxed font-normal">
+                    <div className="font-extrabold text-[#26B6B6] mb-1">{isRtl ? 'ضوابط پذیرش اسناد رسمی:' : 'Acceptable Document Guidelines:'}</div>
+                    <p>{isRtl ? '• فرمت مجاز: PDF یا تصاویر اسکن‌شده با فرمت JPG یا PNG' : '• Formats: PDF or high-resolution JPG / PNG scans'}</p>
+                    <p>{isRtl ? '• حداکثر حجم مجاز: ۵ مگابایت برای هر مدرک' : '• Max size: 5MB per document'}</p>
+                    <p>{isRtl ? '• تصویر یا اسکن مدرک ارسالی باید کاملاً خوانا، بدون خط‌خوردگی و با حاشیه کامل باشد.' : '• Scans must be fully legible, uncropped, and free of physical damage.'}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-6 w-full">
+                {brandInfo.verificationDocs.map(doc => (
+                  <div key={doc.id} className="p-5 sm:p-6 bg-slate-50 dark:bg-gray-950/40 border border-slate-100 dark:border-gray-800 rounded-2xl space-y-5 text-xs transition-all w-full shadow-2xs hover:shadow-xs">
+                    {/* Hidden File Input just for this doc */}
+                    <input 
+                      type="file" 
+                      id={`file-input-${doc.id}`}
+                      accept=".pdf,image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+                        if (!allowedTypes.includes(file.type)) {
+                          alert(isRtl ? 'خطا: فرمت فایل غیرمجاز است. تنها فایل‌های PDF و تصاویر (JPG/PNG) پذیرفته می‌شوند.' : 'Error: Unsupported format. Only PDF and image files (JPG/PNG) are accepted.');
+                          return;
+                        }
+                        if (file.size > 5 * 1024 * 1024) {
+                          alert(isRtl ? 'خطا: حجم فایل نباید بیشتر از ۵ مگابایت باشد.' : 'Error: File size must not exceed 5MB.');
+                          return;
+                        }
+                        const localUrl = URL.createObjectURL(file);
+                        handleUpdateDocumentDetails(doc.id, {
+                          fileName: file.name,
+                          fileUrl: localUrl,
+                          date: isRtl ? '۱۴۰۵/۰۴/۰۱' : '2026-07-01'
+                        });
+                        alert(isRtl ? `فایل ${file.name} با موفقیت پیوست شد و وضعیت سند به در حال بررسی تغییر یافت.` : `File ${file.name} attached successfully. Status set to Pending review.`);
+                      }}
+                    />
+
+                    {/* Top Info Header */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-gray-100/60 dark:border-gray-800/60">
+                      <div className="flex items-start gap-2.5">
+                        <div className="p-2 bg-slate-100 dark:bg-gray-800 text-[#26B6B6] rounded-xl shrink-0 mt-0.5">
+                          <FileText className="w-4 h-4" />
+                        </div>
+                        <div className="text-start">
+                          <h5 className="font-extrabold text-gray-800 dark:text-gray-100">
+                            {isRtl ? doc.nameFa : doc.nameEn}
+                          </h5>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-[10px] text-gray-400 font-mono flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              <span>{doc.date}</span>
+                            </span>
+                            {doc.isGazette && (
+                              <span className="text-[9px] bg-sky-500/10 text-sky-600 dark:text-sky-400 px-2 py-0.5 rounded-full font-bold">
+                                {isRtl ? 'مدرک پایه الزامی' : 'Required Prerequisite'}
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                      <div className="space-y-1">
-                        <h4 className="text-xs font-bold text-gray-800 dark:text-white">
-                          {isRtl ? 'آیا شما نیز طراح، معمار یا مهندس سازه هستید؟' : 'Are you also a BIM Professional / Modeler?'}
-                        </h4>
-                        <p className="text-[10px] text-gray-400 leading-normal">
-                          {isRtl 
-                            ? 'یک حساب کاربری طراح ایجاد کنید تا بتوانید کاتالوگ آبجکت‌های ساختمانی را دانلود کرده، پوشه‌های پروژه‌ها را سازماندهی کنید و در نقش طراح فعالیت داشته باشید. حساب طراح شما کاملاً مجزا خواهد بود ولی به صورت لینک‌شده در بالای صفحه قابل سوئیچ سریع است.' 
-                            : 'Link a professional designer profile under your same login to search, download, and organize Revit/IFC catalog objects for building models.'
-                          }
-                        </p>
+
+                      {/* Status Badge */}
+                      <div className="flex items-center gap-2 self-end sm:self-auto">
+                        <span className={`text-[10px] font-extrabold px-3 py-1 rounded-full ${
+                          doc.status === 'Verified' 
+                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' 
+                            : doc.status === 'Rejected'
+                            ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 font-black'
+                            : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold'
+                        }`}>
+                          {doc.status === 'Verified' ? (isRtl ? 'تایید شده ✓' : 'Verified ✓') : 
+                           doc.status === 'Rejected' ? (isRtl ? 'رد شده ✗' : 'Rejected ✗') : 
+                           (isRtl ? 'در انتظار تایید ⏳' : 'Pending Review ⏳')}
+                        </span>
                       </div>
                     </div>
 
-                    <div className="flex justify-start">
+                    {/* Special Explanation Row for Official Gazette */}
+                    {doc.isGazette && (
+                      <div className="p-3 bg-sky-500/5 border border-sky-100 dark:border-sky-950/40 rounded-xl text-start">
+                        <p className="text-[10.5px] text-sky-700/90 dark:text-sky-400 font-light leading-relaxed">
+                          {isRtl 
+                            ? 'ℹ️ آگهی رسمی ثبت شرکت که در روزنامه رسمی کشور منتشر شده است.' 
+                            : 'ℹ️ The official company registration notice published in the national Official Gazette.'}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Custom Rejection Reason Alert Box */}
+                    {doc.status === 'Rejected' && (
+                      <div className="p-3.5 bg-rose-500/5 border border-rose-100 dark:border-rose-950/40 rounded-xl text-start space-y-1">
+                        <div className="text-[11px] font-extrabold text-rose-700 dark:text-rose-400 flex items-center gap-1.5">
+                          <span>⚠️ {isRtl ? 'علت رد صلاحیت سند تجاری:' : 'Rejection Reason Details:'}</span>
+                        </div>
+                        <p className="text-[10.5px] text-rose-600 dark:text-rose-400/90 leading-relaxed font-light">
+                          {isRtl ? (doc.rejectionReasonFa || 'اعتبار زمانی سند منقضی شده است یا کیفیت تصویر خوانا نیست.') : (doc.rejectionReasonEn || 'The quality of the upload is insufficient or the credential period has expired.')}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Custom VAT Expiry Warning Alert Box */}
+                    {doc.id === 'doc-3' && (
+                      <div className="p-3 bg-amber-500/5 border border-amber-100 dark:border-amber-950/40 rounded-xl text-start space-y-0.5">
+                        <p className="text-[10.5px] text-amber-700 dark:text-amber-400 font-medium">
+                          {isRtl 
+                            ? '🔔 زمان تمدید یا ممیزی سالانه این سند فرا رسیده است. لطفاً فایل معتبر جدید را ارسال فرمایید.' 
+                            : '🔔 Annual renewal/auditing period has arrived. Please upload your updated certificate.'}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* File Details & Inline Inputs */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                      {/* Left Details: Attached File info */}
+                      <div className="space-y-2 text-start flex flex-col justify-center">
+                        <span className="text-[10.5px] font-bold text-gray-400 block">{isRtl ? 'فایل ضمیمه‌شده:' : 'Attached File:'}</span>
+                        {doc.fileName ? (
+                          <div className="p-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2 truncate">
+                              <FileText className="w-4 h-4 text-[#26B6B6] shrink-0" />
+                              <span className="text-[10.5px] text-gray-700 dark:text-gray-300 font-mono truncate">{doc.fileName}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              {doc.fileUrl && (
+                                <a 
+                                  href={doc.fileUrl} 
+                                  target="_blank" 
+                                  rel="noreferrer" 
+                                  className="p-1.5 text-gray-400 hover:text-[#26B6B6] transition-colors"
+                                  title={isRtl ? 'مشاهده سند' : 'View Document'}
+                                >
+                                  <ExternalLink className="w-3.5 h-3.5" />
+                                </a>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => handleUpdateDocumentDetails(doc.id, { fileName: '', fileUrl: '' })}
+                                className="p-1.5 text-gray-400 hover:text-rose-500 transition-colors cursor-pointer"
+                                title={isRtl ? 'حذف فایل' : 'Delete File'}
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="py-3 px-4 bg-slate-100/50 dark:bg-gray-900/50 border border-dashed border-gray-200 dark:border-gray-800 rounded-xl text-center text-gray-400 text-[10.5px]">
+                            {isRtl ? 'فایلی بارگذاری نشده است.' : 'No file attached yet.'}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Right Details: Inline Description & Lookup URL fields */}
+                      <div className="space-y-2 text-start">
+                        <span className="text-[10.5px] font-bold text-gray-400 block">{isRtl ? 'اطلاعات تکمیلی:' : 'Supplementary Details:'}</span>
+                        <div className="space-y-2">
+                          <input 
+                            type="text"
+                            placeholder={isRtl ? 'آدرس اینترنتی استعلام مدرک (اختیاری)...' : 'Verification lookup URL (optional)...'}
+                            value={doc.url || ''}
+                            onChange={(e) => handleUpdateDocumentDetails(doc.id, { url: e.target.value })}
+                            className="w-full text-[10.5px] p-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl focus:outline-none"
+                          />
+                          <input 
+                            type="text"
+                            placeholder={isRtl ? 'توضیحات کوتاه یا یادداشت...' : 'Short description or notes...'}
+                            value={doc.description || ''}
+                            onChange={(e) => handleUpdateDocumentDetails(doc.id, { description: e.target.value })}
+                            className="w-full text-[10.5px] p-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl focus:outline-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Row action: Trigger file picker & Permanent Delete */}
+                    <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-2 border-t border-gray-100/60 dark:border-gray-800/60">
                       <button
                         type="button"
-                        onClick={() => {
-                          const userSession = localStorage.getItem('iranbimhub_user');
-                          if (userSession) {
-                            const usr = JSON.parse(userSession);
-                            usr.hasModelerAccount = true;
-                            usr.selectedRoles = usr.selectedRoles || ['Architect'];
-                            usr.selectedTopics = usr.selectedTopics || ['Facades', 'Sustainable Materials'];
-                            localStorage.setItem('iranbimhub_user', JSON.stringify(usr));
-                            alert(isRtl 
-                              ? 'حساب طراح حرفه‌ای با موفقیت برای شما فعال شد! اکنون می‌توانید از دکمه سوئیچر در هدر سایت برای تعویض پنل استفاده کنید.' 
-                              : 'BIM Professional account activated successfully! Use the header role switcher to navigate views.'
-                            );
-                            window.location.reload();
-                          } else {
-                            // If no session, create a default one
-                            const mockUsr = {
-                              name: 'BIM User',
-                              fullName: 'BIM User',
-                              phone: '09121112233',
-                              role: 'Manufacturer',
-                              hasModelerAccount: true,
-                              selectedRoles: ['Architect'],
-                              selectedTopics: ['Facades', 'Sustainable Materials']
-                            };
-                            localStorage.setItem('iranbimhub_user', JSON.stringify(mockUsr));
-                            alert('BIM Professional account activated successfully!');
-                            window.location.reload();
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          console.log('Delete clicked for doc:', doc.id);
+                          const confirmMsg = isRtl 
+                            ? 'آیا از حذف دائمی این مدرک مطمئن هستید؟ این عمل قابل بازگشت نیست.' 
+                            : 'Are you sure you want to permanently delete this credential document? This action cannot be undone.';
+                          if (window.confirm(confirmMsg)) {
+                            setBrandInfo(prev => {
+                              const nextDocs = (prev.verificationDocs || []).filter(d => d.id !== doc.id);
+                              const updated = {
+                                ...prev,
+                                verificationDocs: nextDocs
+                              };
+                              try {
+                                localStorage.setItem('iranbimhub_mfg_profile', JSON.stringify(updated));
+                                localStorage.setItem('iranbimhub_mfg_profile_m1', JSON.stringify(updated));
+                                window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
+                              } catch (err) {
+                                console.error("Failed to save profile docs after delete:", err);
+                              }
+                              return updated;
+                            });
                           }
                         }}
-                        className="bg-gray-100 dark:bg-gray-800 hover:bg-[#26B6B6]/10 hover:text-[#26B6B6] text-gray-700 dark:text-gray-200 text-[11px] font-bold px-4 py-2 rounded-xl transition-all border border-transparent hover:border-[#26B6B6]/30 cursor-pointer"
+                        className="bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/30 dark:hover:bg-rose-900/50 dark:text-rose-400 text-[10.5px] font-extrabold px-3.5 py-2 rounded-xl cursor-pointer flex items-center justify-center gap-1.5 transition-all"
                       >
-                        {isRtl ? 'فعال‌سازی و ثبت‌نام حساب طراح حرفه‌ای' : 'Link & Activate BIM Professional Account'}
+                        <Trash2 className="w-3.5 h-3.5 shrink-0" />
+                        <span>{isRtl ? 'حذف دائمی مدرک' : 'Permanent Delete'}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => document.getElementById(`file-input-${doc.id}`)?.click()}
+                        className="bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800 text-slate-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 text-[10.5px] font-extrabold px-3.5 py-2 rounded-xl cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs transition-all hover:scale-102"
+                      >
+                        <Upload className="w-3.5 h-3.5 text-[#26B6B6] shrink-0" />
+                        <span>{doc.fileName ? (isRtl ? 'جایگزینی فایل ضمیمه' : 'Replace File') : (isRtl ? 'بارگذاری فایل ضمیمه' : 'Upload File')}</span>
                       </button>
                     </div>
                   </div>
+                ))}
+              </div>
+
+              {/* Add New Custom Document */}
+              <div className="bg-[#26B6B6]/5 border border-[#26B6B6]/15 rounded-2xl p-4.5 space-y-3 text-start">
+                <h5 className="text-[11px] font-extrabold text-[#26B6B6]">
+                  {isRtl ? '＋ افزودن سند یا مدرک جدید' : '＋ Add New Credential or Document'}
+                </h5>
+                <form onSubmit={handleVerifyDocumentSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <input 
+                      type="text" 
+                      required
+                      placeholder={isRtl ? 'نام سند رسمی (مثلاً: پروانه کسب، گواهی ثبت برند)' : 'Legal document name (e.g. Trademark Cert)'}
+                      value={newDocName}
+                      onChange={(e) => setNewDocName(e.target.value)}
+                      className="w-full text-[10.5px] p-2.5 bg-white dark:bg-gray-900 border border-gray-200/60 dark:border-gray-800 rounded-xl focus:outline-none"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <input 
+                      type="text" 
+                      placeholder={isRtl ? 'لینک استعلام اینترنتی مدرک (اختیاری)' : 'Lookup verification URL (optional)'}
+                      value={newDocUrl}
+                      onChange={(e) => setNewDocUrl(e.target.value)}
+                      className="w-full text-[10.5px] p-2.5 bg-white dark:bg-gray-900 border border-gray-200/60 dark:border-gray-800 rounded-xl focus:outline-none"
+                    />
+                  </div>
+                  <div className="sm:col-span-2 space-y-1">
+                    <textarea 
+                      rows={1}
+                      placeholder={isRtl ? 'توضیحات کوتاه یا یادداشت مربوط به سند ارسالی...' : 'Short description or notes...'}
+                      value={newDocDesc}
+                      onChange={(e) => setNewDocDesc(e.target.value)}
+                      className="w-full text-[10.5px] p-2.5 bg-white dark:bg-gray-900 border border-gray-200/60 dark:border-gray-800 rounded-xl focus:outline-none resize-none"
+                    />
+                  </div>
+
+                  {/* Attach File for New Doc Form */}
+                  <div className="sm:col-span-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
+                    <div className="flex items-center gap-2">
+                      <input 
+                        type="file" 
+                        id="new-doc-file-picker"
+                        accept=".pdf,image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          if (file.size > 5 * 1024 * 1024) {
+                            alert(isRtl ? 'خطا: حجم فایل نباید بیشتر از ۵ مگابایت باشد.' : 'Error: File size must not exceed 5MB.');
+                            return;
+                          }
+                          setNewDocFileName(file.name);
+                          setNewDocFileUrl(URL.createObjectURL(file));
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => document.getElementById('new-doc-file-picker')?.click()}
+                        className="bg-white hover:bg-slate-50 dark:bg-gray-900 text-slate-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 text-[10px] font-bold px-3 py-2 rounded-lg cursor-pointer flex items-center gap-1.5"
+                      >
+                        <Upload className="w-3.5 h-3.5 text-[#26B6B6]" />
+                        <span>{newDocFileName ? (isRtl ? 'تغییر فایل ضمیمه' : 'Change Attached File') : (isRtl ? 'ضمیمه کردن فایل (PDF/عکس)' : 'Attach Document File (PDF/Image)')}</span>
+                      </button>
+                      {newDocFileName && (
+                        <span className="text-[10px] text-gray-500 font-mono truncate max-w-xs block">
+                          ✓ {newDocFileName}
+                        </span>
+                      )}
+                    </div>
+
+                    <button 
+                      type="submit" 
+                      className="bg-[#26B6B6] hover:bg-[#1e9494] text-white text-[10.5px] font-extrabold px-5 py-2.5 rounded-xl cursor-pointer shadow-xs transition-all hover:scale-102 flex items-center justify-center gap-1.5 shrink-0"
+                    >
+                      <Plus className="w-3.5 h-3.5 shrink-0" />
+                      <span>{isRtl ? 'ثبت و ارسال سند رسمی' : 'Add Legal Credential'}</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              <p className="text-[10px] text-gray-400 mt-2.5">
+                {isRtl ? (
+                  <span>
+                    اطلاعات بارگذاری‌شده شما طبق ضوابط{' '}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (typeof window !== 'undefined' && (window as any).onNavigateToView) {
+                          (window as any).onNavigateToView('privacy');
+                        }
+                      }}
+                      className="text-[#26B6B6] hover:underline font-bold cursor-pointer"
+                    >
+                      سیاست حفظ حریم خصوصی
+                    </button>{' '}
+                    ایران‌بیم‌هاب به صورت کاملاً محرمانه محافظت خواهد شد.
+                  </span>
+                ) : (
+                  <span>
+                    Your corporate verification records are fully secured in compliance with our{' '}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (typeof window !== 'undefined' && (window as any).onNavigateToView) {
+                          (window as any).onNavigateToView('privacy');
+                        }
+                      }}
+                      className="text-[#26B6B6] hover:underline font-bold cursor-pointer"
+                    >
+                      Privacy Policy
+                    </button>
+                    .
+                  </span>
+                )}
+              </p>
+            </div>
+
+            {/* FULL WIDTH SECTION 2: LINK / REGISTER PROFESSIONAL ACCOUNT OPTION */}
+            <div className="border-t border-gray-100 dark:border-gray-800 pt-6 mt-6">
+              <div className="bg-slate-50/50 dark:bg-gray-950 p-6 rounded-2xl border border-gray-200/60 dark:border-gray-800 space-y-4 max-w-xl text-start">
+                <div className="flex gap-3 items-start">
+                  <div className="w-10 h-10 bg-[#26B6B6]/10 text-[#26B6B6] rounded-xl flex items-center justify-center shrink-0">
+                    <Briefcase className="w-5 h-5" />
+                  </div>
+                  <div className="space-y-1">
+                    <h4 className="text-xs font-bold text-gray-800 dark:text-white">
+                      {isRtl ? 'آیا شما نیز طراح، معمار یا مهندس سازه هستید؟' : 'Are you also a BIM Professional / Modeler?'}
+                    </h4>
+                    <p className="text-[10px] text-gray-400 leading-normal">
+                      {isRtl 
+                        ? 'یک حساب کاربری طراح ایجاد کنید تا بتوانید کاتالوگ آبجکت‌های ساختمانی را دانلود کرده، پوشه‌های پروژه‌ها را سازماندهی کنید و در نقش طراح فعالیت داشته باشید. حساب طراح شما کاملاً مجزا خواهد بود ولی به صورت لینک‌شده در بالای صفحه قابل سوئیچ سریع است.' 
+                        : 'Link a professional designer profile under your same login to search, download, and organize Revit/IFC catalog objects for building models.'
+                      }
+                    </p>
+                  </div>
                 </div>
 
+                <div className="flex justify-start">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const userSession = localStorage.getItem('iranbimhub_user');
+                      if (userSession) {
+                        const usr = JSON.parse(userSession);
+                        usr.hasModelerAccount = true;
+                        usr.selectedRoles = usr.selectedRoles || ['Architect'];
+                        usr.selectedTopics = usr.selectedTopics || ['Facades', 'Sustainable Materials'];
+                        localStorage.setItem('iranbimhub_user', JSON.stringify(usr));
+                        alert(isRtl 
+                          ? 'حساب طراح حرفه‌ای با موفقیت برای شما فعال شد! اکنون می‌توانید از دکمه سوئیچر در هدر سایت برای تعویض پنل استفاده کنید.' 
+                          : 'BIM Professional account activated successfully! Use the header role switcher to navigate views.'
+                        );
+                        window.location.reload();
+                      } else {
+                        // If no session, create a default one
+                        const mockUsr = {
+                          name: 'BIM User',
+                          fullName: 'BIM User',
+                          phone: '09121112233',
+                          role: 'Manufacturer',
+                          hasModelerAccount: true,
+                          selectedRoles: ['Architect'],
+                          selectedTopics: ['Facades', 'Sustainable Materials']
+                        };
+                        localStorage.setItem('iranbimhub_user', JSON.stringify(mockUsr));
+                        alert('BIM Professional account activated successfully!');
+                        window.location.reload();
+                      }
+                    }}
+                    className="bg-gray-100 dark:bg-gray-800 hover:bg-[#26B6B6]/10 hover:text-[#26B6B6] text-gray-700 dark:text-gray-200 text-[11px] font-bold px-4 py-2 rounded-xl transition-all border border-transparent hover:border-[#26B6B6]/30 cursor-pointer"
+                  >
+                    {isRtl ? 'فعال‌سازی و ثبت‌نام حساب طراح حرفه‌ای' : 'Link & Activate BIM Professional Account'}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -2216,33 +2974,8 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                     <span>{isRtl ? 'ثبت استاندارد یا گواهی جدید برند' : 'Register New Quality Standard'}</span>
                   </h3>
 
-                  {brandInfo.tier === 'Free' ? (
-                    /* TIER GATED NOTIFICATION */
-                    <div className="p-5 bg-[#26B6B6]/5 border border-dashed border-[#26B6B6]/30 rounded-2xl flex flex-col items-center text-center space-y-3">
-                      <Lock className="w-8 h-8 text-amber-500" />
-                      <div className="space-y-1">
-                        <p className="text-xs font-bold text-gray-800 dark:text-white">
-                          {isRtl ? 'افزودن استاندارد یا افتخار جدید، ویژه اشتراک‌های Premium و VIP است.' : 'Adding a new standard or award is reserved for Premium and VIP tiers.'}
-                        </p>
-                        <p className="text-[10px] text-gray-400">
-                          {isRtl ? 'برای فعال‌سازی و ثبت نامحدود گواهینامه‌های استاندارد، افتخارات و پروژه‌های کارخانه، اشتراک خود را ارتقا دهید.' : 'Upgrade your brand plan to upload quality standards, certificates and portfolio items without limits.'}
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if ((window as any).onNavigateToView) {
-                            (window as any).onNavigateToView('payment', 'mfg-vip');
-                          }
-                        }}
-                        className="bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-bold px-5 py-2.5 rounded-xl cursor-pointer transition-all hover:scale-103 shadow-xs"
-                      >
-                        {isRtl ? 'ارتقای اشتراک برند' : 'Upgrade Brand Plan'}
-                      </button>
-                    </div>
-                  ) : (
-                    /* FULL STANDARD FORM */
-                    <form onSubmit={handleAddStandard} className="space-y-4 text-xs">
+                  {/* FULL STANDARD FORM */}
+                  <form onSubmit={handleAddStandard} className="space-y-4 text-xs">
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div className="space-y-1">
                           <input 
@@ -2350,7 +3083,6 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                         </button>
                       </div>
                     </form>
-                  )}
                 </div>
               </div>
             )}
@@ -2549,31 +3281,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                     <span>{isRtl ? 'ثبت رکورد افتخار یا مدال جدید برند' : 'Register New Brand Award'}</span>
                   </h3>
 
-                  {brandInfo.tier === 'Free' ? (
-                    <div className="p-5 bg-[#26B6B6]/5 border border-dashed border-[#26B6B6]/30 rounded-2xl flex flex-col items-center text-center space-y-3">
-                      <Lock className="w-8 h-8 text-amber-500" />
-                      <div className="space-y-1">
-                        <p className="text-xs font-bold text-gray-800 dark:text-white">
-                          {isRtl ? 'افزودن استاندارد یا افتخار جدید، ویژه اشتراک‌های Premium و VIP است.' : 'Adding a new standard or award is reserved for Premium and VIP tiers.'}
-                        </p>
-                        <p className="text-[10px] text-gray-400">
-                          {isRtl ? 'برای فعال‌سازی و ثبت نامحدود گواهینامه‌های استاندارد، افتخارات و پروژه‌های کارخانه، اشتراک خود را ارتقا دهید.' : 'Upgrade your brand plan to upload quality standards, certificates and portfolio items without limits.'}
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if ((window as any).onNavigateToView) {
-                            (window as any).onNavigateToView('payment', 'mfg-vip');
-                          }
-                        }}
-                        className="bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-bold px-5 py-2.5 rounded-xl cursor-pointer transition-all hover:scale-103 shadow-xs"
-                      >
-                        {isRtl ? 'ارتقای اشتراک برند' : 'Upgrade Brand Plan'}
-                      </button>
-                    </div>
-                  ) : (
-                    <form onSubmit={handleAddAward} className="space-y-4 text-xs">
+                  <form onSubmit={handleAddAward} className="space-y-4 text-xs">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <input 
                           type="text" 
@@ -2659,7 +3367,6 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                         </button>
                       </div>
                     </form>
-                  )}
                 </div>
               </div>
             )}
@@ -2858,31 +3565,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                     <span>{isRtl ? 'ثبت رکورد پروژه ساختمانی جدید' : 'Register New Project Reference'}</span>
                   </h3>
 
-                  {brandInfo.tier === 'Free' ? (
-                    <div className="p-5 bg-[#26B6B6]/5 border border-dashed border-[#26B6B6]/30 rounded-2xl flex flex-col items-center text-center space-y-3">
-                      <Lock className="w-8 h-8 text-amber-500" />
-                      <div className="space-y-1">
-                        <p className="text-xs font-bold text-gray-800 dark:text-white">
-                          {isRtl ? 'افزودن پروژه جدید، ویژه اشتراک‌های Premium و VIP است.' : 'Adding a new project is reserved for Premium and VIP tiers.'}
-                        </p>
-                        <p className="text-[10px] text-gray-400">
-                          {isRtl ? 'برای فعال‌سازی و ثبت نامحدود گواهینامه‌های استاندارد، افتخارات و پروژه‌های کارخانه، اشتراک خود را ارتقا دهید.' : 'Upgrade your brand plan to upload quality standards, certificates and portfolio items without limits.'}
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if ((window as any).onNavigateToView) {
-                            (window as any).onNavigateToView('payment', 'mfg-vip');
-                          }
-                        }}
-                        className="bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-bold px-5 py-2.5 rounded-xl cursor-pointer transition-all hover:scale-103 shadow-xs"
-                      >
-                        {isRtl ? 'ارتقای اشتراک برند' : 'Upgrade Brand Plan'}
-                      </button>
-                    </div>
-                  ) : (
-                    <form onSubmit={handleAddProject} className="space-y-4 text-xs">
+                  <form onSubmit={handleAddProject} className="space-y-4 text-xs">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <input 
                           type="text" 
@@ -2968,7 +3651,6 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                         </button>
                       </div>
                     </form>
-                  )}
                 </div>
               </div>
             )}

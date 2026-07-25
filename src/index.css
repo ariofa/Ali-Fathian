@@ -20,3 +20,9 @@ html.dark, html.dark body {
   background-color: #030712;
   color: #f3f4f6;
 }
+
+@media (orientation: landscape) and (max-width: 1023px) {
+  .mobile-landscape-search-hide {
+    display: none !important;
+  }
+}

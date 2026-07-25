@@ -29,7 +29,8 @@ import {
   Sparkles,
   ChevronRight,
   Bookmark,
-  Building
+  Building,
+  Edit
 } from 'lucide-react';
 
 interface ModelerDashboardProps {
@@ -609,9 +610,13 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
         {!isSidebarCollapsed && (
           <div className="p-4 mx-3 my-4 bg-slate-50 dark:bg-gray-950 border border-slate-100 dark:border-gray-800/50 rounded-xl space-y-2">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-[#26B6B6]/10 text-[#26B6B6] rounded-full flex items-center justify-center font-bold text-xs uppercase shrink-0">
-                {(currentUser?.fullName || currentUser?.name || 'U').charAt(0)}
-              </div>
+              {currentUser?.avatarUrl ? (
+                <img src={currentUser.avatarUrl} alt="User Avatar" className="w-9 h-9 rounded-full object-cover border border-[#26B6B6] shrink-0" />
+              ) : (
+                <div className="w-9 h-9 bg-[#26B6B6]/10 text-[#26B6B6] rounded-full flex items-center justify-center font-bold text-xs uppercase shrink-0">
+                  {(currentUser?.fullName || currentUser?.name || 'U').charAt(0)}
+                </div>
+              )}
               <div className="min-w-0 flex-1">
                 <h4 className="text-xs font-bold text-gray-800 dark:text-white truncate">{currentUser?.fullName || currentUser?.name || ''}</h4>
                 <p className="text-[9px] text-gray-400 truncate">{currentUser?.title || ''}</p>
@@ -906,6 +911,70 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
             </div>
 
             <form onSubmit={handleSaveProfile} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Profile Avatar / Logo Upload */}
+              <div className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-gray-950 rounded-2xl border border-gray-100 dark:border-gray-800 col-span-1 md:col-span-2">
+                <div 
+                  className="relative group cursor-pointer shrink-0" 
+                  onClick={() => document.getElementById('user-avatar-upload')?.click()}
+                  title={isRtl ? 'جهت بارگذاری یا تعویض تصویر کلیک کنید' : 'Click to upload or change photo'}
+                >
+                  {currentUser.avatarUrl ? (
+                    <img src={currentUser.avatarUrl} alt="Avatar" className="w-16 h-16 rounded-2xl object-cover border-2 border-[#26B6B6] shadow-2xs" />
+                  ) : (
+                    <div className="w-16 h-16 rounded-2xl bg-[#26B6B6]/15 text-[#26B6B6] flex items-center justify-center font-black text-xl border-2 border-[#26B6B6] shadow-2xs">
+                      {(profileName || 'U').charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-black/40 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Edit className="w-4 h-4 text-white" />
+                  </div>
+                </div>
+                <div className="space-y-1 text-start">
+                  <h4 className="text-xs font-bold text-gray-800 dark:text-white">{isRtl ? 'تصویر و لوگوی نمایه کاربری' : 'Profile Avatar & Logo'}</h4>
+                  <p className="text-[10.5px] text-gray-400">{isRtl ? 'برای تعویض عکس روی آیکون کلیک کنید (فرمت JPG یا PNG، حداکثر ۳ مگابایت)' : 'Click image or button below to upload new photo (JPG/PNG, max 3MB)'}</p>
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById('user-avatar-upload')?.click()}
+                    className="text-[11px] font-bold text-[#26B6B6] hover:underline cursor-pointer inline-block"
+                  >
+                    {isRtl ? 'بارگذاری تصویر جدید...' : 'Upload new photo...'}
+                  </button>
+                  <input
+                    type="file"
+                    id="user-avatar-upload"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      if (!file.type.startsWith('image/')) {
+                        alert(isRtl ? 'خطا: فایل انتخابی باید تصویر باشد.' : 'Error: Selected file must be an image.');
+                        return;
+                      }
+                      if (file.size > 3 * 1024 * 1024) {
+                        alert(isRtl ? 'خطا: حجم تصویر نباید بیشتر از ۳ مگابایت باشد.' : 'Error: File size must not exceed 3MB.');
+                        return;
+                      }
+                      const reader = new FileReader();
+                      reader.onload = (evt) => {
+                        const dataUrl = evt.target?.result as string;
+                        if (dataUrl) {
+                          const updated = { ...currentUser, avatarUrl: dataUrl };
+                          setCurrentUser(updated);
+                          try {
+                            localStorage.setItem('iranbimhub_user_session', JSON.stringify(updated));
+                          } catch (err) {
+                            console.error("Failed to save avatar to localStorage:", err);
+                          }
+                          alert(isRtl ? 'تصویر نمایه کاربری شما با موفقیت به روز شد.' : 'User avatar updated successfully.');
+                        }
+                      };
+                      reader.readAsDataURL(file);
+                    }}
+                  />
+                </div>
+              </div>
+
               <div className="space-y-1.5">
                 <label className="text-[11px] font-bold text-gray-500 uppercase block">{isRtl ? 'نام و نام خانوادگی' : 'Full Name'}</label>
                 <input 

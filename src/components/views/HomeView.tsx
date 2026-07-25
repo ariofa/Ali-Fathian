@@ -6,6 +6,7 @@ import { BIMObjectCard } from '../BIMObjectCard';
 import { CategoryIcon } from '../CategoryIcon';
 import { ARTICLES } from './LearnView';
 import { Logo } from '../Logo';
+import { HeroCarousel } from '../HeroCarousel';
 import { 
   Search, 
   Download, 
@@ -94,6 +95,84 @@ const CountUp: React.FC<{ end: number; duration?: number; prefix?: string; suffi
   );
 };
 
+const SLIDE_CONFIGS = [
+  {
+    id: 'identity',
+    labelFa: 'هویت',
+    labelEn: 'Identity',
+    numFa: '۰۱',
+    numEn: '01',
+    bgImage: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1600&q=80',
+    overlay: 'bg-gradient-to-r from-slate-950/95 via-slate-900/90 to-[#1E2326]/85',
+    badgeFa: 'اولین اکوسیستم ملی بیم ایران',
+    badgeEn: "Iran's National BIM Ecosystem",
+    headingFa: 'ایران‌بیم‌هاب، خانه صنعت ساختمان هوشمند ایران',
+    headingEn: "IranBIMhub — Home of Iran's Smart Construction Industry",
+    descFa: 'جایی که مهندسان و معماران، دقیق‌ترین آبجکت‌های بیم را می‌یابند؛ و تولیدکنندگان ایرانی، محصولات خود را وارد آینده دیجیتال ساخت‌وساز می‌کنند.',
+    descEn: 'Where engineers and architects find precise BIM objects, and Iranian manufacturers step into the digital future of construction.'
+  },
+  {
+    id: 'designers',
+    labelFa: 'طراحان',
+    labelEn: 'Designers',
+    numFa: '۰۲',
+    numEn: '02',
+    bgImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80',
+    overlay: 'bg-gradient-to-r from-slate-950/95 via-slate-900/85 to-[#26B6B6]/25',
+    badgeFa: 'برای طراحان، مهندسان و مدلرهای بیم',
+    badgeEn: 'For Architects, Engineers & BIM Modelers',
+    headingFa: 'هر آبجکتی که برای پروژه‌تان نیاز دارید، همین‌جاست',
+    headingEn: 'Every Object Your Project Needs, Right Here',
+    descFa: 'دسترسی به هزاران آبجکت بیم استاندارد ایرانی، آماده دانلود مستقیم. با عضویت ویژه، دانلود نامحدود و ابزارهای مدیریت پروژه را تجربه کنید.',
+    descEn: 'Access thousands of standardized Iranian BIM objects, ready to download instantly. Upgrade to VIP for unlimited downloads and advanced project tools.'
+  },
+  {
+    id: 'manufacturers',
+    labelFa: 'تولیدکنندگان',
+    labelEn: 'Manufacturers',
+    numFa: '۰۳',
+    numEn: '03',
+    bgImage: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1600&q=80',
+    overlay: 'bg-gradient-to-r from-slate-950/95 via-slate-900/90 to-emerald-950/50',
+    badgeFa: 'برای تولیدکنندگان و صاحبان برند',
+    badgeEn: 'For Manufacturers & Brand Owners',
+    headingFa: 'برند شما، در دستان مهندسانی که تصمیم می‌گیرند',
+    headingEn: 'Your Brand, In the Hands of Decision-Making Engineers',
+    descFa: 'کاتالوگ محصولات خود را به زبان مهندسی امروز ترجمه کنید و مستقیماً در پروژه‌های واقعی ساختمانی ایران دیده شوید. با اشتراک ویژه، از تحلیل بازار و اولویت نمایش بهره‌مند شوید.',
+    descEn: "Translate your product catalog into today's engineering language and get specified directly into real Iranian construction projects. Upgrade for market analytics and priority placement."
+  },
+  {
+    id: 'trust',
+    labelFa: 'اعتماد',
+    labelEn: 'Trust',
+    numFa: '۰۴',
+    numEn: '04',
+    bgImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=80',
+    overlay: 'bg-gradient-to-r from-[#112a2b]/95 via-slate-950/90 to-slate-900/85',
+    badgeFa: 'پویایی بازار ایران‌بیم‌هاب',
+    badgeEn: 'IranBIMhub Market Momentum',
+    headingFa: 'اعتمادی که هر روز رشد می‌کند',
+    headingEn: 'Trust That Grows Every Day',
+    descFa: 'بستری پویا برای دسترسی به باکیفیت‌ترین مدل‌های BIM استاندارد و بومی، به پشتوانه تولیدکنندگان طراز اول کشور و بازخورد زنده بازار ساختمان ایران.',
+    descEn: 'A dynamic ecosystem for accessing high-quality standardized domestic BIM models, backed by top-tier suppliers and real-time market momentum.'
+  },
+  {
+    id: 'start',
+    labelFa: 'شروع',
+    labelEn: 'Start',
+    numFa: '۰۵',
+    numEn: '05',
+    bgImage: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=1600&q=80',
+    overlay: 'bg-gradient-to-r from-slate-950/95 via-slate-900/90 to-[#1E2326]/85',
+    badgeFa: 'عضویت رایگان',
+    badgeEn: 'Free Start',
+    headingFa: 'شروع، بدون هیچ هزینه‌ای',
+    headingEn: 'Start — At No Cost',
+    descFa: 'چه به‌دنبال آبجکت بیم هستید، چه می‌خواهید برندتان دیده شود؛ ایران‌بیم‌هاب رایگان شروع می‌شود.',
+    descEn: "Whether you're looking for a BIM object or want your brand seen, IranBIMhub starts free."
+  }
+];
+
 interface HomeViewProps {
   onNavigate: (view: string, customTextFa?: string, customTextEn?: string, param?: string) => void;
   onFilterChange: (updates: Partial<FilterState>) => void;
@@ -125,28 +204,46 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const [isCategoriesExpanded, setIsCategoriesExpanded] = useState(false);
   const [openLandingFaq, setOpenLandingFaq] = useState<number | null>(null);
   
-  // Carousel State
+  // Carousel State & Interactive Drag Stack
   const [activeSlide, setActiveSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [slideProgress, setSlideProgress] = useState(0);
+  const [dragOffsetX, setDragOffsetX] = useState(0);
+  const isDraggingRef = useRef(false);
   const dragStartXRef = useRef<number | null>(null);
 
   const handleDragStart = (clientX: number) => {
+    isDraggingRef.current = true;
     dragStartXRef.current = clientX;
     setIsPaused(true);
   };
 
-  const handleDragEnd = (clientX: number) => {
-    if (dragStartXRef.current === null) return;
+  const handleDragMove = (clientX: number) => {
+    if (!isDraggingRef.current || dragStartXRef.current === null) return;
     const diffX = clientX - dragStartXRef.current;
-    const threshold = 50; // swipe threshold in pixels
+    const boundedDiff = Math.max(-250, Math.min(250, diffX));
+    setDragOffsetX(boundedDiff);
+  };
+
+  const handleDragEnd = (clientX?: number) => {
+    if (!isDraggingRef.current && dragStartXRef.current === null) return;
+    const finalX = clientX !== undefined ? clientX : (dragStartXRef.current !== null ? dragStartXRef.current + dragOffsetX : 0);
+    const diffX = dragStartXRef.current !== null ? finalX - dragStartXRef.current : dragOffsetX;
+    const threshold = 60; // swipe threshold in pixels
+
     if (diffX > threshold) {
       // Swiped right -> go to previous slide
       setActiveSlide(prev => (prev === 0 ? 4 : prev - 1));
+      setSlideProgress(0);
     } else if (diffX < -threshold) {
       // Swiped left -> go to next slide
       setActiveSlide(prev => (prev === 4 ? 0 : prev + 1));
+      setSlideProgress(0);
     }
+
+    isDraggingRef.current = false;
     dragStartXRef.current = null;
+    setDragOffsetX(0);
     setIsPaused(false);
   };
 
@@ -163,13 +260,24 @@ export const HomeView: React.FC<HomeViewProps> = ({
     setSearchMousePos({ x, y });
   };
 
-  // Auto-advance slides every 7 seconds
+  // Auto-advance timer & progress fill (6 seconds duration = 6000ms)
   useEffect(() => {
     if (isPaused) return;
-    const interval = setInterval(() => {
-      setActiveSlide(prev => (prev + 1) % 5);
-    }, 4000);
-    return () => clearInterval(interval);
+    const stepMs = 100;
+    const totalMs = 6000;
+    const increment = (stepMs / totalMs) * 100;
+
+    const timer = setInterval(() => {
+      setSlideProgress(prev => {
+        if (prev + increment >= 100) {
+          setActiveSlide(s => (s + 1) % 5);
+          return 0;
+        }
+        return prev + increment;
+      });
+    }, stepMs);
+
+    return () => clearInterval(timer);
   }, [isPaused]);
 
   const categoryScrollRef = useRef<HTMLDivElement>(null);
@@ -536,419 +644,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
         }
       `}</style>
 
-      {/* 1. NEW CAROUSEL HERO SECTION */}
-      <section 
-        className="relative bg-gradient-to-br from-[#464E56] via-[#353B41] to-[#1E2326] text-white overflow-hidden rounded-b-[2rem] md:rounded-b-[3.5rem] shadow-md text-start select-none cursor-grab active:cursor-grabbing hover:shadow-lg transition-shadow"
-        onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => {
-          if (dragStartXRef.current !== null) {
-            dragStartXRef.current = null;
-          }
-          setIsPaused(false);
-        }}
-        onFocus={() => setIsPaused(true)}
-        onBlur={() => setIsPaused(false)}
-        onMouseDown={(e) => handleDragStart(e.clientX)}
-        onMouseUp={(e) => handleDragEnd(e.clientX)}
-        onTouchStart={(e) => handleDragStart(e.touches[0].clientX)}
-        onTouchEnd={(e) => handleDragEnd(e.changedTouches[0].clientX)}
-        id="homepage-hero-carousel"
-      >
-        {/* Navigation Arrows */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setActiveSlide(prev => (prev === 0 ? 4 : prev - 1));
-          }}
-          className="carousel-arrow absolute left-4 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full border border-white/10 bg-black/35 hover:bg-[#26B6B6] hover:border-transparent text-white transition-all cursor-pointer hidden md:flex items-center justify-center hover:scale-110 active:scale-95"
-          title={isRtl ? 'اسلاید قبلی' : 'Previous slide'}
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setActiveSlide(prev => (prev === 4 ? 0 : prev + 1));
-          }}
-          className="carousel-arrow absolute right-4 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full border border-white/10 bg-black/35 hover:bg-[#26B6B6] hover:border-transparent text-white transition-all cursor-pointer hidden md:flex items-center justify-center hover:scale-110 active:scale-95"
-          title={isRtl ? 'اسلاید بعدی' : 'Next slide'}
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
-        {/* Subtle moving coordinate background grid */}
-        <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#26B6B6_1.5px,transparent_1.5px)] [background-size:24px_24px] animate-bim-grid pointer-events-none"></div>
-        
-        {/* Glowing technical radar ambient source */}
-        <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-[#26B6B6]/10 blur-3xl animate-tech-pulse pointer-events-none"></div>
-
-        {/* 3D LiDAR laser scanner sweep */}
-        <div className="absolute left-0 right-0 h-1 bg-[#26B6B6]/45 shadow-[0_0_12px_#26B6B6] animate-laser-scan pointer-events-none"></div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-6 md:py-8 relative z-10">
-          
-          {/* Active Slide Wrapper */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 items-center min-h-[460px] xs:min-h-[420px] sm:min-h-[360px] md:min-h-[280px] lg:min-h-[240px]">
-            
-            {/* Slide Content Area (Left/Right depending on language) */}
-            <div className="md:col-span-7 space-y-2 sm:space-y-4 flex flex-col justify-center animate-fadeIn">
-              
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-white/10 backdrop-blur-md rounded-full text-[9px] sm:text-xs font-semibold text-[#26B6B6] self-start">
-                <Sparkles className="w-3 h-3" />
-                <span>
-                  {activeSlide === 0 && (isRtl ? 'اولین اکوسیستم ملی بیم ایران' : "Iran's National BIM Ecosystem")}
-                  {activeSlide === 1 && (isRtl ? 'برای طراحان، مهندسان و مدلرهای بیم' : 'For Architects, Engineers & BIM Modelers')}
-                  {activeSlide === 2 && (isRtl ? 'برای تولیدکنندگان و صاحبان برند' : 'For Manufacturers & Brand Owners')}
-                  {activeSlide === 3 && (isRtl ? 'پویایی بازار ایران‌بیم‌هاب' : 'IranBIMhub Market Momentum')}
-                  {activeSlide === 4 && (isRtl ? 'عضویت رایگان' : 'Free Start')}
-                </span>
-              </div>
-
-              {/* Slide Heading */}
-              <h1 className="text-sm sm:text-lg md:text-2xl font-black tracking-tight leading-snug transition-all duration-300 text-white">
-                {activeSlide === 0 && (isRtl ? 'ایران‌بیم‌هاب، خانه صنعت ساختمان هوشمند ایران' : "IranBIMhub — Home of Iran's Smart Construction Industry")}
-                {activeSlide === 1 && (isRtl ? 'هر آبجکتی که برای پروژه‌تان نیاز دارید، همین‌جاست' : 'Every Object Your Project Needs, Right Here')}
-                {activeSlide === 2 && (isRtl ? 'برند شما، در دستان مهندسانی که تصمیم می‌گیرند' : 'Your Brand, In the Hands of Decision-Making Engineers')}
-                {activeSlide === 3 && (isRtl ? 'اعتمادی که هر روز رشد می‌کند' : 'Trust That Grows Every Day')}
-                {activeSlide === 4 && (isRtl ? 'شروع، بدون هیچ هزینه‌ای' : 'Start — At No Cost')}
-              </h1>
-
-              {/* Slide Description */}
-              <p className="text-[9px] sm:text-[11px] md:text-[13px] text-gray-300 leading-normal font-light transition-all duration-300">
-                {activeSlide === 0 && (isRtl ? 'جایی که مهندسان و معماران، دقیق‌ترین آبجکت‌های بیم را می‌یابند؛ و تولیدکنندگان ایرانی، محصولات خود را وارد آینده دیجیتال ساخت‌وساز می‌کنند.' : 'Where engineers and architects find precise BIM objects, and Iranian manufacturers step into the digital future of construction.')}
-                {activeSlide === 1 && (isRtl ? 'دسترسی به هزاران آبجکت بیم استاندارد ایرانی، آماده دانلود مستقیم. با عضویت ویژه، دانلود نامحدود و ابزارهای مدیریت پروژه را تجربه کنید.' : 'Access thousands of standardized Iranian BIM objects, ready to download instantly. Upgrade to VIP for unlimited downloads and advanced project tools.')}
-                {activeSlide === 2 && (isRtl ? 'کاتالوگ محصولات خود را به زبان مهندسی امروز ترجمه کنید و مستقیماً در پروژه‌های واقعی ساختمانی ایران دیده شوید. با اشتراک ویژه، از تحلیل بازار و اولویت نمایش بهره‌مند شوید.' : "Translate your product catalog into today's engineering language and get specified directly into real Iranian construction projects. Upgrade for market analytics and priority placement.")}
-                {activeSlide === 3 && (isRtl ? 'بستری پویا برای دسترسی به باکیفیت‌ترین مدل‌های BIM استاندارد و بومی، به پشتوانه تولیدکنندگان طراز اول کشور و بازخورد زنده بازار ساختمان ایران.' : 'A dynamic ecosystem for accessing high-quality standardized domestic BIM models, backed by top-tier suppliers and real-time market momentum.')}
-                {activeSlide === 4 && (isRtl ? 'چه به‌دنبال آبجکت بیم هستید، چه می‌خواهید برندتان دیده شود؛ ایران‌بیم‌هاب رایگان شروع می‌شود.' : "Whether you're looking for a BIM object or want your brand seen, IranBIMhub starts free.")}
-              </p>
-
-              {/* Slide Button Action */}
-              <div className="flex flex-wrap gap-2 pt-1">
-                {activeSlide === 0 && (
-                  <button
-                    onClick={() => onNavigate('about')}
-                    className="bg-[#26B6B6] hover:bg-[#1e9494] text-white px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-xs font-black shadow-xs transition-all hover:scale-105 cursor-pointer whitespace-nowrap animate-fadeIn"
-                  >
-                    {isRtl ? 'کشف پلتفرم ←' : 'Discover the Platform →'}
-                  </button>
-                )}
-
-                {activeSlide === 1 && (
-                  <>
-                    <button
-                      onClick={() => {
-                        const el = document.getElementById('search-and-browse-categories');
-                        if (el) el.scrollIntoView({ behavior: 'smooth' });
-                        else onNavigate('categories');
-                      }}
-                      className="bg-[#26B6B6] hover:bg-[#1e9494] text-white px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-xs font-black shadow-xs transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
-                    >
-                      {isRtl ? 'مشاهده کاتالوگ' : 'Browse Catalog'}
-                    </button>
-                    <button
-                      onClick={() => onNavigate('payment', undefined, undefined, 'modeler-vip')}
-                      className="bg-white/10 hover:bg-white/15 text-white border border-white/20 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-xs font-black transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
-                    >
-                      {isRtl ? 'ارتقا به عضویت ویژه' : 'Upgrade to VIP'}
-                    </button>
-                  </>
-                )}
-
-                {activeSlide === 2 && (
-                  <>
-                    <button
-                      onClick={() => onNavigate('for-manufacturers')}
-                      className="bg-[#26B6B6] hover:bg-[#1e9494] text-white px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-xs font-black shadow-xs transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
-                    >
-                      {isRtl ? 'ثبت‌نام برند' : 'Register Your Brand'}
-                    </button>
-                    <button
-                      onClick={() => onNavigate('for-manufacturers')}
-                      className="bg-white/10 hover:bg-white/15 text-white border border-white/20 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-xs font-black transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
-                    >
-                      {isRtl ? 'مشاهده پلن‌های اشتراک' : 'View Subscription Plans'}
-                    </button>
-                  </>
-                )}
-
-                {activeSlide === 3 && (
-                  <button
-                    onClick={() => {
-                      if (onOpenAuthModal) onOpenAuthModal();
-                    }}
-                    className="bg-[#26B6B6] hover:bg-[#1e9494] text-white px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-xs font-black shadow-xs transition-all hover:scale-105 cursor-pointer whitespace-nowrap animate-fadeIn"
-                  >
-                    {isRtl ? 'عضویت در پورتال فعالان' : 'Join the Network'}
-                  </button>
-                )}
-
-                {activeSlide === 4 && (
-                  <>
-                    <button
-                      onClick={() => onNavigate('for-designers')}
-                      className="bg-[#26B6B6] hover:bg-[#1e9494] text-white px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-xs font-black shadow-xs transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
-                    >
-                      {isRtl ? 'ثبت‌نام طراحان' : 'Register as a Designer'}
-                    </button>
-                    <button
-                      onClick={() => onNavigate('for-manufacturers')}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-xs font-black shadow-xs transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
-                    >
-                      {isRtl ? 'ثبت‌نام تولیدکنندگان' : 'Register as a Manufacturer'}
-                    </button>
-                  </>
-                )}
-              </div>
-
-            </div>
-
-            {/* Slide Graphic Element Area (Right/Left) */}
-            <div className="md:col-span-5 flex items-center justify-center min-h-[160px] sm:min-h-[180px] md:min-h-[200px] scale-100 sm:scale-105 md:scale-110 lg:scale-120 animate-float-3d">
-              {activeSlide === 0 && (
-                <div className="relative w-full h-full flex items-center justify-center select-none" dir="ltr">
-                  {/* Glowing Orbit Rings */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    {/* Ring 1 (Inner) - Carrying Building icon */}
-                    <div className="w-32 h-32 border border-[#26B6B6]/30 rounded-full animate-spin [animation-duration:12s] absolute">
-                      <div className="w-6 h-6 bg-slate-900 border border-[#26B6B6]/50 rounded-full flex items-center justify-center absolute -top-3 left-1/2 -translate-x-1/2 shadow-[0_0_8px_rgba(38,182,182,0.4)]">
-                        <Building className="w-3.5 h-3.5 text-[#26B6B6]" />
-                      </div>
-                    </div>
-                    {/* Ring 2 (Middle) - Carrying Factory & Cpu icons */}
-                    <div className="w-44 h-44 border border-[#26B6B6]/20 rounded-full animate-spin [animation-duration:20s] [animation-direction:reverse] absolute">
-                      <div className="w-6 h-6 bg-slate-900 border border-[#26B6B6]/40 rounded-full flex items-center justify-center absolute -top-3 left-1/2 -translate-x-1/2 shadow-[0_0_8px_rgba(38,182,182,0.3)]">
-                        <Factory className="w-3.5 h-3.5 text-[#26B6B6]" />
-                      </div>
-                      <div className="w-6 h-6 bg-slate-900 border border-[#26B6B6]/40 rounded-full flex items-center justify-center absolute -bottom-3 left-1/2 -translate-x-1/2 shadow-[0_0_8px_rgba(38,182,182,0.3)]">
-                        <Cpu className="w-3.5 h-3.5 text-[#26B6B6]" />
-                      </div>
-                    </div>
-                    {/* Ring 3 (Outer) - Carrying BookOpen icon */}
-                    <div className="w-56 h-56 border border-dashed border-[#26B6B6]/15 rounded-full animate-spin [animation-duration:32s] absolute">
-                      <div className="w-6 h-6 bg-slate-900 border border-[#26B6B6]/30 rounded-full flex items-center justify-center absolute -top-3 left-1/2 -translate-x-1/2 shadow-[0_0_8px_rgba(38,182,182,0.2)]">
-                        <BookOpen className="w-3.5 h-3.5 text-[#26B6B6]" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Central Hub Node */}
-                  <div className="relative w-32 h-32 border border-[#26B6B6]/40 bg-slate-950/85 backdrop-blur-md rounded-full flex flex-col items-center justify-center shadow-[0_0_35px_rgba(38,182,182,0.45)] transition-all hover:scale-105">
-                    <Logo iconOnly={true} className="w-12 h-12" />
-                    
-                    {/* floating identity labels */}
-                    <div className="absolute -top-3.5 -right-3 bg-gradient-to-r from-[#26B6B6] to-emerald-500 text-white text-[9px] font-black px-2 py-0.5 rounded-lg shadow-lg">
-                      {isRtl ? 'پایگاه ملی بیم' : 'National BIM Hub'}
-                    </div>
-                    <div className="absolute -bottom-3.5 -left-3 bg-[#464E56] border border-gray-600 text-white text-[9px] font-black px-2 py-0.5 rounded-lg shadow-lg">
-                      {isRtl ? '+۱۴ دسته صنعتی' : '+14 Industries'}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {activeSlide === 1 && (
-                <div className="relative w-full h-full flex items-center justify-center select-none" dir="ltr">
-                  {/* Layered Stacked Cards */}
-                  <div className="relative w-64 h-48 flex items-center justify-center">
-                    
-                    {/* 3rd Card (Back) */}
-                    <div className="absolute bg-slate-900/60 backdrop-blur-md border border-[#26B6B6]/20 rounded-xl p-3 w-40 h-28 shadow-lg transform -translate-x-8 -translate-y-6 rotate-[-6deg] opacity-40">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-[7px] text-[#26B6B6] font-mono">ARCHICAD LCF</span>
-                        <div className="w-2 h-2 rounded-full bg-slate-700"></div>
-                      </div>
-                      <div className="flex items-center justify-center h-14">
-                        <Grid3X3 className="w-8 h-8 text-gray-500" />
-                      </div>
-                    </div>
-
-                    {/* 2nd Card (Middle) */}
-                    <div className="absolute bg-slate-900/80 backdrop-blur-md border border-[#26B6B6]/30 rounded-xl p-3 w-40 h-28 shadow-lg transform translate-x-4 -translate-y-3 rotate-[3deg] opacity-70">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-[7px] text-[#26B6B6] font-mono">IFC FAMILY</span>
-                        <div className="w-2 h-2 rounded-full bg-[#26B6B6]/50"></div>
-                      </div>
-                      <div className="flex items-center justify-center h-14">
-                        <DoorOpen className="w-8 h-8 text-[#26B6B6]/70" />
-                      </div>
-                    </div>
-
-                    {/* 1st Card (Front with active download pulse) */}
-                    <div className="absolute bg-slate-950/90 backdrop-blur-md border border-[#26B6B6]/70 rounded-xl p-3 w-44 h-32 shadow-[0_15px_30px_rgba(0,0,0,0.5)] transform translate-x-0 translate-y-2 rotate-0 opacity-100">
-                      <div className="flex justify-between items-center mb-1.5 border-b border-white/10 pb-1">
-                        <span className="text-[8px] text-white font-black tracking-wide">REVIT RFA</span>
-                        <span className="text-[7px] bg-[#26B6B6]/20 text-[#26B6B6] px-1 rounded-sm font-mono font-bold">LOD 350</span>
-                      </div>
-                      
-                      <div className="flex justify-between items-center h-16 px-1">
-                        <div className="flex flex-col text-left">
-                          <span className="text-[9px] font-black text-gray-200">{isRtl ? 'پمپ آبرسانی طبقاتی' : 'Multistage Water Pump'}</span>
-                          <span className="text-[7px] text-gray-400 font-mono">Size: 4.8 MB • Ver: 2024</span>
-                        </div>
-                        {/* Download Micro-interaction */}
-                        <div className="relative w-8 h-8 bg-[#26B6B6]/15 rounded-lg flex items-center justify-center border border-[#26B6B6]/40 overflow-hidden">
-                          <Download className="w-4 h-4 text-[#26B6B6] animate-down-arrow" />
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-1 text-[7px] text-emerald-400 pt-1 border-t border-white/10">
-                        <Check className="w-2.5 h-2.5" />
-                        <span>{isRtl ? 'سازگار با استانداردهای نظام فنی' : 'Verified Building Code Compliant'}</span>
-                      </div>
-                    </div>
-
-                  </div>
-                </div>
-              )}
-
-              {activeSlide === 2 && (
-                <div className="relative w-full h-full flex items-center justify-center select-none" dir="ltr">
-                  {/* Spotlight light beam */}
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-48 h-36 bg-gradient-to-t from-[#26B6B6]/20 to-transparent blur-xl rounded-t-full pointer-events-none"></div>
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[35px] border-l-transparent border-r-[35px] border-r-transparent border-b-[120px] border-b-[#26B6B6]/10 origin-bottom opacity-60 blur-xs"></div>
-
-                  <div className="relative w-64 h-48 flex items-center justify-center">
-                    
-                    {/* Glowing brand product node */}
-                    <div className="relative w-16 h-16 bg-slate-900 border border-[#26B6B6] rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(38,182,182,0.4)] z-10">
-                      <Logo iconOnly={true} className="w-10 h-10" />
-                    </div>
-
-                    {/* Floating statistics card (Analytics) */}
-                    <div className="absolute right-4 top-2 bg-slate-950/90 border border-[#26B6B6]/30 rounded-lg p-2.5 space-y-1.5 shadow-lg max-w-[110px] z-20 text-left">
-                      <div className="flex items-center gap-1 text-[8px] text-emerald-400 font-bold">
-                        <TrendingUp className="w-3 h-3" />
-                        <span>{isRtl ? 'رشد بازدید' : 'Views Up'}</span>
-                      </div>
-                      {/* Mini bar chart */}
-                      <div className="h-6 flex items-end gap-1.5 pt-0.5">
-                        <div className="w-1.5 h-2 bg-[#26B6B6]/30 rounded-xs"></div>
-                        <div className="w-1.5 h-3 bg-[#26B6B6]/50 rounded-xs"></div>
-                        <div className="w-1.5 h-4 bg-[#26B6B6]/70 rounded-xs"></div>
-                        <div className="w-1.5 h-5 bg-emerald-400 rounded-xs animate-pulse"></div>
-                      </div>
-                    </div>
-
-                    {/* Floating views/leads notification bubble */}
-                    <div className="absolute left-2 bottom-6 bg-[#464E56]/95 border border-gray-600 rounded-full py-1 px-2.5 flex items-center gap-1.5 shadow-md z-20 animate-pulse text-left">
-                      <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span>
-                      <span className="text-[8px] font-black text-white">
-                        {isRtl ? 'سرنخ جدید +۱' : 'New Lead +1'}
-                      </span>
-                    </div>
-
-                  </div>
-                </div>
-              )}
-
-              {activeSlide === 3 && (
-                <div className="w-full h-full flex items-center justify-center select-none animate-fadeIn" dir="ltr">
-                  <div className="grid grid-cols-2 gap-2.5 w-full max-w-[260px]">
-                    
-                    {/* Stat Card 1 - Active Objects */}
-                    <div className="bg-slate-950/80 border border-white/10 rounded-xl p-3 text-center space-y-1 backdrop-blur-md shadow-lg relative overflow-hidden transition-transform hover:scale-105">
-                      <div className="absolute right-1.5 top-1.5 w-1 h-1 bg-[#26B6B6] rounded-full animate-ping"></div>
-                      <span className="text-sm font-black text-[#26B6B6] font-mono tracking-wide">
-                        <CountUp key={activeSlide} end={15000} prefix="+" isRtl={isRtl} />
-                      </span>
-                      <span className="text-[9px] text-gray-300 font-bold block">{isRtl ? 'آبجکت فعال' : 'BIM Objects'}</span>
-                    </div>
-
-                    {/* Stat Card 2 - Brand Houses */}
-                    <div className="bg-slate-950/80 border border-white/10 rounded-xl p-3 text-center space-y-1 backdrop-blur-md shadow-lg relative overflow-hidden transition-transform hover:scale-105">
-                      <div className="absolute right-1.5 top-1.5 w-1 h-1 bg-[#26B6B6] rounded-full animate-ping"></div>
-                      <span className="text-sm font-black text-[#26B6B6] font-mono tracking-wide">
-                        <CountUp key={activeSlide} end={140} prefix="+" isRtl={isRtl} />
-                      </span>
-                      <span className="text-[9px] text-gray-300 font-bold block">{isRtl ? 'تولیدکننده ایرانی' : 'Brand Houses'}</span>
-                    </div>
-
-                    {/* Stat Card 3 - Successful Downloads */}
-                    <div className="bg-gradient-to-br from-[#26B6B6]/20 to-[#26B6B6]/5 border-2 border-[#26B6B6]/40 rounded-xl p-3 text-center space-y-1.5 col-span-2 shadow-inner relative overflow-hidden">
-                      <div className="absolute right-2 top-2 w-1.5 h-1.5 bg-[#26B6B6] rounded-full animate-ping"></div>
-                      <span className="text-base font-black text-emerald-400 font-mono tracking-wide">
-                        <CountUp key={activeSlide} end={28000} prefix="+" isRtl={isRtl} />
-                      </span>
-                      <span className="text-[9px] text-gray-100 font-black block tracking-tight">
-                        {isRtl ? 'دانلود موفق فمیلی در ماه جاری' : 'Monthly Successful Downloads'}
-                      </span>
-                      
-                      {/* Stylized miniature mini chart line */}
-                      <div className="h-1.5 flex items-end gap-1.5 justify-center pt-1">
-                        <div className="w-1.5 h-1 bg-[#26B6B6]/30 rounded"></div>
-                        <div className="w-1.5 h-1.5 bg-[#26B6B6]/45 rounded"></div>
-                        <div className="w-1.5 h-2 bg-[#26B6B6]/60 rounded"></div>
-                        <div className="w-1.5 h-3 bg-[#26B6B6]/80 rounded"></div>
-                        <div className="w-1.5 h-4 bg-emerald-400 rounded animate-pulse"></div>
-                      </div>
-                    </div>
-
-                  </div>
-                </div>
-              )}
-
-              {activeSlide === 4 && (
-                <div className="relative w-full h-full flex items-center justify-center select-none" dir="ltr">
-                  <div className="relative w-64 h-48 flex items-center justify-center">
-                    
-                    {/* Connecting path lines */}
-                    <div className="absolute left-[15%] right-[50%] h-[1.5px] bg-gradient-to-r from-transparent via-[#26B6B6]/40 to-[#26B6B6] top-1/2 -translate-y-1/2 z-0">
-                      <div className="absolute right-0 w-2 h-2 rounded-full bg-[#26B6B6] blur-xs animate-ping"></div>
-                    </div>
-                    <div className="absolute left-[50%] right-[15%] h-[1.5px] bg-gradient-to-l from-transparent via-emerald-500/40 to-emerald-500 top-1/2 -translate-y-1/2 z-0">
-                      <div className="absolute left-0 w-2 h-2 rounded-full bg-emerald-500 blur-xs animate-ping"></div>
-                    </div>
-
-                    {/* Left Capsule - Designer Path */}
-                    <div className="absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 bg-[#464E56]/90 border border-gray-600 rounded-2xl flex flex-col items-center justify-center shadow-lg hover:border-[#26B6B6] transition-colors z-10">
-                      <Compass className="w-5 h-5 text-[#26B6B6]" />
-                      <span className="absolute -bottom-5 text-[8px] font-black text-gray-300 whitespace-nowrap">
-                        {isRtl ? 'طراحان' : 'Designers'}
-                      </span>
-                    </div>
-
-                    {/* Center Node - Shared Platform */}
-                    <div className="relative w-16 h-16 bg-slate-950/95 border-2 border-slate-800 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(38,182,182,0.3)] z-10">
-                      <Logo iconOnly={true} className="w-9 h-9" />
-                    </div>
-
-                    {/* Right Capsule - Manufacturer Path */}
-                    <div className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 bg-[#464E56]/90 border border-gray-600 rounded-2xl flex flex-col items-center justify-center shadow-lg hover:border-emerald-500 transition-colors z-10">
-                      <Factory className="w-5 h-5 text-emerald-400" />
-                      <span className="absolute -bottom-5 text-[8px] font-black text-gray-300 whitespace-nowrap">
-                        {isRtl ? 'تولیدکنندگان' : 'Manufacturers'}
-                      </span>
-                    </div>
-
-                  </div>
-                </div>
-              )}
-            </div>
-
-          </div>
-
-          {/* Carousel Manual Controls & Progress indicators */}
-          <div className="flex items-center justify-center mt-4 pt-3 border-t border-white/10">
-            
-            {/* Dots + Animated Progress Indicator */}
-            <div className="flex items-center gap-1.5">
-              {[0, 1, 2, 3, 4].map(idx => (
-                <button
-                  key={idx}
-                  onClick={() => setActiveSlide(idx)}
-                  className={`relative h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-                    activeSlide === idx ? 'w-6 bg-[#26B6B6]' : 'w-1.5 bg-white/20 hover:bg-white/40'
-                  }`}
-                  aria-label={`Slide ${idx + 1}`}
-                  title={`Go to slide ${idx + 1}`}
-                />
-              ))}
-            </div>
-
-          </div>
-
-        </div>
-      </section>
+      {/* 1. CAROUSEL HERO SECTION WITH REAL PHOTOGRAPHY & CARD STACK */}
+      <HeroCarousel onNavigate={onNavigate} onOpenAuthModal={onOpenAuthModal} />
 
       {/* 3. PRECISION SEARCH AND BROWSE BY CATEGORY - MERGED WITH CATEGORIES */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20" id="search-and-browse-categories">
@@ -956,41 +653,16 @@ export const HomeView: React.FC<HomeViewProps> = ({
         {/* Unified Search Engine & Categories Row */}
         <div 
           ref={searchContainerRef}
-          onMouseMove={handleSearchMouseMove}
           onMouseEnter={() => setIsSearchHovered(true)}
           onMouseLeave={() => setIsSearchHovered(false)}
-          className="relative bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 text-center space-y-4 sm:space-y-6 shadow-sm overflow-hidden transition-all duration-300 select-none"
-          style={{
-            background: isSearchHovered 
-              ? `radial-gradient(circle 280px at ${searchMousePos.x}% ${searchMousePos.y}%, rgba(38, 182, 182, 0.12) 0%, rgba(30, 41, 59, 0.01) 80%, transparent 100%)`
-              : undefined
-          }}
+          className="relative bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 text-center space-y-4 sm:space-y-6 shadow-sm transition-all duration-300 hover:shadow-md"
         >
           {/* Subtle static blueprint grid */}
-          <div className="absolute inset-0 opacity-5 bg-[linear-gradient(to_right,#26B6B6_1px,transparent_1px),linear-gradient(to_bottom,#26B6B6_1px,transparent_1px)] bg-[size:20px_20px]"></div>
+          <div className="absolute inset-0 opacity-5 bg-[linear-gradient(to_right,#26B6B6_1px,transparent_1px),linear-gradient(to_bottom,#26B6B6_1px,transparent_1px)] bg-[size:20px_20px] rounded-2xl sm:rounded-3xl pointer-events-none"></div>
 
-          {/* Interactive crosshairs that follow the mouse coordinate */}
+          {/* Ambient glow in hover mode */}
           {isSearchHovered && (
-            <>
-              <div 
-                className="absolute top-0 bottom-0 border-r border-dashed border-[#26B6B6]/20 pointer-events-none"
-                style={{ left: `${searchMousePos.x}%` }}
-              />
-              <div 
-                className="absolute left-0 right-0 border-b border-dashed border-[#26B6B6]/20 pointer-events-none"
-                style={{ top: `${searchMousePos.y}%` }}
-              />
-              {/* Coordinate label in the corner of the crosshair */}
-              <div 
-                className="absolute text-[8px] font-mono text-[#26B6B6]/50 bg-white/85 dark:bg-gray-950/85 px-1.5 py-0.5 rounded shadow-xs border border-gray-100 dark:border-gray-800 pointer-events-none"
-                style={{ 
-                  left: `${searchMousePos.x + 1}%`, 
-                  top: `${searchMousePos.y + 1.5}%` 
-                }}
-              >
-                X: {searchMousePos.x.toFixed(0)}% Y: {searchMousePos.y.toFixed(0)}%
-              </div>
-            </>
+            <div className="absolute inset-0 bg-radial from-[#26B6B6]/10 via-transparent to-transparent rounded-2xl sm:rounded-3xl pointer-events-none transition-opacity duration-300" />
           )}
           
           <div className="max-w-xl mx-auto space-y-1 relative z-10">
@@ -1011,7 +683,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               
               {/* Keywords Input */}
               <div className="flex-1 flex items-center gap-2 px-3 border-b sm:border-b-0 sm:border-e border-gray-100 dark:border-gray-800 py-1">
-                <Search className="w-4 h-4 text-[#26B6B6]" />
+                <Search className="w-4 h-4 text-[#26B6B6] shrink-0" />
                 <input
                   type="text"
                   value={searchQuery}
@@ -1027,7 +699,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
               {/* Quick Format Filter Selector */}
               <div className="flex items-center gap-2 px-3 border-b sm:border-b-0 sm:border-e border-gray-100 dark:border-gray-800 py-1 shrink-0 min-w-[110px]">
-                <Cpu className="w-3.5 h-3.5 text-[#26B6B6]" />
+                <Cpu className="w-3.5 h-3.5 text-[#26B6B6] shrink-0" />
                 <select
                   value={selectedFormat}
                   onChange={(e) => setSelectedFormat(e.target.value)}
@@ -1044,7 +716,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               {/* Submit CTA */}
               <button
                 type="submit"
-                className="bg-[#26B6B6] hover:bg-[#1e9494] text-white px-5 py-2 rounded-lg text-xs sm:text-sm font-black shadow-xs transition-all flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap hover:scale-[1.01] active:scale-95"
+                className="bg-[#26B6B6] hover:bg-[#1e9494] text-white px-5 py-2 rounded-lg text-xs sm:text-sm font-black shadow-xs transition-all flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap hover:scale-[1.01] active:scale-95 shrink-0"
               >
                 <span>{isRtl ? 'جستجوی پیشرفته' : 'Advanced Search'}</span>
               </button>
@@ -1054,14 +726,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
             {/* Faceted Autocomplete Suggestion Panel */}
             {showSuggestions && suggestions && (
               <div 
-                className={`absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-150 text-start overflow-hidden z-30 max-h-96 ${isRtl ? 'text-right' : 'text-left'}`}
+                className={`absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-800 text-start overflow-hidden z-40 max-h-96 ${isRtl ? 'text-right' : 'text-left'}`}
                 onMouseLeave={() => setShowSuggestions(false)}
               >
                 
                 {/* Product Matches */}
                 {suggestions.products.length > 0 && (
-                  <div className="p-3 border-b border-gray-50">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1.5">
+                  <div className="p-3 border-b border-gray-100 dark:border-gray-800">
+                    <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-1.5">
                       {isRtl ? 'آبجکت‌های بیم منطبق' : 'Matching BIM Families'}
                     </span>
                     <div className="space-y-1">
@@ -1073,12 +745,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
                              onSelectObject(p);
                              setShowSuggestions(false);
                            }}
-                           className="w-full text-start hover:bg-gray-50 p-1.5 rounded-md flex items-center justify-between text-xs transition-colors cursor-pointer"
+                           className="w-full text-start hover:bg-gray-50 dark:hover:bg-gray-800 p-1.5 rounded-md flex items-center justify-between text-xs transition-colors cursor-pointer"
                         >
-                           <span className="font-semibold text-gray-800 line-clamp-1">
+                           <span className="font-semibold text-gray-800 dark:text-gray-200 line-clamp-1">
                              {isRtl ? p.titleFa : p.titleEn}
                            </span>
-                           <span className="text-[10px] bg-gray-100 px-1.5 py-0.5 rounded text-gray-500 font-mono">
+                           <span className="text-[10px] bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-gray-500 dark:text-gray-400 font-mono shrink-0">
                              {p.lod}
                            </span>
                         </button>
@@ -1089,8 +761,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
                 {/* Category matches */}
                 {suggestions.categories.length > 0 && (
-                  <div className="p-3 border-b border-gray-50">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1.5">
+                  <div className="p-3 border-b border-gray-100 dark:border-gray-800">
+                    <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-1.5">
                       {isRtl ? 'دسته‌بندی‌های پیشنهادی' : 'Suggested Categories'}
                     </span>
                     <div className="flex flex-wrap gap-1.5">
@@ -1114,7 +786,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 {/* Manufacturer matches */}
                 {suggestions.manufacturers.length > 0 && (
                   <div className="p-3">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1.5">
+                    <span className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider block mb-1.5">
                       {isRtl ? 'سازندگان عضو شده' : 'Registered Manufacturers'}
                     </span>
                     <div className="space-y-1">
@@ -1126,12 +798,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
                              handleManufacturerClick(m.id);
                              setShowSuggestions(false);
                            }}
-                           className="w-full text-start hover:bg-gray-50 p-1.5 rounded-md flex items-center gap-2 text-xs transition-colors cursor-pointer"
+                           className="w-full text-start hover:bg-gray-50 dark:hover:bg-gray-800 p-1.5 rounded-md flex items-center gap-2 text-xs transition-colors cursor-pointer"
                         >
-                           <div className="w-5 h-5 bg-gray-100 rounded flex items-center justify-center font-mono text-[9px] font-bold text-gray-600">
+                           <div className="w-5 h-5 bg-gray-100 dark:bg-gray-800 rounded flex items-center justify-center font-mono text-[9px] font-bold text-gray-600 dark:text-gray-300 shrink-0">
                              {m.logo.substring(0,2)}
                            </div>
-                           <span className="font-semibold text-gray-700">
+                           <span className="font-semibold text-gray-700 dark:text-gray-300">
                              {isRtl ? m.nameFa : m.nameEn}
                            </span>
                         </button>
@@ -1156,7 +828,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <div className="flex flex-col items-center justify-center pb-1">
               <div className="space-y-1 text-center">
                 <h2 className="text-base sm:text-lg font-black text-gray-800 dark:text-gray-200 flex items-center gap-2 justify-center">
-                  <Grid3X3 className="w-5 h-5 text-[#26B6B6]" />
+                  <Grid3X3 className="w-5 h-5 text-[#26B6B6] shrink-0" />
                   <span>{isRtl ? 'دسته‌بندی محصولات' : 'Product Categories'}</span>
                 </h2>
                 <p className="text-[10.5px] sm:text-xs text-gray-400 font-medium text-center">
@@ -1167,12 +839,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
             {isCategoriesExpanded ? (
               /* EXPANDED MULTI-ROW WRAPPING LAYOUT */
-              <div className="flex flex-wrap gap-2 sm:gap-2.5 justify-center py-2.5 px-0.5 animate-fadeIn">
+              <div className="flex flex-wrap gap-2 sm:gap-2.5 justify-center py-2.5 px-0.5 animate-fadeIn min-h-[120px]">
                 {CATEGORIES.map((cat) => (
                   <div
                     key={cat.id}
                     onClick={(e) => handleCategoryItemClick(cat.id, e)}
-                    className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-800 hover:border-[#26B6B6]/50 hover:bg-gray-50 dark:hover:bg-gray-900 transition-all cursor-pointer shadow-[0_1px_3px_rgba(0,0,0,0.03)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.2)] select-none group hover:scale-[1.02]"
+                    className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-800 hover:border-[#26B6B6]/50 hover:bg-gray-50 dark:hover:bg-gray-900 transition-all cursor-pointer shadow-[0_1px_3px_rgba(0,0,0,0.03)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.2)] group"
                   >
                     {/* Left icon */}
                     <div className="w-6 h-6 rounded-full bg-[#26B6B6]/5 text-[#26B6B6] flex items-center justify-center shrink-0">
@@ -1188,13 +860,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
               </div>
             ) : (
               /* COLLAPSED HORIZONTAL SCROLL LAYOUT */
-              <div className="relative group/scroll px-1">
+              <div className="relative group/scroll px-1 min-h-[52px]">
                 
                 {/* Left Scroll Button */}
                 <button
                   type="button"
                   onClick={() => scrollCategories('left')}
-                  className="absolute -left-2 sm:-left-3.5 top-1/2 -translate-y-1/2 z-25 w-7 h-7 bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-full shadow-md hover:shadow-lg flex items-center justify-center text-gray-500 hover:text-[#26B6B6] hover:scale-105 transition-all cursor-pointer opacity-90 sm:opacity-0 sm:group-hover/scroll:opacity-100 focus:opacity-100"
+                  className="absolute -left-2 sm:-left-3.5 top-1/2 -translate-y-1/2 z-25 w-7 h-7 bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-full shadow-md hover:shadow-lg flex items-center justify-center text-gray-500 hover:text-[#26B6B6] transition-all cursor-pointer opacity-90 sm:opacity-0 sm:group-hover/scroll:opacity-100 focus:opacity-100"
                   aria-label="Scroll left"
                 >
                   <ChevronLeft className="w-4 h-4" />
@@ -1204,7 +876,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 <button
                   type="button"
                   onClick={() => scrollCategories('right')}
-                  className="absolute -right-2 sm:-right-3.5 top-1/2 -translate-y-1/2 z-25 w-7 h-7 bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-full shadow-md hover:shadow-lg flex items-center justify-center text-gray-500 hover:text-[#26B6B6] hover:scale-105 transition-all cursor-pointer opacity-90 sm:opacity-0 sm:group-hover/scroll:opacity-100 focus:opacity-100"
+                  className="absolute -right-2 sm:-right-3.5 top-1/2 -translate-y-1/2 z-25 w-7 h-7 bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-full shadow-md hover:shadow-lg flex items-center justify-center text-gray-500 hover:text-[#26B6B6] transition-all cursor-pointer opacity-90 sm:opacity-0 sm:group-hover/scroll:opacity-100 focus:opacity-100"
                   aria-label="Scroll right"
                 >
                   <ChevronRight className="w-4 h-4" />
@@ -1216,14 +888,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   onMouseMove={handleCategoryMouseMove}
                   onMouseUp={handleCategoryMouseUpOrLeave}
                   onMouseLeave={handleCategoryMouseUpOrLeave}
-                  className="flex gap-2.5 overflow-x-auto py-2.5 px-0.5 scrollbar-none cursor-grab active:cursor-grabbing select-none scroll-smooth"
+                  className="flex gap-2.5 overflow-x-auto py-2.5 px-0.5 scrollbar-none cursor-grab active:cursor-grabbing scroll-smooth"
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
                   {CATEGORIES.map((cat) => (
                     <div
                       key={cat.id}
                       onClick={(e) => handleCategoryItemClick(cat.id, e)}
-                      className="flex-shrink-0 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-800 hover:border-[#26B6B6]/50 transition-all cursor-pointer shadow-[0_1px_3px_rgba(0,0,0,0.03)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.2)] select-none group"
+                      className="flex-shrink-0 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-800 hover:border-[#26B6B6]/50 transition-all cursor-pointer shadow-[0_1px_3px_rgba(0,0,0,0.03)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.2)] group"
                     >
                       {/* Left icon */}
                       <div className="w-6 h-6 rounded-full bg-[#26B6B6]/5 text-[#26B6B6] flex items-center justify-center shrink-0">
@@ -1245,16 +917,16 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsCategoriesExpanded(!isCategoriesExpanded)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-800 text-[10px] sm:text-xs font-black text-gray-700 dark:text-gray-300 hover:text-[#26B6B6] transition-all cursor-pointer shadow-3xs hover:scale-102 active:scale-98"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-750 border border-gray-200 dark:border-gray-700 text-[10px] sm:text-xs font-black text-gray-700 dark:text-gray-300 hover:text-[#26B6B6] transition-all cursor-pointer shadow-2xs hover:scale-102 active:scale-98"
               >
                 {isCategoriesExpanded ? (
                   <>
-                    <ChevronUp className="w-3.5 h-3.5 text-[#26B6B6]" />
+                    <ChevronUp className="w-3.5 h-3.5 text-[#26B6B6] shrink-0" />
                     <span>{isRtl ? 'نمایش خطی (اسکرول)' : 'Show Linear Scroll'}</span>
                   </>
                 ) : (
                   <>
-                    <ChevronDown className="w-3.5 h-3.5 text-[#26B6B6]" />
+                    <ChevronDown className="w-3.5 h-3.5 text-[#26B6B6] shrink-0" />
                     <span>{isRtl ? 'نمایش شبکه‌ای (مشاهده همه دسته‌ها)' : 'View All Categories (Grid)'}</span>
                   </>
                 )}
@@ -1271,16 +943,16 @@ export const HomeView: React.FC<HomeViewProps> = ({
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 space-y-8" id="homepage-newest-objects">
         
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-gray-150/50 dark:border-gray-800/60 pb-5">
-          <div className="space-y-2 text-start">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-150/50 dark:border-gray-800/60 pb-5">
+          <div className="space-y-2 text-start flex-1 min-w-0 md:max-w-3xl">
             <div className="inline-flex items-center gap-2 bg-[#26B6B6]/5 text-[#26B6B6] px-3 py-1 rounded-full text-[10px] font-black">
-              <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
+              <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
               <span>{isRtl ? 'به‌روزرسانی‌های جدید' : 'New Releases'}</span>
             </div>
             <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 dark:text-white leading-tight">
               {isRtl ? 'جدیدترین آبجکت‌های منتشر شده' : 'Newest Standardized BIM Objects'}
             </h2>
-            <p className="text-xs sm:text-sm text-gray-400 dark:text-gray-400 leading-relaxed font-light max-w-2xl">
+            <p className="text-xs sm:text-sm text-gray-400 dark:text-gray-400 leading-relaxed font-light">
               {isRtl 
                 ? 'آخرین مدل‌های پارامتریک تاییدشده، فمیلی‌های رویت و جزئیات فنی قطعات که به تازگی به دایرکتوری اضافه شده‌اند.' 
                 : 'Browse the latest architect-approved families, Revit models, and parametric building objects added this week.'}
@@ -1294,10 +966,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 onNavigate('library');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="inline-flex items-center gap-1.5 text-xs font-black text-[#26B6B6] hover:text-[#1e9494] transition-colors cursor-pointer group"
+              className="inline-flex items-center gap-1.5 text-xs font-black text-[#26B6B6] hover:text-[#1e9494] transition-colors cursor-pointer group whitespace-nowrap"
             >
               <span>{isRtl ? 'مشاهده همه محصولات کتابخانه' : 'Explore Entire Library'}</span>
-              <ArrowRight className={`w-3.5 h-3.5 transition-transform group-hover:translate-x-1 ${isRtl ? 'rotate-180 group-hover:-translate-x-1' : ''}`} />
+              <ArrowRight className={`w-3.5 h-3.5 transition-transform group-hover:translate-x-1 shrink-0 ${isRtl ? 'rotate-180 group-hover:-translate-x-1' : ''}`} />
             </button>
           </div>
         </div>
@@ -1320,7 +992,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       </section>
 
       {/* 4. TRUSTED COMPANIES & VALUE PROPOSITION FOR MANUFACTURERS */}
-      <section className="bg-slate-50 dark:bg-gray-950/40 border-y border-gray-150 dark:border-gray-800/60 py-6 sm:py-8 lg:py-10" id="homepage-trusted-brands">
+      <section className="border-y border-gray-150 dark:border-gray-800/60 py-6 sm:py-8 lg:py-10" id="homepage-trusted-brands">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           
           {/* Header row and Carousel block */}
@@ -1357,10 +1029,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
             {/* Horizontal Scrolling Row Column */}
             <div className="md:col-span-7 relative h-[140px] w-full overflow-hidden flex items-center">
-              {/* Fade overlays on left and right of scrolling pane */}
-              <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-slate-50 dark:from-gray-950/40 to-transparent z-10 pointer-events-none" />
-              <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-slate-50 dark:from-gray-950/40 to-transparent z-10 pointer-events-none" />
-
               <div
                 ref={brandScrollRef}
                 onMouseEnter={() => setIsBrandHovered(true)}
@@ -1606,20 +1274,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </p>
         </div>
 
-        <div className="relative group/testimonials px-1 overflow-hidden">
-          <div
-            className="flex gap-4 py-3 px-0.5 select-none animate-marquee hover:[animation-play-state:paused]"
-            dir="ltr"
-            style={{ 
-              width: 'max-content',
-              WebkitMaskImage: 'linear-gradient(to right, transparent, white 4%, white 96%, transparent)',
-              maskImage: 'linear-gradient(to right, transparent, white 4%, white 96%, transparent)'
-            }}
-          >
-            {[...MOCK_REVIEWS, ...MOCK_REVIEWS, ...MOCK_REVIEWS].map((rev, idx) => (
+        <div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 py-2">
+            {MOCK_REVIEWS.map((rev) => (
               <div 
-                key={`${rev.id}-${idx}`} 
-                className="flex-shrink-0 w-[290px] sm:w-[340px] bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-2xl p-5 shadow-2xs hover:shadow-xs hover:border-[#26B6B6]/30 transition-all flex flex-col justify-between text-start group relative"
+                key={rev.id} 
+                className="bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-2xl p-5 shadow-2xs flex flex-col justify-between text-start relative"
               >
                 <div className="absolute top-4 end-4 text-gray-100 dark:text-gray-800 text-6xl font-serif select-none leading-none opacity-50 dark:opacity-30">
                   ”

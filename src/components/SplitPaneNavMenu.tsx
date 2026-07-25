@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from './LanguageContext';
 import { CATEGORIES } from '../data';
 import { CategoryIcon } from './CategoryIcon';
@@ -25,8 +25,8 @@ interface SplitPaneNavMenuProps {
   onSelect: (categoryId: string, subcategoryId?: string, format?: string) => void;
   currentCategoryId?: string | null;
   currentSubcategoryId?: string | null;
-  onMouseEnter?: () => void;
-  onMouseLeave?: () => void;
+  onMouseEnter?: (e?: React.MouseEvent) => void;
+  onMouseLeave?: (e?: React.MouseEvent) => void;
   onNavigate?: (view: string) => void;
 }
 
@@ -41,6 +41,7 @@ export const SplitPaneNavMenu: React.FC<SplitPaneNavMenuProps> = ({
   onNavigate,
 }) => {
   const { language, isRtl } = useLanguage();
+  const desktopContainerRef = useRef<HTMLDivElement>(null);
   
   // Track active category in desktop menu
   const [activeCategoryId, setActiveCategoryId] = useState<string>(
@@ -60,6 +61,45 @@ export const SplitPaneNavMenu: React.FC<SplitPaneNavMenuProps> = ({
       }
     }
   }, [isOpen, currentCategoryId]);
+
+  // Robust close handler that stops propagation to avoid conflicts
+  const handleClose = (e?: React.SyntheticEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    onClose();
+  };
+
+  // Safe navigation handler
+  const handleNav = (view: string, e?: React.SyntheticEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (onNavigate) {
+      onNavigate(view);
+    } else {
+      // Fallback window dispatch if prop not passed
+      window.dispatchEvent(new CustomEvent('navigate-to-view', { detail: { view } }));
+    }
+    onClose();
+  };
+
+  // Safe selection handler
+  const handleCategorySelect = (
+    catId: string, 
+    subId?: string, 
+    format?: string, 
+    e?: React.SyntheticEvent
+  ) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    onSelect(catId, subId, format);
+    onClose();
+  };
 
   // If menu is closed, do not render anything
   if (!isOpen) return null;
@@ -83,17 +123,6 @@ export const SplitPaneNavMenu: React.FC<SplitPaneNavMenuProps> = ({
     }
   };
 
-  // Safe navigation handler
-  const handleNav = (view: string) => {
-    if (onNavigate) {
-      onNavigate(view);
-    } else {
-      // Fallback window dispatch if prop not passed
-      window.dispatchEvent(new CustomEvent('navigate-to-view', { detail: { view } }));
-    }
-    onClose();
-  };
-
   return (
     <AnimatePresence>
       {isOpen && (
@@ -105,14 +134,22 @@ export const SplitPaneNavMenu: React.FC<SplitPaneNavMenuProps> = ({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             className="fixed inset-0 z-[90] bg-black/30 dark:bg-black/60 backdrop-blur-xs"
-            onClick={onClose}
+            onClick={handleClose}
           />
 
           {/* ==================== DESKTOP LAYOUT (md:block) ==================== */}
           <div 
+            ref={desktopContainerRef}
             className="hidden md:block fixed inset-x-0 top-[108px] sm:top-[111px] z-[100]"
-            onMouseEnter={onMouseEnter}
-            onMouseLeave={onMouseLeave}
+            onClick={(e) => e.stopPropagation()}
+            onMouseEnter={(e) => {
+              e.stopPropagation();
+              if (onMouseEnter) onMouseEnter(e);
+            }}
+            onMouseLeave={(e) => {
+              e.stopPropagation();
+              if (onMouseLeave) onMouseLeave(e);
+            }}
             style={{ direction: isRtl ? 'rtl' : 'ltr' }}
           >
             <motion.div
@@ -143,7 +180,10 @@ export const SplitPaneNavMenu: React.FC<SplitPaneNavMenuProps> = ({
                       return (
                         <div
                           key={cat.id}
-                          onMouseEnter={() => setActiveCategoryId(cat.id)}
+                          onMouseEnter={(e) => {
+                            e.stopPropagation();
+                            setActiveCategoryId(cat.id);
+                          }}
                           className={`w-full flex items-stretch transition-colors ${
                             isActive 
                               ? 'bg-white dark:bg-zinc-900 text-[#26B6B6] dark:text-emerald-400' 
@@ -157,11 +197,7 @@ export const SplitPaneNavMenu: React.FC<SplitPaneNavMenuProps> = ({
                           
                           <a
                             href={`#categories?category=${cat.id}`}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              onSelect(cat.id);
-                              onClose();
-                            }}
+                            onClick={(e) => handleCategorySelect(cat.id, undefined, undefined, e)}
                             className="flex-1 flex items-center gap-3 py-3 px-4 text-start cursor-pointer relative"
                             title={isRtl ? `مشاهده ${name}` : `View ${name}`}
                           >
@@ -209,11 +245,7 @@ export const SplitPaneNavMenu: React.FC<SplitPaneNavMenuProps> = ({
                       <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 shrink-0 bg-zinc-50/30 dark:bg-zinc-950/20 flex items-center justify-between">
                         <a
                           href={`#categories?category=${activeCategory.id}`}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            onSelect(activeCategory.id);
-                            onClose();
-                          }}
+                          onClick={(e) => handleCategorySelect(activeCategory.id, undefined, undefined, e)}
                           className="inline-flex items-center gap-2 px-3 py-1.5 border border-zinc-200 dark:border-zinc-700 hover:border-[#26B6B6]/50 bg-white dark:bg-zinc-850 hover:bg-[#26B6B6]/5 text-slate-800 dark:text-zinc-200 rounded-none transition-all group text-xs cursor-pointer"
                         >
                           <div className="w-1.5 h-3 bg-[#26B6B6] dark:bg-emerald-400 rounded-none shrink-0" />
@@ -247,11 +279,7 @@ export const SplitPaneNavMenu: React.FC<SplitPaneNavMenuProps> = ({
                                 {/* Subcategory Header Link */}
                                 <a
                                   href={`#categories?category=${activeCategory.id}&sub=${sub.id}`}
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    onSelect(activeCategory.id, sub.id);
-                                    onClose();
-                                  }}
+                                  onClick={(e) => handleCategorySelect(activeCategory.id, sub.id, undefined, e)}
                                   className={`text-xs font-bold hover:text-[#26B6B6] dark:hover:text-emerald-400 transition-colors flex items-center justify-between gap-2 cursor-pointer text-start w-full py-0.5 ${
                                     isCurrentlySelectedSub ? 'text-[#26B6B6] dark:text-emerald-400 font-extrabold' : 'text-slate-900 dark:text-zinc-100'
                                   }`}
@@ -273,11 +301,7 @@ export const SplitPaneNavMenu: React.FC<SplitPaneNavMenuProps> = ({
                                   <li>
                                     <a
                                       href={`#categories?category=${activeCategory.id}&sub=${sub.id}`}
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        onSelect(activeCategory.id, sub.id);
-                                        onClose();
-                                      }}
+                                      onClick={(e) => handleCategorySelect(activeCategory.id, sub.id, undefined, e)}
                                       className={`w-full text-start text-[11px] font-medium leading-normal transition-colors hover:text-[#26B6B6] dark:hover:text-emerald-400 cursor-pointer block py-0.5 ${
                                         isCurrentlySelectedSub
                                           ? 'text-[#26B6B6] dark:text-emerald-400 font-bold'
@@ -298,11 +322,7 @@ export const SplitPaneNavMenu: React.FC<SplitPaneNavMenuProps> = ({
                                       <li key={link.id}>
                                         <a
                                           href={`#categories?category=${activeCategory.id}&sub=${sub.id}&format=${format || ''}`}
-                                          onClick={(e) => {
-                                            e.preventDefault();
-                                            onSelect(activeCategory.id, sub.id, format);
-                                            onClose();
-                                          }}
+                                          onClick={(e) => handleCategorySelect(activeCategory.id, sub.id, format, e)}
                                           className="w-full text-start text-[11px] leading-normal text-zinc-500 hover:text-[#26B6B6] dark:text-zinc-400 dark:hover:text-emerald-400 cursor-pointer block font-medium transition-colors py-0.5"
                                         >
                                           {link.label}
@@ -330,7 +350,7 @@ export const SplitPaneNavMenu: React.FC<SplitPaneNavMenuProps> = ({
             {/* Dark background blur overlay */}
             <div 
               className="absolute inset-0 bg-black/50 backdrop-blur-xs transition-opacity duration-300"
-              onClick={onClose}
+              onClick={handleClose}
             />
 
             {/* Slide-out Panel */}
@@ -339,6 +359,7 @@ export const SplitPaneNavMenu: React.FC<SplitPaneNavMenuProps> = ({
               animate={{ x: 0 }}
               exit={{ x: isRtl ? '100%' : '-100%' }}
               transition={{ type: 'tween', ease: 'easeInOut', duration: 0.25 }}
+              onClick={(e) => e.stopPropagation()}
               className="absolute top-0 bottom-0 start-0 w-[85%] max-w-[360px] h-full bg-white dark:bg-zinc-900 border-s border-zinc-200 dark:border-zinc-800 shadow-2xl flex flex-col"
             >
               {/* Drawer Header */}
@@ -359,7 +380,7 @@ export const SplitPaneNavMenu: React.FC<SplitPaneNavMenuProps> = ({
                 
                 {/* Close Button */}
                 <button
-                  onClick={onClose}
+                  onClick={handleClose}
                   className="p-1.5 hover:bg-zinc-200/50 dark:hover:bg-zinc-800 rounded-none border border-zinc-200 dark:border-zinc-700 text-zinc-400 hover:text-slate-900 dark:hover:text-white cursor-pointer transition-colors"
                   title={isRtl ? 'بستن منو' : 'Close Menu'}
                 >
@@ -373,7 +394,7 @@ export const SplitPaneNavMenu: React.FC<SplitPaneNavMenuProps> = ({
                 {/* Primary Nav Links */}
                 <div className="space-y-1 text-start">
                   <button
-                    onClick={() => handleNav('home')}
+                    onClick={(e) => handleNav('home', e)}
                     className="w-full flex items-center gap-3 py-3 px-3.5 text-xs font-bold text-slate-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 rounded-none transition-colors border-b border-zinc-100 dark:border-zinc-800/30"
                   >
                     <Home className="w-4 h-4 text-slate-400 dark:text-zinc-500 shrink-0" />
@@ -381,7 +402,7 @@ export const SplitPaneNavMenu: React.FC<SplitPaneNavMenuProps> = ({
                   </button>
 
                   <button
-                    onClick={() => handleNav('categories')}
+                    onClick={(e) => handleNav('categories', e)}
                     className="w-full flex items-center justify-between py-3 px-3.5 text-xs font-bold text-slate-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 rounded-none transition-colors border-b border-zinc-100 dark:border-zinc-800/30"
                   >
                     <div className="flex items-center gap-3">
@@ -412,7 +433,10 @@ export const SplitPaneNavMenu: React.FC<SplitPaneNavMenuProps> = ({
                       >
                         {/* Accordion Trigger Header */}
                         <button
-                          onClick={() => setExpandedMobileCategoryId(isExpanded ? null : cat.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setExpandedMobileCategoryId(isExpanded ? null : cat.id);
+                          }}
                           className={`w-full flex items-center justify-between py-3 px-3.5 text-right transition-colors ${
                             isExpanded ? 'bg-zinc-50 dark:bg-zinc-950/40 text-[#26B6B6]' : 'text-slate-800 dark:text-zinc-200'
                           }`}
@@ -450,10 +474,7 @@ export const SplitPaneNavMenu: React.FC<SplitPaneNavMenuProps> = ({
                               <div className="py-1.5 px-3 space-y-1">
                                 {/* Browse all subcategories */}
                                 <button
-                                  onClick={() => {
-                                    onSelect(cat.id);
-                                    onClose();
-                                  }}
+                                  onClick={(e) => handleCategorySelect(cat.id, undefined, undefined, e)}
                                   className="w-full text-start py-2.5 px-3.5 text-xs font-black text-[#26B6B6] dark:text-emerald-400 hover:bg-[#26B6B6]/5 transition-colors flex items-center gap-2"
                                 >
                                   <span className="w-1.5 h-1.5 bg-[#26B6B6] dark:bg-emerald-400 rounded-none shrink-0" />
@@ -464,10 +485,7 @@ export const SplitPaneNavMenu: React.FC<SplitPaneNavMenuProps> = ({
                                 {cat.subcategories.map(sub => (
                                   <button
                                     key={sub.id}
-                                    onClick={() => {
-                                      onSelect(cat.id, sub.id);
-                                      onClose();
-                                    }}
+                                    onClick={(e) => handleCategorySelect(cat.id, sub.id, undefined, e)}
                                     className="w-full text-start py-2.5 px-3.5 text-xs font-bold text-slate-600 dark:text-zinc-400 hover:text-[#26B6B6] dark:hover:text-emerald-400 hover:bg-zinc-100/50 dark:hover:bg-zinc-900/30 transition-colors flex items-center gap-2"
                                   >
                                     <ChevronLeft className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
@@ -492,7 +510,7 @@ export const SplitPaneNavMenu: React.FC<SplitPaneNavMenuProps> = ({
 
                 <div className="space-y-1 text-start">
                   <button
-                    onClick={() => handleNav('for-designers')}
+                    onClick={(e) => handleNav('for-designers', e)}
                     className="w-full flex items-center gap-3 py-2.5 px-3.5 text-xs font-bold text-slate-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 rounded-none transition-colors"
                   >
                     <Users className="w-4 h-4 text-slate-400 dark:text-zinc-500 shrink-0" />
@@ -500,7 +518,7 @@ export const SplitPaneNavMenu: React.FC<SplitPaneNavMenuProps> = ({
                   </button>
 
                   <button
-                    onClick={() => handleNav('for-manufacturers')}
+                    onClick={(e) => handleNav('for-manufacturers', e)}
                     className="w-full flex items-center gap-3 py-2.5 px-3.5 text-xs font-bold text-slate-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 rounded-none transition-colors"
                   >
                     <Briefcase className="w-4 h-4 text-slate-400 dark:text-zinc-500 shrink-0" />
@@ -508,15 +526,15 @@ export const SplitPaneNavMenu: React.FC<SplitPaneNavMenuProps> = ({
                   </button>
 
                   <button
-                    onClick={() => handleNav('about')}
+                    onClick={(e) => handleNav('about', e)}
                     className="w-full flex items-center gap-3 py-2.5 px-3.5 text-xs font-bold text-slate-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 rounded-none transition-colors"
                   >
                     <Info className="w-4 h-4 text-slate-400 dark:text-zinc-500 shrink-0" />
-                    <span>{isRtl ? 'معرفی ایران‌بیم‌هاب' : 'About IranBIMhub'}</span>
+                    <span>{isRtl ? 'درباره ایران‌بیم‌هاب' : 'About IranBIMhub'}</span>
                   </button>
 
                   <button
-                    onClick={() => handleNav('contact')}
+                    onClick={(e) => handleNav('contact', e)}
                     className="w-full flex items-center gap-3 py-2.5 px-3.5 text-xs font-bold text-slate-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 rounded-none transition-colors"
                   >
                     <Phone className="w-4 h-4 text-slate-400 dark:text-zinc-500 shrink-0" />

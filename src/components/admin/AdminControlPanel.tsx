@@ -138,6 +138,86 @@ export const AdminControlPanel: React.FC = () => {
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
   const [chatInput, setChatInput] = useState('');
 
+  // Manufacturer Profile & Verification Documents Sync State
+  const [mfgProfile, setMfgProfile] = useState<any>(() => {
+    try {
+      const saved = localStorage.getItem('iranbimhub_mfg_profile') || localStorage.getItem('iranbimhub_mfg_profile_m1');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error("Error loading mfgProfile in admin panel:", e);
+    }
+    return null;
+  });
+
+  useEffect(() => {
+    const syncProfile = () => {
+      try {
+        const saved = localStorage.getItem('iranbimhub_mfg_profile') || localStorage.getItem('iranbimhub_mfg_profile_m1');
+        if (saved) setMfgProfile(JSON.parse(saved));
+      } catch (e) {
+        console.error("Error syncing mfgProfile in admin panel:", e);
+      }
+    };
+    window.addEventListener('iranbimhub_brand_profile_updated', syncProfile);
+    return () => window.removeEventListener('iranbimhub_brand_profile_updated', syncProfile);
+  }, []);
+
+  const handleAdminDocAction = (docId: string, action: 'approve' | 'reject', reason: string) => {
+    if (!mfgProfile) return;
+    const updatedDocs = (mfgProfile.verificationDocs || []).map((d: any) => {
+      if (d.id === docId) {
+        const nextStatus = action === 'approve' ? 'Verified' : 'Rejected';
+        const adminComment = {
+          id: `c-${Date.now()}`,
+          sender: 'Admin' as const,
+          senderName: currentAdmin?.name || 'مدیر تایید مدارک',
+          text: reason || (action === 'approve' ? 'مدرک مورد تایید است.' : 'مدرک فاقد اعتبار است.'),
+          date: new Date().toLocaleDateString('fa-IR') + ' - ' + new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })
+        };
+        return {
+          ...d,
+          status: nextStatus,
+          rejectionReasonFa: action === 'reject' ? reason : undefined,
+          comments: [...(d.comments || []), adminComment]
+        };
+      }
+      return d;
+    });
+
+    const updatedProfile = { ...mfgProfile, verificationDocs: updatedDocs };
+    setMfgProfile(updatedProfile);
+    localStorage.setItem('iranbimhub_mfg_profile', JSON.stringify(updatedProfile));
+    localStorage.setItem('iranbimhub_mfg_profile_m1', JSON.stringify(updatedProfile));
+    window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
+    alert(isRtl ? 'وضعیت مدرک با موفقیت تغییر یافت و پیام ادمین ثبت گردید.' : 'Document status updated and comment saved.');
+  };
+
+  const handleAdminSendDocComment = (docId: string, commentText: string) => {
+    if (!commentText.trim() || !mfgProfile) return;
+    const updatedDocs = (mfgProfile.verificationDocs || []).map((d: any) => {
+      if (d.id === docId) {
+        const adminComment = {
+          id: `c-${Date.now()}`,
+          sender: 'Admin' as const,
+          senderName: currentAdmin?.name || 'پشتیبانی / کارشناس مرکز',
+          text: commentText.trim(),
+          date: new Date().toLocaleDateString('fa-IR') + ' - ' + new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })
+        };
+        return {
+          ...d,
+          comments: [...(d.comments || []), adminComment]
+        };
+      }
+      return d;
+    });
+
+    const updatedProfile = { ...mfgProfile, verificationDocs: updatedDocs };
+    setMfgProfile(updatedProfile);
+    localStorage.setItem('iranbimhub_mfg_profile', JSON.stringify(updatedProfile));
+    localStorage.setItem('iranbimhub_mfg_profile_m1', JSON.stringify(updatedProfile));
+    window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
+  };
+
   // Persist state updates to localstorage
   useEffect(() => {
     localStorage.setItem('admin_accounts', JSON.stringify(admins));
@@ -1160,7 +1240,6 @@ export const AdminControlPanel: React.FC = () => {
                     </div>
                   ) : (
                     mfgRequests.filter(r => r.status === 'Pending').map(req => {
-                      // Inline state for this request's decision reason
                       return (
                         <div key={req.id} className="p-4 bg-slate-50 dark:bg-slate-900 border border-gray-150 dark:border-slate-800 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
                           <div className="space-y-2">
@@ -1220,6 +1299,145 @@ export const AdminControlPanel: React.FC = () => {
                         </div>
                       );
                     })
+                  )}
+                </div>
+              </div>
+
+              {/* Brand Verification Documents Review & Messaging Queue */}
+              <div className="bg-white dark:bg-slate-950 border border-gray-150 dark:border-slate-800 p-6 rounded-3xl space-y-4">
+                <div className="pb-3 border-b border-gray-150 dark:border-slate-800">
+                  <h4 className="text-sm font-black text-gray-800 dark:text-white flex items-center gap-2">
+                    <FileCheck className="w-4 h-4 text-[#26B6B6]" />
+                    <span>{isRtl ? 'بررسی اسناد رسمی و مدارک ارسالی کارخانجات' : 'Brand Verification Documents Queue'}</span>
+                  </h4>
+                  <p className="text-[10px] text-gray-400 mt-0.5">
+                    {isRtl ? 'بررسی، تایید، رد صلاحیت و تبادل مستقیم پیام با کارخانه در رابطه با اسناد بارگذاری‌شده' : 'Inspect, approve, reject, and message manufacturers directly regarding uploaded verification files.'}
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  {(!mfgProfile || !mfgProfile.verificationDocs || mfgProfile.verificationDocs.length === 0) ? (
+                    <div className="p-8 text-center text-gray-400 text-xs font-bold bg-slate-50 dark:bg-slate-900 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
+                      {isRtl ? 'هیچ سند رسمی برای بررسی ثبت نشده است.' : 'No uploaded verification documents found.'}
+                    </div>
+                  ) : (
+                    mfgProfile.verificationDocs.map((doc: any) => (
+                      <div key={doc.id} className="p-4 bg-slate-50 dark:bg-slate-900 border border-gray-150 dark:border-slate-800 rounded-2xl space-y-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-gray-200/60 dark:border-slate-800">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h5 className="text-xs font-black text-gray-800 dark:text-white">
+                                {isRtl ? doc.nameFa : doc.nameEn}
+                              </h5>
+                              <span className={`text-[9.5px] font-extrabold px-2.5 py-0.5 rounded-full ${
+                                doc.status === 'Verified' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' :
+                                doc.status === 'Rejected' ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400' :
+                                'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                              }`}>
+                                {doc.status === 'Verified' ? (isRtl ? 'تایید شده ✓' : 'Verified') :
+                                 doc.status === 'Rejected' ? (isRtl ? 'رد شده ✗' : 'Rejected') :
+                                 (isRtl ? 'در انتظار تایید ⏳' : 'Pending Review')}
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-gray-400 mt-0.5 font-mono">
+                              فایل: {doc.fileName || 'بارگذاری نشده'} {doc.date ? `| تاریخ: ${doc.date}` : ''}
+                            </p>
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="flex items-center gap-2 self-end sm:self-auto">
+                            <button
+                              onClick={() => {
+                                const input = document.getElementById(`admin-doc-reason-${doc.id}`) as HTMLInputElement;
+                                handleAdminDocAction(doc.id, 'reject', input?.value || 'کیفیت مدرک ارسالی خوانا نیست یا فاقد اعتبار می‌باشد.');
+                              }}
+                              className="px-3 py-1.5 border border-rose-200 hover:bg-rose-50 text-rose-600 text-[10px] font-extrabold rounded-xl transition-all cursor-pointer"
+                            >
+                              {isRtl ? 'رد صلاحیت مدرک' : 'Reject Document'}
+                            </button>
+                            <button
+                              onClick={() => {
+                                const input = document.getElementById(`admin-doc-reason-${doc.id}`) as HTMLInputElement;
+                                handleAdminDocAction(doc.id, 'approve', input?.value || 'اصالت سند احراز شد.');
+                              }}
+                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-extrabold rounded-xl transition-all cursor-pointer"
+                            >
+                              {isRtl ? 'تایید سند' : 'Approve Document'}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Input for reason / notes */}
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <input
+                            type="text"
+                            id={`admin-doc-reason-${doc.id}`}
+                            placeholder={isRtl ? 'یادداشت یا دلیل تایید/رد سند...' : 'Reason or feedback note for manufacturer...'}
+                            className="flex-1 text-[11px] p-2 bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-800 rounded-xl focus:outline-none"
+                          />
+                        </div>
+
+                        {/* Messages Discussion Thread */}
+                        <div className="pt-2 border-t border-gray-200/40 dark:border-slate-800/60 space-y-2">
+                          <span className="text-[10.5px] font-bold text-gray-500 flex items-center gap-1">
+                            <MessageSquare className="w-3.5 h-3.5 text-[#26B6B6]" />
+                            <span>{isRtl ? 'گفتگو و مکاتبات پیرامون این سند:' : 'Communication Thread:'}</span>
+                          </span>
+
+                          <div className="space-y-1.5 max-h-32 overflow-y-auto p-1 bg-white dark:bg-slate-950/50 rounded-xl border border-gray-100 dark:border-slate-800">
+                            {(doc.comments && doc.comments.length > 0) ? (
+                              doc.comments.map((comment: any) => (
+                                <div key={comment.id} className="p-2 rounded-lg text-[10px] space-y-0.5 bg-slate-50 dark:bg-slate-900">
+                                  <div className="flex items-center justify-between font-bold text-[9px]">
+                                    <span className={comment.sender === 'Admin' ? 'text-amber-600 dark:text-amber-400' : 'text-[#26B6B6]'}>
+                                      {comment.senderName || (comment.sender === 'Admin' ? 'پشتیبانی / کارشناس مرکز' : 'کارخانه')}
+                                    </span>
+                                    <span className="text-gray-400 font-mono text-[8.5px]">{comment.date}</span>
+                                  </div>
+                                  <p className="text-gray-700 dark:text-gray-300 font-normal">{comment.text}</p>
+                                </div>
+                              ))
+                            ) : (
+                              <p className="text-[10px] text-gray-400 italic p-1">
+                                {isRtl ? 'هنوز هیچ پیامی تبادل نشده است.' : 'No messages in thread yet.'}
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-1.5">
+                            <input
+                              type="text"
+                              id={`admin-comment-input-${doc.id}`}
+                              placeholder={isRtl ? 'ارسال پیام جدید به کارخانه...' : 'Send message to manufacturer...'}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  const el = document.getElementById(`admin-comment-input-${doc.id}`) as HTMLInputElement;
+                                  if (el) {
+                                    handleAdminSendDocComment(doc.id, el.value);
+                                    el.value = '';
+                                  }
+                                }
+                              }}
+                              className="flex-1 text-[10.5px] p-2 bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-800 rounded-xl focus:outline-none"
+                            />
+                            <button
+                              onClick={() => {
+                                const el = document.getElementById(`admin-comment-input-${doc.id}`) as HTMLInputElement;
+                                if (el) {
+                                  handleAdminSendDocComment(doc.id, el.value);
+                                  el.value = '';
+                                }
+                              }}
+                              className="bg-[#26B6B6] hover:bg-[#1e9494] text-white p-2 rounded-xl transition-all cursor-pointer"
+                              title={isRtl ? 'ارسال پیام' : 'Send Message'}
+                            >
+                              <Send className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))
                   )}
                 </div>
               </div>
