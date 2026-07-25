@@ -13,6 +13,9 @@ import {
   Plus, 
   CheckCircle, 
   ChevronRight, 
+  ChevronUp,
+  ChevronDown,
+  Play,
   FileText,
   Clock,
   User,
@@ -33,6 +36,7 @@ import {
   Grid,
   Menu,
   Briefcase,
+  BookOpen,
   FileCheck,
   Building,
   HelpCircle,
@@ -91,7 +95,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
   const [activeTab, setActiveTab] = useState<MFGTab>('overview');
   const [isSidebarOpenMobile, setIsSidebarOpenMobile] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [profileSubTab, setProfileSubTab] = useState<'info' | 'standards' | 'awards' | 'projects'>('info');
+  const [profileSubTab, setProfileSubTab] = useState<'info' | 'standards' | 'awards' | 'projects' | 'catalogs'>('info');
   const [requestsSubTab, setRequestsSubTab] = useState<'leads' | 'objects'>('leads');
 
   // Listen for custom event to change active tab from Header
@@ -642,6 +646,62 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
   const [newProjFileUrl, setNewProjFileUrl] = useState('');
   const [editingProjId, setEditingProjId] = useState<string | null>(null);
 
+  // Technical Bookshelf & Catalogs State
+  const [catalogs, setCatalogs] = useState(() => {
+    try {
+      const saved = localStorage.getItem('iranbimhub_mfg_catalogs');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error(e);
+    }
+    return [
+      {
+        id: 'cat-1',
+        titleFa: 'دفترچه راهنمای فنی و جزئیات اجرایی پروفیل‌های آلوپن',
+        titleEn: 'Alupan Technical Handbook & Execution Details',
+        category: 'راهنمای فنی / Technical Handbook',
+        fileSize: '14.8 MB',
+        description: 'کاتالوگ جامع مقاطع پروفیل‌های ترمال‌بریک، جزئیات آب‌بندی، هواپذیری و ضرایب انتقال حرارت U-Value.',
+        fileName: 'Alupan_Technical_Handbook_2026.pdf',
+        fileUrl: '#'
+      },
+      {
+        id: 'cat-2',
+        titleFa: 'کاتالوگ جامع سیستم‌های در و پنجره دوجداره آلومینیومی',
+        titleEn: 'Comprehensive Aluminum Doors & Windows Catalog',
+        category: 'کاتالوگ محصولات / Product Catalog',
+        fileSize: '8.2 MB',
+        description: 'کاتالوگ اصلی معرفی ابعاد استاندارد، تنوع رنگ آنادایز و پودری و یراق‌آلات سازگار.',
+        fileName: 'Alupan_Window_Catalog.pdf',
+        fileUrl: '#'
+      },
+      {
+        id: 'cat-3',
+        titleFa: 'جدول محاسبات بار باد و ضرایب حرارتی فریم‌های نما',
+        titleEn: 'Wind Load & Thermal Resistance Calculation Tables',
+        category: 'جدول محاسباتی / Calculation Sheets',
+        fileSize: '4.5 MB',
+        description: 'دستورالعمل‌ها و جداول فنی محاسبه ممان اینرسی و مقاومت فریم در برابر بارهای سازه‌ای.',
+        fileName: 'Wind_Load_Tables.pdf',
+        fileUrl: '#'
+      }
+    ];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('iranbimhub_mfg_catalogs', JSON.stringify(catalogs));
+  }, [catalogs]);
+
+  // Form states for Catalogs
+  const [newCatTitleFa, setNewCatTitleFa] = useState('');
+  const [newCatTitleEn, setNewCatTitleEn] = useState('');
+  const [newCatCategory, setNewCatCategory] = useState('');
+  const [newCatFileSize, setNewCatFileSize] = useState('');
+  const [newCatDesc, setNewCatDesc] = useState('');
+  const [newCatFileName, setNewCatFileName] = useState('');
+  const [newCatFileUrl, setNewCatFileUrl] = useState('');
+  const [editingCatId, setEditingCatId] = useState<string | null>(null);
+
   // ADD PRODUCT WIZARD STATE
   const [wizardStep, setWizardStep] = useState<1 | 2 | 3>(1);
   const [agreePublishTerms, setAgreePublishTerms] = useState(false);
@@ -886,7 +946,17 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
       fileUrl: newStdFileUrl || '#'
     };
 
-    setStandards(prev => [...prev, newStd]);
+    setStandards(prev => {
+      const next = [...prev, newStd];
+      try {
+        localStorage.setItem('iranbimhub_mfg_standards', JSON.stringify(next));
+        window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
+      } catch (e) {
+        console.error(e);
+      }
+      return next;
+    });
+
     setNewStdName('');
     setNewStdCode('');
     setNewStdCountry('');
@@ -900,7 +970,16 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
   };
 
   const handleEditStandard = (id: string, updatedFields: Partial<typeof standards[0]>) => {
-    setStandards(prev => prev.map(std => std.id === id ? { ...std, ...updatedFields } : std));
+    setStandards(prev => {
+      const next = prev.map(std => std.id === id ? { ...std, ...updatedFields } : std);
+      try {
+        localStorage.setItem('iranbimhub_mfg_standards', JSON.stringify(next));
+        window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
+      } catch (e) {
+        console.error(e);
+      }
+      return next;
+    });
   };
 
   // Unified delete helper ensuring state consistency with prev => prev.filter(item => item.id !== targetId)
@@ -920,26 +999,38 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
   };
 
   const handleDeleteStandard = (id: string) => {
-    if (confirm(isRtl ? 'آیا از حذف دائمی این مورد مطمئن هستید؟ این عمل قابل بازگشت نیست.' : 'Are you sure you want to permanently delete this item? This action cannot be undone.')) {
-      deleteEntry(id, setStandards, (next) => {
+    if (window.confirm(isRtl ? 'آیا از حذف دائمی این مورد مطمئن هستید؟ این عمل قابل بازگشت نیست.' : 'Are you sure you want to permanently delete this item? This action cannot be undone.')) {
+      setStandards(prev => {
+        const next = prev.filter(std => std.id !== id);
         try {
           localStorage.setItem('iranbimhub_mfg_standards', JSON.stringify(next));
+          window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
         } catch (e) {
           console.error("Failed to save standards after delete:", e);
         }
+        return next;
       });
+      if (editingStdId === id) {
+        setEditingStdId(null);
+      }
     }
   };
 
   const handleDeleteAward = (id: string) => {
-    if (confirm(isRtl ? 'آیا از حذف دائمی این مورد مطمئن هستید؟ این عمل قابل بازگشت نیست.' : 'Are you sure you want to permanently delete this item? This action cannot be undone.')) {
-      deleteEntry(id, setPortfolioProjects, (next) => {
+    if (window.confirm(isRtl ? 'آیا از حذف دائمی این مورد مطمئن هستید؟ این عمل قابل بازگشت نیست.' : 'Are you sure you want to permanently delete this item? This action cannot be undone.')) {
+      setPortfolioProjects(prev => {
+        const next = prev.filter(award => award.id !== id);
         try {
           localStorage.setItem('iranbimhub_mfg_awards', JSON.stringify(next));
+          window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
         } catch (e) {
           console.error("Failed to save awards after delete:", e);
         }
+        return next;
       });
+      if (editingAwardId === id) {
+        setEditingAwardId(null);
+      }
     }
   };
 
@@ -948,6 +1039,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
       const next = prev.map(a => a.id === id ? { ...a, ...updatedFields } : a);
       try {
         localStorage.setItem('iranbimhub_mfg_awards', JSON.stringify(next));
+        window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
       } catch (e) {
         console.error(e);
       }
@@ -975,6 +1067,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
       const next = [...prev, newAward];
       try {
         localStorage.setItem('iranbimhub_mfg_awards', JSON.stringify(next));
+        window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
       } catch (e) {
         console.error(e);
       }
@@ -993,14 +1086,20 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
   };
 
   const handleDeleteProject = (id: string) => {
-    if (confirm(isRtl ? 'آیا از حذف دائمی این مورد مطمئن هستید؟ این عمل قابل بازگشت نیست.' : 'Are you sure you want to permanently delete this item? This action cannot be undone.')) {
-      deleteEntry(id, setProjects, (next) => {
+    if (window.confirm(isRtl ? 'آیا از حذف دائمی این مورد مطمئن هستید؟ این عمل قابل بازگشت نیست.' : 'Are you sure you want to permanently delete this item? This action cannot be undone.')) {
+      setProjects(prev => {
+        const next = prev.filter(proj => proj.id !== id);
         try {
           localStorage.setItem('iranbimhub_mfg_projects', JSON.stringify(next));
+          window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
         } catch (e) {
           console.error("Failed to save projects after delete:", e);
         }
+        return next;
       });
+      if (editingProjId === id) {
+        setEditingProjId(null);
+      }
     }
   };
 
@@ -1009,6 +1108,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
       const next = prev.map(p => p.id === id ? { ...p, ...updatedFields } : p);
       try {
         localStorage.setItem('iranbimhub_mfg_projects', JSON.stringify(next));
+        window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
       } catch (e) {
         console.error(e);
       }
@@ -1036,6 +1136,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
       const next = [...prev, newProj];
       try {
         localStorage.setItem('iranbimhub_mfg_projects', JSON.stringify(next));
+        window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
       } catch (e) {
         console.error(e);
       }
@@ -1051,6 +1152,73 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
     setNewProjFileName('');
     setNewProjFileUrl('');
     alert(isRtl ? 'پروژه جدید با موفقیت ثبت گردید.' : 'New project added successfully.');
+  };
+
+  const handleDeleteCatalog = (id: string) => {
+    if (window.confirm(isRtl ? 'آیا از حذف دائمی این مورد مطمئن هستید؟ این عمل قابل بازگشت نیست.' : 'Are you sure you want to permanently delete this item? This action cannot be undone.')) {
+      setCatalogs(prev => {
+        const next = prev.filter(cat => cat.id !== id);
+        try {
+          localStorage.setItem('iranbimhub_mfg_catalogs', JSON.stringify(next));
+          window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
+        } catch (e) {
+          console.error("Failed to save catalogs after delete:", e);
+        }
+        return next;
+      });
+      if (editingCatId === id) {
+        setEditingCatId(null);
+      }
+    }
+  };
+
+  const handleEditCatalog = (id: string, updatedFields: Partial<typeof catalogs[0]>) => {
+    setCatalogs(prev => {
+      const next = prev.map(c => c.id === id ? { ...c, ...updatedFields } : c);
+      try {
+        localStorage.setItem('iranbimhub_mfg_catalogs', JSON.stringify(next));
+        window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
+      } catch (e) {
+        console.error(e);
+      }
+      return next;
+    });
+  };
+
+  const handleAddCatalog = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCatTitleFa.trim()) return;
+
+    const newCat = {
+      id: `cat-${Math.random().toString(36).substring(2, 6)}`,
+      titleFa: newCatTitleFa,
+      titleEn: newCatTitleEn || newCatTitleFa,
+      category: newCatCategory || (isRtl ? 'راهنمای فنی' : 'Technical Guide'),
+      fileSize: newCatFileSize || '5.0 MB',
+      description: newCatDesc,
+      fileName: newCatFileName || 'Catalog_Document.pdf',
+      fileUrl: newCatFileUrl || '#'
+    };
+
+    setCatalogs(prev => {
+      const next = [...prev, newCat];
+      try {
+        localStorage.setItem('iranbimhub_mfg_catalogs', JSON.stringify(next));
+        window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
+      } catch (e) {
+        console.error(e);
+      }
+      return next;
+    });
+
+    setNewCatTitleFa('');
+    setNewCatTitleEn('');
+    setNewCatCategory('');
+    setNewCatFileSize('');
+    setNewCatDesc('');
+    setNewCatFileName('');
+    setNewCatFileUrl('');
+    alert(isRtl ? 'کاتالوگ / سند فنی جدید با موفقیت اضافه شد و به پروفایل عمومی برند متصل گردید.' : 'Catalog document added successfully and linked to public brand profile.');
   };
 
   const handleSaveBrandInfo = (e?: React.FormEvent) => {
@@ -1190,6 +1358,41 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
         ...prev,
         promoVideoUrl: nextVideos[0]?.url || '',
         promoVideos: nextVideos
+      };
+    });
+  };
+
+  const handleMovePromoVideo = (index: number, direction: 'up' | 'down') => {
+    setBrandInfo(prev => {
+      const current = [...(prev.promoVideos || [])];
+      const targetIndex = direction === 'up' ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= current.length) return prev;
+
+      const temp = current[index];
+      current[index] = current[targetIndex];
+      current[targetIndex] = temp;
+
+      return {
+        ...prev,
+        promoVideoUrl: current[0]?.url || '',
+        promoVideos: current
+      };
+    });
+  };
+
+  const handleSetPromoVideoPriority = (vId: string, targetPriorityIndex: number) => {
+    setBrandInfo(prev => {
+      const current = [...(prev.promoVideos || [])];
+      const currentIndex = current.findIndex((v: any) => v.id === vId);
+      if (currentIndex === -1 || targetPriorityIndex < 0 || targetPriorityIndex >= current.length) return prev;
+
+      const [item] = current.splice(currentIndex, 1);
+      current.splice(targetPriorityIndex, 0, item);
+
+      return {
+        ...prev,
+        promoVideoUrl: current[0]?.url || '',
+        promoVideos: current
       };
     });
   };
@@ -1828,6 +2031,18 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                 <Briefcase className="w-4 h-4" />
                 <span>{isRtl ? 'پروژه‌های اجرایی' : 'Projects'}</span>
               </button>
+              <button
+                type="button"
+                onClick={() => setProfileSubTab('catalogs')}
+                className={`px-4.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+                  profileSubTab === 'catalogs'
+                    ? 'bg-[#26B6B6]/10 text-[#26B6B6] ring-1 ring-[#26B6B6]/20'
+                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-slate-50 dark:hover:bg-gray-800/50'
+                }`}
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>{isRtl ? 'کتابخانه فنی و کاتالوگ‌ها' : 'Technical Bookshelf & Catalogs'}</span>
+              </button>
             </div>
 
             {profileSubTab === 'info' && (
@@ -1886,18 +2101,8 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                         reader.onload = (evt) => {
                           const dataUrl = evt.target?.result as string;
                           if (dataUrl) {
-                            setBrandInfo(prev => {
-                              const updated = { ...prev, logoUrl: dataUrl };
-                              try {
-                                localStorage.setItem('iranbimhub_mfg_profile', JSON.stringify(updated));
-                                localStorage.setItem('iranbimhub_mfg_profile_m1', JSON.stringify(updated));
-                                window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
-                              } catch (err) {
-                                console.error("Failed to save logo to localStorage:", err);
-                              }
-                              return updated;
-                            });
-                            alert(isRtl ? 'لوگوی جدید برند با موفقیت به‌روزرسانی شد.' : 'Brand logo updated successfully.');
+                            setBrandInfo(prev => ({ ...prev, logoUrl: dataUrl }));
+                            alert(isRtl ? 'لوگوی جدید ضمیمه شد (به صورت پیش‌نویس). برای ثبت نهایی روی دکمه ذخیره کلیک کنید.' : 'New logo attached as draft. Click Save to apply.');
                           }
                         };
                         reader.readAsDataURL(file);
@@ -1953,18 +2158,8 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                       reader.onload = (evt) => {
                         const dataUrl = evt.target?.result as string;
                         if (dataUrl) {
-                          setBrandInfo(prev => {
-                            const updated = { ...prev, coverUrl: dataUrl };
-                            try {
-                              localStorage.setItem('iranbimhub_mfg_profile', JSON.stringify(updated));
-                              localStorage.setItem('iranbimhub_mfg_profile_m1', JSON.stringify(updated));
-                              window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
-                            } catch (err) {
-                              console.error("Failed to save cover image to localStorage:", err);
-                            }
-                            return updated;
-                          });
-                          alert(isRtl ? 'تصویر کاور برند با موفقیت به‌روزرسانی شد.' : 'Brand cover photo updated successfully.');
+                          setBrandInfo(prev => ({ ...prev, coverUrl: dataUrl }));
+                          alert(isRtl ? 'تصویر کاور جدید ضمیمه شد (به صورت پیش‌نویس). برای ثبت نهایی روی دکمه ذخیره کلیک کنید.' : 'New cover photo attached as draft. Click Save to apply.');
                         }
                       };
                       reader.readAsDataURL(file);
@@ -2176,47 +2371,118 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                     )}
                   </div>
 
-                  {/* Promo Video List */}
+                  {/* Promo Video List with Priority Controls */}
                   <div className="space-y-3">
                     {(brandInfo.promoVideos && brandInfo.promoVideos.length > 0) ? (
-                      brandInfo.promoVideos.map((vid: any, idx: number) => (
-                        <div key={vid.id} className="p-3 bg-slate-50 dark:bg-gray-800/60 rounded-xl border border-gray-100 dark:border-gray-700/60 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[11px] font-bold text-gray-700 dark:text-gray-200 flex items-center gap-1.5">
-                              <Video className="w-3.5 h-3.5 text-[#26B6B6]" />
-                              <span>{isRtl ? `ویدیو شماره ${idx + 1}` : `Video #${idx + 1}`}</span>
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => handleDeletePromoVideoRow(vid.id)}
-                              className="text-gray-400 hover:text-rose-500 text-xs flex items-center gap-1 cursor-pointer"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                              <span>{isRtl ? 'حذف ویدیو' : 'Delete'}</span>
-                            </button>
-                          </div>
+                      brandInfo.promoVideos.map((vid: any, idx: number) => {
+                        const totalVids = brandInfo.promoVideos.length;
+                        const priorityLabelsFa = ['پخش اول (اصلی)', 'پخش دوم', 'پخش سوم'];
+                        const priorityLabelsEn = ['1st Play (Main)', '2nd Play', '3rd Play'];
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            <input
-                              type="text"
-                              value={vid.titleFa || ''}
-                              onChange={(e) => handleUpdatePromoVideoRow(vid.id, { titleFa: e.target.value })}
-                              placeholder={isRtl ? 'عنوان یا موضوع ویدیو (مثال: خط تولید)' : 'Video Title (e.g. Factory Tour)'}
-                              className="text-xs p-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none"
-                            />
-                            <input
-                              type="text"
-                              value={vid.url || ''}
-                              onChange={(e) => handleUpdatePromoVideoRow(vid.id, { url: e.target.value })}
-                              placeholder="https://aparat.com/v/... یا https://youtube.com/watch?v=..."
-                              className="text-xs p-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none font-mono"
-                            />
+                        return (
+                          <div key={vid.id} className="p-3.5 bg-slate-50 dark:bg-gray-800/60 rounded-xl border border-gray-150 dark:border-gray-700/60 space-y-3 shadow-2xs">
+                            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-200/60 dark:border-gray-700/60 pb-2">
+                              <div className="flex items-center gap-2">
+                                <span className={`text-[10px] font-black px-2.5 py-1 rounded-lg flex items-center gap-1 ${
+                                  idx === 0 
+                                    ? 'bg-emerald-500 text-white shadow-2xs' 
+                                    : idx === 1 
+                                    ? 'bg-amber-500 text-white' 
+                                    : 'bg-indigo-500 text-white'
+                                }`}>
+                                  <Play className="w-3 h-3 fill-current" />
+                                  <span>{isRtl ? priorityLabelsFa[idx] : priorityLabelsEn[idx]}</span>
+                                </span>
+                                <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400">
+                                  {isRtl ? `ویدیو #${idx + 1}` : `Video #${idx + 1}`}
+                                </span>
+                              </div>
+
+                              {/* Priority & Reorder Controls */}
+                              <div className="flex items-center gap-2">
+                                {totalVids > 1 && (
+                                  <div className="flex items-center gap-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-0.5">
+                                    <span className="text-[9.5px] text-gray-400 font-bold px-1">
+                                      {isRtl ? 'اولویت:' : 'Order:'}
+                                    </span>
+                                    {Array.from({ length: totalVids }).map((_, pIdx) => (
+                                      <button
+                                        key={pIdx}
+                                        type="button"
+                                        onClick={() => handleSetPromoVideoPriority(vid.id, pIdx)}
+                                        className={`px-2 py-0.5 text-[10px] font-black rounded transition-all cursor-pointer ${
+                                          idx === pIdx
+                                            ? 'bg-[#26B6B6] text-white shadow-2xs'
+                                            : 'text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
+                                        }`}
+                                        title={isRtl ? `تعیین به عنوان اولویت ${pIdx + 1}` : `Set as Priority ${pIdx + 1}`}
+                                      >
+                                        {pIdx + 1}
+                                      </button>
+                                    ))}
+                                  </div>
+                                )}
+
+                                {/* Move Up / Move Down */}
+                                {totalVids > 1 && (
+                                  <div className="flex items-center gap-0.5">
+                                    <button
+                                      type="button"
+                                      disabled={idx === 0}
+                                      onClick={() => handleMovePromoVideo(idx, 'up')}
+                                      className="p-1 rounded bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-[#26B6B6] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                                      title={isRtl ? 'انتقال به اولویت بالاتر' : 'Move Up'}
+                                    >
+                                      <ChevronUp className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      disabled={idx === totalVids - 1}
+                                      onClick={() => handleMovePromoVideo(idx, 'down')}
+                                      className="p-1 rounded bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-[#26B6B6] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                                      title={isRtl ? 'انتقال به اولویت پایین‌تر' : 'Move Down'}
+                                    >
+                                      <ChevronDown className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                )}
+
+                                {/* Delete Button */}
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeletePromoVideoRow(vid.id)}
+                                  className="text-gray-400 hover:text-rose-500 p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer flex items-center gap-1"
+                                  title={isRtl ? 'حذف ویدیو' : 'Delete Video'}
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              <input
+                                type="text"
+                                value={vid.titleFa || ''}
+                                onChange={(e) => handleUpdatePromoVideoRow(vid.id, { titleFa: e.target.value })}
+                                placeholder={isRtl ? 'عنوان یا موضوع ویدیو (مثال: خط تولید)' : 'Video Title (e.g. Factory Tour)'}
+                                className="text-xs p-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none"
+                              />
+                              <input
+                                type="text"
+                                value={vid.url || ''}
+                                onChange={(e) => handleUpdatePromoVideoRow(vid.id, { url: e.target.value })}
+                                placeholder="https://aparat.com/v/... یا https://youtube.com/watch?v=..."
+                                className="text-xs p-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none font-mono"
+                              />
+                            </div>
                           </div>
-                        </div>
-                      ))
+                        );
+                      })
                     ) : (
-                      <div className="text-center py-4 bg-slate-50 dark:bg-gray-800/40 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 text-xs text-gray-400">
-                        {isRtl ? 'هیچ ویدیویی ثبت نشده است.' : 'No promo videos added yet.'}
+                      <div className="text-center py-6 bg-slate-50 dark:bg-gray-800/40 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 text-xs text-gray-400 space-y-1">
+                        <Video className="w-6 h-6 mx-auto text-gray-300 dark:text-gray-600 mb-1" />
+                        <p className="font-bold">{isRtl ? 'هیچ ویدیویی ثبت نشده است.' : 'No promotional videos added yet.'}</p>
+                        <p className="text-[10px] text-gray-400">{isRtl ? 'با افزودن لینک ویدیو، بخش پخش ویدیو در پروفایل برند شما فعال می‌شود.' : 'Adding a video link will enable the video player on your brand profile.'}</p>
                       </div>
                     )}
                   </div>
@@ -3651,6 +3917,281 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                         </button>
                       </div>
                     </form>
+                </div>
+              </div>
+            )}
+
+            {profileSubTab === 'catalogs' && (
+              <div className="space-y-8 animate-fadeIn text-start">
+                <div>
+                  <h2 className="text-sm font-bold text-gray-800 dark:text-white flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-3">
+                    <BookOpen className="w-5 h-5 text-[#26B6B6]" />
+                    <span>{isRtl ? 'کتابخانه فنی و کاتالوگ‌های برند' : 'Technical Bookshelf & Catalogs'}</span>
+                  </h2>
+                  <p className="text-[11px] text-gray-400 mt-1">
+                    {isRtl ? 'مدیریت و افزودن کاتالوگ‌های چاپی، کتب فنی، کات‌شیت‌ها و جداول محاسباتی درخواستی معماران و مهندسان.' : 'Manage technical handbooks, corporate brochures, U-value calculation tables and physical cutsheets.'}
+                  </p>
+                </div>
+
+                {/* Catalogs list */}
+                <div className="space-y-4">
+                  {catalogs.map(cat => {
+                    const isEditing = editingCatId === cat.id;
+                    return (
+                      <div key={cat.id} className="p-5 bg-slate-50 dark:bg-gray-950/45 border border-slate-100 dark:border-gray-800 rounded-2xl transition-all hover:shadow-xs space-y-4">
+                        {isEditing ? (
+                          /* EDIT CATALOG FORM */
+                          <div className="space-y-3.5 text-xs">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'عنوان کاتالوگ / کتاب فنی (فارسی)' : 'Catalog Title (Persian)'}</label>
+                                <input 
+                                  type="text" 
+                                  className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl"
+                                  value={cat.titleFa}
+                                  onChange={(e) => handleEditCatalog(cat.id, { titleFa: e.target.value })}
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'عنوان کاتالوگ / کتاب فنی (انگلیسی)' : 'Catalog Title (English)'}</label>
+                                <input 
+                                  type="text" 
+                                  className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl text-left"
+                                  value={cat.titleEn}
+                                  onChange={(e) => handleEditCatalog(cat.id, { titleEn: e.target.value })}
+                                />
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'دسته‌بندی یا نوع سند' : 'Category / Document Type'}</label>
+                                <input 
+                                  type="text" 
+                                  className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl"
+                                  value={cat.category}
+                                  onChange={(e) => handleEditCatalog(cat.id, { category: e.target.value })}
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'حجم فایل' : 'File Size'}</label>
+                                <input 
+                                  type="text" 
+                                  className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl font-mono"
+                                  value={cat.fileSize}
+                                  onChange={(e) => handleEditCatalog(cat.id, { fileSize: e.target.value })}
+                                />
+                              </div>
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'توضیحات و سرفصل‌ها' : 'Description'}</label>
+                              <textarea 
+                                rows={2}
+                                className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl resize-none"
+                                value={cat.description || ''}
+                                onChange={(e) => handleEditCatalog(cat.id, { description: e.target.value })}
+                              />
+                            </div>
+
+                            <div className="flex justify-between items-center pt-2 border-t border-gray-100 dark:border-gray-800">
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteCatalog(cat.id)}
+                                className="text-rose-500 hover:text-rose-600 font-extrabold flex items-center gap-1 cursor-pointer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                <span>{isRtl ? 'حذف دائمی' : 'Permanently Delete'}</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setEditingCatId(null)}
+                                className="bg-[#26B6B6] text-white text-[10px] font-bold px-4 py-2 rounded-xl cursor-pointer hover:bg-[#1e9494]"
+                              >
+                                {isRtl ? 'ذخیره تغییرات' : 'Save Changes'}
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          /* CATALOG PREVIEW MODE */
+                          <div className="space-y-3.5 text-xs">
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex items-start gap-3">
+                                <div className="p-2.5 bg-rose-50 dark:bg-rose-950/40 text-rose-500 rounded-xl shrink-0 mt-0.5">
+                                  <FileText className="w-5 h-5" />
+                                </div>
+                                <div className="space-y-1">
+                                  <h4 className="font-extrabold text-gray-800 dark:text-gray-100 text-sm">
+                                    {isRtl ? cat.titleFa : cat.titleEn}
+                                  </h4>
+                                  <div className="flex flex-wrap items-center gap-2 text-gray-400 text-[10px]">
+                                    <span className="bg-slate-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded font-medium">{cat.category}</span>
+                                    <span>•</span>
+                                    <span className="font-mono text-[#26B6B6]">{cat.fileSize}</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingCatId(cat.id)}
+                                  className="p-1.5 bg-white dark:bg-gray-900 hover:bg-slate-100 border rounded-xl text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 cursor-pointer"
+                                  title={isRtl ? 'ویرایش کاتالوگ' : 'Edit Catalog'}
+                                >
+                                  <Edit className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
+
+                            {cat.description && (
+                              <p className="text-gray-500 dark:text-gray-400 leading-relaxed bg-white dark:bg-gray-900/40 p-2.5 rounded-xl border border-gray-100/60 dark:border-gray-800/60">
+                                {cat.description}
+                              </p>
+                            )}
+
+                            {/* Catalog Document File */}
+                            <div className="pt-2.5 border-t border-gray-100/60 dark:border-gray-800/60 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-gray-400 font-bold text-[10px]">{isRtl ? 'فایل ضمیمه PDF:' : 'PDF File:'}</span>
+                                {cat.fileName ? (
+                                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white dark:bg-gray-900 border border-gray-100 rounded-lg">
+                                    <FileText className="w-3.5 h-3.5 text-rose-500" />
+                                    <span className="text-[10px] text-gray-700 dark:text-gray-300 font-mono max-w-[200px] truncate">{cat.fileName}</span>
+                                    {cat.fileUrl && cat.fileUrl !== '#' && (
+                                      <a href={cat.fileUrl} target="_blank" rel="noreferrer" className="text-[#26B6B6] hover:underline p-0.5">
+                                        <ExternalLink className="w-3 h-3" />
+                                      </a>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <span className="text-[10px] text-gray-400 font-light italic">{isRtl ? 'فایلی بارگذاری نشده است.' : 'No PDF attached.'}</span>
+                                )}
+                              </div>
+
+                              <div>
+                                <input 
+                                  type="file"
+                                  id={`cat-file-input-${cat.id}`}
+                                  accept=".pdf"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
+                                    const localUrl = URL.createObjectURL(file);
+                                    handleEditCatalog(cat.id, {
+                                      fileName: file.name,
+                                      fileUrl: localUrl,
+                                      fileSize: `${(file.size / (1024 * 1024)).toFixed(1)} MB`
+                                    });
+                                    alert(isRtl ? 'فایل PDF جدید به کاتالوگ پیوست شد.' : 'PDF file attached to catalog.');
+                                  }}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => document.getElementById(`cat-file-input-${cat.id}`)?.click()}
+                                  className="bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800 border rounded-xl text-[10px] px-3 py-1.5 text-gray-700 dark:text-gray-200 cursor-pointer flex items-center gap-1"
+                                >
+                                  <Upload className="w-3.5 h-3.5 text-[#26B6B6]" />
+                                  <span>{cat.fileName ? (isRtl ? 'جایگزینی PDF' : 'Replace PDF') : (isRtl ? 'بارگذاری فایل PDF' : 'Upload PDF')}</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Add New Catalog Form */}
+                <div className="bg-slate-50 dark:bg-gray-950 p-5 rounded-2xl border border-slate-100 dark:border-gray-800/80 space-y-4">
+                  <h3 className="text-xs font-bold text-gray-800 dark:text-white flex items-center gap-1.5">
+                    <Plus className="w-4 h-4 text-[#26B6B6]" />
+                    <span>{isRtl ? 'افزودن کاتالوگ یا سند فنی جدید' : 'Add New Technical Book / Catalog'}</span>
+                  </h3>
+
+                  <form onSubmit={handleAddCatalog} className="space-y-3.5 text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <input 
+                        type="text" 
+                        required
+                        placeholder={isRtl ? 'عنوان کاتالوگ به فارسی (مثال: کتابچه فنی مقاطع ترمال‌بریک)' : 'Catalog Title (Persian)'}
+                        value={newCatTitleFa}
+                        onChange={(e) => setNewCatTitleFa(e.target.value)}
+                        className="w-full p-2.5 border rounded-xl bg-white dark:bg-gray-900"
+                      />
+                      <input 
+                        type="text" 
+                        placeholder={isRtl ? 'عنوان کاتالوگ به انگلیسی' : 'Catalog Title (English)'}
+                        value={newCatTitleEn}
+                        onChange={(e) => setNewCatTitleEn(e.target.value)}
+                        className="w-full p-2.5 border rounded-xl bg-white dark:bg-gray-900 text-left"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <input 
+                        type="text" 
+                        placeholder={isRtl ? 'دسته‌بندی (مثال: راهنمای فنی / کاتالوگ محصول)' : 'Category (e.g. Technical Handbook)'}
+                        value={newCatCategory}
+                        onChange={(e) => setNewCatCategory(e.target.value)}
+                        className="w-full p-2.5 border rounded-xl bg-white dark:bg-gray-900"
+                      />
+                      <input 
+                        type="text" 
+                        placeholder={isRtl ? 'حجم فایل (مثال: 12.4 MB)' : 'File Size (e.g. 12.4 MB)'}
+                        value={newCatFileSize}
+                        onChange={(e) => setNewCatFileSize(e.target.value)}
+                        className="w-full p-2.5 border rounded-xl bg-white dark:bg-gray-900 font-mono"
+                      />
+                    </div>
+
+                    <textarea 
+                      rows={2}
+                      placeholder={isRtl ? 'توضیحات کوتاه، سرفصل‌ها و ضوابط اجرایی مربوط به این کاتالوگ...' : 'Short description, table of contents and guidelines...'}
+                      value={newCatDesc}
+                      onChange={(e) => setNewCatDesc(e.target.value)}
+                      className="w-full p-2.5 border rounded-xl bg-white dark:bg-gray-900 resize-none"
+                    />
+
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
+                      <div className="flex items-center gap-2">
+                        <input 
+                          type="file"
+                          id="new-cat-file-picker"
+                          accept=".pdf"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            setNewCatFileName(file.name);
+                            setNewCatFileSize(`${(file.size / (1024 * 1024)).toFixed(1)} MB`);
+                            setNewCatFileUrl(URL.createObjectURL(file));
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => document.getElementById('new-cat-file-picker')?.click()}
+                          className="bg-white hover:bg-slate-100 dark:bg-gray-900 text-gray-700 dark:text-gray-200 border text-xs font-bold px-3 py-2 rounded-xl cursor-pointer flex items-center gap-1.5"
+                        >
+                          <Upload className="w-3.5 h-3.5 text-[#26B6B6]" />
+                          <span>{newCatFileName ? (isRtl ? 'تغییر فایل PDF' : 'Change PDF File') : (isRtl ? 'انتخاب فایل PDF' : 'Attach PDF File')}</span>
+                        </button>
+                        {newCatFileName && (
+                          <span className="text-[10px] text-gray-500 font-mono truncate max-w-xs block">
+                            ✓ {newCatFileName}
+                          </span>
+                        )}
+                      </div>
+
+                      <button 
+                        type="submit" 
+                        className="bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-bold px-5 py-2.5 rounded-xl cursor-pointer shadow-xs"
+                      >
+                        {isRtl ? 'ثبت و انتشار کاتالوگ فنی' : 'Save & Publish Catalog'}
+                      </button>
+                    </div>
+                  </form>
                 </div>
               </div>
             )}

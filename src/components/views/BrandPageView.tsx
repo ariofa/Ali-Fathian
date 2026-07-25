@@ -34,9 +34,11 @@ import {
   Info,
   ShieldCheck,
   Award,
+  Building2,
   Search
 } from 'lucide-react';
 import { BIMObjectCard } from '../BIMObjectCard';
+import { parseVideoEmbedUrl } from '../../lib/videoUtils';
 
 interface BrandPageViewProps {
   manufacturer: Manufacturer;
@@ -301,12 +303,141 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
     }
   });
 
+  const [brandStandards, setBrandStandards] = useState(() => {
+    try {
+      const saved = localStorage.getItem('iranbimhub_mfg_standards');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error(e);
+    }
+    return [
+      { id: 'std-1', name: 'ISO 9001 (Quality Management)', code: 'ISO-9001', country: 'SGS Germany', verified: true, description: 'استاندارد جهانی مدیریت سیستم‌های کیفیت و ارزیابی فرایندها.' },
+      { id: 'std-2', name: 'CE Mark (European Conformity)', code: 'CE-AEC', country: 'TUV Nord', verified: true, description: 'نشان انطباق محصول با استانداردهای بهداشت، ایمنی و حفاظت محیط زیست اروپا.' },
+      { id: 'std-3', name: 'نشان استاندارد ملی ایران (INSO)', code: 'INSO-7090', country: 'ISIRI', verified: true, description: 'نشان استاندارد ملی اجباری برای در و پنجره‌های آلومینیومی ساختمان.' }
+    ];
+  });
+
+  const [brandAwards, setBrandAwards] = useState(() => {
+    try {
+      const saved = localStorage.getItem('iranbimhub_mfg_awards');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error(e);
+    }
+    return [
+      { 
+        id: 'p-1', 
+        titleFa: 'رتبه نخست مسابقه ملی طراحی و نمای آلومینیوم ایران', 
+        titleEn: '1st Place in Iranian Aluminum Facade Design Award', 
+        architect: 'دفتر معماری دلیری / همکاران', 
+        location: 'تهران، الهیه', 
+        year: '۱۴۰۳',
+        description: 'کسب عنوان برترین نماساز با محصول سری آلو-۹۰ در مسابقات سالانه.'
+      },
+      { 
+        id: 'p-2', 
+        titleFa: 'تندیس زرین برند محبوب سال در صنعت در و پنجره', 
+        titleEn: 'Golden Statue of Popular Brand of the Year', 
+        architect: 'صنایع ساختمانی ایران', 
+        location: 'تهران، مرکز همایش‌ها', 
+        year: '۱۴۰۴',
+        description: 'انتخاب مردمی و مهندسی برند برتر تولیدکننده پروفیل اختصاصی.'
+      }
+    ];
+  });
+
+  const [brandProjects, setBrandProjects] = useState(() => {
+    try {
+      const saved = localStorage.getItem('iranbimhub_mfg_projects');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error(e);
+    }
+    return [
+      { 
+        id: 'proj-1', 
+        titleFa: 'مجتمع تجاری اداری روشا تهران', 
+        titleEn: 'Rosha Department Store Tehran', 
+        architect: 'مهندس محمدرضا نیکبخت', 
+        location: 'تهران، نیاوران', 
+        year: '۱۴۰۲',
+        description: 'اجرای نمای شیشه‌ای و کرتین‌وال آلومینیومی با مقاطع اختصاصی آلوپن.',
+        fileName: 'Rosha_Project_Brief.pdf',
+        fileUrl: '#'
+      },
+      { 
+        id: 'proj-2', 
+        titleFa: 'برج آرمیتاژ گلشن مشهد', 
+        titleEn: 'Armitage Golshan Tower Mashhad', 
+        architect: 'دفتر فنی آرمیتاژ', 
+        location: 'مشهد، هفت تیر', 
+        year: '۱۴۰۳',
+        description: 'پوشش کامل پنجره‌های ترمال‌بریک کشویی و لولایی با ضریب عایق بسیار بالا.',
+        fileName: 'Armitage_Tower_Specs.pdf',
+        fileUrl: '#'
+      }
+    ];
+  });
+
+  const [brandCatalogs, setBrandCatalogs] = useState(() => {
+    try {
+      const saved = localStorage.getItem('iranbimhub_mfg_catalogs');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error(e);
+    }
+    return [
+      {
+        id: 'cat-1',
+        titleFa: 'دفترچه راهنمای فنی و جزئیات اجرایی پروفیل‌های آلوپن',
+        titleEn: 'Alupan Technical Handbook & Execution Details',
+        category: 'راهنمای فنی / Technical Handbook',
+        fileSize: '14.8 MB',
+        description: 'کاتالوگ جامع مقاطع پروفیل‌های ترمال‌بریک، جزئیات آب‌بندی، هواپذیری و ضرایب انتقال حرارت U-Value.',
+        fileName: 'Alupan_Technical_Handbook_2026.pdf',
+        fileUrl: '#'
+      },
+      {
+        id: 'cat-2',
+        titleFa: 'کاتالوگ جامع سیستم‌های در و پنجره دوجداره آلومینیومی',
+        titleEn: 'Comprehensive Aluminum Doors & Windows Catalog',
+        category: 'کاتالوگ محصولات / Product Catalog',
+        fileSize: '8.2 MB',
+        description: 'کاتالوگ اصلی معرفی ابعاد استاندارد، تنوع رنگ آنادایز و پودری و یراق‌آلات سازگار.',
+        fileName: 'Alupan_Window_Catalog.pdf',
+        fileUrl: '#'
+      },
+      {
+        id: 'cat-3',
+        titleFa: 'جدول محاسبات بار باد و ضرایب حرارتی فریم‌های نما',
+        titleEn: 'Wind Load & Thermal Resistance Calculation Tables',
+        category: 'جدول محاسباتی / Calculation Sheets',
+        fileSize: '4.5 MB',
+        description: 'دستورالعمل‌ها و جداول فنی محاسبه ممان اینرسی و مقاومت فریم در برابر بارهای سازه‌ای.',
+        fileName: 'Wind_Load_Tables.pdf',
+        fileUrl: '#'
+      }
+    ];
+  });
+
   useEffect(() => {
     const handleProfileSync = () => {
       try {
         const saved = localStorage.getItem(`iranbimhub_mfg_profile_${manufacturer.id}`) ||
           (manufacturer.id === 'm1' ? localStorage.getItem('iranbimhub_mfg_profile') : null);
         if (saved) setSavedProfile(JSON.parse(saved));
+
+        const savedStds = localStorage.getItem('iranbimhub_mfg_standards');
+        if (savedStds) setBrandStandards(JSON.parse(savedStds));
+
+        const savedAwards = localStorage.getItem('iranbimhub_mfg_awards');
+        if (savedAwards) setBrandAwards(JSON.parse(savedAwards));
+
+        const savedProjects = localStorage.getItem('iranbimhub_mfg_projects');
+        if (savedProjects) setBrandProjects(JSON.parse(savedProjects));
+
+        const savedCatalogs = localStorage.getItem('iranbimhub_mfg_catalogs');
+        if (savedCatalogs) setBrandCatalogs(JSON.parse(savedCatalogs));
       } catch (e) {
         console.error(e);
       }
@@ -319,6 +450,8 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
     ...manufacturer,
     nameFa: savedProfile?.nameFa || manufacturer.nameFa,
     nameEn: savedProfile?.nameEn || manufacturer.nameEn,
+    sloganFa: savedProfile?.sloganFa || ext.sloganFa,
+    sloganEn: savedProfile?.sloganEn || ext.sloganEn,
     descriptionFa: savedProfile?.descFa || manufacturer.descriptionFa,
     descriptionEn: savedProfile?.descEn || manufacturer.descriptionEn,
     website: savedProfile?.website !== undefined ? savedProfile.website : manufacturer.website,
@@ -334,14 +467,37 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
     portfolioPdfUrl: savedProfile?.portfolioPdfUrl !== undefined ? savedProfile.portfolioPdfUrl : 'https://alupan.com/catalog.pdf',
   };
 
-  const activeSocials: Record<string, string> = {
-    instagram: savedProfile?.instagram !== undefined ? savedProfile.instagram : (ext.socials.instagram || ''),
-    linkedin: savedProfile?.linkedin !== undefined ? savedProfile.linkedin : (ext.socials.linkedin || ''),
-    youtube: savedProfile?.youtube !== undefined ? savedProfile.youtube : (ext.socials.youtube || ''),
-    pinterest: savedProfile?.pinterest !== undefined ? savedProfile.pinterest : (ext.socials.pinterest || ''),
-    telegram: savedProfile?.telegram !== undefined ? savedProfile.telegram : (ext.socials.telegram || ''),
-    twitter: savedProfile?.twitter !== undefined ? savedProfile.twitter : (ext.socials.twitter || ''),
+  const getActiveSocials = () => {
+    if (!savedProfile) {
+      return {
+        instagram: ext.socials.instagram || '',
+        linkedin: ext.socials.linkedin || '',
+        youtube: ext.socials.youtube || '',
+        pinterest: ext.socials.pinterest || '',
+        telegram: ext.socials.telegram || '',
+        twitter: ext.socials.twitter || '',
+      };
+    }
+
+    const socials: Record<string, string> = {};
+    if (Array.isArray(savedProfile.socialLinks)) {
+      savedProfile.socialLinks.forEach((row: any) => {
+        if (row.platform && row.url && row.url.trim() !== '') {
+          socials[row.platform] = row.url;
+        }
+      });
+    } else {
+      if (savedProfile.instagram) socials.instagram = savedProfile.instagram;
+      if (savedProfile.linkedin) socials.linkedin = savedProfile.linkedin;
+      if (savedProfile.youtube) socials.youtube = savedProfile.youtube;
+      if (savedProfile.pinterest) socials.pinterest = savedProfile.pinterest;
+      if (savedProfile.telegram) socials.telegram = savedProfile.telegram;
+      if (savedProfile.twitter) socials.twitter = savedProfile.twitter;
+    }
+    return socials;
   };
+
+  const activeSocials = getActiveSocials();
 
   // Handle follow toggle
   const handleFollowToggle = () => {
@@ -478,9 +634,80 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
     }, 2000);
   };
 
-  // Video Clips playlist state
-  const [activeClip, setActiveClip] = useState(ext.clips[0] || null);
+  // Computed promotional presentation videos list linked from Manufacturer Dashboard
+  const displayVideos = React.useMemo(() => {
+    // 1. Check savedProfile promoVideos from Manufacturer Dashboard
+    if (savedProfile && Array.isArray(savedProfile.promoVideos)) {
+      return savedProfile.promoVideos
+        .filter((v: any) => v && v.url && v.url.trim() !== '')
+        .map((v: any, index: number) => {
+          const parsed = parseVideoEmbedUrl(v.url);
+          return {
+            id: v.id || `v-${index}`,
+            titleFa: v.titleFa || `ویدیو معرفی شماره ${index + 1}`,
+            titleEn: v.titleEn || `Presentation Video #${index + 1}`,
+            url: v.url,
+            embedUrl: parsed.embedUrl,
+            type: parsed.type,
+            priority: index + 1,
+            thumbnailUrl: activeMfg.coverUrl || 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80',
+            duration: '03:30'
+          };
+        });
+    }
+
+    // 2. Default fallback to ext.clips if savedProfile hasn't configured promoVideos
+    if (ext.clips && ext.clips.length > 0) {
+      return ext.clips.map((c: any, index: number) => {
+        const videoUrl = c.url || (c.aparatId ? `https://www.aparat.com/v/${c.aparatId}` : '');
+        const parsed = parseVideoEmbedUrl(videoUrl);
+        return {
+          id: c.id,
+          titleFa: c.titleFa,
+          titleEn: c.titleEn,
+          url: videoUrl,
+          embedUrl: parsed.embedUrl,
+          type: parsed.type === 'invalid' ? 'aparat' : parsed.type,
+          priority: index + 1,
+          thumbnailUrl: c.thumbnailUrl || activeMfg.coverUrl,
+          duration: c.duration || '03:45'
+        };
+      });
+    }
+
+    // 3. Fallback to promoVideoUrl
+    if (activeMfg.promoVideoUrl && activeMfg.promoVideoUrl.trim() !== '') {
+      const parsed = parseVideoEmbedUrl(activeMfg.promoVideoUrl);
+      if (parsed.type !== 'invalid') {
+        return [{
+          id: 'promo-1',
+          titleFa: activeMfg.nameFa + ' - ' + (isRtl ? 'ویدیو رسمی معرفی' : 'Official Presentation Video'),
+          titleEn: activeMfg.nameEn + ' - Official Presentation Video',
+          url: activeMfg.promoVideoUrl,
+          embedUrl: parsed.embedUrl,
+          type: parsed.type,
+          priority: 1,
+          thumbnailUrl: activeMfg.coverUrl,
+          duration: '04:15'
+        }];
+      }
+    }
+
+    return [];
+  }, [savedProfile, ext.clips, activeMfg.promoVideoUrl, activeMfg.coverUrl, activeMfg.nameFa, activeMfg.nameEn, isRtl]);
+
+  const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
   const [isPlayingVideo, setIsPlayingVideo] = useState(false);
+
+  // Active video selection (defaults to 1st priority video)
+  const activeVideo = React.useMemo(() => {
+    if (displayVideos.length === 0) return null;
+    if (selectedVideoId) {
+      const found = displayVideos.find(v => v.id === selectedVideoId);
+      if (found) return found;
+    }
+    return displayVideos[0];
+  }, [displayVideos, selectedVideoId]);
 
   // Filter BIM Objects related specifically to this manufacturer
   const manufacturerObjects = BIM_OBJECTS.filter(obj => obj.manufacturerId === manufacturer.id);
@@ -588,7 +815,7 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
           </button>
 
           <span className="text-[10px] bg-[#26B6B6] text-white px-3 py-1.5 rounded-full shadow-md font-bold uppercase tracking-wider">
-            {activeMfg.tier || manufacturer.tier} {isRtl ? 'شریک طلایی' : 'Gold Partner'}
+            {isRtl ? activeMfg.nameFa : activeMfg.nameEn}
           </span>
         </div>
       </div>
@@ -621,7 +848,7 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
                   )}
                 </div>
                 <p className="text-xs sm:text-sm font-bold text-[#26B6B6] tracking-wide">
-                  {isRtl ? ext.sloganFa : ext.sloganEn}
+                  {isRtl ? activeMfg.sloganFa : activeMfg.sloganEn}
                 </p>
                 <div className="flex items-center gap-3 text-[11px] text-gray-400 font-bold font-mono">
                   <span>{followersCount} {isRtl ? 'دنبال‌کننده' : 'followers'}</span>
@@ -751,6 +978,14 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
               {Object.entries(activeSocials).map(([key, url]) => {
                 if (!url || typeof url !== 'string' || !url.trim()) return null;
 
+                const ensureAbsoluteUrl = (u: string) => {
+                  const trimmed = u.trim();
+                  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+                    return trimmed;
+                  }
+                  return `https://${trimmed}`;
+                };
+
                 let iconEl = null;
                 let colorClass = 'hover:text-[#26B6B6] hover:bg-[#26B6B6]/10';
                 
@@ -784,7 +1019,7 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
                 return (
                   <a
                     key={key}
-                    href={url}
+                    href={ensureAbsoluteUrl(url)}
                     target="_blank"
                     rel="noreferrer"
                     className={`px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-150 dark:border-gray-700/60 rounded-xl text-xs font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1.5 transition-all duration-200 cursor-pointer capitalize active:scale-95 ${colorClass}`}
@@ -801,375 +1036,9 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
         </div>
       </div>
 
-      {/* 3. Dynamic Curated Collections section (AEC collections) */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
-        <div className="border-s-4 border-[#26B6B6] pl-3.5 pr-3.5">
-          <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">
-            {isRtl ? 'آلبوم دسته‌بندی‌ها و کلکسیون‌ها' : 'Curated Brand Collections'}
-          </h2>
-          <p className="text-xs text-gray-400 mt-1">
-            {isRtl ? 'مروری بر دسته‌بندی‌های کلیدی و پکیج‌های تخصصی این برند' : 'Explore specific product albums and catalog sets designed by the brand'}
-          </p>
-        </div>
 
-        <div className="space-y-12">
-          {ext.collections.map(col => {
-            const colObjects = getCollectionObjects(col.id, manufacturerObjects);
-            return (
-              <div key={col.id} className="space-y-4">
-                <div className="flex justify-between items-center border-b border-gray-150 dark:border-gray-800 pb-2">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-[#26B6B6]/5 dark:bg-[#26B6B6]/10 rounded-lg flex items-center justify-center shrink-0">
-                      <Layers className="w-5 h-5 text-[#26B6B6]" />
-                    </div>
-                    <div>
-                      <h3 className="font-extrabold text-base text-gray-900 dark:text-white leading-tight">
-                        {isRtl ? col.titleFa : col.titleEn}
-                      </h3>
-                      <p className="text-[11px] text-gray-400 mt-0.5 font-light">
-                        {isRtl ? `شامل جدیدترین مدل‌های بیم اختصاصی این گروه` : `Including the latest bespoke BIM models from this collection`}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  {/* View All link */}
-                  <button
-                    onClick={() => {
-                      // Scroll to catalog section smoothly
-                      const catalogEl = document.getElementById('manufacturer-catalog-section');
-                      if (catalogEl) {
-                        catalogEl.scrollIntoView({ behavior: 'smooth' });
-                      }
-                    }}
-                    className="text-xs font-bold text-[#26B6B6] hover:underline flex items-center gap-0.5 cursor-pointer"
-                  >
-                    <span>{isRtl ? 'مشاهده همه محصولات' : 'View All'}</span>
-                    <ChevronRight className={`w-3.5 h-3.5 ${isRtl ? 'rotate-180' : ''}`} />
-                  </button>
-                </div>
 
-                {/* Horizontal scroll of BIMObjectCards */}
-                <div className="relative">
-                  <div className="flex gap-6 overflow-x-auto pb-4 pt-1 snap-x no-scrollbar">
-                    {colObjects.map(obj => (
-                      <div key={obj.id} className="w-[280px] sm:w-[320px] shrink-0 snap-start">
-                        <BIMObjectCard
-                          object={obj}
-                          isSaved={savedObjects.includes(obj.id)}
-                          onToggleSave={() => onToggleSave(obj.id)}
-                          onClick={() => onSelectObject(obj)}
-                          onQuickDownload={(fmt) => onQuickDownload(obj, fmt)}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* 3.5 Trust & Credibility Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-gray-150 dark:border-gray-800 pt-10">
-        
-        {/* Standards & Certifications */}
-        <div className="space-y-4">
-          <div className="border-s-4 border-emerald-500 pl-3.5 pr-3.5">
-            <h3 className="text-lg font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-emerald-500" />
-              <span>{isRtl ? 'استانداردها و گواهینامه‌های فنی' : 'Standards & Certifications'}</span>
-            </h3>
-            <p className="text-xs text-gray-400 mt-1">
-              {isRtl ? 'سرتیفیکیت‌ها و تاییدیه صلاحیت‌های رسمی صادر شده از مراجع نظارتی' : 'Verified standard badges and technical quality certifications'}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            {[
-              { id: 'std-1', nameFa: 'استاندارد ملی ایران (INSO)', nameEn: 'Iran National Standard (INSO)', code: 'INSO-7090', issuer: 'ISIRI', verified: true },
-              { id: 'std-2', nameFa: 'مدیریت کیفیت ISO 9001:2015', nameEn: 'ISO 9001 Quality Management', code: 'ISO-9001', issuer: 'SGS Germany', verified: true },
-              { id: 'std-3', nameFa: 'انطباق اتحادیه اروپا CE Mark', nameEn: 'CE European Conformity Mark', code: 'CE-AEC-2026', issuer: 'TUV Nord', verified: true },
-              { id: 'std-4', nameFa: 'گواهینامه فنی مرکز تحقیقات راه و مسکن', nameEn: 'BHRC Technical Certificate', code: 'BHRC-A2', issuer: 'BHRC', verified: manufacturer.id === 'm1' || manufacturer.id === 'm2' }
-            ].map(std => (
-              <div 
-                key={std.id}
-                className="bg-slate-50/50 dark:bg-gray-900/40 border border-gray-150 dark:border-gray-800 rounded-xl p-3.5 flex gap-3 items-start hover:border-emerald-500/20 transition-all shadow-2xs"
-              >
-                <div className={`p-1.5 rounded-lg shrink-0 mt-0.5 ${std.verified ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600' : 'bg-amber-50 dark:bg-amber-950/20 text-amber-600'}`}>
-                  <ShieldCheck className="w-4 h-4" />
-                </div>
-                <div className="min-w-0">
-                  <h4 className="text-[11.5px] font-extrabold text-gray-800 dark:text-gray-200 truncate">
-                    {isRtl ? std.nameFa : std.nameEn}
-                  </h4>
-                  <p className="text-[9.5px] text-gray-400 mt-0.5 font-mono">Code: {std.code}</p>
-                  <span className="inline-block text-[8px] bg-white dark:bg-gray-850 border border-gray-150 dark:border-gray-700 text-gray-500 px-1.5 py-0.5 rounded mt-1.5 font-bold uppercase font-mono">
-                    {std.issuer}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Awards & Portfolio */}
-        <div className="space-y-4">
-          <div className="border-s-4 border-amber-500 pl-3.5 pr-3.5">
-            <h3 className="text-lg font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
-              <Award className="w-5 h-5 text-amber-500" />
-              <span>{isRtl ? 'پروژه‌های شاخص و جوایز برتر' : 'Key Portfolio & Awards'}</span>
-            </h3>
-            <p className="text-xs text-gray-400 mt-1">
-              {isRtl ? 'پروژه‌های عمرانی برتر کشور که این محصولات در آن‌ها به کار رفته است' : 'Prominent regional architectures specifying these branded solutions'}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            {[
-              { id: 'p-1', titleFa: 'پروژه مجتمع رویال الهیه', titleEn: 'Royal Elahiyeh Residences', roleFa: 'نمای آلومینیومی و بازشوها', roleEn: 'Bespoke Facades Spec', image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=200&q=80' },
-              { id: 'p-2', titleFa: 'هتل ۵ ستاره روتانا مشهد', titleEn: '5-Star Rotana Hotel', roleFa: 'سیستم‌های حرارتی و تاسیسات', roleEn: 'Boiler & Heating Network', image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=200&q=80' }
-            ].map(proj => (
-              <div 
-                key={proj.id}
-                className="bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-xl overflow-hidden flex hover:border-amber-500/20 hover:shadow-2xs transition-all"
-              >
-                <div className="w-16 h-16 shrink-0 bg-gray-100 overflow-hidden">
-                  <img src={proj.image} alt={proj.titleEn} className="w-full h-full object-cover" />
-                </div>
-                <div className="p-2.5 min-w-0 flex flex-col justify-center">
-                  <h4 className="text-[11px] font-extrabold text-gray-800 dark:text-gray-150 truncate leading-snug">
-                    {isRtl ? proj.titleFa : proj.titleEn}
-                  </h4>
-                  <p className="text-[9.5px] text-[#26B6B6] mt-0.5 font-medium truncate">
-                    {isRtl ? proj.roleFa : proj.roleEn}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* 4. Advertising/Introduction Video Clips from Aparat (Workable Mock Player) */}
-      {(ext.clips.length > 0 || activeMfg.promoVideoUrl) && (
-        <div className="bg-gray-50 dark:bg-gray-900/50 border-y border-gray-100 dark:border-gray-800/60 py-12 my-6">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-            <div className="flex justify-between items-end">
-              <div className="border-s-4 border-[#26B6B6] pl-3.5 pr-3.5">
-                <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
-                  <Video className="w-5 h-5 text-[#26B6B6]" />
-                  <span>{isRtl ? 'ویدیوهای معرفی و راهنمای مدل‌سازی' : 'Brand Presentation & Modeling Guides'}</span>
-                </h2>
-                <p className="text-xs text-gray-400 mt-1">
-                  {isRtl ? 'ویدیوهای معرفی، تست محصول و دستورالعمل‌های فنی مدل‌سازی' : 'Official clips, product strength tests and instructional modeling movies'}
-                </p>
-              </div>
-
-              <span className="text-[10px] bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 px-3 py-1.5 border border-rose-100 dark:border-rose-900/40 rounded-lg font-bold font-mono">
-                {isRtl ? 'کانال ویدیویی رسمی' : 'Official Media Channel'}
-              </span>
-            </div>
-
-            {/* Main Interactive Video Player Structure */}
-            {(activeClip || activeMfg.promoVideoUrl) && (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Active Player Box */}
-                <div className="lg:col-span-2 space-y-4">
-                  <div className="relative aspect-16/9 bg-black rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-800 group">
-                    {isPlayingVideo ? (
-                      activeMfg.promoVideoUrl && (activeMfg.promoVideoUrl.includes('youtube.com') || activeMfg.promoVideoUrl.includes('youtu.be') || activeMfg.promoVideoUrl.includes('aparat.com')) ? (
-                        <iframe 
-                          src={
-                            activeMfg.promoVideoUrl.includes('aparat.com/v/') 
-                              ? `https://www.aparat.com/video/video/embed/videohash/${activeMfg.promoVideoUrl.split('aparat.com/v/')[1]?.split('/')[0]?.split('?')[0]}/vt/frame`
-                              : activeMfg.promoVideoUrl.includes('youtube.com/watch?v=')
-                              ? `https://www.youtube.com/embed/${activeMfg.promoVideoUrl.split('watch?v=')[1]?.split('&')[0]}`
-                              : activeMfg.promoVideoUrl
-                          } 
-                          title="Promo Video" 
-                          className="w-full h-full border-0" 
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        ></iframe>
-                      ) : (
-                        /* High fidelity active player interface with video stream loop simulations */
-                        <div className="w-full h-full bg-slate-900 flex flex-col items-center justify-center text-white relative animate-fadeIn">
-                          <img 
-                            src={activeClip?.thumbnailUrl || activeMfg.coverUrl} 
-                            alt="Video playing bg" 
-                            className="absolute inset-0 w-full h-full object-cover opacity-15 blur-xs"
-                          />
-                          <div className="z-10 text-center space-y-4 px-6">
-                            <div className="w-16 h-16 bg-[#26B6B6]/25 border border-[#26B6B6]/50 rounded-full flex items-center justify-center mx-auto animate-pulse">
-                              <Video className="w-7 h-7 text-[#26B6B6]" />
-                            </div>
-                            <div className="space-y-1">
-                              <p className="font-extrabold text-sm sm:text-base text-[#26B6B6]">
-                                {isRtl ? 'در حال پخش ویدیو رسمی معرفی...' : 'Playing Official Presentation Video...'}
-                              </p>
-                              <p className="text-xs text-gray-400 max-w-md font-light">
-                                {isRtl ? (activeClip?.titleFa || activeMfg.nameFa) : (activeClip?.titleEn || activeMfg.nameEn)}
-                              </p>
-                            </div>
-                            <button
-                              onClick={() => setIsPlayingVideo(false)}
-                              className="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-4 py-1.5 rounded-full text-xs font-bold cursor-pointer transition-colors"
-                            >
-                              {isRtl ? 'توقف پخش' : 'Pause / Reset'}
-                            </button>
-                          </div>
-
-                          <div className="absolute top-4 right-4 bg-rose-600/90 text-white font-black text-[9px] px-2 py-1 rounded shadow-md z-10 flex items-center gap-1">
-                            <span className="w-2 h-2 bg-white rounded-full animate-ping"></span>
-                            <span>Aparat / YouTube</span>
-                          </div>
-                        </div>
-                      )
-                    ) : (
-                      /* Custom cover preview before playing */
-                      <div className="absolute inset-0 w-full h-full">
-                        <img 
-                          src={activeClip?.thumbnailUrl || activeMfg.coverUrl} 
-                          alt={isRtl ? (activeClip?.titleFa || activeMfg.nameFa) : (activeClip?.titleEn || activeMfg.nameEn)}
-                          className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
-                        />
-                        <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors flex items-center justify-center">
-                          <button
-                            onClick={() => setIsPlayingVideo(true)}
-                            className="w-16 h-16 bg-[#26B6B6] hover:bg-[#1e9494] text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all cursor-pointer group-hover:ring-4 group-hover:ring-[#26B6B6]/30"
-                          >
-                            <Play className="w-6 h-6 fill-current ml-1" />
-                          </button>
-                        </div>
-
-                        {/* Duration label */}
-                        <span className="absolute bottom-4 left-4 bg-black/70 text-white text-[10px] font-mono px-2 py-1 rounded font-bold">
-                          {activeClip?.duration || '03:45'}
-                        </span>
-
-                        {/* Aparat / Video Badge */}
-                        <div className="absolute top-4 right-4 bg-rose-600 text-white font-extrabold text-[9px] px-2 py-1 rounded shadow-md">
-                          {isRtl ? 'ویدیو رسمی' : 'Official Video'}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <h3 className="font-extrabold text-sm sm:text-base text-gray-900 dark:text-white leading-snug">
-                    {isRtl ? (activeClip?.titleFa || activeMfg.nameFa) : (activeClip?.titleEn || activeMfg.nameEn)}
-                  </h3>
-                </div>
-
-                {/* Sidebar Playlist Section */}
-                <div className="space-y-4">
-                  <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                    {isRtl ? 'لیست پخش کلیپ‌ها' : 'Video Clip Playlist'}
-                  </h4>
-
-                  <div className="space-y-3 max-h-[340px] overflow-y-auto pr-1">
-                    {ext.clips.map(clip => {
-                      const isActive = clip.id === activeClip.id;
-                      return (
-                        <div
-                          key={clip.id}
-                          onClick={() => {
-                            setActiveClip(clip);
-                            setIsPlayingVideo(false);
-                          }}
-                          className={`flex gap-3 p-2.5 rounded-xl border transition-all cursor-pointer text-start ${
-                            isActive 
-                              ? 'bg-[#26B6B6]/5 dark:bg-[#26B6B6]/10 border-[#26B6B6]/30' 
-                              : 'bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 hover:border-[#26B6B6]/20'
-                          }`}
-                        >
-                          <div className="relative w-24 h-14 bg-gray-100 rounded-lg overflow-hidden shrink-0">
-                            <img 
-                              src={clip.thumbnailUrl} 
-                              alt="thumbnail" 
-                              className="w-full h-full object-cover"
-                            />
-                            <div className="absolute inset-0 bg-black/10 flex items-center justify-center">
-                              <Play className="w-4 h-4 text-white fill-current opacity-80" />
-                            </div>
-                            <span className="absolute bottom-1 left-1 bg-black/70 text-white text-[8px] font-mono px-1 rounded">
-                              {clip.duration}
-                            </span>
-                          </div>
-
-                          <div className="flex-1 min-w-0 flex flex-col justify-between">
-                            <h5 className={`text-[11px] font-bold leading-snug line-clamp-2 ${isActive ? 'text-[#26B6B6]' : 'text-gray-850 dark:text-gray-200'}`}>
-                              {isRtl ? clip.titleFa : clip.titleEn}
-                            </h5>
-                            <span className="text-[9px] text-gray-400">aparat.com/{clip.aparatId}</span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* 5. Bookshelf PDF documents & Catalog Section */}
-      {ext.bookshelf.length > 0 && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-          <div className="border-s-4 border-[#26B6B6] pl-3.5 pr-3.5">
-            <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-[#26B6B6]" />
-              <span>{isRtl ? 'کتابخانه کاتالوگ‌ها و کتب فنی' : 'Technical Bookshelf & Catalogs'}</span>
-            </h2>
-            <p className="text-xs text-gray-400 mt-1">
-              {isRtl ? 'دانلود مستقیم کاتالوگ‌های فنی، جداول ضرایب انتقال حرارت و استانداردهای فیزیکی' : 'Direct download of corporate brochures, thermal conductivity datasheets and physical codes'}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {ext.bookshelf.map(book => (
-              <div 
-                key={book.id}
-                className="bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-xl p-4 flex gap-4 hover:border-[#26B6B6]/30 hover:shadow-xs transition-all relative group"
-              >
-                {/* Book PDF Cover Mock */}
-                <div className="w-20 aspect-[3/4] bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30 rounded-lg overflow-hidden shrink-0 flex flex-col justify-between p-1.5 shadow-2xs relative">
-                  <div className="flex justify-between items-start">
-                    <span className="bg-red-500 text-white text-[7px] font-bold px-1 rounded">PDF</span>
-                  </div>
-                  <FileText className="w-8 h-8 text-red-500 mx-auto" />
-                  <span className="text-[7px] text-gray-400 text-center font-mono truncate">{book.fileSize}</span>
-                </div>
-
-                {/* Info and action */}
-                <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
-                  <div className="space-y-1">
-                    <h4 className="text-xs font-black text-gray-800 dark:text-gray-200 line-clamp-2 leading-relaxed">
-                      {book.title}
-                    </h4>
-                    <p className="text-[10px] text-gray-400">
-                      {isRtl ? 'کاتالوگ رسمی ابعاد و ضرایب' : 'Official coordinates & handbook'}
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      alert(isRtl ? `در حال آماده‌سازی و دانلود کاتالوگ: ${book.title}` : `Preparing download for catalog: ${book.title}`);
-                    }}
-                    className="flex items-center gap-1 text-[10px] text-[#26B6B6] font-black hover:underline cursor-pointer w-fit"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>{isRtl ? 'دانلود سند PDF' : 'Download Document'}</span>
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* 6. Active BIM Objects Catalog grid (use Bimobject as source) */}
+      {/* 3. Active BIM Objects Catalog grid (use Bimobject as source) */}
       <div id="manufacturer-catalog-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 scroll-mt-20">
         <div className="border-s-4 border-[#26B6B6] pl-3.5 pr-3.5 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -1260,6 +1129,467 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
           </div>
         )}
       </div>
+
+      {/* 3.5 Trust & Credibility Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8 border-t border-gray-150 dark:border-gray-800 pt-10">
+        
+        {/* Standards & Certifications */}
+        <div className="space-y-4">
+          <div className="border-s-4 border-emerald-500 pl-3.5 pr-3.5">
+            <h3 className="text-lg font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-emerald-500" />
+              <span>{isRtl ? 'استانداردها و گواهینامه‌های فنی' : 'Standards & Certifications'}</span>
+            </h3>
+            <p className="text-xs text-gray-400 mt-1">
+              {isRtl ? 'سرتیفیکیت‌ها و تاییدیه صلاحیت‌های رسمی صادر شده از مراجع نظارتی' : 'Verified standard badges and technical quality certifications'}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3.5">
+            {brandStandards.map(std => (
+              <div 
+                key={std.id}
+                className="bg-slate-50/50 dark:bg-gray-900/40 border border-gray-150 dark:border-gray-800 rounded-xl p-3.5 flex gap-3 items-start hover:border-emerald-500/20 transition-all shadow-2xs"
+              >
+                <div className={`p-1.5 rounded-lg shrink-0 mt-0.5 ${std.verified ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600' : 'bg-amber-50 dark:bg-amber-950/20 text-amber-600'}`}>
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-[11.5px] font-extrabold text-gray-800 dark:text-gray-200 leading-snug">
+                    {std.name}
+                  </h4>
+                  {std.code && <p className="text-[9.5px] text-gray-400 mt-0.5 font-mono">Code: {std.code}</p>}
+                  {std.description && (
+                    <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 line-clamp-2 leading-relaxed">{std.description}</p>
+                  )}
+                  <div className="flex items-center justify-between mt-2 pt-1 border-t border-gray-100 dark:border-gray-800">
+                    <span className="text-[8px] bg-white dark:bg-gray-850 border border-gray-150 dark:border-gray-700 text-gray-500 px-1.5 py-0.5 rounded font-bold uppercase font-mono">
+                      {std.country || 'ISIRI'}
+                    </span>
+                    <span className={`text-[8px] font-bold ${std.verified ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                      {std.verified ? (isRtl ? 'تایید شده ✓' : 'Verified ✓') : (isRtl ? 'در حال بررسی ⏳' : 'Under Review ⏳')}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Honors & Awards Section (افتخارات و نشان‌ها) */}
+        <div className="space-y-4">
+          <div className="border-s-4 border-amber-500 pl-3.5 pr-3.5">
+            <h3 className="text-lg font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
+              <Award className="w-5 h-5 text-amber-500" />
+              <span>{isRtl ? 'افتخارات و نشان‌ها' : 'Honors & Awards'}</span>
+            </h3>
+            <p className="text-xs text-gray-400 mt-1">
+              {isRtl ? 'تندیس‌ها، جوایز ملی و افتخارات کسب شده توسط این برند' : 'Statues, national awards and recognized achievements earned by this brand'}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3.5">
+            {brandAwards.map(award => (
+              <div 
+                key={award.id}
+                className="bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-xl p-3.5 hover:border-amber-500/30 hover:shadow-2xs transition-all flex flex-col justify-between space-y-2"
+              >
+                <div className="space-y-2">
+                  <div className="flex items-start gap-2.5">
+                    <div className="p-2 bg-amber-50 dark:bg-amber-950/40 text-amber-600 rounded-xl shrink-0">
+                      <Award className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="text-[11.5px] font-extrabold text-gray-800 dark:text-gray-150 leading-snug">
+                        {isRtl ? (award.titleFa || award.titleEn) : (award.titleEn || award.titleFa)}
+                      </h4>
+                      <div className="flex flex-wrap items-center gap-1.5 text-[9.5px] text-gray-400 mt-1">
+                        {award.architect && <span>{award.architect}</span>}
+                        {award.location && (
+                          <>
+                            <span>•</span>
+                            <span>{award.location}</span>
+                          </>
+                        )}
+                        {award.year && (
+                          <>
+                            <span>•</span>
+                            <span className="font-mono bg-amber-500/10 text-amber-600 dark:text-amber-400 px-1.5 py-0.5 rounded font-bold">{award.year}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  {award.description && (
+                    <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-relaxed bg-gray-50/50 dark:bg-gray-850 p-2 rounded-lg border border-gray-100 dark:border-gray-800">
+                      {award.description}
+                    </p>
+                  )}
+                </div>
+                {award.fileUrl && award.fileUrl !== '#' && (
+                  <a
+                    href={award.fileUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-[9.5px] text-[#26B6B6] font-bold hover:underline pt-1"
+                  >
+                    <Download className="w-3 h-3" />
+                    <span>{award.fileName || (isRtl ? 'دانلود لوح / گواهی' : 'Download Certificate')}</span>
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Executed Projects Section (پروژه‌های اجرایی) */}
+        <div className="space-y-4">
+          <div className="border-s-4 border-[#26B6B6] pl-3.5 pr-3.5">
+            <h3 className="text-lg font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-[#26B6B6]" />
+              <span>{isRtl ? 'پروژه‌های اجرایی' : 'Executed Projects'}</span>
+            </h3>
+            <p className="text-xs text-gray-400 mt-1">
+              {isRtl ? 'پروژه‌های بکارگیرنده محصولات این برند در سطح کشور' : 'Key architectural developments specifying brand products'}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3.5">
+            {brandProjects.map(proj => (
+              <div 
+                key={proj.id}
+                className="bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-xl p-3.5 hover:border-[#26B6B6]/30 hover:shadow-2xs transition-all flex flex-col justify-between space-y-2"
+              >
+                <div className="space-y-2">
+                  <div className="flex items-start gap-2.5">
+                    <div className="p-2 bg-teal-50 dark:bg-teal-950/40 text-[#26B6B6] rounded-xl shrink-0">
+                      <Building2 className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="text-[11.5px] font-extrabold text-gray-800 dark:text-gray-150 leading-snug">
+                        {isRtl ? (proj.titleFa || proj.titleEn) : (proj.titleEn || proj.titleFa)}
+                      </h4>
+                      <div className="flex flex-wrap items-center gap-1.5 text-[9.5px] text-gray-400 mt-1">
+                        {proj.architect && <span>{proj.architect}</span>}
+                        {proj.location && (
+                          <>
+                            <span>•</span>
+                            <span>{proj.location}</span>
+                          </>
+                        )}
+                        {proj.year && (
+                          <>
+                            <span>•</span>
+                            <span className="font-mono bg-teal-500/10 text-[#26B6B6] dark:text-teal-400 px-1.5 py-0.5 rounded font-bold">{proj.year}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  {proj.description && (
+                    <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-relaxed bg-gray-50/50 dark:bg-gray-850 p-2 rounded-lg border border-gray-100 dark:border-gray-800">
+                      {proj.description}
+                    </p>
+                  )}
+                </div>
+                {proj.fileUrl && proj.fileUrl !== '#' && (
+                  <a
+                    href={proj.fileUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-[9.5px] text-[#26B6B6] font-bold hover:underline pt-1"
+                  >
+                    <Download className="w-3 h-3" />
+                    <span>{proj.fileName || (isRtl ? 'دانلود مستندات پروژه' : 'Download Project Document')}</span>
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
+
+      {/* 4. Advertising/Introduction Video Clips & Interactive Player (Selector: div#root > ... > div:nth-of-type(5)) */}
+      {displayVideos.length > 0 && activeVideo && (
+        <div className="bg-gray-50 dark:bg-gray-900/50 border-y border-gray-100 dark:border-gray-800/60 py-12 my-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+            <div className="flex justify-between items-end">
+              <div className="border-s-4 border-[#26B6B6] pl-3.5 pr-3.5">
+                <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
+                  <Video className="w-5 h-5 text-[#26B6B6]" />
+                  <span>{isRtl ? 'ویدیوهای معرفی و راهنمای مدل‌سازی' : 'Promotional Videos & Presentation Guides'}</span>
+                </h2>
+                <p className="text-xs text-gray-400 mt-1">
+                  {isRtl 
+                    ? 'ویدیوهای معرفی، آزمایش محصول و دستورالعمل‌های فنی بر اساس اولویت پخش' 
+                    : 'Official presentation clips and product guides ordered by priority'}
+                </p>
+              </div>
+
+              <span className="text-[10px] bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 px-3 py-1.5 border border-rose-100 dark:border-rose-900/40 rounded-lg font-bold font-mono flex items-center gap-1.5">
+                <span className="w-2 h-2 bg-rose-500 rounded-full animate-ping"></span>
+                <span>{isRtl ? 'کانال ویدیویی رسمی' : 'Official Media Channel'}</span>
+              </span>
+            </div>
+
+            {/* Main Interactive Video Player Structure */}
+            <div className={`grid grid-cols-1 ${displayVideos.length > 1 ? 'lg:grid-cols-3' : 'lg:grid-cols-1'} gap-8`}>
+              {/* Active Player Box */}
+              <div className={`${displayVideos.length > 1 ? 'lg:col-span-2' : 'max-w-4xl mx-auto w-full'} space-y-4`}>
+                <div className="relative aspect-16/9 bg-black rounded-2xl overflow-hidden shadow-xl border border-gray-200 dark:border-gray-800 group">
+                  {isPlayingVideo ? (
+                    activeVideo.type === 'direct' ? (
+                      <video 
+                        src={activeVideo.url} 
+                        controls 
+                        autoPlay 
+                        className="w-full h-full object-contain bg-black"
+                      />
+                    ) : activeVideo.embedUrl ? (
+                      <iframe 
+                        src={
+                          activeVideo.type === 'youtube' && !activeVideo.embedUrl.includes('autoplay')
+                            ? `${activeVideo.embedUrl}?autoplay=1`
+                            : activeVideo.embedUrl
+                        } 
+                        title={isRtl ? activeVideo.titleFa : activeVideo.titleEn} 
+                        className="w-full h-full border-0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-slate-900 flex flex-col items-center justify-center text-white relative">
+                        <p className="text-sm font-bold text-gray-300">
+                          {isRtl ? 'امکان نمایش ویدیو وجود ندارد.' : 'Video format not playable directly.'}
+                        </p>
+                        <a 
+                          href={activeVideo.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="mt-3 bg-[#26B6B6] text-white text-xs px-4 py-2 rounded-xl font-bold flex items-center gap-1.5"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          <span>{isRtl ? 'مشاهده در منبع اصلی' : 'Open Video Link'}</span>
+                        </a>
+                      </div>
+                    )
+                  ) : (
+                    /* Custom Cover Preview Before Playing */
+                    <div className="absolute inset-0 w-full h-full">
+                      <img 
+                        src={activeVideo.thumbnailUrl || activeMfg.coverUrl} 
+                        alt={isRtl ? activeVideo.titleFa : activeVideo.titleEn}
+                        className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors flex items-center justify-center">
+                        <button
+                          onClick={() => setIsPlayingVideo(true)}
+                          className="w-16 h-16 bg-[#26B6B6] hover:bg-[#1e9494] text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all cursor-pointer group-hover:ring-4 group-hover:ring-[#26B6B6]/30"
+                          title={isRtl ? 'پخش ویدیو' : 'Play Video'}
+                        >
+                          <Play className="w-7 h-7 fill-current ml-1" />
+                        </button>
+                      </div>
+
+                      {/* Duration label */}
+                      <span className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-xs text-white text-[10px] font-mono px-2.5 py-1 rounded-lg font-bold">
+                        {activeVideo.duration || '03:30'}
+                      </span>
+
+                      {/* Priority Badge */}
+                      <div className={`absolute top-4 right-4 text-white font-extrabold text-[10px] px-3 py-1 rounded-lg shadow-md flex items-center gap-1.5 ${
+                        activeVideo.priority === 1 ? 'bg-emerald-600' : activeVideo.priority === 2 ? 'bg-amber-600' : 'bg-indigo-600'
+                      }`}>
+                        <Play className="w-3 h-3 fill-current" />
+                        <span>
+                          {isRtl 
+                            ? (activeVideo.priority === 1 ? 'پخش اول (اصلی)' : `پخش ${activeVideo.priority === 2 ? 'دوم' : 'سوم'}`)
+                            : (activeVideo.priority === 1 ? '1st Play (Main)' : `${activeVideo.priority}nd Play`)}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <h3 className="font-black text-base sm:text-lg text-gray-900 dark:text-white leading-snug">
+                      {isRtl ? activeVideo.titleFa : activeVideo.titleEn}
+                    </h3>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {isRtl ? `اولویت پخش: شماره ${activeVideo.priority}` : `Play Priority: #${activeVideo.priority}`}
+                    </p>
+                  </div>
+
+                  <a 
+                    href={activeVideo.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-[11px] font-bold text-[#26B6B6] hover:underline flex items-center gap-1 shrink-0 bg-[#26B6B6]/10 px-3 py-1.5 rounded-lg"
+                  >
+                    <span>{isRtl ? 'لینک مستقیم' : 'Direct Link'}</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              </div>
+
+              {/* Sidebar Playlist Section (Shown when multiple videos are present) */}
+              {displayVideos.length > 1 && (
+                <div className="space-y-4 bg-white dark:bg-gray-900/80 p-4 rounded-2xl border border-gray-200/80 dark:border-gray-800 shadow-xs">
+                  <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                      <Video className="w-3.5 h-3.5 text-[#26B6B6]" />
+                      <span>{isRtl ? 'لیست پخش ویدیوها (بر اساس اولویت)' : 'Video Playlist (By Priority)'}</span>
+                    </h4>
+                    <span className="text-[10px] font-bold bg-gray-100 dark:bg-gray-800 text-gray-500 px-2 py-0.5 rounded-full">
+                      {displayVideos.length} {isRtl ? 'ویدیو' : 'Videos'}
+                    </span>
+                  </div>
+
+                  <div className="space-y-3 max-h-[380px] overflow-y-auto pr-1">
+                    {displayVideos.map((vid) => {
+                      const isActive = vid.id === activeVideo.id;
+                      return (
+                        <div
+                          key={vid.id}
+                          onClick={() => {
+                            setSelectedVideoId(vid.id);
+                            setIsPlayingVideo(true);
+                          }}
+                          className={`flex gap-3 p-2.5 rounded-xl border transition-all cursor-pointer text-start group ${
+                            isActive 
+                              ? 'bg-[#26B6B6]/10 dark:bg-[#26B6B6]/15 border-[#26B6B6]/40 shadow-2xs' 
+                              : 'bg-slate-50 dark:bg-gray-800/50 border-gray-100 dark:border-gray-700/60 hover:border-[#26B6B6]/30'
+                          }`}
+                        >
+                          <div className="relative w-24 h-15 bg-gray-900 rounded-lg overflow-hidden shrink-0">
+                            <img 
+                              src={vid.thumbnailUrl || activeMfg.coverUrl} 
+                              alt="thumbnail" 
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                            />
+                            <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/20">
+                              <div className={`w-6 h-6 rounded-full flex items-center justify-center ${isActive ? 'bg-[#26B6B6] text-white' : 'bg-black/60 text-white'}`}>
+                                <Play className="w-3 h-3 fill-current ml-0.5" />
+                              </div>
+                            </div>
+                            <span className="absolute bottom-1 left-1 bg-black/80 text-white text-[8px] font-mono px-1 rounded font-bold">
+                              {vid.duration || '03:30'}
+                            </span>
+                          </div>
+
+                          <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                            <div>
+                              <div className="flex items-center gap-1.5 mb-1">
+                                <span className={`text-[8.5px] font-black px-1.5 py-0.5 rounded ${
+                                  vid.priority === 1 ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
+                                }`}>
+                                  {isRtl ? `پخش ${vid.priority === 1 ? 'اول' : vid.priority === 2 ? 'دوم' : 'سوم'}` : `#${vid.priority} Play`}
+                                </span>
+                              </div>
+                              <h5 className={`text-[11px] font-bold leading-snug line-clamp-2 ${isActive ? 'text-[#26B6B6]' : 'text-gray-800 dark:text-gray-200'}`}>
+                                {isRtl ? vid.titleFa : vid.titleEn}
+                              </h5>
+                            </div>
+
+                            <span className="text-[9px] text-gray-400 font-mono truncate">
+                              {vid.type === 'aparat' ? 'Aparat' : vid.type === 'youtube' ? 'YouTube' : 'Media Link'}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 5. Bookshelf PDF documents & Catalog Section */}
+      {(brandCatalogs.length > 0 || ext.bookshelf.length > 0) && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+          <div className="border-s-4 border-[#26B6B6] pl-3.5 pr-3.5">
+            <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-[#26B6B6]" />
+              <span>{isRtl ? 'کتابخانه کاتالوگ‌ها و کتب فنی' : 'Technical Bookshelf & Catalogs'}</span>
+            </h2>
+            <p className="text-xs text-gray-400 mt-1">
+              {isRtl ? 'دانلود مستقیم کاتالوگ‌های فنی، جداول ضرایب انتقال حرارت و استانداردهای فیزیکی' : 'Direct download of corporate brochures, thermal conductivity datasheets and physical codes'}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {(brandCatalogs.length > 0 ? brandCatalogs : ext.bookshelf.map(b => ({
+              id: b.id,
+              titleFa: b.title,
+              titleEn: b.title,
+              category: isRtl ? 'راهنمای فنی' : 'Technical Handbook',
+              fileSize: b.fileSize,
+              description: '',
+              fileName: 'Catalog_Document.pdf',
+              fileUrl: '#'
+            }))).map(cat => (
+              <div 
+                key={cat.id}
+                className="bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-xl p-4 flex gap-4 hover:border-[#26B6B6]/30 hover:shadow-xs transition-all relative group"
+              >
+                {/* Book PDF Cover Mock */}
+                <div className="w-20 aspect-[3/4] bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30 rounded-lg overflow-hidden shrink-0 flex flex-col justify-between p-1.5 shadow-2xs relative">
+                  <div className="flex justify-between items-start">
+                    <span className="bg-red-500 text-white text-[7px] font-bold px-1 rounded">PDF</span>
+                  </div>
+                  <FileText className="w-8 h-8 text-red-500 mx-auto" />
+                  <span className="text-[7px] text-gray-400 text-center font-mono truncate">{cat.fileSize || 'PDF'}</span>
+                </div>
+
+                {/* Info and action */}
+                <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
+                  <div className="space-y-1">
+                    <h4 className="text-xs font-black text-gray-800 dark:text-gray-200 line-clamp-2 leading-relaxed">
+                      {isRtl ? (cat.titleFa || cat.titleEn) : (cat.titleEn || cat.titleFa)}
+                    </h4>
+                    {cat.category && (
+                      <p className="text-[10px] text-[#26B6B6] font-bold">
+                        {cat.category}
+                      </p>
+                    )}
+                    {cat.description && (
+                      <p className="text-[9.5px] text-gray-400 line-clamp-2 leading-relaxed">
+                        {cat.description}
+                      </p>
+                    )}
+                  </div>
+
+                  {cat.fileUrl && cat.fileUrl !== '#' ? (
+                    <a
+                      href={cat.fileUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-1 text-[10px] text-[#26B6B6] font-black hover:underline cursor-pointer w-fit pt-1"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>{cat.fileName || (isRtl ? 'دانلود سند PDF' : 'Download PDF')}</span>
+                    </a>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        alert(isRtl ? `در حال آماده‌سازی و دانلود کاتالوگ: ${cat.titleFa || cat.titleEn}` : `Preparing download for catalog: ${cat.titleEn || cat.titleFa}`);
+                      }}
+                      className="flex items-center gap-1 text-[10px] text-[#26B6B6] font-black hover:underline cursor-pointer w-fit pt-1"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>{cat.fileName || (isRtl ? 'دانلود سند PDF' : 'Download Document')}</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* 7. Send Request Pop-up Modal */}
       {showRequestModal && (
