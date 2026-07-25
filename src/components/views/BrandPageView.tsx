@@ -462,6 +462,7 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
     verified: savedProfile?.verified !== undefined ? savedProfile.verified : manufacturer.verified,
     logoUrl: savedProfile?.logoUrl || manufacturer.logo,
     coverUrl: savedProfile?.coverUrl || ext.bannerUrl,
+    country: savedProfile?.country || 'IR',
     promoVideoUrl: savedProfile?.promoVideoUrl !== undefined ? savedProfile.promoVideoUrl : 'https://www.aparat.com/v/a1',
     portfolioPdfName: savedProfile?.portfolioPdfName !== undefined ? savedProfile.portfolioPdfName : 'Alupan_Corporate_Catalog_2026.pdf',
     portfolioPdfUrl: savedProfile?.portfolioPdfUrl !== undefined ? savedProfile.portfolioPdfUrl : 'https://alupan.com/catalog.pdf',
@@ -838,8 +839,11 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
 
               <div className="space-y-1.5">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight leading-tight flex items-center gap-2">
                     {isRtl ? activeMfg.nameFa : activeMfg.nameEn}
+                    <span className="text-2xl ml-1" title={activeMfg.country}>
+                      {{'IR': '🇮🇷', 'TR': '🇹🇷', 'DE': '🇩🇪', 'IT': '🇮🇹', 'CN': '🇨🇳', 'AE': '🇦🇪'}[activeMfg.country as string] || '🇮🇷'}
+                    </span>
                   </h1>
                   {activeMfg.verified && (
                     <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 font-extrabold text-[9px] sm:text-[10px] px-2.5 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-900 flex items-center gap-1 select-none">
@@ -1131,10 +1135,12 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
       </div>
 
       {/* 3.5 Trust & Credibility Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8 border-t border-gray-150 dark:border-gray-800 pt-10">
-        
-        {/* Standards & Certifications */}
-        <div className="space-y-4">
+      {(brandStandards.length > 0 || brandAwards.length > 0 || brandProjects.length > 0) && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8 border-t border-gray-150 dark:border-gray-800 pt-10">
+          
+          {/* Standards & Certifications */}
+          {brandStandards.length > 0 && (
+            <div className="space-y-4">
           <div className="border-s-4 border-emerald-500 pl-3.5 pr-3.5">
             <h3 className="text-lg font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
               <ShieldCheck className="w-5 h-5 text-emerald-500" />
@@ -1175,8 +1181,10 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
             ))}
           </div>
         </div>
+        )}
 
         {/* Honors & Awards Section (افتخارات و نشان‌ها) */}
+        {brandAwards.length > 0 && (
         <div className="space-y-4">
           <div className="border-s-4 border-amber-500 pl-3.5 pr-3.5">
             <h3 className="text-lg font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
@@ -1241,8 +1249,10 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
             ))}
           </div>
         </div>
+        )}
 
         {/* Executed Projects Section (پروژه‌های اجرایی) */}
+        {brandProjects.length > 0 && (
         <div className="space-y-4">
           <div className="border-s-4 border-[#26B6B6] pl-3.5 pr-3.5">
             <h3 className="text-lg font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
@@ -1307,8 +1317,10 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
             ))}
           </div>
         </div>
+        )}
 
       </div>
+      )}
 
       {/* 4. Advertising/Introduction Video Clips & Interactive Player (Selector: div#root > ... > div:nth-of-type(5)) */}
       {displayVideos.length > 0 && activeVideo && (

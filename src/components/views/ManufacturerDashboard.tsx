@@ -82,7 +82,8 @@ type MFGTab =
   | 'analytics'
   | 'requests'
   | 'approval-chat'
-  | 'notifications';
+  | 'notifications'
+  | 'followers';
 
 export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
   companyProfile,
@@ -140,6 +141,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
           website: parsed.website || companyProfile?.website || 'https://alupan.com',
           email: parsed.email || companyProfile?.email || 'info@alupan.com',
           phone: parsed.phone || companyProfile?.phone || '+98 (21) 8877-4433',
+          country: parsed.country || 'IR',
           addressFa: parsed.addressFa || 'تهران، خیابان ولیعصر، برج آفتاب، طبقه ۱۲',
           addressEn: parsed.addressEn || '12th Flr, Aftab Tower, Vali-e-Asr Ave, Tehran',
           twitter: parsed.twitter || 'https://twitter.com/alupan',
@@ -237,6 +239,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
       website: companyProfile?.website || 'https://alupan.com',
       email: companyProfile?.email || 'info@alupan.com',
       phone: companyProfile?.phone || '+98 (21) 8877-4433',
+      country: 'IR',
       addressFa: 'تهران، خیابان ولیعصر، برج آفتاب، طبقه ۱۲',
       addressEn: '12th Flr, Aftab Tower, Vali-e-Asr Ave, Tehran',
       twitter: 'https://twitter.com/alupan',
@@ -646,6 +649,19 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
   const [newProjFileUrl, setNewProjFileUrl] = useState('');
   const [editingProjId, setEditingProjId] = useState<string | null>(null);
 
+  // Custom Delete Confirmation Dialog Modal State
+  const [deleteConfirmDialog, setDeleteConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {}
+  });
+
   // Technical Bookshelf & Catalogs State
   const [catalogs, setCatalogs] = useState(() => {
     try {
@@ -999,39 +1015,56 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
   };
 
   const handleDeleteStandard = (id: string) => {
-    if (window.confirm(isRtl ? 'آیا از حذف دائمی این مورد مطمئن هستید؟ این عمل قابل بازگشت نیست.' : 'Are you sure you want to permanently delete this item? This action cannot be undone.')) {
-      setStandards(prev => {
-        const next = prev.filter(std => std.id !== id);
-        try {
-          localStorage.setItem('iranbimhub_mfg_standards', JSON.stringify(next));
-          window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
-        } catch (e) {
-          console.error("Failed to save standards after delete:", e);
-        }
-        return next;
-      });
-      if (editingStdId === id) {
+    setDeleteConfirmDialog({
+      isOpen: true,
+      title: isRtl ? 'حذف دائمی استاندارد' : 'Delete Standard',
+      message: isRtl 
+        ? 'آیا از حذف دائمی این استاندارد مطمئن هستید؟ این عمل قابل بازگشت نیست.' 
+        : 'Are you sure you want to permanently delete this standard? This action cannot be undone.',
+      onConfirm: () => {
+        setStandards(prev => prev.filter(item => item.id !== id));
         setEditingStdId(null);
+        alert(isRtl ? 'استاندارد مورد نظر با موفقیت حذف گردید.' : 'Standard deleted successfully.');
+        setDeleteConfirmDialog(prev => ({ ...prev, isOpen: false }));
       }
-    }
+    });
   };
 
   const handleDeleteAward = (id: string) => {
-    if (window.confirm(isRtl ? 'آیا از حذف دائمی این مورد مطمئن هستید؟ این عمل قابل بازگشت نیست.' : 'Are you sure you want to permanently delete this item? This action cannot be undone.')) {
-      setPortfolioProjects(prev => {
-        const next = prev.filter(award => award.id !== id);
-        try {
-          localStorage.setItem('iranbimhub_mfg_awards', JSON.stringify(next));
-          window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
-        } catch (e) {
-          console.error("Failed to save awards after delete:", e);
-        }
-        return next;
-      });
-      if (editingAwardId === id) {
+    setDeleteConfirmDialog({
+      isOpen: true,
+      title: isRtl ? 'حذف دائمی افتخار' : 'Delete Award/Honor',
+      message: isRtl 
+        ? 'آیا از حذف دائمی این مورد مطمئن هستید؟ این عمل قابل بازگشت نیست.' 
+        : 'Are you sure you want to permanently delete this item? This action cannot be undone.',
+      onConfirm: () => {
+        setPortfolioProjects(prev => prev.filter(item => item.id !== id));
         setEditingAwardId(null);
+        alert(isRtl ? 'افتخار مورد نظر با موفقیت حذف گردید.' : 'Award/Honor deleted successfully.');
+        setDeleteConfirmDialog(prev => ({ ...prev, isOpen: false }));
       }
-    }
+    });
+  };
+
+  const handleDeleteDoc = (docId: string) => {
+    setDeleteConfirmDialog({
+      isOpen: true,
+      title: isRtl ? 'حذف دائمی مدرک' : 'Delete Document',
+      message: isRtl 
+        ? 'آیا از حذف دائمی این مدرک مطمئن هستید؟ این عمل قابل بازگشت نیست.' 
+        : 'Are you sure you want to permanently delete this credential document? This action cannot be undone.',
+      onConfirm: () => {
+        setBrandInfo(prev => {
+          const nextDocs = (prev.verificationDocs || []).filter(d => d.id !== docId);
+          return {
+            ...prev,
+            verificationDocs: nextDocs
+          };
+        });
+        alert(isRtl ? 'مدرک با موفقیت حذف گردید. برای ثبت نهایی روی دکمه ذخیره کلیک کنید.' : 'Document deleted successfully. Click Save to apply.');
+        setDeleteConfirmDialog(prev => ({ ...prev, isOpen: false }));
+      }
+    });
   };
 
   const handleEditAward = (id: string, updatedFields: Partial<typeof portfolioProjects[0]>) => {
@@ -1086,21 +1119,19 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
   };
 
   const handleDeleteProject = (id: string) => {
-    if (window.confirm(isRtl ? 'آیا از حذف دائمی این مورد مطمئن هستید؟ این عمل قابل بازگشت نیست.' : 'Are you sure you want to permanently delete this item? This action cannot be undone.')) {
-      setProjects(prev => {
-        const next = prev.filter(proj => proj.id !== id);
-        try {
-          localStorage.setItem('iranbimhub_mfg_projects', JSON.stringify(next));
-          window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
-        } catch (e) {
-          console.error("Failed to save projects after delete:", e);
-        }
-        return next;
-      });
-      if (editingProjId === id) {
+    setDeleteConfirmDialog({
+      isOpen: true,
+      title: isRtl ? 'حذف دائمی پروژه' : 'Delete Project',
+      message: isRtl 
+        ? 'آیا از حذف دائمی این مورد مطمئن هستید؟ این عمل قابل بازگشت نیست.' 
+        : 'Are you sure you want to permanently delete this item? This action cannot be undone.',
+      onConfirm: () => {
+        setProjects(prev => prev.filter(item => item.id !== id));
         setEditingProjId(null);
+        alert(isRtl ? 'پروژه مورد نظر با موفقیت حذف گردید.' : 'Project deleted successfully.');
+        setDeleteConfirmDialog(prev => ({ ...prev, isOpen: false }));
       }
-    }
+    });
   };
 
   const handleEditProject = (id: string, updatedFields: Partial<typeof projects[0]>) => {
@@ -1878,22 +1909,11 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                 </div>
                 
                 <button
-                  onClick={() => {
-                    if ((window as any).onNavigateToView) {
-                      (window as any).onNavigateToView('payment', 'mfg-vip');
-                    }
-                  }}
-                  className="w-full flex items-center justify-center gap-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-gray-800/50 dark:hover:bg-gray-800 border border-slate-100 dark:border-gray-700/80 rounded-xl text-[9px] font-bold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 cursor-pointer group relative"
+                  onClick={() => setActiveTab('followers')}
+                  className="w-full flex items-center justify-center gap-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-gray-800/50 dark:hover:bg-gray-800 border border-slate-100 dark:border-gray-700/80 rounded-xl text-[9px] font-bold text-[#26B6B6] hover:text-[#1e9494] cursor-pointer group relative transition-colors"
                 >
-                  <Lock className="w-3 h-3 text-amber-500 shrink-0" />
+                  <Users className="w-3 h-3 shrink-0" />
                   <span>{isRtl ? 'مشاهده لیست' : 'View Follower List'}</span>
-                  
-                  {/* Tooltip on hover */}
-                  <div className="absolute bottom-full mb-2 hidden group-hover:block w-48 p-2 bg-slate-950 text-white text-[8px] rounded-lg shadow-xl z-50 text-center font-normal leading-normal">
-                    {isRtl 
-                      ? 'این قابلیت به‌زودی برای اعضای اشتراک ویژه فعال می‌شود' 
-                      : 'This feature will be available soon for premium subscribers'}
-                  </div>
                 </button>
               </div>
             </div>
@@ -1982,14 +2002,14 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
         {activeTab === 'profile' && (
           <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-6 space-y-8 animate-fadeIn">
             {/* Secondary Tab Bar (pill-style) */}
-            <div className="flex gap-2 border-b border-gray-100 dark:border-gray-800 pb-4 mb-6 overflow-x-auto scrollbar-none text-start">
+            <div className="flex flex-nowrap gap-2.5 border-b border-gray-100 dark:border-gray-800 pb-4 mb-6 overflow-x-auto scrollbar-thin text-start">
               <button
                 type="button"
                 onClick={() => setProfileSubTab('info')}
-                className={`px-4.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+                className={`px-3.5 py-2 rounded-xl text-[11px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 whitespace-nowrap cursor-pointer ${
                   profileSubTab === 'info'
-                    ? 'bg-[#26B6B6]/10 text-[#26B6B6] ring-1 ring-[#26B6B6]/20'
-                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-slate-50 dark:hover:bg-gray-800/50'
+                    ? 'shadow-2xs border border-[#26B6B6]/30 text-[#26B6B6] bg-[#26B6B6]/5'
+                    : 'hover:shadow-xs border border-gray-200 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-700 text-gray-500 dark:text-gray-400 bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800'
                 }`}
               >
                 <Building className="w-4 h-4" />
@@ -1998,10 +2018,10 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
               <button
                 type="button"
                 onClick={() => setProfileSubTab('standards')}
-                className={`px-4.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+                className={`px-3.5 py-2 rounded-xl text-[11px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 whitespace-nowrap cursor-pointer ${
                   profileSubTab === 'standards'
-                    ? 'bg-[#26B6B6]/10 text-[#26B6B6] ring-1 ring-[#26B6B6]/20'
-                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-slate-50 dark:hover:bg-gray-800/50'
+                    ? 'shadow-2xs border border-[#26B6B6]/30 text-[#26B6B6] bg-[#26B6B6]/5'
+                    : 'hover:shadow-xs border border-gray-200 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-700 text-gray-500 dark:text-gray-400 bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800'
                 }`}
               >
                 <ShieldCheck className="w-4 h-4" />
@@ -2010,10 +2030,10 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
               <button
                 type="button"
                 onClick={() => setProfileSubTab('awards')}
-                className={`px-4.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+                className={`px-3.5 py-2 rounded-xl text-[11px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 whitespace-nowrap cursor-pointer ${
                   profileSubTab === 'awards'
-                    ? 'bg-[#26B6B6]/10 text-[#26B6B6] ring-1 ring-[#26B6B6]/20'
-                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-slate-50 dark:hover:bg-gray-800/50'
+                    ? 'shadow-2xs border border-[#26B6B6]/30 text-[#26B6B6] bg-[#26B6B6]/5'
+                    : 'hover:shadow-xs border border-gray-200 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-700 text-gray-500 dark:text-gray-400 bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800'
                 }`}
               >
                 <Award className="w-4 h-4" />
@@ -2022,10 +2042,10 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
               <button
                 type="button"
                 onClick={() => setProfileSubTab('projects')}
-                className={`px-4.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+                className={`px-3.5 py-2 rounded-xl text-[11px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 whitespace-nowrap cursor-pointer ${
                   profileSubTab === 'projects'
-                    ? 'bg-[#26B6B6]/10 text-[#26B6B6] ring-1 ring-[#26B6B6]/20'
-                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-slate-50 dark:hover:bg-gray-800/50'
+                    ? 'shadow-2xs border border-[#26B6B6]/30 text-[#26B6B6] bg-[#26B6B6]/5'
+                    : 'hover:shadow-xs border border-gray-200 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-700 text-gray-500 dark:text-gray-400 bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800'
                 }`}
               >
                 <Briefcase className="w-4 h-4" />
@@ -2034,10 +2054,10 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
               <button
                 type="button"
                 onClick={() => setProfileSubTab('catalogs')}
-                className={`px-4.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+                className={`px-3.5 py-2 rounded-xl text-[11px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 whitespace-nowrap cursor-pointer ${
                   profileSubTab === 'catalogs'
-                    ? 'bg-[#26B6B6]/10 text-[#26B6B6] ring-1 ring-[#26B6B6]/20'
-                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-slate-50 dark:hover:bg-gray-800/50'
+                    ? 'shadow-2xs border border-[#26B6B6]/30 text-[#26B6B6] bg-[#26B6B6]/5'
+                    : 'hover:shadow-xs border border-gray-200 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-700 text-gray-500 dark:text-gray-400 bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800'
                 }`}
               >
                 <BookOpen className="w-4 h-4" />
@@ -2224,7 +2244,22 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                     {isRtl ? 'اطلاعات تماس رسمی و آدرس' : 'Official Contact & Coordinates'}
                   </h4>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-gray-400 block">{isRtl ? 'کشور مبداء برند' : 'Brand Country'}</label>
+                      <select 
+                        value={brandInfo.country || 'IR'}
+                        onChange={(e) => setBrandInfo({...brandInfo, country: e.target.value})}
+                        className="w-full text-xs p-3 border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl focus:outline-none"
+                      >
+                        <option value="IR">🇮🇷 {isRtl ? 'ایران' : 'Iran'}</option>
+                        <option value="TR">🇹🇷 {isRtl ? 'ترکیه' : 'Turkey'}</option>
+                        <option value="DE">🇩🇪 {isRtl ? 'آلمان' : 'Germany'}</option>
+                        <option value="IT">🇮🇹 {isRtl ? 'ایتالیا' : 'Italy'}</option>
+                        <option value="CN">🇨🇳 {isRtl ? 'چین' : 'China'}</option>
+                        <option value="AE">🇦🇪 {isRtl ? 'امارات متحده عربی' : 'UAE'}</option>
+                      </select>
+                    </div>
                     <div className="space-y-1.5">
                       <label className="text-[11px] font-bold text-gray-400 block">{isRtl ? 'شماره تلفن رسمی' : 'Official Phone'}</label>
                       <input 
@@ -2522,11 +2557,20 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                           alert(isRtl ? 'خطا: حجم فایل PDF نباید بیشتر از ۱۰ مگابایت باشد.' : 'Error: PDF file size must not exceed 10MB.');
                           return;
                         }
+                        const formatBytes = (bytes: number, decimals = 2) => {
+                          if (!+bytes) return '0 Bytes';
+                          const k = 1024;
+                          const dm = decimals < 0 ? 0 : decimals;
+                          const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                          const i = Math.floor(Math.log(bytes) / Math.log(k));
+                          return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+                        };
                         const localUrl = URL.createObjectURL(file);
                         setBrandInfo(prev => ({
                           ...prev,
                           portfolioPdfName: file.name,
-                          portfolioPdfUrl: localUrl
+                          portfolioPdfUrl: localUrl,
+                          portfolioPdfSize: formatBytes(file.size)
                         }));
                         alert(isRtl ? `کاتالوگ ${file.name} با موفقیت پیوست گردید.` : `Portfolio catalog ${file.name} attached successfully.`);
                       }}
@@ -2792,27 +2836,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          console.log('Delete clicked for doc:', doc.id);
-                          const confirmMsg = isRtl 
-                            ? 'آیا از حذف دائمی این مدرک مطمئن هستید؟ این عمل قابل بازگشت نیست.' 
-                            : 'Are you sure you want to permanently delete this credential document? This action cannot be undone.';
-                          if (window.confirm(confirmMsg)) {
-                            setBrandInfo(prev => {
-                              const nextDocs = (prev.verificationDocs || []).filter(d => d.id !== doc.id);
-                              const updated = {
-                                ...prev,
-                                verificationDocs: nextDocs
-                              };
-                              try {
-                                localStorage.setItem('iranbimhub_mfg_profile', JSON.stringify(updated));
-                                localStorage.setItem('iranbimhub_mfg_profile_m1', JSON.stringify(updated));
-                                window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
-                              } catch (err) {
-                                console.error("Failed to save profile docs after delete:", err);
-                              }
-                              return updated;
-                            });
-                          }
+                          handleDeleteDoc(doc.id);
                         }}
                         className="bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/30 dark:hover:bg-rose-900/50 dark:text-rose-400 text-[10.5px] font-extrabold px-3.5 py-2 rounded-xl cursor-pointer flex items-center justify-center gap-1.5 transition-all"
                       >
@@ -3026,9 +3050,17 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
 
                 {/* Standards list */}
                 <div className="space-y-4">
-                  {standards.map(std => {
-                    const isEditing = editingStdId === std.id;
-                    return (
+                  {standards.length === 0 ? (
+                    <div className="text-center py-8 bg-slate-50 dark:bg-gray-900 border border-dashed border-gray-200 dark:border-gray-700 rounded-xl space-y-2">
+                      <ShieldCheck className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto" />
+                      <p className="text-xs text-gray-500 dark:text-gray-400 font-bold max-w-sm mx-auto">
+                        {isRtl ? 'مخفی کردن این بخش با افزودن اولین مدرک استاندارد؛ برای نمایش در پروفایل برند.' : 'Hide this section by adding the first standard document; show it in the brand\'s profile.'}
+                      </p>
+                    </div>
+                  ) : (
+                    standards.map(std => {
+                      const isEditing = editingStdId === std.id;
+                      return (
                       <div key={std.id} className="p-5 bg-slate-50 dark:bg-gray-950/45 border border-slate-100 dark:border-gray-800 rounded-2xl transition-all hover:shadow-xs space-y-4">
                         {isEditing ? (
                           /* IN-PLACE EDIT FORM */
@@ -3111,7 +3143,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                               <button
                                 type="button"
                                 onClick={() => handleDeleteStandard(std.id)}
-                                className="text-rose-500 hover:text-rose-600 font-extrabold flex items-center gap-1 cursor-pointer"
+                                className="px-3.5 py-2 rounded-xl text-[10.5px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 shadow-2xs hover:shadow-xs border border-rose-200 hover:border-rose-300 dark:border-rose-900/30 dark:hover:border-rose-800 text-rose-600 dark:text-rose-400 bg-rose-50/50 hover:bg-rose-50 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 cursor-pointer"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                                 <span>{isRtl ? 'حذف دائمی' : 'Permanently Delete'}</span>
@@ -3230,7 +3262,8 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                         )}
                       </div>
                     );
-                  })}
+                  })
+                  )}
                 </div>
 
                 {/* Form to Add New Standard */}
@@ -3367,9 +3400,17 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
 
                 {/* Awards list */}
                 <div className="space-y-4">
-                  {portfolioProjects.map(award => {
-                    const isEditing = editingAwardId === award.id;
-                    return (
+                  {portfolioProjects.length === 0 ? (
+                    <div className="text-center py-8 bg-slate-50 dark:bg-gray-900 border border-dashed border-gray-200 dark:border-gray-700 rounded-xl space-y-2">
+                      <Award className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto" />
+                      <p className="text-xs text-gray-500 dark:text-gray-400 font-bold max-w-sm mx-auto">
+                        {isRtl ? 'مخفی کردن این بخش با افزودن اولین سند افتخارات؛ برای نمایش در پروفایل برند.' : 'Hide this section by adding the first Honors & Awards document; show it in the brand\'s profile.'}
+                      </p>
+                    </div>
+                  ) : (
+                    portfolioProjects.map(award => {
+                      const isEditing = editingAwardId === award.id;
+                      return (
                       <div key={award.id} className="p-5 bg-slate-50 dark:bg-gray-950/45 border border-slate-100 dark:border-gray-800 rounded-2xl transition-all hover:shadow-xs space-y-4">
                         {isEditing ? (
                           /* EDIT AWARD FORM */
@@ -3439,7 +3480,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                               <button
                                 type="button"
                                 onClick={() => handleDeleteAward(award.id)}
-                                className="text-rose-500 hover:text-rose-600 font-extrabold flex items-center gap-1 cursor-pointer"
+                                className="px-3.5 py-2 rounded-xl text-[10.5px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 shadow-2xs hover:shadow-xs border border-rose-200 hover:border-rose-300 dark:border-rose-900/30 dark:hover:border-rose-800 text-rose-600 dark:text-rose-400 bg-rose-50/50 hover:bg-rose-50 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 cursor-pointer"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                                 <span>{isRtl ? 'حذف دائمی' : 'Permanently Delete'}</span>
@@ -3537,7 +3578,8 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                         )}
                       </div>
                     );
-                  })}
+                  })
+                  )}
                 </div>
 
                 {/* Add New Award Form */}
@@ -3651,9 +3693,17 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
 
                 {/* Projects list */}
                 <div className="space-y-4">
-                  {projects.map(proj => {
-                    const isEditing = editingProjId === proj.id;
-                    return (
+                  {projects.length === 0 ? (
+                    <div className="text-center py-8 bg-slate-50 dark:bg-gray-900 border border-dashed border-gray-200 dark:border-gray-700 rounded-xl space-y-2">
+                      <Briefcase className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto" />
+                      <p className="text-xs text-gray-500 dark:text-gray-400 font-bold max-w-sm mx-auto">
+                        {isRtl ? 'مخفی کردن این بخش با افزودن اولین پروژه اجرایی؛ برای نمایش در پروفایل برند.' : 'Hide this section by adding the first Executed Projects document; show it in the brand\'s profile.'}
+                      </p>
+                    </div>
+                  ) : (
+                    projects.map(proj => {
+                      const isEditing = editingProjId === proj.id;
+                      return (
                       <div key={proj.id} className="p-5 bg-slate-50 dark:bg-gray-950/45 border border-slate-100 dark:border-gray-800 rounded-2xl transition-all hover:shadow-xs space-y-4">
                         {isEditing ? (
                           /* EDIT PROJECT FORM */
@@ -3723,7 +3773,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                               <button
                                 type="button"
                                 onClick={() => handleDeleteProject(proj.id)}
-                                className="text-rose-500 hover:text-rose-600 font-extrabold flex items-center gap-1 cursor-pointer"
+                                className="px-3.5 py-2 rounded-xl text-[10.5px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 shadow-2xs hover:shadow-xs border border-rose-200 hover:border-rose-300 dark:border-rose-900/30 dark:hover:border-rose-800 text-rose-600 dark:text-rose-400 bg-rose-50/50 hover:bg-rose-50 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 cursor-pointer"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                                 <span>{isRtl ? 'حذف دائمی' : 'Permanently Delete'}</span>
@@ -3821,7 +3871,8 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                         )}
                       </div>
                     );
-                  })}
+                  })
+                  )}
                 </div>
 
                 {/* Add New Project Form */}
@@ -3998,7 +4049,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                               <button
                                 type="button"
                                 onClick={() => handleDeleteCatalog(cat.id)}
-                                className="text-rose-500 hover:text-rose-600 font-extrabold flex items-center gap-1 cursor-pointer"
+                                className="px-3.5 py-2 rounded-xl text-[10.5px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 shadow-2xs hover:shadow-xs border border-rose-200 hover:border-rose-300 dark:border-rose-900/30 dark:hover:border-rose-800 text-rose-600 dark:text-rose-400 bg-rose-50/50 hover:bg-rose-50 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 cursor-pointer"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                                 <span>{isRtl ? 'حذف دائمی' : 'Permanently Delete'}</span>
@@ -4607,18 +4658,71 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
           />
         )}
 
+        {/* FOLLOWERS LIST TAB */}
+        {activeTab === 'followers' && (
+          <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-6 space-y-6 animate-fadeIn min-h-[500px]">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
+                  <Users className="w-5 h-5 text-[#26B6B6]" />
+                  <span>{isRtl ? 'دنبال‌کنندگان (مخاطبین هدف)' : 'Followers & Target Audience'}</span>
+                </h2>
+                <p className="text-xs text-gray-400 mt-1">
+                  {isRtl ? 'لیست معماران و شرکت‌هایی که برند شما را دنبال می‌کنند' : 'List of architects and firms following your brand'}
+                </p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="bg-slate-50 dark:bg-gray-950/40 border border-gray-150 dark:border-gray-800 rounded-xl p-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#26B6B6]/20 flex items-center justify-center text-[#26B6B6] font-bold shrink-0 text-sm">
+                  AM
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200">{isRtl ? 'علی مرادی' : 'Ali Moradi'}</h4>
+                  <p className="text-[10px] text-gray-400 font-mono">Senior Architect • 2 days ago</p>
+                </div>
+              </div>
+              <div className="bg-slate-50 dark:bg-gray-950/40 border border-gray-150 dark:border-gray-800 rounded-xl p-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#26B6B6]/20 flex items-center justify-center text-[#26B6B6] font-bold shrink-0 text-sm">
+                  ZS
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200">{isRtl ? 'زهرا شیرازی' : 'Zahra Shirazi'}</h4>
+                  <p className="text-[10px] text-gray-400 font-mono">BIM Modeler • 5 days ago</p>
+                </div>
+              </div>
+              <div className="bg-slate-50 dark:bg-gray-950/40 border border-gray-150 dark:border-gray-800 rounded-xl p-4 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#26B6B6]/20 flex items-center justify-center text-[#26B6B6] font-bold shrink-0 text-sm">
+                  NT
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200">{isRtl ? 'نوید تهرانی' : 'Navid Tehrani'}</h4>
+                  <p className="text-[10px] text-gray-400 font-mono">Interior Designer • 1 week ago</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-center mt-6">
+              <button className="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-xl text-xs font-bold transition-all cursor-pointer">
+                {isRtl ? 'مشاهده بیشتر' : 'Load More'}
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* REQUESTS & LEADS TAB */}
         {activeTab === 'requests' && (
           <div className="space-y-6 animate-fadeIn">
             {/* Secondary Tab Bar for Requests */}
-            <div className="flex gap-2 border-b border-gray-100 dark:border-gray-800 pb-4 mb-6 overflow-x-auto scrollbar-none text-start">
+            <div className="flex flex-nowrap gap-2.5 border-b border-gray-100 dark:border-gray-800 pb-4 mb-6 overflow-x-auto scrollbar-thin text-start">
               <button
                 type="button"
                 onClick={() => setRequestsSubTab('leads')}
-                className={`px-4.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+                className={`px-3.5 py-2 rounded-xl text-[11px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 whitespace-nowrap cursor-pointer ${
                   requestsSubTab === 'leads'
-                    ? 'bg-[#26B6B6]/10 text-[#26B6B6] ring-1 ring-[#26B6B6]/20'
-                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-slate-50 dark:hover:bg-gray-800/50'
+                    ? 'shadow-2xs border border-[#26B6B6]/30 text-[#26B6B6] bg-[#26B6B6]/5'
+                    : 'hover:shadow-xs border border-gray-200 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-700 text-gray-500 dark:text-gray-400 bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800'
                 }`}
               >
                 <MessageSquare className="w-4 h-4" />
@@ -4627,10 +4731,10 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
               <button
                 type="button"
                 onClick={() => setRequestsSubTab('objects')}
-                className={`px-4.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
+                className={`px-3.5 py-2 rounded-xl text-[11px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 whitespace-nowrap cursor-pointer ${
                   requestsSubTab === 'objects'
-                    ? 'bg-[#26B6B6]/10 text-[#26B6B6] ring-1 ring-[#26B6B6]/20'
-                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-slate-50 dark:hover:bg-gray-800/50'
+                    ? 'shadow-2xs border border-[#26B6B6]/30 text-[#26B6B6] bg-[#26B6B6]/5'
+                    : 'hover:shadow-xs border border-gray-200 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-700 text-gray-500 dark:text-gray-400 bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800'
                 }`}
               >
                 <HelpCircle className="w-4 h-4" />
@@ -5073,7 +5177,42 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
 
       </div>
 
+      {/* Dynamic Custom Delete Confirmation Dialog Modal */}
+      {deleteConfirmDialog.isOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn">
+          <div className="relative bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl text-center space-y-5">
+            <div className="mx-auto w-12 h-12 bg-rose-50 dark:bg-rose-950/20 text-rose-500 rounded-full flex items-center justify-center">
+              <Trash2 className="w-6 h-6" />
+            </div>
+            
+            <div className="space-y-2">
+              <h3 className="text-sm font-black text-gray-900 dark:text-white">
+                {deleteConfirmDialog.title}
+              </h3>
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
+                {deleteConfirmDialog.message}
+              </p>
+            </div>
 
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setDeleteConfirmDialog(prev => ({ ...prev, isOpen: false }))}
+                className="flex-1 py-2.5 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-750 text-gray-500 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-bold cursor-pointer transition-colors"
+              >
+                {isRtl ? 'انصراف' : 'Cancel'}
+              </button>
+              <button
+                type="button"
+                onClick={deleteConfirmDialog.onConfirm}
+                className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-750 text-white rounded-xl text-xs font-black cursor-pointer transition-colors shadow-sm"
+              >
+                {isRtl ? 'حذف دائمی' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
@@ -5101,6 +5240,7 @@ const MfgSidebarNavList: React.FC<MfgSidebarNavListProps> = ({
     { id: 'overview' as const, labelFa: 'پیشخوان', labelEn: 'Overview', icon: Grid },
     { id: 'profile' as const, labelFa: 'پروفایل برند', labelEn: 'Brand Profile', icon: Building },
     { id: 'catalog' as const, labelFa: 'انبار آبجکت‌های بیم', labelEn: 'BIM SKUs Inventory', icon: Layers },
+    { id: 'followers' as const, labelFa: 'فالوورها (مخاطبین)', labelEn: 'Followers List', icon: Users },
     { id: 'subscription' as const, labelFa: 'اشتراک و صورتحساب', labelEn: 'Subscription & Billing', icon: DollarSign },
     { id: 'analytics' as const, labelFa: 'تحلیل عملکرد کاتالوگ', labelEn: 'Catalog Analytics', icon: BarChart3 },
     { id: 'requests' as const, labelFa: 'درخواست‌ها و سرنخ‌ها', labelEn: 'Requests & Leads', icon: Mail, leadBadge: unansweredLeadsCount > 0 },
