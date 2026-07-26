@@ -400,9 +400,23 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
     }));
   };
 
+  // Dynamic Combined & Deduplicated BIM Objects List
+  const allBimObjects = useMemo(() => {
+    try {
+      const saved = localStorage.getItem('iranbimhub_custom_objects_v2');
+      const custom = saved ? JSON.parse(saved) : [];
+      const map = new Map<string, BIMObject>();
+      BIM_OBJECTS.forEach(obj => { if (obj && obj.id) map.set(obj.id, obj); });
+      custom.forEach((obj: BIMObject) => { if (obj && obj.id) map.set(obj.id, obj); });
+      return Array.from(map.values());
+    } catch {
+      return BIM_OBJECTS;
+    }
+  }, []);
+
   // Export Project Specs
   const handleExportSpecs = (folder: any) => {
-    const list = BIM_OBJECTS.filter(o => folder.objectIds.includes(o.id));
+    const list = allBimObjects.filter(o => folder.objectIds.includes(o.id));
     let csvContent = "data:text/csv;charset=utf-8,";
     csvContent += "ID,Title,Category,LOD,Formats\n";
     list.forEach(o => {
@@ -440,7 +454,7 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
   }, [downloadHistory, historySearch, historyFormat, isRtl]);
 
   // Favorites list
-  const favoriteObjects = BIM_OBJECTS.filter(obj => savedObjects.includes(obj.id));
+  const favoriteObjects = allBimObjects.filter(obj => savedObjects.includes(obj.id));
 
   // Save profile edits
   const handleSaveProfile = (e: React.FormEvent) => {
@@ -1471,7 +1485,7 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
                 {(() => {
                   const currentFolder = folders.find(f => f.id === activeFolderId);
                   if (!currentFolder) return null;
-                  const linkedBimObjects = BIM_OBJECTS.filter(obj => currentFolder.objectIds.includes(obj.id));
+                  const linkedBimObjects = allBimObjects.filter(obj => currentFolder.objectIds.includes(obj.id));
                   
                   return (
                     <div className="space-y-6">

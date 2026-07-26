@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { LanguageProvider, useLanguage } from './components/LanguageContext';
 import { LoadingProvider, useLoading } from './components/LoadingContext';
 import { Header } from './components/Header';
@@ -6,7 +7,7 @@ import { Footer } from './components/Footer';
 import { BIMObject, FilterState } from './types';
 import { BIM_OBJECTS, MANUFACTURERS } from './data';
 import { AuthModal } from './components/AuthModal';
-import { Home, Layers, Building, Heart, User, ArrowUp } from 'lucide-react';
+import { Home, Layers, Building, Heart, User, ArrowUp, Folder, Package, MessageSquare } from 'lucide-react';
 
 // Import Views
 import { HomeView } from './components/views/HomeView';
@@ -88,6 +89,14 @@ const MainAppContent: React.FC = () => {
       setCurrentView(view);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }, customTextFa || (isRtl ? 'در حال انتقال...' : 'Navigating...'), customTextEn || 'Navigating...', 500);
+  };
+
+  const handleDashboardTabNavigate = (view: string, tab: string) => {
+    setActiveDashboardTab(tab);
+    navigateTo(view);
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('change-dashboard-tab', { detail: { tab } }));
+    }, 50);
   };
 
   const handleSelectObject = (obj: BIMObject) => {
@@ -176,6 +185,27 @@ const MainAppContent: React.FC = () => {
   const [isCategoriesMenuOpen, setIsCategoriesMenuOpen] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
 
+  // Active dashboard tab state for navigation highlighting
+  const [activeDashboardTab, setActiveDashboardTab] = useState<string>('overview');
+
+  useEffect(() => {
+    const handleTabSync = (e: Event) => {
+      const { tab } = (e as CustomEvent).detail;
+      setActiveDashboardTab(tab);
+    };
+    window.addEventListener('change-dashboard-tab', handleTabSync);
+    return () => window.removeEventListener('change-dashboard-tab', handleTabSync);
+  }, []);
+
+  useEffect(() => {
+    const handleNavigateToView = (e: Event) => {
+      const { view, param } = (e as CustomEvent).detail;
+      navigateTo(view, undefined, undefined, param);
+    };
+    window.addEventListener('navigate-to-view', handleNavigateToView);
+    return () => window.removeEventListener('navigate-to-view', handleNavigateToView);
+  }, []);
+
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 400) {
@@ -213,11 +243,26 @@ const MainAppContent: React.FC = () => {
     return () => window.removeEventListener('select-category-filter', handleSelectCategoryFilter);
   }, []);
 
+  // Helper to get all combined & deduplicated BIM objects
+  const getAllBimObjects = (): BIMObject[] => {
+    try {
+      const saved = localStorage.getItem('iranbimhub_custom_objects_v2');
+      const custom = saved ? JSON.parse(saved) : [];
+      const map = new Map<string, BIMObject>();
+      BIM_OBJECTS.forEach(obj => { if (obj && obj.id) map.set(obj.id, obj); });
+      custom.forEach((obj: BIMObject) => { if (obj && obj.id) map.set(obj.id, obj); });
+      return Array.from(map.values());
+    } catch {
+      return BIM_OBJECTS;
+    }
+  };
+
   // Listen to custom event for directly opening BIM objects from search autocomplete
   useEffect(() => {
     const handleSelectBimObject = (e: Event) => {
       const { objectId } = (e as CustomEvent).detail;
-      const targetObj = BIM_OBJECTS.find(o => o.id === objectId);
+      const allObjs = getAllBimObjects();
+      const targetObj = allObjs.find(o => o.id === objectId);
       if (targetObj) {
         handleSelectObject(targetObj);
       }
@@ -270,7 +315,8 @@ const MainAppContent: React.FC = () => {
   };
 
   const handleToggleCompare = (id: string) => {
-    const targetObj = BIM_OBJECTS.find(o => o.id === id);
+    const allObjs = getAllBimObjects();
+    const targetObj = allObjs.find(o => o.id === id);
     if (!targetObj) return;
 
     setComparedObjects(prev => {
@@ -278,7 +324,7 @@ const MainAppContent: React.FC = () => {
         return prev.filter(x => x !== id);
       } else {
         if (prev.length > 0) {
-          const firstObj = BIM_OBJECTS.find(o => o.id === prev[0]);
+          const firstObj = allObjs.find(o => o.id === prev[0]);
           if (firstObj && (firstObj.category !== targetObj.category || firstObj.subcategory !== targetObj.subcategory)) {
             alert(isRtl 
               ? 'طبق قوانین ایران‌بیم‌هاب، مقایسه فقط بین آبجکت‌های با دسته‌بندی و زیردسته‌بندی کاملاً یکسان مجاز است!' 
@@ -389,7 +435,7 @@ const MainAppContent: React.FC = () => {
   };
 
   // Convert compared IDs to actual objects
-  const comparedListObjects = BIM_OBJECTS.filter(o => comparedObjects.includes(o.id));
+  const comparedListObjects = getAllBimObjects().filter(o => comparedObjects.includes(o.id));
 
   // Render proper body based on currentView route
   const renderViewContent = () => {
@@ -661,7 +707,17 @@ const MainAppContent: React.FC = () => {
 
       {/* Main layout frame with staggered animation entry */}
       <main className="flex-1 w-full bg-white dark:bg-gray-950 transition-colors pb-16 md:pb-0">
-        {renderViewContent()}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentView}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {renderViewContent()}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       {/* Branded Footer */}
@@ -669,99 +725,195 @@ const MainAppContent: React.FC = () => {
         onNavigate={navigateTo}
       />
 
-      {/* Sticky App-like Mobile Bottom Navigation (Optimized for mobile phones with enhanced contrast and larger touch targets) */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 dark:bg-gray-950/98 backdrop-blur-xl border-t-2 border-[#26B6B6] shadow-[0_-10px_30px_rgba(0,0,0,0.3)] flex justify-around items-center py-2.5 px-2 md:hidden select-none text-white" dir={isRtl ? 'rtl' : 'ltr'}>
-        {/* Home */}
-        <button
-          onClick={() => {
-            navigateTo('home');
-          }}
-          className={`flex flex-col items-center justify-center flex-1 py-1.5 px-1 rounded-xl transition-all cursor-pointer ${
-            currentView === 'home' 
-              ? 'bg-[#26B6B6]/20 text-[#26B6B6] font-bold scale-105 shadow-xs border border-[#26B6B6]/30' 
-              : 'text-gray-300 dark:text-gray-400 hover:text-white hover:bg-white/5'
-          }`}
-        >
-          <Home className="w-6 h-6 mb-0.5 shrink-0" />
-          <span className="text-xs font-semibold tracking-tight">{isRtl ? 'خانه' : 'Home'}</span>
-        </button>
+      {/* Sticky App-like Mobile Bottom Navigation (4-item Adaptive 3-State Layout) */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-950 border-t border-gray-150 dark:border-gray-800 shadow-[0_-8px_30px_rgba(0,0,0,0.06)] flex justify-around items-center h-16 px-1 md:hidden select-none" dir="rtl">
+        
+        {/* ================= STATE 1: GUEST ================= */}
+        {!currentUser && (
+          <>
+            {/* 1. Home - خانه */}
+            <button
+              onClick={() => navigateTo('home')}
+              className={`flex flex-col items-center justify-center flex-1 h-full py-1 rounded-xl transition-all cursor-pointer ${
+                currentView === 'home'
+                  ? 'bg-[#26B6B6]/10 text-[#26B6B6] font-black border border-[#26B6B6]/20 shadow-2xs'
+                  : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
+              }`}
+              style={{ flexBasis: '25%' }}
+            >
+              <Home className="w-5 h-5 mb-0.5 shrink-0" />
+              <span className="text-[10px] font-bold tracking-tight">{isRtl ? 'خانه' : 'Home'}</span>
+            </button>
 
-        {/* Categories / Catalog */}
-        <button
-          onClick={() => {
-            if (currentView !== 'categories') {
-              navigateTo('categories');
-            }
-            const event = new CustomEvent('toggle-categories-menu');
-            window.dispatchEvent(event);
-          }}
-          className={`flex flex-col items-center justify-center flex-1 py-1.5 px-1 rounded-xl transition-all cursor-pointer ${
-            currentView === 'categories' || isCategoriesMenuOpen
-              ? 'bg-[#26B6B6]/20 text-[#26B6B6] font-bold scale-105 shadow-xs border border-[#26B6B6]/30' 
-              : 'text-gray-300 dark:text-gray-400 hover:text-white hover:bg-white/5'
-          }`}
-        >
-          <Layers className="w-6 h-6 mb-0.5 shrink-0" />
-          <span className="text-xs font-semibold tracking-tight">{isRtl ? 'کاتالوگ BIM' : 'BIM Catalog'}</span>
-        </button>
+            {/* 2. BIM Catalog - کاتالوگ بیم */}
+            <button
+              onClick={() => navigateTo('categories')}
+              className={`flex flex-col items-center justify-center flex-1 h-full py-1 rounded-xl transition-all cursor-pointer ${
+                currentView === 'categories'
+                  ? 'bg-[#26B6B6]/10 text-[#26B6B6] font-black border border-[#26B6B6]/20 shadow-2xs'
+                  : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
+              }`}
+              style={{ flexBasis: '25%' }}
+            >
+              <Layers className="w-5 h-5 mb-0.5 shrink-0" />
+              <span className="text-[10px] font-bold tracking-tight">{isRtl ? 'کاتالوگ بیم' : 'BIM Catalog'}</span>
+            </button>
 
-        {/* Manufacturers */}
-        <button
-          onClick={() => {
-            navigateTo('manufacturers');
-          }}
-          className={`flex flex-col items-center justify-center flex-1 py-1.5 px-1 rounded-xl transition-all cursor-pointer ${
-            currentView === 'manufacturers' 
-              ? 'bg-[#26B6B6]/20 text-[#26B6B6] font-bold scale-105 shadow-xs border border-[#26B6B6]/30' 
-              : 'text-gray-300 dark:text-gray-400 hover:text-white hover:bg-white/5'
-          }`}
-        >
-          <Building className="w-6 h-6 mb-0.5 shrink-0" />
-          <span className="text-xs font-semibold tracking-tight">{isRtl ? 'برندها' : 'Brands'}</span>
-        </button>
+            {/* 3. Brands - برندها */}
+            <button
+              onClick={() => navigateTo('manufacturers')}
+              className={`flex flex-col items-center justify-center flex-1 h-full py-1 rounded-xl transition-all cursor-pointer ${
+                currentView === 'manufacturers'
+                  ? 'bg-[#26B6B6]/10 text-[#26B6B6] font-black border border-[#26B6B6]/20 shadow-2xs'
+                  : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
+              }`}
+              style={{ flexBasis: '25%' }}
+            >
+              <Building className="w-5 h-5 mb-0.5 shrink-0" />
+              <span className="text-[10px] font-bold tracking-tight">{isRtl ? 'برندها' : 'Brands'}</span>
+            </button>
 
-        {/* Saved/Favorites */}
-        <button
-          onClick={() => {
-            if (!currentUser) {
-              setIsAuthModalOpen(true);
-            } else {
-              navigateTo('modeler-dashboard');
-            }
-          }}
-          className={`flex flex-col items-center justify-center flex-1 py-1.5 px-1 rounded-xl transition-all cursor-pointer relative ${
-            currentView === 'modeler-dashboard' && currentUser
-              ? 'bg-[#26B6B6]/20 text-[#26B6B6] font-bold scale-105 shadow-xs border border-[#26B6B6]/30' 
-              : 'text-gray-300 dark:text-gray-400 hover:text-white hover:bg-white/5'
-          }`}
-        >
-          <Heart className="w-6 h-6 mb-0.5 shrink-0" />
-          <span className="text-xs font-semibold tracking-tight">{isRtl ? 'نشان‌شده' : 'Saved'}</span>
-          {savedObjects.length > 0 && (
-            <span className="absolute top-1 right-1/2 translate-x-3 bg-[#26B6B6] text-white font-sans text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-md border border-slate-900">
-              {savedObjects.length}
-            </span>
-          )}
-        </button>
+            {/* 4. Login / Sign Up - ورود / ثبت‌نام */}
+            <button
+              onClick={() => setIsAuthModalOpen(true)}
+              className="flex flex-col items-center justify-center flex-1 h-full py-1 rounded-xl transition-all cursor-pointer text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+              style={{ flexBasis: '25%' }}
+            >
+              <User className="w-5 h-5 mb-0.5 shrink-0" />
+              <span className="text-[10px] font-bold tracking-tight">{isRtl ? 'ورود / ثبت‌نام' : 'Login / Sign Up'}</span>
+            </button>
+          </>
+        )}
 
-        {/* Panel */}
-        <button
-          onClick={() => {
-            if (!currentUser) {
-              setIsAuthModalOpen(true);
-            } else {
-              navigateTo(userRole === 'Modeler' ? 'modeler-dashboard' : 'manufacturer-dashboard');
-            }
-          }}
-          className={`flex flex-col items-center justify-center flex-1 py-1.5 px-1 rounded-xl transition-all cursor-pointer ${
-            (currentView === 'modeler-dashboard' || currentView === 'manufacturer-dashboard') && currentUser
-              ? 'bg-[#26B6B6]/20 text-[#26B6B6] font-bold scale-105 shadow-xs border border-[#26B6B6]/30' 
-              : 'text-gray-300 dark:text-gray-400 hover:text-white hover:bg-white/5'
-          }`}
-        >
-          <User className="w-6 h-6 mb-0.5 shrink-0" />
-          <span className="text-xs font-semibold tracking-tight">{isRtl ? 'پنل کاربری' : 'Panel'}</span>
-        </button>
+        {/* ================= STATE 2: ENGINEER / ARCHITECT ================= */}
+        {currentUser && userRole === 'Modeler' && (
+          <>
+            {/* 1. Home - خانه */}
+            <button
+              onClick={() => handleDashboardTabNavigate('modeler-dashboard', 'overview')}
+              className={`flex flex-col items-center justify-center flex-1 h-full py-1 rounded-xl transition-all cursor-pointer ${
+                currentView === 'modeler-dashboard' && activeDashboardTab === 'overview'
+                  ? 'bg-[#26B6B6]/10 text-[#26B6B6] font-black border border-[#26B6B6]/20 shadow-2xs'
+                  : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
+              }`}
+              style={{ flexBasis: '25%' }}
+            >
+              <Home className="w-5 h-5 mb-0.5 shrink-0" />
+              <span className="text-[10px] font-bold tracking-tight">{isRtl ? 'خانه' : 'Home'}</span>
+            </button>
+
+            {/* 2. BIM Catalog - کاتالوگ بیم */}
+            <button
+              onClick={() => navigateTo('categories')}
+              className={`flex flex-col items-center justify-center flex-1 h-full py-1 rounded-xl transition-all cursor-pointer ${
+                currentView === 'categories'
+                  ? 'bg-[#26B6B6]/10 text-[#26B6B6] font-black border border-[#26B6B6]/20 shadow-2xs'
+                  : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
+              }`}
+              style={{ flexBasis: '25%' }}
+            >
+              <Layers className="w-5 h-5 mb-0.5 shrink-0" />
+              <span className="text-[10px] font-bold tracking-tight">{isRtl ? 'کاتالوگ بیم' : 'BIM Catalog'}</span>
+            </button>
+
+            {/* 3. My Library - کتابخانه من */}
+            <button
+              onClick={() => handleDashboardTabNavigate('modeler-dashboard', 'collections')}
+              className={`flex flex-col items-center justify-center flex-1 h-full py-1 rounded-xl transition-all cursor-pointer relative ${
+                currentView === 'modeler-dashboard' && (activeDashboardTab === 'collections' || activeDashboardTab === 'history')
+                  ? 'bg-[#26B6B6]/10 text-[#26B6B6] font-black border border-[#26B6B6]/20 shadow-2xs'
+                  : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
+              }`}
+              style={{ flexBasis: '25%' }}
+            >
+              <Folder className="w-5 h-5 mb-0.5 shrink-0" />
+              <span className="text-[10px] font-bold tracking-tight">{isRtl ? 'کتابخانه من' : 'My Library'}</span>
+              {savedObjects.length > 0 && (
+                <span className="absolute top-1.5 right-1/2 translate-x-3.5 bg-[#26B6B6] text-white font-sans text-[8px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center shadow-md border border-white">
+                  {savedObjects.length}
+                </span>
+              )}
+            </button>
+
+            {/* 4. My Account - حساب من */}
+            <button
+              onClick={() => handleDashboardTabNavigate('modeler-dashboard', 'profile')}
+              className={`flex flex-col items-center justify-center flex-1 h-full py-1 rounded-xl transition-all cursor-pointer ${
+                currentView === 'modeler-dashboard' && activeDashboardTab === 'profile'
+                  ? 'bg-[#26B6B6]/10 text-[#26B6B6] font-black border border-[#26B6B6]/20 shadow-2xs'
+                  : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
+              }`}
+              style={{ flexBasis: '25%' }}
+            >
+              <User className="w-5 h-5 mb-0.5 shrink-0" />
+              <span className="text-[10px] font-bold tracking-tight">{isRtl ? 'حساب من' : 'My Account'}</span>
+            </button>
+          </>
+        )}
+
+        {/* ================= STATE 3: MANUFACTURER / BRAND OWNER ================= */}
+        {currentUser && userRole === 'Manufacturer' && (
+          <>
+            {/* 1. Home - خانه */}
+            <button
+              onClick={() => handleDashboardTabNavigate('manufacturer-dashboard', 'overview')}
+              className={`flex flex-col items-center justify-center flex-1 h-full py-1 rounded-xl transition-all cursor-pointer ${
+                currentView === 'manufacturer-dashboard' && activeDashboardTab === 'overview'
+                  ? 'bg-[#26B6B6]/10 text-[#26B6B6] font-black border border-[#26B6B6]/20 shadow-2xs'
+                  : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
+              }`}
+              style={{ flexBasis: '25%' }}
+            >
+              <Home className="w-5 h-5 mb-0.5 shrink-0" />
+              <span className="text-[10px] font-bold tracking-tight">{isRtl ? 'خانه' : 'Home'}</span>
+            </button>
+
+            {/* 2. My Products - محصولات من */}
+            <button
+              onClick={() => handleDashboardTabNavigate('manufacturer-dashboard', 'catalog')}
+              className={`flex flex-col items-center justify-center flex-1 h-full py-1 rounded-xl transition-all cursor-pointer ${
+                currentView === 'manufacturer-dashboard' && activeDashboardTab === 'catalog'
+                  ? 'bg-[#26B6B6]/10 text-[#26B6B6] font-black border border-[#26B6B6]/20 shadow-2xs'
+                  : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
+              }`}
+              style={{ flexBasis: '25%' }}
+            >
+              <Package className="w-5 h-5 mb-0.5 shrink-0" />
+              <span className="text-[10px] font-bold tracking-tight">{isRtl ? 'محصولات من' : 'My Products'}</span>
+            </button>
+
+            {/* 3. Messages - پیام‌ها */}
+            <button
+              onClick={() => handleDashboardTabNavigate('manufacturer-dashboard', 'requests')}
+              className={`flex flex-col items-center justify-center flex-1 h-full py-1 rounded-xl transition-all cursor-pointer relative ${
+                currentView === 'manufacturer-dashboard' && activeDashboardTab === 'requests'
+                  ? 'bg-[#26B6B6]/10 text-[#26B6B6] font-black border border-[#26B6B6]/20 shadow-2xs'
+                  : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
+              }`}
+              style={{ flexBasis: '25%' }}
+            >
+              <MessageSquare className="w-5 h-5 mb-0.5 shrink-0" />
+              <span className="text-[10px] font-bold tracking-tight">{isRtl ? 'پیام‌ها' : 'Messages'}</span>
+              <span className="absolute top-2.5 right-1/2 translate-x-3 w-1.5 h-1.5 bg-rose-500 rounded-full shadow-xs animate-ping" />
+              <span className="absolute top-2.5 right-1/2 translate-x-3 w-1.5 h-1.5 bg-rose-500 rounded-full shadow-xs" />
+            </button>
+
+            {/* 4. My Account - حساب من */}
+            <button
+              onClick={() => handleDashboardTabNavigate('manufacturer-dashboard', 'profile')}
+              className={`flex flex-col items-center justify-center flex-1 h-full py-1 rounded-xl transition-all cursor-pointer ${
+                currentView === 'manufacturer-dashboard' && activeDashboardTab === 'profile'
+                  ? 'bg-[#26B6B6]/10 text-[#26B6B6] font-black border border-[#26B6B6]/20 shadow-2xs'
+                  : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
+              }`}
+              style={{ flexBasis: '25%' }}
+            >
+              <User className="w-5 h-5 mb-0.5 shrink-0" />
+              <span className="text-[10px] font-bold tracking-tight">{isRtl ? 'حساب من' : 'My Account'}</span>
+            </button>
+          </>
+        )}
+
       </div>
 
       {/* Unified Security Gate Auth Modal */}

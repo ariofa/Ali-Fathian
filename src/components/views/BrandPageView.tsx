@@ -420,6 +420,8 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
     ];
   });
 
+  const [customObjectsVersion, setCustomObjectsVersion] = useState(0);
+
   useEffect(() => {
     const handleProfileSync = () => {
       try {
@@ -441,9 +443,14 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
       } catch (e) {
         console.error(e);
       }
+      setCustomObjectsVersion(v => v + 1);
     };
     window.addEventListener('iranbimhub_brand_profile_updated', handleProfileSync);
-    return () => window.removeEventListener('iranbimhub_brand_profile_updated', handleProfileSync);
+    window.addEventListener('iranbimhub_custom_objects_updated', handleProfileSync);
+    return () => {
+      window.removeEventListener('iranbimhub_brand_profile_updated', handleProfileSync);
+      window.removeEventListener('iranbimhub_custom_objects_updated', handleProfileSync);
+    };
   }, [manufacturer.id]);
 
   const activeMfg = {
@@ -710,8 +717,20 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
     return displayVideos[0];
   }, [displayVideos, selectedVideoId]);
 
-  // Filter BIM Objects related specifically to this manufacturer
-  const manufacturerObjects = BIM_OBJECTS.filter(obj => obj.manufacturerId === manufacturer.id);
+  // Filter BIM Objects related specifically to this manufacturer (including custom ones added from dashboard)
+  const manufacturerObjects = React.useMemo(() => {
+    try {
+      const saved = localStorage.getItem('iranbimhub_custom_objects_v2');
+      const custom = saved ? JSON.parse(saved) : [];
+      const map = new Map<string, any>();
+      BIM_OBJECTS.forEach(obj => { if (obj && obj.id) map.set(obj.id, obj); });
+      custom.forEach((obj: any) => { if (obj && obj.id) map.set(obj.id, obj); });
+      const combined = Array.from(map.values());
+      return combined.filter(obj => obj && (obj.manufacturerId === manufacturer.id || (manufacturer.id === 'm1' && obj.manufacturerId === 'custom')));
+    } catch {
+      return BIM_OBJECTS.filter(obj => obj.manufacturerId === manufacturer.id);
+    }
+  }, [manufacturer.id, customObjectsVersion]);
 
   // Catalog Filtering State
   const [catalogSearchQuery, setCatalogSearchQuery] = useState('');

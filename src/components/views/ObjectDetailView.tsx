@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useLanguage } from '../LanguageContext';
 import { BIMObject } from '../../types';
 import { MANUFACTURERS, BIM_OBJECTS, CATEGORIES } from '../../data';
@@ -135,7 +135,19 @@ export const ObjectDetailView: React.FC<ObjectDetailViewProps> = ({
   const desc = isRtl ? object.descriptionFa : object.descriptionEn;
 
   // Get similar products in same category
-  const related = BIM_OBJECTS.filter(o => o.category === object.category && o.id !== object.id).slice(0, 3);
+  const related = useMemo(() => {
+    try {
+      const saved = localStorage.getItem('iranbimhub_custom_objects_v2');
+      const custom = saved ? JSON.parse(saved) : [];
+      const map = new Map<string, BIMObject>();
+      BIM_OBJECTS.forEach(obj => { if (obj && obj.id) map.set(obj.id, obj); });
+      custom.forEach((obj: BIMObject) => { if (obj && obj.id) map.set(obj.id, obj); });
+      const combined = Array.from(map.values());
+      return combined.filter(o => o.category === object.category && o.id !== object.id).slice(0, 3);
+    } catch {
+      return BIM_OBJECTS.filter(o => o.category === object.category && o.id !== object.id).slice(0, 3);
+    }
+  }, [object.category, object.id]);
 
   const handleSubmitInquiry = (e: React.FormEvent) => {
     e.preventDefault();

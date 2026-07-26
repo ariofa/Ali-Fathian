@@ -299,7 +299,20 @@ export const Header: React.FC<HeaderProps> = ({
     });
 
     // 2. Match BIM Objects (by title or tags)
-    BIM_OBJECTS.forEach(obj => {
+    const combinedObjects = (() => {
+      try {
+        const saved = localStorage.getItem('iranbimhub_custom_objects_v2');
+        const custom = saved ? JSON.parse(saved) : [];
+        const map = new Map<string, any>();
+        BIM_OBJECTS.forEach(obj => { if (obj && obj.id) map.set(obj.id, obj); });
+        custom.forEach((obj: any) => { if (obj && obj.id) map.set(obj.id, obj); });
+        return Array.from(map.values());
+      } catch {
+        return BIM_OBJECTS;
+      }
+    })();
+
+    combinedObjects.forEach(obj => {
       const title = isRtl ? obj.titleFa : obj.titleEn;
       const otherTitle = isRtl ? obj.titleEn : obj.titleFa;
       const matchesTitle = title.toLowerCase().includes(query) || otherTitle.toLowerCase().includes(query);

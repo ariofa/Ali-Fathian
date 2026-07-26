@@ -203,6 +203,32 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const [followedCategories, setFollowedCategories] = useState<string[]>([]);
   const [isCategoriesExpanded, setIsCategoriesExpanded] = useState(false);
   const [openLandingFaq, setOpenLandingFaq] = useState<number | null>(null);
+
+  const [customObjectsVersion, setCustomObjectsVersion] = useState(0);
+
+  useEffect(() => {
+    const handleSync = () => setCustomObjectsVersion(v => v + 1);
+    window.addEventListener('iranbimhub_custom_objects_updated', handleSync);
+    window.addEventListener('iranbimhub_brand_profile_updated', handleSync);
+    return () => {
+      window.removeEventListener('iranbimhub_custom_objects_updated', handleSync);
+      window.removeEventListener('iranbimhub_brand_profile_updated', handleSync);
+    };
+  }, []);
+
+  // Dynamic Combined objects list
+  const combinedObjects = React.useMemo(() => {
+    try {
+      const saved = localStorage.getItem('iranbimhub_custom_objects_v2');
+      const custom = saved ? JSON.parse(saved) : [];
+      const map = new Map<string, BIMObject>();
+      BIM_OBJECTS.forEach(obj => { if (obj && obj.id) map.set(obj.id, obj); });
+      custom.forEach((obj: BIMObject) => { if (obj && obj.id) map.set(obj.id, obj); });
+      return Array.from(map.values());
+    } catch {
+      return BIM_OBJECTS;
+    }
+  }, [customObjectsVersion]);
   
   // Carousel State & Interactive Drag Stack
   const [activeSlide, setActiveSlide] = useState(0);
@@ -545,7 +571,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
   // Filter suggestions based on searchQuery
   const suggestions = searchQuery.trim().length > 1 ? {
-    products: BIM_OBJECTS.filter(o => 
+    products: combinedObjects.filter(o => 
       o.titleFa.toLowerCase().includes(searchQuery.toLowerCase()) || 
       o.titleEn.toLowerCase().includes(searchQuery.toLowerCase())
     ).slice(0, 3),
@@ -976,7 +1002,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
         {/* Objects Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {BIM_OBJECTS.slice(-4).reverse().map((obj) => (
+          {combinedObjects.slice(-4).reverse().map((obj) => (
             <BIMObjectCard
               key={`new-obj-${obj.id}`}
               object={obj}

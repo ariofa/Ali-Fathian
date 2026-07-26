@@ -165,22 +165,24 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
     setSlideProgress(0);
   };
 
-  // Auto-play slide timer - strict sequential cycling
+  // Auto-play slide progress increment
   useEffect(() => {
     if (isPaused) return;
 
     const interval = setInterval(() => {
-      setSlideProgress((prev) => {
-        if (prev >= 100) {
-          setActiveSlide((current) => (current + 1) % SLIDE_CONFIGS.length);
-          return 0;
-        }
-        return prev + 2;
-      });
+      setSlideProgress((prev) => prev + 2);
     }, 120);
 
     return () => clearInterval(interval);
   }, [isPaused]);
+
+  // Handle slide transition when progress reaches 100%
+  useEffect(() => {
+    if (slideProgress >= 100) {
+      setActiveSlide((prev) => (prev + 1) % SLIDE_CONFIGS.length);
+      setSlideProgress(0);
+    }
+  }, [slideProgress]);
 
   const handleDragStart = (clientX: number) => {
     setDragStartX(clientX);
@@ -299,16 +301,16 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
       <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-[#26B6B6]/15 blur-3xl animate-tech-pulse pointer-events-none z-10" />
 
       {/* Content Container */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-6 sm:py-8 md:py-12 relative z-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-3.5 sm:py-8 md:py-12 relative z-20">
         <div
-          className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10 items-center min-h-[500px] sm:min-h-[440px] md:min-h-[420px] lg:min-h-[400px] transition-transform duration-100 ease-out"
+          className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10 items-center min-h-[350px] sm:min-h-[440px] md:min-h-[420px] lg:min-h-[400px] transition-transform duration-100 ease-out"
           style={{
             transform: dragOffsetX !== 0 ? `translateX(${dragOffsetX}px) rotate(${dragOffsetX * 0.015}deg)` : 'none'
           }}
         >
           {/* Left Text Content */}
-          <div className="md:col-span-12 space-y-3 sm:space-y-5 flex flex-col justify-center animate-fadeIn">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-slate-950/80 backdrop-blur-md border border-[#26B6B6]/30 rounded-full text-xs font-bold text-[#26B6B6] self-start shadow-md max-w-full">
+          <div className="md:col-span-12 space-y-2 sm:space-y-5 flex flex-col justify-center animate-fadeIn">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-950/80 backdrop-blur-md border border-[#26B6B6]/30 rounded-full text-[10px] sm:text-xs font-bold text-[#26B6B6] self-start shadow-md max-w-full">
               <Sparkles className="w-3.5 h-3.5 text-[#26B6B6] shrink-0" />
               <span className="truncate">
                 {isRtl ? SLIDE_CONFIGS[activeSlide].badgeFa : SLIDE_CONFIGS[activeSlide].badgeEn}
@@ -319,7 +321,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
               {isRtl ? SLIDE_CONFIGS[activeSlide].headingFa : SLIDE_CONFIGS[activeSlide].headingEn}
             </h1>
 
-            <p className="text-xs sm:text-base md:text-lg text-gray-200 leading-relaxed font-normal max-w-2xl drop-shadow-sm transition-all duration-300">
+            <p className="text-[11px] sm:text-base md:text-lg text-gray-200 leading-relaxed font-normal max-w-2xl drop-shadow-sm transition-all duration-300">
               {isRtl ? SLIDE_CONFIGS[activeSlide].descFa : SLIDE_CONFIGS[activeSlide].descEn}
             </p>
 
@@ -420,8 +422,8 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
         </div>
 
         {/* Carousel Clickable Tabs + Progress Bar + Transparent Navigation Arrows */}
-        <div className="mt-8 pt-4 border-t border-white/15">
-          <div className="flex items-center justify-between gap-2 sm:gap-4 max-w-5xl mx-auto px-1 sm:px-2">
+        <div className="mt-4 pt-2.5 border-t border-white/15">
+          <div className="flex items-center justify-between gap-1.5 sm:gap-4 max-w-5xl mx-auto px-1 sm:px-2">
             {/* Left Navigation Arrow */}
             <button
               type="button"
@@ -433,10 +435,10 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
                   handlePrevSlide();
                 }
               }}
-              className="p-2 sm:p-2.5 rounded-full text-white/70 hover:text-white bg-transparent hover:bg-white/10 transition-all cursor-pointer flex items-center justify-center shrink-0 hover:scale-110 active:scale-95"
+              className="p-1 sm:p-2.5 rounded-full text-white/70 hover:text-white bg-transparent hover:bg-white/10 transition-all cursor-pointer flex items-center justify-center shrink-0 hover:scale-110 active:scale-95"
               title={isRtl ? 'اسلاید بعدی' : 'Previous slide'}
             >
-              <ChevronLeft className="w-6 h-6 sm:w-7 sm:h-7" />
+              <ChevronLeft className="w-5 h-5 sm:w-7 sm:h-7" />
             </button>
 
             {/* Stepper Pills with Slide Numbers */}
@@ -451,14 +453,14 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
                       setActiveSlide(idx);
                       setSlideProgress(0);
                     }}
-                    className={`relative py-2.5 px-1 sm:px-3 rounded-xl transition-all duration-300 cursor-pointer text-center group flex flex-col items-center justify-between gap-1.5 ${
+                    className={`relative py-1.5 sm:py-2.5 px-1 sm:px-3 rounded-xl transition-all duration-300 cursor-pointer text-center group flex flex-col items-center justify-between gap-1 ${
                       isActive
                         ? 'bg-slate-950/80 border border-[#26B6B6]/50 shadow-lg text-white'
                         : 'bg-slate-900/40 hover:bg-slate-900/70 border border-white/10 text-gray-300 hover:text-white'
                     }`}
                   >
-                    <div className="flex items-center justify-center gap-1.5">
-                      <span className={`font-mono text-xs font-bold ${isActive ? 'text-[#26B6B6]' : 'text-gray-400'}`}>
+                    <div className="flex items-center justify-center gap-1">
+                      <span className={`font-mono text-[10px] sm:text-xs font-bold ${isActive ? 'text-[#26B6B6]' : 'text-gray-400'}`}>
                         {isRtl ? cfg.numFa : cfg.numEn}
                       </span>
                       <span className={`hidden sm:inline text-xs font-extrabold ${isActive ? 'text-white' : 'text-gray-300'}`}>
@@ -466,7 +468,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
                       </span>
                     </div>
 
-                    <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden mt-1">
+                    <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden mt-0.5">
                       <div
                         className={`h-full bg-[#26B6B6] transition-all duration-100 ease-linear rounded-full ${
                           isActive ? '' : 'w-0'
@@ -492,10 +494,10 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
                   handleNextSlide();
                 }
               }}
-              className="p-2 sm:p-2.5 rounded-full text-white/70 hover:text-white bg-transparent hover:bg-white/10 transition-all cursor-pointer flex items-center justify-center shrink-0 hover:scale-110 active:scale-95"
+              className="p-1 sm:p-2.5 rounded-full text-white/70 hover:text-white bg-transparent hover:bg-white/10 transition-all cursor-pointer flex items-center justify-center shrink-0 hover:scale-110 active:scale-95"
               title={isRtl ? 'اسلاید قبلی' : 'Next slide'}
             >
-              <ChevronRight className="w-6 h-6 sm:w-7 sm:h-7" />
+              <ChevronRight className="w-5 h-5 sm:w-7 sm:h-7" />
             </button>
           </div>
         </div>

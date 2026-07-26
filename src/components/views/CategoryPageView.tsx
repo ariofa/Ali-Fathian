@@ -45,9 +45,35 @@ export const CategoryPageView: React.FC<CategoryPageViewProps> = ({
   });
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
+  const [customObjectsVersion, setCustomObjectsVersion] = useState(0);
+
+  React.useEffect(() => {
+    const handleSync = () => setCustomObjectsVersion(v => v + 1);
+    window.addEventListener('iranbimhub_custom_objects_updated', handleSync);
+    window.addEventListener('iranbimhub_brand_profile_updated', handleSync);
+    return () => {
+      window.removeEventListener('iranbimhub_custom_objects_updated', handleSync);
+      window.removeEventListener('iranbimhub_brand_profile_updated', handleSync);
+    };
+  }, []);
+
+  // Dynamic Combined objects list
+  const combinedObjects = useMemo(() => {
+    try {
+      const saved = localStorage.getItem('iranbimhub_custom_objects_v2');
+      const custom = saved ? JSON.parse(saved) : [];
+      const map = new Map<string, BIMObject>();
+      BIM_OBJECTS.forEach(obj => { if (obj && obj.id) map.set(obj.id, obj); });
+      custom.forEach((obj: BIMObject) => { if (obj && obj.id) map.set(obj.id, obj); });
+      return Array.from(map.values());
+    } catch {
+      return BIM_OBJECTS;
+    }
+  }, [customObjectsVersion]);
+
   // Advanced search & filter logic
   const filteredObjects = useMemo(() => {
-    return BIM_OBJECTS.filter(obj => {
+    return combinedObjects.filter(obj => {
       
       // 1. Search Query filter (checks title, description, tags, manufacturer)
       if (filterState.search) {
@@ -121,7 +147,7 @@ export const CategoryPageView: React.FC<CategoryPageViewProps> = ({
         return b.id.localeCompare(a.id);
       }
     });
-  }, [filterState, sortBy, isRtl]);
+  }, [combinedObjects, filterState, sortBy, isRtl]);
 
   const activeCategoryObject = useMemo(() => {
     return CATEGORIES.find(c => c.id === filterState.category);

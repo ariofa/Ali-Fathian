@@ -719,7 +719,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
   const [editingCatId, setEditingCatId] = useState<string | null>(null);
 
   // ADD PRODUCT WIZARD STATE
-  const [wizardStep, setWizardStep] = useState<1 | 2 | 3>(1);
+  const [wizardStep, setWizardStep] = useState<1 | 2 | 3>(3);
   const [agreePublishTerms, setAgreePublishTerms] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('doors_windows');
   const [dragActive, setDragActive] = useState(false);
@@ -4253,25 +4253,70 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
         {/* PRODUCTS / CATALOG MANAGEMENT */}
         {activeTab === 'catalog' && (
           <div className="space-y-6 animate-fadeIn">
-            {/* Catalog management tools */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div>
-                <h2 className="text-sm font-bold text-gray-800 dark:text-white flex items-center gap-2">
+            {/* Prominent Action Card */}
+            <div className="p-6 bg-gradient-to-r from-teal-500/10 via-teal-500/5 to-transparent dark:from-teal-500/20 dark:via-teal-500/5 dark:to-transparent border border-teal-500/20 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
                   <Grid className="w-5 h-5 text-[#26B6B6]" />
-                  <span>{isRtl ? 'مدیریت و پایش فایل‌های لایبری کاتالوگ' : 'Catalog Library Inventory'}</span>
-                </h2>
-                <p className="text-[11px] text-gray-400 mt-1">
-                  {isRtl ? 'مشاهده آمار تک‌تک محصولات، اضافه کردن مدل‌های سه بعدی رویت و ثبت آپدیت برای فایل‌ها.' : 'Track file download stats, deploy family versions and publish parametric specifications.'}
+                  <h2 className="text-sm font-bold text-gray-800 dark:text-white">
+                    {isRtl ? 'انبار آبجکت‌های پارامتریک و مدل‌های بیم' : 'BIM SKUs & Parametric Objects Inventory'}
+                  </h2>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {isRtl ? 'مدیریت، نسخه‌گذاری و انتشار فمیلی‌های رویت و IFC برای استفاده طراحان و مهندسان AEC.' : 'Manage, version, and publish Revit & IFC families for AEC engineers and designers.'}
                 </p>
               </div>
 
               <button 
                 onClick={() => setWizardStep(1)}
-                className="bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-bold px-4.5 py-2.5 rounded-xl flex items-center gap-1.5 shadow-sm cursor-pointer"
+                className="bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-bold px-5 py-3 rounded-xl flex items-center gap-2 shadow-sm cursor-pointer transition-transform hover:scale-102 active:scale-98 shrink-0"
               >
                 <Plus className="w-4 h-4" />
-                <span>{isRtl ? 'افزودن آبجکت بیم جدید' : 'Add New BIM Object'}</span>
+                <span>{isRtl ? 'افزودن آبجکت بیم جدید' : 'Add New Parametric BIM Object'}</span>
               </button>
+            </div>
+
+            {/* Quick Summary Stat Bar */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-3.5 rounded-xl flex items-center gap-3">
+                <div className="p-2 bg-slate-100 dark:bg-gray-800 rounded-lg text-gray-600 dark:text-gray-300">
+                  <Layers className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-[10px] text-gray-400 font-medium">{isRtl ? 'کل آبجکت‌ها' : 'Total Objects'}</div>
+                  <div className="text-sm font-extrabold text-gray-800 dark:text-white font-mono">{catalogObjects.length}</div>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-3.5 rounded-xl flex items-center gap-3">
+                <div className="p-2 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg text-emerald-500">
+                  <CheckCircle className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-[10px] text-gray-400 font-medium">{isRtl ? 'منتشر شده' : 'Published'}</div>
+                  <div className="text-sm font-extrabold text-gray-800 dark:text-white font-mono">{catalogObjects.filter(o => (o as any).status === 'Published').length}</div>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-3.5 rounded-xl flex items-center gap-3">
+                <div className="p-2 bg-amber-50 dark:bg-amber-950/30 rounded-lg text-amber-500">
+                  <Clock className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-[10px] text-gray-400 font-medium">{isRtl ? 'در انتظار بررسی' : 'Pending Review'}</div>
+                  <div className="text-sm font-extrabold text-gray-800 dark:text-white font-mono">{pendingApprovalsCount}</div>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-3.5 rounded-xl flex items-center gap-3">
+                <div className="p-2 bg-teal-50 dark:bg-teal-950/30 rounded-lg text-[#26B6B6]">
+                  <FileText className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-[10px] text-gray-400 font-medium">{isRtl ? 'مجموع دانلودها' : 'Total Downloads'}</div>
+                  <div className="text-sm font-extrabold text-gray-800 dark:text-white font-mono">{totalDownloads}</div>
+                </div>
+              </div>
             </div>
 
             {/* Catalog list view spreadsheet style */}
@@ -4299,60 +4344,95 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
               </select>
             </div>
 
-            {/* Catalog Grid spreadsheet table */}
-            <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden shadow-2xs">
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs text-start">
-                  <thead>
-                    <tr className="bg-slate-50/50 dark:bg-gray-950/50 text-gray-400 font-bold border-b border-gray-100 dark:border-gray-800">
-                      <th className="p-3 text-start">{isRtl ? 'تصویر محصول' : 'Preview'}</th>
-                      <th className="p-3 text-start">{isRtl ? 'نام مدل هوشمند صنعتی' : 'BIM SKU Item'}</th>
-                      <th className="p-3 text-center">{isRtl ? 'شاخه و کتگوری' : 'Category'}</th>
-                      <th className="p-3 text-center">{isRtl ? 'وضعیت تایید فنی' : 'Approval Status'}</th>
-                      <th className="p-3 text-center">{isRtl ? 'تعداد بازدید' : 'Views'}</th>
-                      <th className="p-3 text-center">{isRtl ? 'تعداد دانلود' : 'Downloads'}</th>
-                      <th className="p-3 text-center">{isRtl ? 'نسخه‌گذاری' : 'Version Control'}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50 dark:divide-gray-800 text-gray-700 dark:text-gray-300">
-                    {filteredCatalog.map(obj => (
-                      <tr key={obj.id} className="hover:bg-slate-50/30 dark:hover:bg-gray-950/30 transition-colors">
-                        <td className="p-3">
-                          <img src={obj.imageUrl} alt="preview" className="w-10 h-10 rounded object-cover border" />
-                        </td>
-                        <td className="p-3 font-bold text-gray-800 dark:text-white max-w-xs truncate">
-                          {isRtl ? obj.titleFa : obj.titleEn}
-                          <span className="block font-mono text-[9px] text-gray-400 mt-0.5">{obj.lod}</span>
-                        </td>
-                        <td className="p-3 text-center text-gray-500 dark:text-gray-400 font-medium">{obj.category}</td>
-                        <td className="p-3 text-center">
-                          <span className={`text-[9.5px] font-black px-2 py-0.5 rounded-full ${
-                            (obj as any).status === 'Published' 
-                              ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400' 
-                              : 'bg-amber-100 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400'
-                          }`}>
-                            {(obj as any).status || 'Published'}
-                          </span>
-                        </td>
-                        <td className="p-3 text-center font-mono font-bold text-gray-600 dark:text-gray-300">{(obj as any).views || 0}</td>
-                        <td className="p-3 text-center font-mono font-bold text-gray-600 dark:text-gray-300">{(obj as any).downloads || 0}</td>
-                        <td className="p-3 text-center">
-                          <button 
-                            onClick={() => {
-                              const v = prompt(isRtl ? 'ورژن جدید فایل را وارد کنید (مثال: v1.2.0):' : 'Enter updated version tag (e.g. v2.1.0):');
-                              if (v) alert(isRtl ? `ورژن جدید ${v} ثبت شد.` : `Version ${v} logged.`);
-                            }}
-                            className="bg-slate-50 hover:bg-slate-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-[10px] py-1 px-2.5 rounded border border-slate-100 dark:border-gray-700 cursor-pointer"
-                          >
-                            {isRtl ? 'ثبت آپدیت' : 'Update file'}
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            {/* Catalog Grid spreadsheet table or Empty State */}
+            {filteredCatalog.length === 0 ? (
+              <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-10 text-center space-y-4">
+                <div className="w-16 h-16 bg-slate-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center mx-auto text-gray-400">
+                  <Grid className="w-8 h-8 text-[#26B6B6]/60" />
+                </div>
+                <div className="space-y-1.5 max-w-md mx-auto">
+                  <h3 className="text-sm font-bold text-gray-800 dark:text-white">
+                    {isRtl ? 'هیچ آبجکت بیم با این مشخصات یافت نشد' : 'No BIM Objects Found'}
+                  </h3>
+                  <p className="text-xs text-gray-400 leading-relaxed">
+                    {isRtl 
+                      ? 'هنوز محصولی ثبت نکرده‌اید یا فیلترهای جستجو موردی پیدا نکردند. اولین فایل رویت یا IFC خود را با کلیک روی دکمه زیر اضافه کنید.'
+                      : 'You have not added any BIM models yet or search filters returned no results. Add your first Revit or IFC file now.'}
+                  </p>
+                </div>
+                <div className="pt-2 flex justify-center gap-3">
+                  {(catalogSearch || catalogStatus !== 'all') && (
+                    <button
+                      onClick={() => { setCatalogSearch(''); setCatalogStatus('all'); }}
+                      className="px-4 py-2 border rounded-xl text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-gray-800 cursor-pointer"
+                    >
+                      {isRtl ? 'پاک‌سازی فیلترها' : 'Clear Filters'}
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setWizardStep(1)}
+                    className="px-4 py-2 bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-bold rounded-xl flex items-center gap-1.5 cursor-pointer shadow-xs"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>{isRtl ? 'افزودن اولین آبجکت بیم' : 'Add First BIM Object'}</span>
+                  </button>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden shadow-2xs">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs text-start">
+                    <thead>
+                      <tr className="bg-slate-50/50 dark:bg-gray-950/50 text-gray-400 font-bold border-b border-gray-100 dark:border-gray-800">
+                        <th className="p-3 text-start">{isRtl ? 'تصویر محصول' : 'Preview'}</th>
+                        <th className="p-3 text-start">{isRtl ? 'نام مدل هوشمند صنعتی' : 'BIM SKU Item'}</th>
+                        <th className="p-3 text-center">{isRtl ? 'شاخه و کتگوری' : 'Category'}</th>
+                        <th className="p-3 text-center">{isRtl ? 'وضعیت تایید فنی' : 'Approval Status'}</th>
+                        <th className="p-3 text-center">{isRtl ? 'تعداد بازدید' : 'Views'}</th>
+                        <th className="p-3 text-center">{isRtl ? 'تعداد دانلود' : 'Downloads'}</th>
+                        <th className="p-3 text-center">{isRtl ? 'نسخه‌گذاری' : 'Version Control'}</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50 dark:divide-gray-800 text-gray-700 dark:text-gray-300">
+                      {filteredCatalog.map(obj => (
+                        <tr key={obj.id} className="hover:bg-slate-50/30 dark:hover:bg-gray-950/30 transition-colors">
+                          <td className="p-3">
+                            <img src={obj.imageUrl} alt="preview" className="w-10 h-10 rounded object-cover border" />
+                          </td>
+                          <td className="p-3 font-bold text-gray-800 dark:text-white max-w-xs truncate">
+                            {isRtl ? obj.titleFa : obj.titleEn}
+                            <span className="block font-mono text-[9px] text-gray-400 mt-0.5">{obj.lod}</span>
+                          </td>
+                          <td className="p-3 text-center text-gray-500 dark:text-gray-400 font-medium">{obj.category}</td>
+                          <td className="p-3 text-center">
+                            <span className={`text-[9.5px] font-black px-2 py-0.5 rounded-full ${
+                              (obj as any).status === 'Published' 
+                                ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400' 
+                                : 'bg-amber-100 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400'
+                            }`}>
+                              {(obj as any).status || 'Published'}
+                            </span>
+                          </td>
+                          <td className="p-3 text-center font-mono font-bold text-gray-600 dark:text-gray-300">{(obj as any).views || 0}</td>
+                          <td className="p-3 text-center font-mono font-bold text-gray-600 dark:text-gray-300">{(obj as any).downloads || 0}</td>
+                          <td className="p-3 text-center">
+                            <button 
+                              onClick={() => {
+                                const v = prompt(isRtl ? 'ورژن جدید فایل را وارد کنید (مثال: v1.2.0):' : 'Enter updated version tag (e.g. v2.1.0):');
+                                if (v) alert(isRtl ? `ورژن جدید ${v} ثبت شد.` : `Version ${v} logged.`);
+                              }}
+                              className="bg-slate-50 hover:bg-slate-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-[10px] py-1 px-2.5 rounded border border-slate-100 dark:border-gray-700 cursor-pointer"
+                            >
+                              {isRtl ? 'ثبت آپدیت' : 'Update file'}
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
 
             {/* ADD PRODUCT WIZARD POPUP */}
             {wizardStep !== 3 && (
