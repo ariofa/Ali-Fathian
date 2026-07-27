@@ -882,7 +882,7 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
             </div>
 
             {/* Right Col: Buttons Controls */}
-            <div className="flex flex-row sm:flex-row lg:flex-col gap-3 shrink-0 items-center lg:items-end justify-start sm:justify-end lg:justify-center w-full lg:w-auto">
+            <div className="flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0 items-stretch sm:items-center lg:items-end justify-start sm:justify-end lg:justify-center w-full lg:w-auto">
               {/* Follow Button */}
               <button
                 onClick={handleFollowToggle}
@@ -938,12 +938,14 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
                     target="_blank"
                     rel="noreferrer"
                     download={activeMfg.portfolioPdfName || 'Company_Portfolio.pdf'}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-extrabold rounded-xl shadow-xs transition-all hover:scale-102 active:scale-95 cursor-pointer"
+                    className="inline-flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-1.5 sm:gap-2 px-4 py-2.5 bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-extrabold rounded-xl shadow-xs transition-all hover:scale-102 active:scale-95 cursor-pointer w-full sm:w-auto"
                   >
-                    <Download className="w-4 h-4" />
-                    <span>{isRtl ? 'دانلود پرتفولیوی شرکت (PDF)' : 'Download Portfolio Catalog'}</span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Download className="w-4 h-4" />
+                      <span>{isRtl ? 'دانلود پرتفولیوی شرکت (PDF)' : 'Download Portfolio Catalog'}</span>
+                    </div>
                     {activeMfg.portfolioPdfName && (
-                      <span className="text-[10px] opacity-80 font-mono font-normal">({activeMfg.portfolioPdfName})</span>
+                      <span className="text-[10px] opacity-80 font-mono font-normal truncate max-w-[240px] sm:max-w-xs inline-block">({activeMfg.portfolioPdfName})</span>
                     )}
                   </a>
                 </div>

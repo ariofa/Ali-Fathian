@@ -725,8 +725,8 @@ const MainAppContent: React.FC = () => {
         onNavigate={navigateTo}
       />
 
-      {/* Sticky App-like Mobile Bottom Navigation (4-item Adaptive 3-State Layout) */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-950 border-t border-gray-150 dark:border-gray-800 shadow-[0_-8px_30px_rgba(0,0,0,0.06)] flex justify-around items-center h-16 px-1 md:hidden select-none" dir="rtl">
+      {/* Sticky App-like Mobile Bottom Navigation (4-item Adaptive 3-State Layout with High-Fidelity Glassmorphism) */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/75 dark:bg-gray-950/80 backdrop-blur-xl border-t border-white/20 dark:border-white/5 shadow-[0_-8px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_-8px_40px_rgba(0,0,0,0.5)] flex justify-around items-center h-16 md:hidden select-none px-1.5" dir="rtl">
         
         {/* ================= STATE 1: GUEST ================= */}
         {!currentUser && (
@@ -736,7 +736,7 @@ const MainAppContent: React.FC = () => {
               onClick={() => navigateTo('home')}
               className={`flex flex-col items-center justify-center flex-1 h-full py-1 rounded-xl transition-all cursor-pointer ${
                 currentView === 'home'
-                  ? 'bg-[#26B6B6]/10 text-[#26B6B6] font-black border border-[#26B6B6]/20 shadow-2xs'
+                  ? 'bg-[#26B6B6]/15 text-[#26B6B6] font-black border border-[#26B6B6]/30 dark:border-[#26B6B6]/40 shadow-2xs backdrop-blur-md'
                   : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
               }`}
               style={{ flexBasis: '25%' }}
@@ -750,7 +750,7 @@ const MainAppContent: React.FC = () => {
               onClick={() => navigateTo('categories')}
               className={`flex flex-col items-center justify-center flex-1 h-full py-1 rounded-xl transition-all cursor-pointer ${
                 currentView === 'categories'
-                  ? 'bg-[#26B6B6]/10 text-[#26B6B6] font-black border border-[#26B6B6]/20 shadow-2xs'
+                  ? 'bg-[#26B6B6]/15 text-[#26B6B6] font-black border border-[#26B6B6]/30 dark:border-[#26B6B6]/40 shadow-2xs backdrop-blur-md'
                   : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
               }`}
               style={{ flexBasis: '25%' }}
@@ -764,7 +764,7 @@ const MainAppContent: React.FC = () => {
               onClick={() => navigateTo('manufacturers')}
               className={`flex flex-col items-center justify-center flex-1 h-full py-1 rounded-xl transition-all cursor-pointer ${
                 currentView === 'manufacturers'
-                  ? 'bg-[#26B6B6]/10 text-[#26B6B6] font-black border border-[#26B6B6]/20 shadow-2xs'
+                  ? 'bg-[#26B6B6]/15 text-[#26B6B6] font-black border border-[#26B6B6]/30 dark:border-[#26B6B6]/40 shadow-2xs backdrop-blur-md'
                   : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
               }`}
               style={{ flexBasis: '25%' }}
@@ -793,7 +793,7 @@ const MainAppContent: React.FC = () => {
               onClick={() => handleDashboardTabNavigate('modeler-dashboard', 'overview')}
               className={`flex flex-col items-center justify-center flex-1 h-full py-1 rounded-xl transition-all cursor-pointer ${
                 currentView === 'modeler-dashboard' && activeDashboardTab === 'overview'
-                  ? 'bg-[#26B6B6]/10 text-[#26B6B6] font-black border border-[#26B6B6]/20 shadow-2xs'
+                  ? 'bg-[#26B6B6]/15 text-[#26B6B6] font-black border border-[#26B6B6]/30 dark:border-[#26B6B6]/40 shadow-2xs backdrop-blur-md'
                   : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
               }`}
               style={{ flexBasis: '25%' }}
@@ -807,7 +807,7 @@ const MainAppContent: React.FC = () => {
               onClick={() => navigateTo('categories')}
               className={`flex flex-col items-center justify-center flex-1 h-full py-1 rounded-xl transition-all cursor-pointer ${
                 currentView === 'categories'
-                  ? 'bg-[#26B6B6]/10 text-[#26B6B6] font-black border border-[#26B6B6]/20 shadow-2xs'
+                  ? 'bg-[#26B6B6]/15 text-[#26B6B6] font-black border border-[#26B6B6]/30 dark:border-[#26B6B6]/40 shadow-2xs backdrop-blur-md'
                   : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
               }`}
               style={{ flexBasis: '25%' }}
@@ -821,7 +821,7 @@ const MainAppContent: React.FC = () => {
               onClick={() => handleDashboardTabNavigate('modeler-dashboard', 'collections')}
               className={`flex flex-col items-center justify-center flex-1 h-full py-1 rounded-xl transition-all cursor-pointer relative ${
                 currentView === 'modeler-dashboard' && (activeDashboardTab === 'collections' || activeDashboardTab === 'history')
-                  ? 'bg-[#26B6B6]/10 text-[#26B6B6] font-black border border-[#26B6B6]/20 shadow-2xs'
+                  ? 'bg-[#26B6B6]/15 text-[#26B6B6] font-black border border-[#26B6B6]/30 dark:border-[#26B6B6]/40 shadow-2xs backdrop-blur-md'
                   : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
               }`}
               style={{ flexBasis: '25%' }}
@@ -829,7 +829,7 @@ const MainAppContent: React.FC = () => {
               <Folder className="w-5 h-5 mb-0.5 shrink-0" />
               <span className="text-[10px] font-bold tracking-tight">{isRtl ? 'کتابخانه من' : 'My Library'}</span>
               {savedObjects.length > 0 && (
-                <span className="absolute top-1.5 right-1/2 translate-x-3.5 bg-[#26B6B6] text-white font-sans text-[8px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center shadow-md border border-white">
+                <span className="absolute top-1.5 right-1/2 translate-x-3.5 bg-[#26B6B6] text-white font-sans text-[8px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center shadow-md border border-white animate-fadeIn">
                   {savedObjects.length}
                 </span>
               )}
@@ -840,7 +840,7 @@ const MainAppContent: React.FC = () => {
               onClick={() => handleDashboardTabNavigate('modeler-dashboard', 'profile')}
               className={`flex flex-col items-center justify-center flex-1 h-full py-1 rounded-xl transition-all cursor-pointer ${
                 currentView === 'modeler-dashboard' && activeDashboardTab === 'profile'
-                  ? 'bg-[#26B6B6]/10 text-[#26B6B6] font-black border border-[#26B6B6]/20 shadow-2xs'
+                  ? 'bg-[#26B6B6]/15 text-[#26B6B6] font-black border border-[#26B6B6]/30 dark:border-[#26B6B6]/40 shadow-2xs backdrop-blur-md'
                   : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
               }`}
               style={{ flexBasis: '25%' }}
@@ -859,7 +859,7 @@ const MainAppContent: React.FC = () => {
               onClick={() => handleDashboardTabNavigate('manufacturer-dashboard', 'overview')}
               className={`flex flex-col items-center justify-center flex-1 h-full py-1 rounded-xl transition-all cursor-pointer ${
                 currentView === 'manufacturer-dashboard' && activeDashboardTab === 'overview'
-                  ? 'bg-[#26B6B6]/10 text-[#26B6B6] font-black border border-[#26B6B6]/20 shadow-2xs'
+                  ? 'bg-[#26B6B6]/15 text-[#26B6B6] font-black border border-[#26B6B6]/30 dark:border-[#26B6B6]/40 shadow-2xs backdrop-blur-md'
                   : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
               }`}
               style={{ flexBasis: '25%' }}
@@ -873,7 +873,7 @@ const MainAppContent: React.FC = () => {
               onClick={() => handleDashboardTabNavigate('manufacturer-dashboard', 'catalog')}
               className={`flex flex-col items-center justify-center flex-1 h-full py-1 rounded-xl transition-all cursor-pointer ${
                 currentView === 'manufacturer-dashboard' && activeDashboardTab === 'catalog'
-                  ? 'bg-[#26B6B6]/10 text-[#26B6B6] font-black border border-[#26B6B6]/20 shadow-2xs'
+                  ? 'bg-[#26B6B6]/15 text-[#26B6B6] font-black border border-[#26B6B6]/30 dark:border-[#26B6B6]/40 shadow-2xs backdrop-blur-md'
                   : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
               }`}
               style={{ flexBasis: '25%' }}
@@ -887,7 +887,7 @@ const MainAppContent: React.FC = () => {
               onClick={() => handleDashboardTabNavigate('manufacturer-dashboard', 'requests')}
               className={`flex flex-col items-center justify-center flex-1 h-full py-1 rounded-xl transition-all cursor-pointer relative ${
                 currentView === 'manufacturer-dashboard' && activeDashboardTab === 'requests'
-                  ? 'bg-[#26B6B6]/10 text-[#26B6B6] font-black border border-[#26B6B6]/20 shadow-2xs'
+                  ? 'bg-[#26B6B6]/15 text-[#26B6B6] font-black border border-[#26B6B6]/30 dark:border-[#26B6B6]/40 shadow-2xs backdrop-blur-md'
                   : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
               }`}
               style={{ flexBasis: '25%' }}
@@ -903,7 +903,7 @@ const MainAppContent: React.FC = () => {
               onClick={() => handleDashboardTabNavigate('manufacturer-dashboard', 'profile')}
               className={`flex flex-col items-center justify-center flex-1 h-full py-1 rounded-xl transition-all cursor-pointer ${
                 currentView === 'manufacturer-dashboard' && activeDashboardTab === 'profile'
-                  ? 'bg-[#26B6B6]/10 text-[#26B6B6] font-black border border-[#26B6B6]/20 shadow-2xs'
+                  ? 'bg-[#26B6B6]/15 text-[#26B6B6] font-black border border-[#26B6B6]/30 dark:border-[#26B6B6]/40 shadow-2xs backdrop-blur-md'
                   : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
               }`}
               style={{ flexBasis: '25%' }}
