@@ -84,11 +84,11 @@ export const BIMObjectCard: React.FC<BIMObjectCardProps> = ({
       </div>
 
       {/* Main Metadata Section */}
-      <div className="p-4 flex-1 flex flex-col justify-between">
+      <div className="p-3 sm:p-3.5 flex-1 flex flex-col justify-between">
         
         {/* Brand & Title */}
         <div>
-          <div className="flex justify-between items-center text-[11px] text-gray-400 font-bold uppercase mb-1">
+          <div className="flex justify-between items-center text-[10px] sm:text-[11px] text-gray-400 font-bold uppercase mb-1">
             <span 
               onClick={(e) => {
                 if (onViewBrand) {
@@ -96,12 +96,12 @@ export const BIMObjectCard: React.FC<BIMObjectCardProps> = ({
                   onViewBrand(object.manufacturerId);
                 }
               }}
-              className={onViewBrand ? 'hover:text-[#26B6B6] cursor-pointer transition-colors hover:underline' : ''}
+              className={`truncate max-w-[110px] ${onViewBrand ? 'hover:text-[#26B6B6] cursor-pointer transition-colors hover:underline' : ''}`}
             >
               {mName}
             </span>
             {manufacturer?.verified && (
-              <span className="text-[#26B6B6] text-[10px] bg-[#26B6B6]/5 px-1 py-0.5 rounded">
+              <span className="text-[#26B6B6] text-[9px] bg-[#26B6B6]/5 px-1 py-0.5 rounded shrink-0">
                 ✓ {isRtl ? 'تاییدشده' : 'VERIFIED'}
               </span>
             )}
@@ -109,34 +109,37 @@ export const BIMObjectCard: React.FC<BIMObjectCardProps> = ({
 
           <h3 
             onClick={onClick}
-            className="text-sm font-bold text-gray-800 leading-snug hover:text-[#26B6B6] transition-colors cursor-pointer line-clamp-2"
+            className="text-xs sm:text-sm font-bold text-gray-800 leading-snug hover:text-[#26B6B6] transition-colors cursor-pointer line-clamp-2 min-h-[32px]"
           >
             {title}
           </h3>
         </div>
 
         {/* Format Tags & Quick-download Controls */}
-        <div className="mt-4 pt-3 border-t border-gray-100 space-y-3">
+        <div className="mt-3 pt-2.5 border-t border-gray-100 space-y-2">
           
           {/* Formats list available */}
           <div className="flex flex-wrap gap-1">
-            {object.formats.slice(0, 4).map(format => (
+            {object.formats.slice(0, 3).map(format => (
               <span 
                 key={format} 
-                className="text-[9px] font-mono text-gray-500 bg-gray-100 hover:bg-gray-200 px-1.5 py-0.5 rounded"
+                className="text-[8.5px] font-mono text-gray-500 bg-gray-100 hover:bg-gray-200 px-1.5 py-0.5 rounded"
               >
                 {format}
               </span>
             ))}
-            {object.formats.length > 4 && (
-              <span className="text-[9px] text-gray-400 bg-gray-50 px-1 py-0.5 rounded">
-                +{object.formats.length - 4}
+            {object.formats.length > 3 && (
+              <span className="text-[8.5px] text-gray-400 bg-gray-50 px-1 py-0.5 rounded">
+                +{object.formats.length - 3}
               </span>
             )}
           </div>
 
           {/* Quick Download Button Section */}
-          <div className="flex items-center justify-end gap-2 relative">
+          <div className="flex items-center justify-between gap-1.5 relative pt-0.5">
+            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30 dark:text-emerald-400 px-1.5 py-0.5 rounded shrink-0">
+              {priceLabel}
+            </span>
             
             {/* Quick One-Click Download triggers */}
             <div className="relative">
@@ -146,11 +149,11 @@ export const BIMObjectCard: React.FC<BIMObjectCardProps> = ({
                   setShowFormatsDropdown(!showFormatsDropdown);
                 }}
                 onBlur={() => setTimeout(() => setShowFormatsDropdown(false), 200)}
-                className="flex items-center gap-1 px-3 py-1.5 bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-bold rounded-md shadow-xs transition-colors cursor-pointer"
+                className="flex items-center gap-1 px-2.5 py-1 bg-[#26B6B6] hover:bg-[#1e9494] text-white text-[11px] font-bold rounded-md shadow-xs transition-colors cursor-pointer"
               >
-                <Download className="w-3.5 h-3.5" />
-                <span>{isRtl ? 'دانلود سریع' : 'Quick DL'}</span>
-                <ChevronDown className="w-3 h-3" />
+                <Download className="w-3 h-3" />
+                <span>{isRtl ? 'دانلود' : 'DL'}</span>
+                <ChevronDown className="w-2.5 h-2.5" />
               </button>
 
               {/* Formats Dropdown */}
@@ -160,7 +163,7 @@ export const BIMObjectCard: React.FC<BIMObjectCardProps> = ({
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="px-2 py-1 text-[10px] text-gray-400 font-bold border-b border-gray-50 pb-1 mb-1">
-                    {isRtl ? 'فرمت فایل را انتخاب کنید' : 'Select Format'}
+                    {isRtl ? 'فرمت فایل' : 'Select Format'}
                   </div>
                   {object.formats.map(format => (
                     <button

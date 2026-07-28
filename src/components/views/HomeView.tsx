@@ -515,6 +515,18 @@ export const HomeView: React.FC<HomeViewProps> = ({
     }
   };
 
+  const newestObjectsScrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollNewestObjects = (direction: 'left' | 'right') => {
+    if (newestObjectsScrollRef.current) {
+      const scrollAmount = 260;
+      newestObjectsScrollRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   // Continuous auto horizontal movement scroll for testimonials
   useEffect(() => {
     const el = testimonialScrollRef.current;
@@ -966,11 +978,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
       </section>
 
       {/* 3. NEWEST BIM OBJECTS SECTION */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 space-y-8" id="homepage-newest-objects">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10 space-y-6" id="homepage-newest-objects">
         
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-150/50 dark:border-gray-800/60 pb-5">
-          <div className="space-y-2 text-start flex-1 min-w-0 md:max-w-3xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-150/50 dark:border-gray-800/60 pb-4">
+          <div className="space-y-1.5 text-start flex-1 min-w-0">
             <div className="inline-flex items-center gap-2 bg-[#26B6B6]/5 text-[#26B6B6] px-3 py-1 rounded-full text-[10px] font-black">
               <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
               <span>{isRtl ? 'به‌روزرسانی‌های جدید' : 'New Releases'}</span>
@@ -985,7 +997,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </p>
           </div>
 
-          <div className="shrink-0 text-start">
+          <div className="shrink-0 flex items-center justify-between sm:justify-end gap-3">
             <button
               onClick={() => {
                 onFilterChange({});
@@ -994,25 +1006,52 @@ export const HomeView: React.FC<HomeViewProps> = ({
               }}
               className="inline-flex items-center gap-1.5 text-xs font-black text-[#26B6B6] hover:text-[#1e9494] transition-colors cursor-pointer group whitespace-nowrap"
             >
-              <span>{isRtl ? 'مشاهده همه محصولات کتابخانه' : 'Explore Entire Library'}</span>
+              <span>{isRtl ? 'مشاهده همه محصولات' : 'Explore Entire Library'}</span>
               <ArrowRight className={`w-3.5 h-3.5 transition-transform group-hover:translate-x-1 shrink-0 ${isRtl ? 'rotate-180 group-hover:-translate-x-1' : ''}`} />
             </button>
+
+            {/* Left/Right scroll controls */}
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => scrollNewestObjects('left')}
+                className="w-8 h-8 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-[#26B6B6] hover:border-[#26B6B6] transition-all shadow-2xs cursor-pointer"
+                aria-label="Scroll left"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollNewestObjects('right')}
+                className="w-8 h-8 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-[#26B6B6] hover:border-[#26B6B6] transition-all shadow-2xs cursor-pointer"
+                aria-label="Scroll right"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Objects Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {combinedObjects.slice(-4).reverse().map((obj) => (
-            <BIMObjectCard
-              key={`new-obj-${obj.id}`}
-              object={obj}
-              isSaved={savedObjects.includes(obj.id)}
-              onToggleSave={() => onToggleSave(obj.id)}
-              onClick={() => onSelectObject(obj)}
-              onQuickDownload={(format) => onQuickDownload(obj, format)}
-              onViewBrand={onViewBrand}
-            />
-          ))}
+        {/* Objects Horizontally Scrollable Row */}
+        <div className="relative group/newest">
+          <div
+            ref={newestObjectsScrollRef}
+            className="flex gap-3.5 sm:gap-4 md:gap-5 overflow-x-auto pb-4 pt-1 px-1 scrollbar-none snap-x snap-mandatory scroll-smooth cursor-grab active:cursor-grabbing"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {combinedObjects.slice(-8).reverse().map((obj) => (
+              <div key={`new-obj-${obj.id}`} className="flex-shrink-0 w-[200px] sm:w-[220px] md:w-[240px] snap-start">
+                <BIMObjectCard
+                  object={obj}
+                  isSaved={savedObjects.includes(obj.id)}
+                  onToggleSave={() => onToggleSave(obj.id)}
+                  onClick={() => onSelectObject(obj)}
+                  onQuickDownload={(format) => onQuickDownload(obj, format)}
+                  onViewBrand={onViewBrand}
+                />
+              </div>
+            ))}
+          </div>
         </div>
 
       </section>
@@ -1290,43 +1329,81 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
       {/* 7. TESTIMONIALS */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6" id="homepage-testimonials-preview">
-        <div className="text-center space-y-1">
-          <h2 className="text-base sm:text-lg font-black text-gray-800 dark:text-gray-200 flex items-center gap-2 justify-center">
-            <MessageSquare className="w-5 h-5 text-[#26B6B6]" />
-            <span>{isRtl ? 'دیدگاه معماران و متخصصان بیم' : 'Insights from Architects & BIM Specialists'}</span>
-          </h2>
-          <p className="text-[10.5px] sm:text-xs text-gray-400 font-medium text-center">
-            {isRtl ? 'نظرات طراحان، معماران و مدیران پروژه‌ها درباره پلتفرم ایران‌بیم‌هاب' : 'What leading architectural designers and BIM managers say about us'}
-          </p>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-gray-150/50 dark:border-gray-800/60 pb-4">
+          <div className="text-start space-y-1 flex-1">
+            <h2 className="text-base sm:text-lg font-black text-gray-800 dark:text-gray-200 flex items-center gap-2">
+              <MessageSquare className="w-5 h-5 text-[#26B6B6] shrink-0" />
+              <span>{isRtl ? 'دیدگاه معماران و متخصصان بیم' : 'Insights from Architects & BIM Specialists'}</span>
+            </h2>
+            <p className="text-[10.5px] sm:text-xs text-gray-400 font-medium">
+              {isRtl ? 'نظرات طراحان، معماران و مدیران پروژه‌ها درباره پلتفرم ایران‌بیم‌هاب' : 'What leading architectural designers and BIM managers say about us'}
+            </p>
+          </div>
+
+          {/* Navigation buttons */}
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => scrollTestimonials('left')}
+              className="w-8 h-8 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-[#26B6B6] hover:border-[#26B6B6] transition-all shadow-2xs cursor-pointer"
+              aria-label="Previous review"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollTestimonials('right')}
+              className="w-8 h-8 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-[#26B6B6] hover:border-[#26B6B6] transition-all shadow-2xs cursor-pointer"
+              aria-label="Next review"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
-        <div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 py-2">
-            {MOCK_REVIEWS.map((rev) => (
-              <div 
-                key={rev.id} 
-                className="bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-2xl p-5 shadow-2xs flex flex-col justify-between text-start relative"
-              >
-                <div className="absolute top-4 end-4 text-gray-100 dark:text-gray-800 text-6xl font-serif select-none leading-none opacity-50 dark:opacity-30">
-                  ”
-                </div>
-                <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed italic relative z-10 mb-4 line-clamp-4">
-                  "{isRtl ? rev.textFa : rev.textEn}"
-                </p>
-                <div className="flex items-center gap-3 border-t border-gray-100 dark:border-gray-800/60 pt-3">
-                  <div className="w-9 h-9 bg-[#26B6B6]/10 text-[#26B6B6] rounded-full flex items-center justify-center font-black text-xs shrink-0">
-                    {rev.nameEn.substring(5,7).trim() || rev.nameEn.substring(0,2)}
-                  </div>
-                  <div className="min-w-0">
-                    <h4 className="text-xs font-black text-gray-800 dark:text-gray-200 truncate">
-                      {isRtl ? rev.nameFa : rev.nameEn}
-                    </h4>
-                    <p className="text-[10px] text-gray-400 dark:text-gray-500 truncate">
-                      {isRtl ? rev.roleFa : rev.roleEn}
+        <div className="relative group/testimonials">
+          <div 
+            ref={testimonialScrollRef}
+            onMouseEnter={() => setIsTestimonialHovered(true)}
+            onMouseLeave={() => setIsTestimonialHovered(false)}
+            onMouseDown={handleTestimonialMouseDown}
+            onMouseMove={handleTestimonialMouseMove}
+            onMouseUp={handleTestimonialMouseUpOrLeave}
+            onTouchStart={handleTestimonialTouchStart}
+            onTouchMove={handleTestimonialTouchMove}
+            onTouchEnd={handleTestimonialTouchEnd}
+            className="flex gap-4 sm:gap-6 overflow-x-auto py-2 px-1 scrollbar-none snap-x snap-mandatory scroll-smooth cursor-grab active:cursor-grabbing"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {[[...MOCK_REVIEWS], [...MOCK_REVIEWS], [...MOCK_REVIEWS]].map((group, groupIdx) => (
+              <React.Fragment key={groupIdx}>
+                {group.map((rev, revIdx) => (
+                  <div 
+                    key={`${groupIdx}-${rev.id}-${revIdx}`} 
+                    className="flex-shrink-0 w-[260px] sm:w-[320px] md:w-[350px] snap-start bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between text-start relative select-none"
+                  >
+                    <div className="absolute top-4 end-4 text-gray-100 dark:text-gray-800 text-5xl sm:text-6xl font-serif select-none leading-none opacity-50 dark:opacity-30 pointer-events-none">
+                      ”
+                    </div>
+                    <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed italic relative z-10 mb-4 line-clamp-4">
+                      "{isRtl ? rev.textFa : rev.textEn}"
                     </p>
+                    <div className="flex items-center gap-3 border-t border-gray-100 dark:border-gray-800/60 pt-3">
+                      <div className="w-9 h-9 bg-[#26B6B6]/10 text-[#26B6B6] rounded-full flex items-center justify-center font-black text-xs shrink-0">
+                        {rev.nameEn.substring(5,7).trim() || rev.nameEn.substring(0,2)}
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="text-xs font-black text-gray-800 dark:text-gray-200 truncate">
+                          {isRtl ? rev.nameFa : rev.nameEn}
+                        </h4>
+                        <p className="text-[10px] text-gray-400 dark:text-gray-500 truncate">
+                          {isRtl ? rev.roleFa : rev.roleEn}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
+                ))}
+              </React.Fragment>
             ))}
           </div>
         </div>
