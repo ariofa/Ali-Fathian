@@ -1,5 +1,6 @@
 import express from "express";
 import path from "path";
+import fs from "fs";
 import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
 import { GoogleGenAI, Type } from "@google/genai";
@@ -204,6 +205,65 @@ Provide exactly 4 news items and exactly 3 featured manufacturers. Ensure the ne
     // Log as a standard notice to avoid triggering automated backend monitoring logs
     console.log("Ticker sync notice: Using pre-defined AEC news dataset due to API rate limits or network parameters.");
     return res.json(FALLBACK_DATA);
+  }
+});
+
+const CONFIG_FILE_PATH = path.join(process.cwd(), "config.json");
+
+// Default site layout configuration (the "WordPress" CMS schema)
+const DEFAULT_SITE_CONFIG = {
+  landingPageOrder: ["hero", "stats", "categories", "video_introduction", "bookshelf", "latest_arrivals", "trusted_brands", "faq"],
+  footer: {
+    phone: "+98 (21) 8877-4433",
+    email: "info@iranbimhub.ir",
+    addressFa: "تهران، خیابان ولیعصر، برج آفتاب، طبقه ۱۲",
+    addressEn: "12th Flr, Aftab Tower, Vali-e-Asr Ave, Tehran",
+    instagram: "https://instagram.com/iranbimhub",
+    linkedin: "https://linkedin.com/company/iranbimhub",
+    telegram: "https://t.me/iranbimhub",
+    website: "https://iranbimhub.ir"
+  },
+  faq: [
+    {
+      qFa: "آبجکتهای بیم موجود در سامانه با چه مشخصات فنی مدلسازی میشوند؟",
+      qEn: "With what Level of Detail (LOD) are the objects modeled?",
+      aFa: "آبجکتهای بیم موجود در سامانه با رعایت دقیق ابعاد کاتالوگ واقعی و با سطح جزئیات هندسی و اطلاعاتی استاندارد LOD 300 الی LOD 350 طراحی و ارزیابی میشوند تا در برآورد مصالح دقیق کارگاهی بالاترین کارایی را داشته باشند.",
+      aEn: "All BIM families are engineered reflecting precise actual dimensions and embedded parameters according to LOD 300 to LOD 350 industry specifications, optimizing speed for shop drawings and material takeoffs."
+    },
+    {
+      qFa: "چه فرمتهایی برای فایلها در دسترس است؟",
+      qEn: "What file formats are available?",
+      aFa: "فایلها عمدتاً در فرمت استاندارد Revit (.rfa) و فرمت باز و استاندارد بینالمللی IFC به همراه جزئیات ۲بعدی اتوکد (CAD) جهت تطابق کامل با انواع نرمافزارهای تخصصی ارائه میشوند.",
+      aEn: "The platform delivers files in native Autodesk Revit (.rfa) formats, open BIM IFC templates, and standard 2D CAD details, providing robust compatibility across all architectural workflows."
+    }
+  ]
+};
+
+// API Endpoint to fetch site CMS configurations
+app.get("/api/site-config", (req, res) => {
+  try {
+    if (fs.existsSync(CONFIG_FILE_PATH)) {
+      const data = fs.readFileSync(CONFIG_FILE_PATH, "utf-8");
+      return res.json(JSON.parse(data));
+    } else {
+      fs.writeFileSync(CONFIG_FILE_PATH, JSON.stringify(DEFAULT_SITE_CONFIG, null, 2), "utf-8");
+      return res.json(DEFAULT_SITE_CONFIG);
+    }
+  } catch (err) {
+    console.error("Failed to load site config:", err);
+    return res.status(500).json({ error: "Failed to load site config" });
+  }
+});
+
+// API Endpoint to save site CMS configurations
+app.post("/api/site-config", (req, res) => {
+  try {
+    const newConfig = req.body;
+    fs.writeFileSync(CONFIG_FILE_PATH, JSON.stringify(newConfig, null, 2), "utf-8");
+    return res.json({ success: true, message: "Site configuration saved successfully!" });
+  } catch (err) {
+    console.error("Failed to save site config:", err);
+    return res.status(500).json({ error: "Failed to save site config" });
   }
 });
 

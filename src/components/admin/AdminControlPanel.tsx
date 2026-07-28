@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 import { useLoading } from '../LoadingContext';
+import { useSiteConfig } from '../SiteConfigContext';
 import { 
   AdminRole, 
   AdminAccount, 
@@ -59,6 +60,54 @@ import {
 export const AdminControlPanel: React.FC = () => {
   const { isRtl } = useLanguage();
   const { triggerTransition } = useLoading();
+
+  // Load site config CMS hook
+  const { siteConfig, updateSiteConfig } = useSiteConfig();
+  const [localConfig, setLocalConfig] = useState<any>(null);
+
+  // Sync local draft config when siteConfig is loaded
+  useEffect(() => {
+    if (siteConfig) {
+      setLocalConfig(JSON.parse(JSON.stringify(siteConfig)));
+    }
+  }, [siteConfig]);
+
+  // Handle reordering landing page sections
+  const handleMoveSection = (index: number, direction: 'up' | 'down') => {
+    if (!localConfig || !localConfig.landingPageOrder) return;
+    const order = [...localConfig.landingPageOrder];
+    const targetIdx = direction === 'up' ? index - 1 : index + 1;
+    if (targetIdx < 0 || targetIdx >= order.length) return;
+
+    // Swap elements
+    const temp = order[index];
+    order[index] = order[targetIdx];
+    order[targetIdx] = temp;
+
+    setLocalConfig({
+      ...localConfig,
+      landingPageOrder: order
+    });
+  };
+
+  // Handle saving the visual config
+  const handleSaveThemeConfig = async () => {
+    if (!localConfig) return;
+    triggerTransition(async () => {
+      const ok = await updateSiteConfig(localConfig);
+      if (ok) {
+        logAdminAction(
+          'بروزرسانی چیدمان و تنظیمات قالب سایت',
+          'Theme Builder',
+          'سند تنظیمات config.json',
+          'تغییر چیدمان سکشن‌ها یا بروزرسانی فوتر و سوالات متداول توسط مدیر ارشد'
+        );
+        alert(isRtl ? 'تغییرات چیدمان و پوسته پلتفرم با موفقیت ثبت شد!' : 'Theme builder changes saved successfully!');
+      } else {
+        alert(isRtl ? 'خطا در ذخیره تغییرات.' : 'Error saving theme changes.');
+      }
+    }, isRtl ? 'در حال ثبت تغییرات پوسته در سرور...' : 'Saving page layout adjustments...', 'Saving page layout adjustments...', 600);
+  };
 
   // Authentication State
   const [currentAdmin, setCurrentAdmin] = useState<AdminAccount | null>(() => {
@@ -362,6 +411,8 @@ export const AdminControlPanel: React.FC = () => {
       case 'audit-logs':
         // Super Admin sees complete trail, Verification/Managers see filtered versions
         return ['Super Admin', 'Manufacturer Verification Admin', 'Review Team Manager'].includes(currentAdmin.role);
+      case 'theme-builder':
+        return false; // Only Super Admin has access, handled at the top of this function
       default:
         return false;
     }
@@ -1013,6 +1064,21 @@ export const AdminControlPanel: React.FC = () => {
               >
                 <History className="w-4 h-4" />
                 <span>{isRtl ? 'ردپای ممیزی و وقایع سیستم' : 'Immutable Audit Trail'}</span>
+              </button>
+            )}
+
+            {/* Tab: Theme & Layout Builder */}
+            {hasAccessTo('theme-builder') && (
+              <button
+                onClick={() => setActiveTab('theme-builder')}
+                className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === 'theme-builder'
+                    ? 'bg-[#26B6B6] text-white'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                }`}
+              >
+                <Settings className="w-4 h-4" />
+                <span>{isRtl ? 'مدیریت پوسته و چیدمان پلتفرم' : 'Theme & Layout Builder'}</span>
               </button>
             )}
           </div>
@@ -2206,6 +2272,324 @@ export const AdminControlPanel: React.FC = () => {
                         ))}
                     </tbody>
                   </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ==================== TAB 8: THEME & LAYOUT BUILDER ==================== */}
+          {activeTab === 'theme-builder' && hasAccessTo('theme-builder') && localConfig && (
+            <div className="space-y-6 animate-fadeIn text-start">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-xl font-black text-gray-800 dark:text-white flex items-center gap-2">
+                    <Settings className="w-5 h-5 text-[#26B6B6]" />
+                    <span>{isRtl ? 'مدیریت قالب و چیدمان' : 'Theme & Layout Builder'}</span>
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {isRtl ? 'ساختار بصری صفحات و اطلاعات پایه پلتفرم را ویرایش کنید.' : 'Configure the visual layout and global site settings.'}
+                  </p>
+                </div>
+                <button
+                  onClick={handleSaveThemeConfig}
+                  className="px-5 py-2.5 bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-extrabold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  <span>{isRtl ? 'ذخیره تغییرات قالب' : 'Save Theme Configuration'}</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Landing Page Layout Builder */}
+                <div className="bg-white dark:bg-slate-950 border border-gray-150 dark:border-slate-800 p-6 rounded-3xl">
+                  <h4 className="text-sm font-bold text-gray-800 dark:text-white mb-4">
+                    {isRtl ? 'چیدمان صفحه اصلی (Landing Page)' : 'Landing Page Layout'}
+                  </h4>
+                  <div className="space-y-2">
+                    {localConfig.landingPageOrder.map((section: string, idx: number) => (
+                      <div key={section} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900 border border-gray-150 dark:border-slate-800 rounded-xl transition-all hover:border-[#26B6B6]/40">
+                        <span className="text-xs font-bold text-gray-700 dark:text-gray-300 font-mono flex items-center gap-2">
+                          <span className="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-[10px] text-gray-500">{idx + 1}</span>
+                          {section}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => handleMoveSection(idx, 'up')}
+                            disabled={idx === 0}
+                            className="p-1.5 text-gray-400 hover:text-[#26B6B6] disabled:opacity-30 disabled:cursor-not-allowed bg-white dark:bg-slate-950 rounded-lg shadow-sm border border-gray-100 dark:border-slate-800"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" /></svg>
+                          </button>
+                          <button
+                            onClick={() => handleMoveSection(idx, 'down')}
+                            disabled={idx === localConfig.landingPageOrder.length - 1}
+                            className="p-1.5 text-gray-400 hover:text-[#26B6B6] disabled:opacity-30 disabled:cursor-not-allowed bg-white dark:bg-slate-950 rounded-lg shadow-sm border border-gray-100 dark:border-slate-800"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" /></svg>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Hero Banners Manager */}
+                <div className="bg-white dark:bg-slate-950 border border-gray-150 dark:border-slate-800 p-6 rounded-3xl lg:col-span-2">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-sm font-bold text-gray-800 dark:text-white">
+                      {isRtl ? 'مدیریت بنرهای صفحه اصلی (Hero Banners)' : 'Hero Banners Manager'}
+                    </h4>
+                    <button
+                      onClick={() => setLocalConfig({...localConfig, heroBanners: [...(localConfig.heroBanners || []), {
+                        id: 'slide-' + Date.now(), labelFa: '', labelEn: '', numFa: '', numEn: '',
+                        badgeFa: '', badgeEn: '', headingFa: '', headingEn: '', descFa: '', descEn: '', bgImage: '', overlay: 'bg-black/40'
+                      }]})}
+                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#26B6B6] dark:text-[#26B6B6] text-xs font-bold rounded-lg transition-all"
+                    >
+                      {isRtl ? '+ افزودن بنر جدید' : '+ Add New Banner'}
+                    </button>
+                  </div>
+                  <div className="space-y-4">
+                    {(localConfig.heroBanners || []).map((banner: any, idx: number) => (
+                      <div key={idx} className="p-4 bg-slate-50 dark:bg-slate-900 border border-gray-150 dark:border-slate-800 rounded-xl space-y-3 relative group">
+                        <button 
+                          onClick={() => {
+                            const newBanners = [...(localConfig.heroBanners || [])];
+                            newBanners.splice(idx, 1);
+                            setLocalConfig({...localConfig, heroBanners: newBanners});
+                          }}
+                          className="absolute top-4 left-4 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                          title={isRtl ? 'حذف این بنر' : 'Delete Banner'}
+                        >
+                          <XCircle className="w-5 h-5" />
+                        </button>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-400 mb-1.5">{isRtl ? 'تیتر اصلی (فارسی)' : 'Heading (FA)'}</label>
+                            <input 
+                              type="text" 
+                              value={banner.headingFa || ''}
+                              onChange={(e) => {
+                                const newBanners = [...localConfig.heroBanners];
+                                newBanners[idx].headingFa = e.target.value;
+                                setLocalConfig({...localConfig, heroBanners: newBanners});
+                              }}
+                              className="w-full py-2 px-3 border border-gray-200 dark:border-slate-700 rounded-lg text-xs bg-white dark:bg-slate-950" 
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-400 mb-1.5">Heading (EN)</label>
+                            <input 
+                              type="text" 
+                              value={banner.headingEn || ''}
+                              onChange={(e) => {
+                                const newBanners = [...localConfig.heroBanners];
+                                newBanners[idx].headingEn = e.target.value;
+                                setLocalConfig({...localConfig, heroBanners: newBanners});
+                              }}
+                              className="w-full py-2 px-3 border border-gray-200 dark:border-slate-700 rounded-lg text-xs bg-white dark:bg-slate-950 text-left" dir="ltr"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-400 mb-1.5">{isRtl ? 'توضیحات (فارسی)' : 'Description (FA)'}</label>
+                            <textarea 
+                              value={banner.descFa || ''}
+                              onChange={(e) => {
+                                const newBanners = [...localConfig.heroBanners];
+                                newBanners[idx].descFa = e.target.value;
+                                setLocalConfig({...localConfig, heroBanners: newBanners});
+                              }}
+                              className="w-full py-2 px-3 border border-gray-200 dark:border-slate-700 rounded-lg text-xs bg-white dark:bg-slate-950" rows={2}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-400 mb-1.5">Description (EN)</label>
+                            <textarea 
+                              value={banner.descEn || ''}
+                              onChange={(e) => {
+                                const newBanners = [...localConfig.heroBanners];
+                                newBanners[idx].descEn = e.target.value;
+                                setLocalConfig({...localConfig, heroBanners: newBanners});
+                              }}
+                              className="w-full py-2 px-3 border border-gray-200 dark:border-slate-700 rounded-lg text-xs bg-white dark:bg-slate-950 text-left" dir="ltr" rows={2}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-400 mb-1.5">{isRtl ? 'تصویر پس‌زمینه (URL)' : 'Background Image (URL)'}</label>
+                            <input 
+                              type="text" 
+                              value={banner.bgImage || ''}
+                              onChange={(e) => {
+                                const newBanners = [...localConfig.heroBanners];
+                                newBanners[idx].bgImage = e.target.value;
+                                setLocalConfig({...localConfig, heroBanners: newBanners});
+                              }}
+                              className="w-full py-2 px-3 border border-gray-200 dark:border-slate-700 rounded-lg text-xs bg-white dark:bg-slate-950 text-left" dir="ltr"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-400 mb-1.5">{isRtl ? 'برچسب (فارسی)' : 'Badge (FA)'}</label>
+                            <input 
+                              type="text" 
+                              value={banner.badgeFa || ''}
+                              onChange={(e) => {
+                                const newBanners = [...localConfig.heroBanners];
+                                newBanners[idx].badgeFa = e.target.value;
+                                setLocalConfig({...localConfig, heroBanners: newBanners});
+                              }}
+                              className="w-full py-2 px-3 border border-gray-200 dark:border-slate-700 rounded-lg text-xs bg-white dark:bg-slate-950" 
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {(!localConfig.heroBanners || localConfig.heroBanners.length === 0) && (
+                      <div className="text-center py-6 text-xs text-gray-400 font-bold border border-dashed border-gray-200 dark:border-slate-800 rounded-xl">
+                        {isRtl ? 'هیچ بنری تنظیم نشده است.' : 'No banners added yet.'}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Footer Settings */}
+                <div className="bg-white dark:bg-slate-950 border border-gray-150 dark:border-slate-800 p-6 rounded-3xl space-y-4">
+                  <h4 className="text-sm font-bold text-gray-800 dark:text-white mb-2">
+                    {isRtl ? 'تنظیمات ارتباطی و فوتر' : 'Footer & Contact Info'}
+                  </h4>
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-bold text-gray-400 mb-1.5">{isRtl ? 'ایمیل پشتیبانی' : 'Support Email'}</label>
+                        <input 
+                          type="email" 
+                          value={localConfig.footer.email}
+                          onChange={(e) => setLocalConfig({...localConfig, footer: {...localConfig.footer, email: e.target.value}})}
+                          className="w-full py-2 px-3 bg-slate-50 dark:bg-slate-900 border border-gray-150 dark:border-slate-800 rounded-lg text-xs" 
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-gray-400 mb-1.5">{isRtl ? 'تلفن تماس مرکز' : 'Phone Number'}</label>
+                        <input 
+                          type="text" 
+                          value={localConfig.footer.phone}
+                          onChange={(e) => setLocalConfig({...localConfig, footer: {...localConfig.footer, phone: e.target.value}})}
+                          className="w-full py-2 px-3 bg-slate-50 dark:bg-slate-900 border border-gray-150 dark:border-slate-800 rounded-lg text-xs" 
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-400 mb-1.5">{isRtl ? 'آدرس مرکزی (فارسی)' : 'Address (FA)'}</label>
+                      <textarea 
+                        value={localConfig.footer.addressFa}
+                        onChange={(e) => setLocalConfig({...localConfig, footer: {...localConfig.footer, addressFa: e.target.value}})}
+                        className="w-full py-2 px-3 bg-slate-50 dark:bg-slate-900 border border-gray-150 dark:border-slate-800 rounded-lg text-xs" 
+                        rows={2}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-400 mb-1.5">{isRtl ? 'آدرس مرکزی (انگلیسی)' : 'Address (EN)'}</label>
+                      <textarea 
+                        value={localConfig.footer.addressEn}
+                        onChange={(e) => setLocalConfig({...localConfig, footer: {...localConfig.footer, addressEn: e.target.value}})}
+                        className="w-full py-2 px-3 bg-slate-50 dark:bg-slate-900 border border-gray-150 dark:border-slate-800 rounded-lg text-xs text-left" 
+                        dir="ltr"
+                        rows={2}
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                {/* FAQ Settings */}
+                <div className="bg-white dark:bg-slate-950 border border-gray-150 dark:border-slate-800 p-6 rounded-3xl lg:col-span-2">
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-sm font-bold text-gray-800 dark:text-white">
+                      {isRtl ? 'سوالات متداول (FAQ)' : 'Frequently Asked Questions'}
+                    </h4>
+                    <button
+                      onClick={() => setLocalConfig({...localConfig, faq: [...localConfig.faq, {qFa: '', qEn: '', aFa: '', aEn: ''}]})}
+                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-[#26B6B6] dark:text-[#26B6B6] text-xs font-bold rounded-lg transition-all"
+                    >
+                      {isRtl ? '+ افزودن سوال جدید' : '+ Add New FAQ'}
+                    </button>
+                  </div>
+                  <div className="space-y-4">
+                    {localConfig.faq.map((item: any, idx: number) => (
+                      <div key={idx} className="p-4 bg-slate-50 dark:bg-slate-900 border border-gray-150 dark:border-slate-800 rounded-xl space-y-3 relative group">
+                        <button 
+                          onClick={() => {
+                            const newFaq = [...localConfig.faq];
+                            newFaq.splice(idx, 1);
+                            setLocalConfig({...localConfig, faq: newFaq});
+                          }}
+                          className="absolute top-4 left-4 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                          title={isRtl ? 'حذف این سوال' : 'Delete FAQ'}
+                        >
+                          <XCircle className="w-5 h-5" />
+                        </button>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-400 mb-1.5">{isRtl ? 'پرسش (فارسی)' : 'Question (FA)'}</label>
+                            <input 
+                              type="text" 
+                              value={item.qFa}
+                              onChange={(e) => {
+                                const newFaq = [...localConfig.faq];
+                                newFaq[idx].qFa = e.target.value;
+                                setLocalConfig({...localConfig, faq: newFaq});
+                              }}
+                              className="w-full py-2 px-3 border border-gray-200 dark:border-slate-700 rounded-lg text-xs bg-white dark:bg-slate-950" 
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-400 mb-1.5">Question (EN)</label>
+                            <input 
+                              type="text" 
+                              value={item.qEn}
+                              onChange={(e) => {
+                                const newFaq = [...localConfig.faq];
+                                newFaq[idx].qEn = e.target.value;
+                                setLocalConfig({...localConfig, faq: newFaq});
+                              }}
+                              className="w-full py-2 px-3 border border-gray-200 dark:border-slate-700 rounded-lg text-xs bg-white dark:bg-slate-950 text-left" dir="ltr"
+                            />
+                          </div>
+                          <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-[10px] font-bold text-gray-400 mb-1.5">{isRtl ? 'پاسخ (فارسی)' : 'Answer (FA)'}</label>
+                              <textarea 
+                                value={item.aFa}
+                                onChange={(e) => {
+                                  const newFaq = [...localConfig.faq];
+                                  newFaq[idx].aFa = e.target.value;
+                                  setLocalConfig({...localConfig, faq: newFaq});
+                                }}
+                                className="w-full py-2 px-3 border border-gray-200 dark:border-slate-700 rounded-lg text-xs bg-white dark:bg-slate-950" rows={2}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-bold text-gray-400 mb-1.5">Answer (EN)</label>
+                              <textarea 
+                                value={item.aEn}
+                                onChange={(e) => {
+                                  const newFaq = [...localConfig.faq];
+                                  newFaq[idx].aEn = e.target.value;
+                                  setLocalConfig({...localConfig, faq: newFaq});
+                                }}
+                                className="w-full py-2 px-3 border border-gray-200 dark:border-slate-700 rounded-lg text-xs bg-white dark:bg-slate-950 text-left" dir="ltr" rows={2}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {localConfig.faq.length === 0 && (
+                      <div className="text-center py-6 text-xs text-gray-400 font-bold border border-dashed border-gray-200 dark:border-slate-800 rounded-xl">
+                        {isRtl ? 'هیچ سوالی یافت نشد. می‌توانید با افزودن پرسش جدید شروع کنید.' : 'No FAQs added yet.'}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

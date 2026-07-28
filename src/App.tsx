@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { LanguageProvider, useLanguage } from './components/LanguageContext';
 import { LoadingProvider, useLoading } from './components/LoadingContext';
+import { SiteConfigProvider } from './components/SiteConfigContext';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { BIMObject, FilterState } from './types';
@@ -953,10 +954,12 @@ const MainAppContent: React.FC = () => {
 
 export default function App() {
   return (
-    <LanguageProvider>
-      <LoadingProvider>
-        <MainAppContent />
-      </LoadingProvider>
-    </LanguageProvider>
+    <SiteConfigProvider>
+      <LanguageProvider>
+        <LoadingProvider>
+          <MainAppContent />
+        </LoadingProvider>
+      </LanguageProvider>
+    </SiteConfigProvider>
   );
 }

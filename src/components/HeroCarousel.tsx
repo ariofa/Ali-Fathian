@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from './LanguageContext';
+import { useSiteConfig } from './SiteConfigContext';
 import { Logo } from './Logo';
 import {
   Sparkles,
@@ -149,6 +150,10 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
   onOpenAuthModal
 }) => {
   const { isRtl } = useLanguage();
+  const { siteConfig } = useSiteConfig();
+  const activeSlides = siteConfig?.heroBanners && siteConfig.heroBanners.length > 0
+    ? siteConfig.heroBanners
+    : SLIDE_CONFIGS;
   const [activeSlide, setActiveSlide] = useState(0);
   const [slideProgress, setSlideProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -156,12 +161,12 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
   const [dragOffsetX, setDragOffsetX] = useState(0);
 
   const handleNextSlide = () => {
-    setActiveSlide((prev) => (prev + 1) % SLIDE_CONFIGS.length);
+    setActiveSlide((prev) => (prev + 1) % activeSlides.length);
     setSlideProgress(0);
   };
 
   const handlePrevSlide = () => {
-    setActiveSlide((prev) => (prev - 1 + SLIDE_CONFIGS.length) % SLIDE_CONFIGS.length);
+    setActiveSlide((prev) => (prev - 1 + activeSlides.length) % activeSlides.length);
     setSlideProgress(0);
   };
 
@@ -179,10 +184,10 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
   // Handle slide transition when progress reaches 100%
   useEffect(() => {
     if (slideProgress >= 100) {
-      setActiveSlide((prev) => (prev + 1) % SLIDE_CONFIGS.length);
+      setActiveSlide((prev) => (prev + 1) % activeSlides.length);
       setSlideProgress(0);
     }
-  }, [slideProgress]);
+  }, [slideProgress, activeSlides.length]);
 
   const handleDragStart = (clientX: number) => {
     setDragStartX(clientX);
@@ -279,7 +284,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
 
       {/* Dynamic Background Photo & Dark Gradient Overlay for Active Slide */}
       <div className="absolute inset-0 z-0 overflow-hidden">
-        {SLIDE_CONFIGS.map((slide, idx) => (
+        {activeSlides.map((slide, idx) => (
           <div
             key={slide.id}
             className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
@@ -313,16 +318,16 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-950/80 backdrop-blur-md border border-[#26B6B6]/30 rounded-full text-[10px] sm:text-xs font-bold text-[#26B6B6] self-start shadow-md max-w-full">
               <Sparkles className="w-3.5 h-3.5 text-[#26B6B6] shrink-0" />
               <span className="truncate">
-                {isRtl ? SLIDE_CONFIGS[activeSlide].badgeFa : SLIDE_CONFIGS[activeSlide].badgeEn}
+                {isRtl ? activeSlides[activeSlide].badgeFa : activeSlides[activeSlide].badgeEn}
               </span>
             </div>
 
             <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tight leading-snug sm:leading-tight md:leading-tight text-white drop-shadow-md transition-all duration-300">
-              {isRtl ? SLIDE_CONFIGS[activeSlide].headingFa : SLIDE_CONFIGS[activeSlide].headingEn}
+              {isRtl ? activeSlides[activeSlide].headingFa : activeSlides[activeSlide].headingEn}
             </h1>
 
             <p className="text-[11px] sm:text-base md:text-lg text-gray-200 leading-relaxed font-normal max-w-2xl drop-shadow-sm transition-all duration-300">
-              {isRtl ? SLIDE_CONFIGS[activeSlide].descFa : SLIDE_CONFIGS[activeSlide].descEn}
+              {isRtl ? activeSlides[activeSlide].descFa : activeSlides[activeSlide].descEn}
             </p>
 
             <div className="flex flex-wrap items-center gap-3 pt-2">
@@ -443,7 +448,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
 
             {/* Stepper Pills with Slide Numbers */}
             <div className="grid grid-cols-5 gap-1.5 sm:gap-4 flex-1 max-w-4xl">
-              {SLIDE_CONFIGS.map((cfg, idx) => {
+              {activeSlides.map((cfg, idx) => {
                 const isActive = activeSlide === idx;
                 return (
                   <button

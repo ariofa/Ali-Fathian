@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLanguage } from './LanguageContext';
+import { useSiteConfig } from './SiteConfigContext';
 import { Logo } from './Logo';
 import { Mail, Phone, MapPin, ExternalLink, ShieldCheck } from 'lucide-react';
 import { SocialIconsRow } from './SocialLinks';
@@ -10,6 +11,13 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   const { t, isRtl } = useLanguage();
+  const { siteConfig } = useSiteConfig();
+
+  const footerMail = siteConfig?.footer?.email || 'support@iranbimhub.ir';
+  const footerPhone = siteConfig?.footer?.phone || '+98 (21) 8877-4433';
+  const footerAddress = isRtl 
+    ? (siteConfig?.footer?.addressFa || 'تهران، پارک فناوری پردیس، مجتمع شکوفایی، واحد ۴۰2')
+    : (siteConfig?.footer?.addressEn || 'Suite 402, Shokoufaei Bldg, Pardis Technology Park, Tehran, Iran');
 
   return (
     <footer className="bg-slate-50 dark:bg-gray-950 text-gray-600 dark:text-gray-300 mt-16 border-t border-gray-200 dark:border-gray-800 transition-colors">
@@ -105,18 +113,16 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </h4>
             <div className="flex items-center gap-2 text-start">
               <Mail className="w-4 h-4 text-[#26B6B6] shrink-0" />
-              <span className="text-gray-600 dark:text-gray-300">support@iranbimhub.ir</span>
+              <span className="text-gray-600 dark:text-gray-300">{footerMail}</span>
             </div>
             <div className="flex items-center gap-2 text-start">
               <Phone className="w-4 h-4 text-[#26B6B6] shrink-0" />
-              <span className="font-sans text-gray-600 dark:text-gray-300" dir="ltr">+98 (21) 8877-4433</span>
+              <span className="font-sans text-gray-600 dark:text-gray-300" dir="ltr">{footerPhone}</span>
             </div>
             <div className="flex items-start gap-2 leading-normal text-start">
               <MapPin className="w-4 h-4 text-[#26B6B6] shrink-0 mt-0.5" />
               <span className="text-gray-600 dark:text-gray-300">
-                {isRtl 
-                  ? 'تهران، پارک فناوری پردیس، مجتمع شکوفایی، واحد ۴۰2' 
-                  : 'Suite 402, Shokoufaei Bldg, Pardis Technology Park, Tehran, Iran'}
+                {footerAddress}
               </span>
             </div>
             <div className="pt-4 border-t border-gray-200/50 dark:border-gray-800/50 space-y-2">
