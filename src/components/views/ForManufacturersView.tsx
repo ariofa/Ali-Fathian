@@ -280,7 +280,7 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({ onNa
               </a>
               <button
                 type="button"
-                onClick={() => onNavigate('manufacturer-onboarding')}
+                onClick={() => onNavigate('for-manufacturers')}
                 className="px-7 py-3.5 bg-white/5 border border-white/15 hover:bg-white/10 text-white rounded-xl text-xs sm:text-sm font-bold transition-all text-center cursor-pointer flex items-center justify-center gap-2"
               >
                 <Factory className="w-4 h-4" />
@@ -366,7 +366,7 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({ onNa
                   {path.mode === 'profile' ? (
                     <button
                       type="button"
-                      onClick={() => onNavigate('manufacturer-onboarding')}
+                      onClick={() => onNavigate('for-manufacturers')}
                       className="inline-flex items-center gap-2 text-xs font-extrabold text-[#26B6B6] hover:text-[#1e9494] transition-colors pt-2 cursor-pointer"
                     >
                       <span>{isRtl ? path.ctaFa : path.ctaEn}</span>
@@ -446,7 +446,7 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({ onNa
           <div className="relative z-10 lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3">
             <button
               type="button"
-              onClick={() => onNavigate('manufacturer-onboarding')}
+              onClick={() => onNavigate('for-manufacturers')}
               className="px-5 py-3 bg-[#26B6B6] hover:bg-[#1e9494] rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center gap-2"
             >
               <Factory className="w-4 h-4" />
@@ -642,7 +642,7 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({ onNa
 
                   <button
                     type="button"
-                    onClick={() => onNavigate('manufacturer-onboarding')}
+                    onClick={() => onNavigate('for-manufacturers')}
                     className="px-5 py-3 bg-[#26B6B6] hover:bg-[#1e9494] text-white rounded-xl text-xs font-extrabold transition-all cursor-pointer inline-flex items-center justify-center gap-2"
                   >
                     <Factory className="w-4 h-4" />

@@ -14,7 +14,6 @@ import { Home, Layers, Building, Heart, User, ArrowUp, Folder, Package, MessageS
 import { HomeView } from './components/views/HomeView';
 import { CategoryPageView } from './components/views/CategoryPageView';
 import { ObjectDetailView } from './components/views/ObjectDetailView';
-import { ManufacturerOnboarding } from './components/views/ManufacturerOnboarding';
 import { ManufacturerDashboard } from './components/views/ManufacturerDashboard';
 import { ModelerDashboard } from './components/views/ModelerDashboard';
 import { AboutView } from './components/views/AboutView';
@@ -63,7 +62,14 @@ const MainAppContent: React.FC = () => {
       const path = window.location.pathname.replace(/^\//, '').split('/');
       const viewFromUrl = path[0] || 'home';
       const paramFromUrl = path[1] || '';
-      if (viewFromUrl && (viewFromUrl === 'home' || viewFromUrl === 'admin-panel' || ['about','contact','categories','detail','brand','manufacturers','manufacturers','for-designers','for-manufacturers','manufacturer-onboarding','manufacturer-dashboard','modeler-dashboard','learn','introduction','for-bim-modelers','privacy','terms','payment'].includes(viewFromUrl))) {
+      // Legacy cleanup: the old manufacturer onboarding page was removed.
+      // Any old direct URL should land on the current manufacturer page.
+      if (viewFromUrl === 'manufacturer-onboarding') {
+        window.history.replaceState({ view: 'for-manufacturers' }, '', '/for-manufacturers');
+        setCurrentView('for-manufacturers');
+        return;
+      }
+      if (viewFromUrl && (viewFromUrl === 'home' || viewFromUrl === 'admin-panel' || ['about','contact','categories','detail','brand','manufacturers','manufacturers','for-designers','for-manufacturers','manufacturer-dashboard','modeler-dashboard','learn','introduction','for-bim-modelers','privacy','terms','payment'].includes(viewFromUrl))) {
         setCurrentView(viewFromUrl);
         if (viewFromUrl === 'brand' && paramFromUrl) {
           setActiveManufacturerId(paramFromUrl);
@@ -95,6 +101,11 @@ const MainAppContent: React.FC = () => {
   }, []);
 
   const navigateTo = (view: string, customTextFa?: string, customTextEn?: string, param?: string) => {
+    // Legacy cleanup: redirect removed manufacturer onboarding route to manufacturer page.
+    if (view === 'manufacturer-onboarding') {
+      view = 'for-manufacturers';
+      param = undefined;
+    }
     // Update browser URL so SEO and sharing work
     const urlPath = view === 'home' ? '/' : `/${view}${param ? '/' + param : ''}`;
     window.history.pushState({ view, param }, '', urlPath);
@@ -441,14 +452,6 @@ const MainAppContent: React.FC = () => {
     }, isRtl ? 'در حال جستجوی کاتالوگ...' : 'Searching catalog...', 'Searching catalog...', 600);
   };
 
-  const handleCompleteManufacturerOnboarding = (profile: any) => {
-    localStorage.setItem('iranbimhub_mfg_profile', JSON.stringify(profile));
-    setCompanyProfile(profile);
-    setUserRole('Manufacturer');
-    setCurrentView('manufacturer-dashboard');
-    alert(isRtl ? 'ثبت‌نام کاتالوگ با موفقیت انجام شد! به پورتال هوشمند خود خوش آمدید.' : 'Onboarding completed! Welcome to your official brand portal.');
-  };
-
   const handlePublishNewObject = (newObj: BIMObject) => {
     alert(isRtl 
       ? `محصول جدید «${newObj.titleFa}» با موفقیت در بازار منتشر شد!` 
@@ -564,13 +567,6 @@ const MainAppContent: React.FC = () => {
             onNavigate={navigateTo}
             onOpenAuthModal={() => setIsAuthModalOpen(true)}
             currentUser={currentUser}
-          />
-        );
-
-      case 'manufacturer-onboarding':
-        return (
-          <ManufacturerOnboarding
-            onCompleteOnboarding={handleCompleteManufacturerOnboarding}
           />
         );
 
