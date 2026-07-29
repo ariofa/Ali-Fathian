@@ -57,6 +57,22 @@ const MainAppContent: React.FC = () => {
       }
     };
     window.addEventListener('hashchange', handleHashChange);
+
+    // Sync view from URL on load (back/forward buttons)
+    const syncFromUrl = () => {
+      const path = window.location.pathname.replace(/^\//, '').split('/');
+      const viewFromUrl = path[0] || 'home';
+      const paramFromUrl = path[1] || '';
+      if (viewFromUrl && (viewFromUrl === 'home' || viewFromUrl === 'admin-panel' || ['about','contact','categories','detail','brand','manufacturers','manufacturers','for-designers','for-manufacturers','manufacturer-onboarding','manufacturer-dashboard','modeler-dashboard','learn','introduction','for-bim-modelers','privacy','terms','payment'].includes(viewFromUrl))) {
+        setCurrentView(viewFromUrl);
+        if (viewFromUrl === 'brand' && paramFromUrl) {
+          setActiveManufacturerId(paramFromUrl);
+        }
+      }
+    };
+    window.addEventListener('popstate', syncFromUrl);
+    syncFromUrl();
+
     (window as any).onNavigateToView = (view: string, param?: string) => {
       if (view === 'brand' && param) {
         handleViewBrand(param);
@@ -73,11 +89,16 @@ const MainAppContent: React.FC = () => {
     };
     return () => {
       window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('popstate', syncFromUrl);
       delete (window as any).onNavigateToView;
     };
   }, []);
 
   const navigateTo = (view: string, customTextFa?: string, customTextEn?: string, param?: string) => {
+    // Update browser URL so SEO and sharing work
+    const urlPath = view === 'home' ? '/' : `/${view}${param ? '/' + param : ''}`;
+    window.history.pushState({ view, param }, '', urlPath);
+
     if (view === 'payment') {
       if (param) setPaymentPlanId(param);
       setCurrentView(prev => {
@@ -105,6 +126,7 @@ const MainAppContent: React.FC = () => {
     triggerTransition(() => {
       setActiveObject(obj);
       setCurrentView('detail');
+      window.history.pushState({ view: 'detail', param: obj.id }, '', `/detail/${obj.id}`);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }, isRtl ? 'در حال بارگذاری مشخصات فنی آبجکت...' : 'Loading BIM Object specifications...', 'Loading BIM Object specifications...', 600);
   };
@@ -113,6 +135,7 @@ const MainAppContent: React.FC = () => {
     triggerTransition(() => {
       setActiveManufacturerId(mfgId);
       setCurrentView('brand');
+      window.history.pushState({ view: 'brand', param: mfgId }, '', `/brand/${mfgId}`);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }, isRtl ? 'در حال بارگذاری کاتالوگ دیجیتال برند...' : 'Loading Brand digital catalog...', 'Loading Brand digital catalog...', 600);
   };
