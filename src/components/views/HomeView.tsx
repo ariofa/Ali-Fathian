@@ -245,7 +245,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
             nameFa: savedProfile.nameFa || mfg.nameFa,
             nameEn: savedProfile.nameEn || mfg.nameEn,
             logo: savedProfile.logoUrl ? (savedProfile.nameFa ? savedProfile.nameFa.slice(0, 6) : 'ALUPAN') : mfg.logo,
-            logoUrl: savedProfile.logoUrl || mfg.logoUrl,
             descriptionFa: savedProfile.descriptionFa || mfg.descriptionFa,
             descriptionEn: savedProfile.descriptionEn || mfg.descriptionEn,
             tier: savedProfile.tier || mfg.tier,
@@ -273,7 +272,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
     let tier = 'VIP';
 
     try {
-      mfgObjectsCount = combinedObjects.filter(o => o.manufacturerId === 'm1' || o.manufacturerFa?.includes('آلوپن') || o.manufacturerEn?.includes('Alupan')).length;
+      mfgObjectsCount = combinedObjects.filter(o => o.manufacturerId === 'm1' || o.manufacturerId === 'custom').length;
 
       const savedProfileStr = localStorage.getItem('iranbimhub_mfg_profile') || localStorage.getItem('iranbimhub_mfg_profile_m1');
       if (savedProfileStr) {

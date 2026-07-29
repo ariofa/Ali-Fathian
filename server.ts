@@ -1,6 +1,7 @@
 import express from "express";
 import path from "path";
 import fs from "fs";
+import { randomUUID } from "crypto";
 import { createServer as createViteServer } from "vite";
 import dotenv from "dotenv";
 import { GoogleGenAI, Type } from "@google/genai";
@@ -264,6 +265,125 @@ app.post("/api/site-config", (req, res) => {
   } catch (err) {
     console.error("Failed to save site config:", err);
     return res.status(500).json({ error: "Failed to save site config" });
+  }
+});
+
+// -----------------------------------------------------------------------------
+// BIM modeler collaboration applications (MVP)
+// Stores simple project-based collaboration requests in a local JSON file.
+// In production, your backend/database team can replace these helpers with a real DB table.
+// -----------------------------------------------------------------------------
+const MODEL_APPLICATIONS_FILE = path.join(process.cwd(), "data", "bim-modeler-applications.json");
+
+function sanitizeString(value: unknown, maxLength = 800): string {
+  if (typeof value !== "string") return "";
+  return value.trim().slice(0, maxLength);
+}
+
+function sanitizeStringArray(value: unknown, maxItems = 12, maxLength = 120): string[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter(item => typeof item === "string")
+    .map(item => item.trim().slice(0, maxLength))
+    .filter(Boolean)
+    .slice(0, maxItems);
+}
+
+async function readModelerApplications(): Promise<any[]> {
+  try {
+    const raw = await fs.promises.readFile(MODEL_APPLICATIONS_FILE, "utf8");
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error: any) {
+    if (error?.code === "ENOENT") return [];
+    throw error;
+  }
+}
+
+async function writeModelerApplications(applications: any[]) {
+  await fs.promises.mkdir(path.dirname(MODEL_APPLICATIONS_FILE), { recursive: true });
+  await fs.promises.writeFile(MODEL_APPLICATIONS_FILE, JSON.stringify(applications, null, 2), "utf8");
+}
+
+app.post("/api/bim-modeler-applications", async (req, res) => {
+  try {
+    const body = req.body || {};
+
+    // Basic honeypot protection. Real users will never fill this hidden field.
+    if (sanitizeString(body.website, 200)) {
+      return res.status(400).json({ success: false, message: "Invalid submission." });
+    }
+
+    const fullName = sanitizeString(body.fullName, 120);
+    const phone = sanitizeString(body.phone, 80);
+    const email = sanitizeString(body.email, 160);
+    const city = sanitizeString(body.city, 120);
+    const mainSpecialty = sanitizeString(body.mainSpecialty, 120);
+    const experienceYears = sanitizeString(body.experienceYears, 160);
+    const availability = sanitizeString(body.availability, 120);
+    const portfolioUrl = sanitizeString(body.portfolioUrl, 600);
+    const linkedinUrl = sanitizeString(body.linkedinUrl, 600);
+    const message = sanitizeString(body.message, 1500);
+    const softwareSkills = sanitizeStringArray(body.softwareSkills);
+    const preferredProjectTypes = sanitizeStringArray(body.preferredProjectTypes);
+    const hasAcceptedNotice = Boolean(body.hasAcceptedNotice);
+
+    if (!fullName || !phone || !city || !mainSpecialty || !experienceYears || !portfolioUrl || !hasAcceptedNotice) {
+      return res.status(400).json({
+        success: false,
+        messageFa: "لطفاً فیلدهای ضروری فرم همکاری را تکمیل کنید.",
+        messageEn: "Please complete all required collaboration form fields."
+      });
+    }
+
+    if (softwareSkills.length === 0 || preferredProjectTypes.length === 0) {
+      return res.status(400).json({
+        success: false,
+        messageFa: "لطفاً حداقل یک نرمافزار و یک نوع پروژه را انتخاب کنید.",
+        messageEn: "Please select at least one software skill and one project type."
+      });
+    }
+
+    const applications = await readModelerApplications();
+    const now = new Date().toISOString();
+
+    const application = {
+      id: randomUUID(),
+      fullName,
+      phone,
+      email,
+      city,
+      mainSpecialty,
+      experienceYears,
+      availability,
+      portfolioUrl,
+      linkedinUrl,
+      softwareSkills,
+      preferredProjectTypes,
+      message,
+      status: "new",
+      source: "bim-modeler-collaboration-page",
+      createdAt: now,
+      updatedAt: now,
+      adminNotes: ""
+    };
+
+    applications.unshift(application);
+    await writeModelerApplications(applications);
+
+    return res.status(201).json({
+      success: true,
+      id: application.id,
+      messageFa: "درخواست همکاری شما با موفقیت ثبت شد.",
+      messageEn: "Your collaboration application was submitted successfully."
+    });
+  } catch (error) {
+    console.error("Failed to save BIM modeler application:", error);
+    return res.status(500).json({
+      success: false,
+      messageFa: "ثبت درخواست با خطا مواجه شد. لطفاً کمی بعد دوباره تلاش کنید.",
+      messageEn: "Submission failed. Please try again later."
+    });
   }
 });
 

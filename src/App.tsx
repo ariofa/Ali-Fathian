@@ -23,6 +23,7 @@ import { IntroductionView } from './components/views/IntroductionView';
 import { BrandPageView } from './components/views/BrandPageView';
 import { ForDesignersView } from './components/views/ForDesignersView';
 import { ForManufacturersView } from './components/views/ForManufacturersView';
+import { BIMModelerCollaborationView } from './components/views/BIMModelerCollaborationView';
 import { AdminControlPanel } from './components/admin/AdminControlPanel';
 import { PrivacyPolicyView } from './components/views/PrivacyPolicyView';
 import { TermsOfServiceView } from './components/views/TermsOfServiceView';
@@ -630,6 +631,13 @@ const MainAppContent: React.FC = () => {
       case 'terms':
         return (
           <TermsOfServiceView
+            onNavigate={navigateTo}
+          />
+        );
+
+      case 'for-bim-modelers':
+        return (
+          <BIMModelerCollaborationView
             onNavigate={navigateTo}
           />
         );
