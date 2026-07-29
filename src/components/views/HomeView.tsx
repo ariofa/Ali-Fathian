@@ -229,6 +229,86 @@ export const HomeView: React.FC<HomeViewProps> = ({
       return BIM_OBJECTS;
     }
   }, [customObjectsVersion]);
+
+  // Dynamic Merged Manufacturers list reading live state from Manufacturer Dashboard
+  const mergedManufacturers = React.useMemo(() => {
+    try {
+      const savedProfileStr = localStorage.getItem('iranbimhub_mfg_profile') || localStorage.getItem('iranbimhub_mfg_profile_m1');
+      if (!savedProfileStr) return MANUFACTURERS;
+      const savedProfile = JSON.parse(savedProfileStr);
+      if (!savedProfile) return MANUFACTURERS;
+
+      return MANUFACTURERS.map(mfg => {
+        if (mfg.id === 'm1' || mfg.id === savedProfile.id) {
+          return {
+            ...mfg,
+            nameFa: savedProfile.nameFa || mfg.nameFa,
+            nameEn: savedProfile.nameEn || mfg.nameEn,
+            logo: savedProfile.logoUrl ? (savedProfile.nameFa ? savedProfile.nameFa.slice(0, 6) : 'ALUPAN') : mfg.logo,
+            logoUrl: savedProfile.logoUrl || mfg.logoUrl,
+            descriptionFa: savedProfile.descriptionFa || mfg.descriptionFa,
+            descriptionEn: savedProfile.descriptionEn || mfg.descriptionEn,
+            tier: savedProfile.tier || mfg.tier,
+            website: savedProfile.website || mfg.website,
+            email: savedProfile.email || mfg.email,
+            phone: savedProfile.phone || mfg.phone,
+            addressFa: savedProfile.addressFa || mfg.addressFa,
+            addressEn: savedProfile.addressEn || mfg.addressEn,
+          };
+        }
+        return mfg;
+      });
+    } catch {
+      return MANUFACTURERS;
+    }
+  }, [customObjectsVersion]);
+
+  // Dynamic Live Manufacturer Dashboard Statistics
+  const mfgDashboardStats = React.useMemo(() => {
+    let mfgObjectsCount = 0;
+    let totalViews = 4250;
+    let totalDownloads = 1840;
+    let activeLeadsCount = 156;
+    let mfgName = isRtl ? 'شرکت آلوپن' : 'Alupan Co.';
+    let tier = 'VIP';
+
+    try {
+      mfgObjectsCount = combinedObjects.filter(o => o.manufacturerId === 'm1' || o.manufacturerFa?.includes('آلوپن') || o.manufacturerEn?.includes('Alupan')).length;
+
+      const savedProfileStr = localStorage.getItem('iranbimhub_mfg_profile') || localStorage.getItem('iranbimhub_mfg_profile_m1');
+      if (savedProfileStr) {
+        const p = JSON.parse(savedProfileStr);
+        if (p) {
+          mfgName = isRtl ? (p.nameFa || mfgName) : (p.nameEn || mfgName);
+          tier = p.tier || tier;
+          if (p.stats) {
+            totalViews = p.stats.views || totalViews;
+            totalDownloads = p.stats.downloads || totalDownloads;
+            activeLeadsCount = p.stats.leads || activeLeadsCount;
+          }
+        }
+      }
+
+      const savedLeadsStr = localStorage.getItem('iranbimhub_mfg_leads');
+      if (savedLeadsStr) {
+        const leads = JSON.parse(savedLeadsStr);
+        if (Array.isArray(leads) && leads.length > 0) {
+          activeLeadsCount = leads.length;
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    return {
+      mfgObjectsCount: mfgObjectsCount || 8,
+      totalViews,
+      totalDownloads,
+      activeLeadsCount,
+      mfgName,
+      tier
+    };
+  }, [combinedObjects, isRtl, customObjectsVersion]);
   
   // Carousel State & Interactive Drag Stack
   const [activeSlide, setActiveSlide] = useState(0);
@@ -1109,7 +1189,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               >
                 {/* We triple the manufacturers array to create a seamless infinite horizontal scrolling list */}
                 <div className="flex gap-4 px-4 shrink-0">
-                  {[[...MANUFACTURERS], [...MANUFACTURERS], [...MANUFACTURERS]].map((group, groupIdx) => (
+                  {[[...mergedManufacturers], [...mergedManufacturers], [...mergedManufacturers]].map((group, groupIdx) => (
                     <div key={groupIdx} className="flex gap-4 shrink-0">
                       {group.map((mfg, idx) => (
                         <div
@@ -1147,86 +1227,90 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="border-t border-gray-200/50 dark:border-gray-800/80 my-2" />
 
           {/* 4 Manufacturer Value Columns Directly Below inside the unified card/section */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-start pt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-start pt-6">
             
-            {/* Box 1 (Rightmost) */}
-            <div className="flex flex-col bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-800 p-6 rounded-2xl shadow-xs transition-all duration-300 hover:shadow-md hover:-translate-y-1 group">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[#26B6B6]/5 text-[#26B6B6] flex items-center justify-center shrink-0 border border-[#26B6B6]/10 group-hover:scale-110 transition-transform duration-350">
-                  <Layers className="w-5.5 h-5.5" />
+            {/* Box 1 */}
+            <div className="flex flex-col bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-800 p-5 rounded-2xl shadow-2xs">
+              <div className="flex items-center justify-between mb-3.5">
+                <div className="w-10 h-10 rounded-xl bg-[#26B6B6]/10 text-[#26B6B6] flex items-center justify-center shrink-0 border border-[#26B6B6]/20">
+                  <Layers className="w-5 h-5" />
                 </div>
+                <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-gray-900 text-gray-600 dark:text-gray-300 border border-gray-200/60 dark:border-gray-800">
+                  {isRtl ? 'حضور در نقشه‌ها' : 'In Specifications'}
+                </span>
               </div>
-              <div className="space-y-2.5">
-                <h4 className="text-sm font-black text-gray-900 dark:text-white leading-snug group-hover:text-[#26B6B6] transition-colors">
-                  {isRtl ? 'حضور در میز طراحی مهندسان' : 'Presence on Drafting Desks'}
-                </h4>
-                <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed font-light">
-                  {isRtl 
-                    ? 'محصولات و مصالح شما دقیقاً در زمانِ کلیدیِ طراحی و پیش از شروع پروژه، به دست معماران، مهندسان مشاور و گودبرداران بررسی و وارد نقشه‌های رویت (Revit) می‌شوند.' 
-                    : 'Your products and materials are reviewed and integrated into Revit plans by architects, consultants, and developers during the key design phase.'
-                  }
-                </p>
-              </div>
+              <h4 className="text-sm font-black text-gray-900 dark:text-white leading-snug">
+                {isRtl ? 'حضور در میز طراحی مهندسان' : 'Presence on Drafting Desks'}
+              </h4>
+              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed font-normal mt-2">
+                {isRtl 
+                  ? 'محصولات و مصالح شما دقیقاً در زمانِ کلیدیِ طراحی و پیش از شروع پروژه، به دست معماران، مهندسان مشاور و طراحان بررسی و وارد نقشه‌های رویت (Revit) می‌شوند.' 
+                  : 'Your products and materials are reviewed and integrated into Revit plans by architects, consultants, and developers during the key design phase.'
+                }
+              </p>
             </div>
 
             {/* Box 2 */}
-            <div className="flex flex-col bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-800 p-6 rounded-2xl shadow-xs transition-all duration-300 hover:shadow-md hover:-translate-y-1 group">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[#26B6B6]/5 text-[#26B6B6] flex items-center justify-center shrink-0 border border-[#26B6B6]/10 group-hover:scale-110 transition-transform duration-350">
-                  <Users className="w-5.5 h-5.5" />
+            <div className="flex flex-col bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-800 p-5 rounded-2xl shadow-2xs">
+              <div className="flex items-center justify-between mb-3.5">
+                <div className="w-10 h-10 rounded-xl bg-[#26B6B6]/10 text-[#26B6B6] flex items-center justify-center shrink-0 border border-[#26B6B6]/20">
+                  <Users className="w-5 h-5" />
                 </div>
+                <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-gray-900 text-gray-600 dark:text-gray-300 border border-gray-200/60 dark:border-gray-800">
+                  {isRtl ? 'تقاضای زنده' : 'Real Demand'}
+                </span>
               </div>
-              <div className="space-y-2.5">
-                <h4 className="text-sm font-black text-gray-900 dark:text-white leading-snug group-hover:text-[#26B6B6] transition-colors">
-                  {isRtl ? 'جذب تقاضای واقعی بازار' : 'Capture Real Market Demand'}
-                </h4>
-                <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed font-light">
-                  {isRtl 
-                    ? 'هر بازدید، دانلود کاتالوگ یا کلیک روی برگه مشخصات فنی محصولات شما، یک فرصت فروش مستقیم و ارجاعِ مستقیمِ یک خریدارِ بالقوه به بخش بازرگانی شماست.' 
-                    : 'Every page view, catalog download, or click on technical sheets is a direct sales lead, routing a hot prospect straight to your sales desk.'
-                  }
-                </p>
-              </div>
+              <h4 className="text-sm font-black text-gray-900 dark:text-white leading-snug">
+                {isRtl ? 'جذب تقاضای واقعی بازار' : 'Capture Real Market Demand'}
+              </h4>
+              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed font-normal mt-2">
+                {isRtl 
+                  ? 'هر بازدید، دانلود کاتالوگ یا ثبت درخواست مشخصات فنی، یک سرنخ تجاری ارزشمند برای معرفی و فروش مستقیم محصولات شما ایجاد می‌کند.' 
+                  : 'Every page view, catalog download, or click on technical sheets records a direct sales lead for your products.'
+                }
+              </p>
             </div>
 
             {/* Box 3 */}
-            <div className="flex flex-col bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-800 p-6 rounded-2xl shadow-xs transition-all duration-300 hover:shadow-md hover:-translate-y-1 group">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[#26B6B6]/5 text-[#26B6B6] flex items-center justify-center shrink-0 border border-[#26B6B6]/10 group-hover:scale-110 transition-transform duration-350">
-                  <LineChart className="w-5.5 h-5.5" />
+            <div className="flex flex-col bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-800 p-5 rounded-2xl shadow-2xs">
+              <div className="flex items-center justify-between mb-3.5">
+                <div className="w-10 h-10 rounded-xl bg-[#26B6B6]/10 text-[#26B6B6] flex items-center justify-center shrink-0 border border-[#26B6B6]/20">
+                  <LineChart className="w-5 h-5" />
                 </div>
+                <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-gray-900 text-gray-600 dark:text-gray-300 border border-gray-200/60 dark:border-gray-800">
+                  {isRtl ? 'تحلیل رفتار' : 'Market Insights'}
+                </span>
               </div>
-              <div className="space-y-2.5">
-                <h4 className="text-sm font-black text-gray-900 dark:text-white leading-snug group-hover:text-[#26B6B6] transition-colors">
-                  {isRtl ? 'رصد هوشمند رفتار بازار' : 'Smart Behavior Tracking'}
-                </h4>
-                <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed font-light">
-                  {isRtl 
-                    ? 'به صورت زنده و شفاف رصد کنید که کدام شرکت‌های مهندسی، مشاوران بزرگ و پروژه‌های ساختمانی، کدهای تجاری و مدل‌های محصولات شما را دانلود و انتخاب کرده‌اند.' 
-                    : 'Monitor in real-time which engineering firms, major consultancies, and construction projects are downloading and specifying your catalog codes.'
-                  }
-                </p>
-              </div>
+              <h4 className="text-sm font-black text-gray-900 dark:text-white leading-snug">
+                {isRtl ? 'رصد هوشمند رفتار بازار' : 'Smart Behavior Tracking'}
+              </h4>
+              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed font-normal mt-2">
+                {isRtl 
+                  ? 'به صورت شفاف رصد کنید که کدام شرکت‌های مهندسی، مشاوران بزرگ و پروژه‌های ساختمانی، کدهای تجاری و مدل‌های محصولات شما را بررسی کرده‌اند.' 
+                  : 'Monitor which engineering firms, major consultancies, and construction projects are downloading and specifying your catalog codes.'
+                }
+              </p>
             </div>
 
-            {/* Box 4 (Leftmost) */}
-            <div className="flex flex-col bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-800 p-6 rounded-2xl shadow-xs transition-all duration-300 hover:shadow-md hover:-translate-y-1 group">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[#26B6B6]/5 text-[#26B6B6] flex items-center justify-center shrink-0 border border-[#26B6B6]/10 group-hover:scale-110 transition-transform duration-350">
-                  <Sparkles className="w-5.5 h-5.5 text-[#26B6B6]" />
+            {/* Box 4 */}
+            <div className="flex flex-col bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-800 p-5 rounded-2xl shadow-2xs">
+              <div className="flex items-center justify-between mb-3.5">
+                <div className="w-10 h-10 rounded-xl bg-[#26B6B6]/10 text-[#26B6B6] flex items-center justify-center shrink-0 border border-[#26B6B6]/20">
+                  <Sparkles className="w-5 h-5" />
                 </div>
+                <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-gray-900 text-gray-600 dark:text-gray-300 border border-gray-200/60 dark:border-gray-800">
+                  {isRtl ? 'ورود آسان' : 'Easy Onboarding'}
+                </span>
               </div>
-              <div className="space-y-2.5">
-                <h4 className="text-sm font-black text-gray-900 dark:text-white leading-snug group-hover:text-[#26B6B6] transition-colors">
-                  {isRtl ? 'ورود به دنیای BIM بدون هزینه' : 'Zero-Cost BIM Onboarding'}
-                </h4>
-                <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed font-light">
-                  {isRtl 
-                    ? 'بدون نیاز به کارت اعتباری یا تعهد مالی، اولین فایل‌های BIM و محصولات خود را بارگذاری کنید؛ بازخورد بازار را بسنجید و سهم فروش خود را توسعه دهید.' 
-                    : 'Upload your first BIM files and products without a credit card or financial commitment; analyze market fit and grow your sales pipeline.'
-                  }
-                </p>
-              </div>
+              <h4 className="text-sm font-black text-gray-900 dark:text-white leading-snug">
+                {isRtl ? 'ورود به دنیای BIM بدون هزینه' : 'Zero-Cost BIM Onboarding'}
+              </h4>
+              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed font-normal mt-2">
+                {isRtl 
+                  ? 'بدون نیاز به تعهد مالی، اولین فایل‌های BIM و کاتالوگ‌های محصولات خود را بارگذاری کنید؛ بازخورد بازار را بسنجید و سهم فروش خود را توسعه دهید.' 
+                  : 'Upload your first BIM files and product catalogs without financial commitment; analyze market fit and grow your sales pipeline.'
+                }
+              </p>
             </div>
 
           </div>

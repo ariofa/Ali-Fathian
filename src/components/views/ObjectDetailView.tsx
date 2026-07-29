@@ -127,9 +127,31 @@ export const ObjectDetailView: React.FC<ObjectDetailViewProps> = ({
     };
   }, [isImageFullscreen]);
 
-  const manufacturer = MANUFACTURERS.find(m => m.id === object.manufacturerId);
-  const mName = manufacturer ? (isRtl ? manufacturer.nameFa : manufacturer.nameEn) : '';
-  const mDesc = manufacturer ? (isRtl ? manufacturer.descriptionFa : manufacturer.descriptionEn) : '';
+  const getDynamicManufacturer = () => {
+    const staticMfg = MANUFACTURERS.find(m => m.id === object.manufacturerId);
+    try {
+      const saved = localStorage.getItem('iranbimhub_mfg_profile');
+      if (saved && (object.manufacturerId === 'm1' || object.manufacturerId === 'custom')) {
+        const parsed = JSON.parse(saved);
+        return {
+          ...staticMfg,
+          nameFa: parsed.nameFa || staticMfg?.nameFa,
+          nameEn: parsed.nameEn || staticMfg?.nameEn,
+          descriptionFa: parsed.descFa || staticMfg?.descriptionFa,
+          descriptionEn: parsed.descEn || staticMfg?.descriptionEn,
+          verified: parsed.verified !== undefined ? parsed.verified : staticMfg?.verified,
+          logoUrl: parsed.logoUrl || staticMfg?.logo
+        };
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    return staticMfg;
+  };
+
+  const activeMfg = getDynamicManufacturer();
+  const mName = activeMfg ? (isRtl ? activeMfg.nameFa : activeMfg.nameEn) : '';
+  const mDesc = activeMfg ? (isRtl ? activeMfg.descriptionFa : activeMfg.descriptionEn) : '';
 
   const title = isRtl ? object.titleFa : object.titleEn;
   const desc = isRtl ? object.descriptionFa : object.descriptionEn;
@@ -599,13 +621,13 @@ export const ObjectDetailView: React.FC<ObjectDetailViewProps> = ({
               className="flex items-center gap-3 cursor-pointer group"
             >
               <div className="w-12 h-12 bg-gray-50 border border-gray-150 rounded-xl flex items-center justify-center font-mono font-extrabold text-sm tracking-wider text-gray-600 group-hover:border-[#26B6B6]/50 group-hover:text-[#26B6B6] transition-all">
-                {manufacturer?.logo}
+                {activeMfg?.logo}
               </div>
               <div>
                 <h3 className="text-sm font-bold text-gray-800 group-hover:text-[#26B6B6] transition-colors">
                   {mName}
                 </h3>
-                {manufacturer?.verified && (
+                {activeMfg?.verified && (
                   <span className="text-[10px] bg-emerald-50 text-emerald-600 font-bold px-1.5 py-0.5 rounded flex items-center gap-1 mt-0.5 w-fit">
                     ✓ {isRtl ? 'برند صنعتی تاییدشده' : 'Certified Partner'}
                   </span>

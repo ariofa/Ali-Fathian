@@ -31,7 +31,26 @@ export const BIMObjectCard: React.FC<BIMObjectCardProps> = ({
   const { language, t, isRtl } = useLanguage();
   const [showFormatsDropdown, setShowFormatsDropdown] = useState(false);
 
-  const manufacturer = MANUFACTURERS.find(m => m.id === object.manufacturerId);
+  const getDynamicManufacturer = () => {
+    const staticMfg = MANUFACTURERS.find(m => m.id === object.manufacturerId);
+    try {
+      const saved = localStorage.getItem('iranbimhub_mfg_profile');
+      if (saved && (object.manufacturerId === 'm1' || object.manufacturerId === 'custom')) {
+        const parsed = JSON.parse(saved);
+        return {
+          ...staticMfg,
+          nameFa: parsed.nameFa || staticMfg?.nameFa,
+          nameEn: parsed.nameEn || staticMfg?.nameEn,
+          verified: parsed.verified !== undefined ? parsed.verified : staticMfg?.verified
+        };
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    return staticMfg;
+  };
+
+  const manufacturer = getDynamicManufacturer();
   const mName = manufacturer ? (isRtl ? manufacturer.nameFa : manufacturer.nameEn) : '';
   
   const title = isRtl ? object.titleFa : object.titleEn;

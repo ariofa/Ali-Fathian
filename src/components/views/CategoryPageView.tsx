@@ -582,10 +582,7 @@ export const CategoryPageView: React.FC<CategoryPageViewProps> = ({
 
                     {/* Right/End section: Pricing, quick downloads, bookmark */}
                     <div className="flex sm:flex-col justify-between items-end shrink-0 sm:border-s border-gray-100 dark:border-gray-800 sm:ps-4 gap-4 min-w-[125px]">
-                      {/* Price/Access type label */}
-                      <span className="text-[10px] font-bold text-[#26B6B6] bg-[#26B6B6]/5 px-2.5 py-1 rounded-full">
-                        {obj.priceType === 'Free' ? t('free') : (obj.priceType === 'Paid' ? t('paid') : t('subscriptionOnly'))}
-                      </span>
+                      {/* Price/Access type label removed */}
 
                       {/* Buttons */}
                       <div className="flex items-center gap-2">

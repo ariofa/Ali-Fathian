@@ -65,13 +65,13 @@ const CountUp: React.FC<{ end: number; duration?: number; prefix?: string; suffi
 export const SLIDE_CONFIGS = [
   {
     id: 'identity',
-    labelFa: 'ایران‌بیم‌هاب',
+    labelFa: 'ایران بیم هاب',
     labelEn: 'IranBIMhub',
     numFa: '۰۱',
     numEn: '01',
     bgImage: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1600&q=80',
     overlay: 'bg-gradient-to-r from-slate-950/95 via-slate-900/90 to-[#1E2326]/85',
-    badgeFa: 'اولین پلتفرم ایرانی برای انتشار مدلهای بیم محصولات ساختمانی',
+    badgeFa: 'اولین پلتفرم ایرانی برای انتشار مدل‌های بیم محصولات ساختمانی',
     badgeEn: "Iran's Premier BIM Catalog Platform for Construction Products",
     headingFa: 'مرجع تخصصی و بازار ملی بیم ایران',
     headingEn: "Iran's National BIM Marketplace & Engineering Reference",
@@ -86,12 +86,12 @@ export const SLIDE_CONFIGS = [
     numEn: '02',
     bgImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80',
     overlay: 'bg-gradient-to-r from-slate-950/95 via-slate-900/85 to-[#26B6B6]/25',
-    badgeFa: 'برای طراحان، مهندسان و مدلرهای بیم',
-    badgeEn: 'For Architects, Engineers & BIM Modelers',
-    headingFa: 'هر آبجکتی که برای پروژه‌تان نیاز دارید، همین‌جاست',
-    headingEn: 'Every Object Your Project Needs, Right Here',
-    descFa: 'دسترسی به هزاران آبجکت بیم استاندارد ایرانی، آماده دانلود مستقیم. با عضویت ویژه، دانلود نامحدود و ابزارهای مدیریت پروژه را تجربه کنید.',
-    descEn: 'Access thousands of standardized Iranian BIM objects, ready to download instantly. Upgrade to VIP for unlimited downloads and advanced project tools.'
+    badgeFa: 'برای معماران، مهندسان و دفاتر طراحی',
+    badgeEn: 'For Architects, Engineers & Design Offices',
+    headingFa: 'آبجکت‌های BIM قابل استفاده برای پروژه‌های واقعی',
+    headingEn: 'BIM Objects Ready for Real Design Projects',
+    descFa: 'به جای ساختن دوباره مدل‌ها از روی PDF و کاتالوگ، فایل‌های سبک، استاندارد و قابل بررسی را پیدا کنید و سریع‌تر وارد فرآیند طراحی، متره و مستندسازی شوید.',
+    descEn: 'Instead of rebuilding models from PDF catalogs, find clean, lightweight and reviewable BIM files that help you design, document and specify products faster.'
   },
   {
     id: 'manufacturers',
@@ -101,42 +101,42 @@ export const SLIDE_CONFIGS = [
     numEn: '03',
     bgImage: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1600&q=80',
     overlay: 'bg-gradient-to-r from-slate-950/95 via-slate-900/90 to-emerald-950/50',
-    badgeFa: 'برای تولیدکنندگان و صاحبان برند',
-    badgeEn: 'For Manufacturers & Brand Owners',
-    headingFa: 'برند شما، در دستان مهندسانی که تصمیم می‌گیرند',
-    headingEn: 'Your Brand, In the Hands of Decision-Making Engineers',
-    descFa: 'کاتالوگ محصولات خود را به زبان مهندسی امروز ترجمه کنید و مستقیماً در پروژه‌های واقعی ساختمانی ایران دیده شوید. با اشتراک ویژه، از تحلیل بازار و اولویت نمایش بهره‌مند شوید.',
-    descEn: "Translate your product catalog into today's engineering language and get specified directly into real Iranian construction projects. Upgrade for market analytics and priority placement."
+    badgeFa: 'برای تولیدکنندگان و صاحبان برندهای ساختمانی',
+    badgeEn: 'For Manufacturers & Building Product Brands',
+    headingFa: 'محصول شما قبل از خرید، وارد نقشه پروژه می‌شود',
+    headingEn: 'Your Product Enters the Project Before Procurement',
+    descFa: 'ایران بیم هاب کاتالوگ فنی شما را به زبان قابل استفاده برای معماران و مهندسان تبدیل می‌کند؛ تا برند شما در مرحله طراحی دیده، بررسی و انتخاب شود.',
+    descEn: 'IranBIMhub turns your technical catalog into a format architects and engineers can actually use, helping your brand get discovered, evaluated and specified during design.'
   },
   {
-    id: 'trust',
-    labelFa: 'اعتماد',
-    labelEn: 'Trust',
+    id: 'modelers',
+    labelFa: 'متخصصان BIM',
+    labelEn: 'BIM Modelers',
     numFa: '۰۴',
     numEn: '04',
     bgImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=80',
     overlay: 'bg-gradient-to-r from-[#112a2b]/95 via-slate-950/90 to-slate-900/85',
-    badgeFa: 'پویایی بازار ایران‌بیم‌هاب',
-    badgeEn: 'IranBIMhub Market Momentum',
-    headingFa: 'اعتمادی که هر روز رشد می‌کند',
-    headingEn: 'Trust That Grows Every Day',
-    descFa: 'بستری پویا برای دسترسی به باکیفیت‌ترین مدل‌های BIM استاندارد و بومی، به پشتوانه تولیدکنندگان طراز اول کشور و بازخورد زنده بازار ساختمان ایران.',
-    descEn: 'A dynamic ecosystem for accessing high-quality standardized domestic BIM models, backed by top-tier suppliers and real-time market momentum.'
+    badgeFa: 'دعوت به همکاری برای متخصصان BIM و Revit Family',
+    badgeEn: 'Collaboration Opportunity for BIM & Revit Family Specialists',
+    headingFa: 'در ساخت کتابخانه BIM محصولات ایرانی همراه ما باشید',
+    headingEn: 'Help Build Iran’s BIM Product Library',
+    descFa: 'اگر در مدل‌سازی BIM، ساخت فمیلی Revit، استانداردسازی پارامترها یا کنترل کیفیت فایل‌ها تجربه دارید، ایران بیم هاب می‌تواند خانه همکاری حرفه‌ای شما باشد.',
+    descEn: 'If you work with BIM modeling, Revit families, parameter standards or file quality control, IranBIMhub can become your professional collaboration home.'
   },
   {
     id: 'start',
-    labelFa: 'شروع',
+    labelFa: 'شروع همکاری',
     labelEn: 'Start',
     numFa: '۰۵',
     numEn: '05',
     bgImage: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=1600&q=80',
     overlay: 'bg-gradient-to-r from-slate-950/95 via-slate-900/90 to-[#1E2326]/85',
-    badgeFa: 'عضویت رایگان',
-    badgeEn: 'Free Start',
-    headingFa: 'شروع، بدون هیچ هزینه‌ای',
-    headingEn: 'Start — At No Cost',
-    descFa: 'چه به‌دنبال آبجکت بیم هستید، چه می‌خواهید برندتان دیده شود؛ ایران‌بیم‌هاب رایگان شروع می‌شود.',
-    descEn: "Whether you're looking for a BIM object or want your brand seen, IranBIMhub starts free."
+    badgeFa: 'شروع همکاری و عضویت اولیه',
+    badgeEn: 'Start Your Early Access',
+    headingFa: 'از امروز وارد جریان BIM ایران شوید',
+    headingEn: 'Join the BIM Movement in Iran Today',
+    descFa: 'چه طراح باشید، چه تولیدکننده یا متخصص BIM؛ همین حالا می‌توانید به نسخه اولیه ایران بیم هاب بپیوندید و در شکل‌گیری آینده دیجیتال صنعت ساختمان ایران نقش داشته باشید.',
+    descEn: 'Whether you are a designer, manufacturer or BIM specialist, you can join IranBIMhub early and help shape the digital future of Iran’s construction industry.'
   }
 ];
 
@@ -351,7 +351,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
                     onClick={() => onNavigate('about')}
                     className="bg-slate-900/60 hover:bg-slate-800/80 text-white border border-[#26B6B6]/50 hover:border-[#26B6B6] backdrop-blur-md px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all hover:scale-105 cursor-pointer flex items-center gap-1.5"
                   >
-                    <span>{isRtl ? 'ایران‌بیم‌هاب چیست؟' : 'What is IranBIMhub?'}</span>
+                    <span>{isRtl ? 'ایران بیم هاب چیست؟' : 'What is IranBIMhub?'}</span>
                   </button>
                 </>
               )}
@@ -366,13 +366,13 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
                     }}
                     className="bg-[#26B6B6] hover:bg-[#1e9494] text-white px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold shadow-md transition-all hover:scale-105 cursor-pointer"
                   >
-                    {isRtl ? 'مشاهده کاتالوگ آبجکت‌ها' : 'Browse BIM Catalog'}
+                    {isRtl ? 'مشاهده نمونه آبجکتها' : 'View Sample Objects'}
                   </button>
                   <button
-                    onClick={() => onNavigate('payment', undefined, undefined, 'modeler-vip')}
+                    onClick={() => onNavigate('for-designers')}
                     className="bg-slate-900/80 hover:bg-slate-800 text-white border border-white/20 backdrop-blur-md px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all hover:scale-105 cursor-pointer"
                   >
-                    {isRtl ? 'ارتقا به عضویت ویژه' : 'Upgrade to VIP'}
+                    {isRtl ? 'راهنمای طراحان و مهندسان' : 'For Architects & Engineers'}
                   </button>
                 </>
               )}
@@ -383,13 +383,13 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
                     onClick={() => onNavigate('for-manufacturers')}
                     className="bg-[#26B6B6] hover:bg-[#1e9494] text-white px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold shadow-md transition-all hover:scale-105 cursor-pointer"
                   >
-                    {isRtl ? 'ثبت‌نام برند کارخانه' : 'Register Brand'}
+                    {isRtl ? 'ثبت همکاری تولیدکننده' : 'Join as Manufacturer'}
                   </button>
                   <button
                     onClick={() => onNavigate('for-manufacturers')}
                     className="bg-slate-900/80 hover:bg-slate-800 text-white border border-white/20 backdrop-blur-md px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all hover:scale-105 cursor-pointer"
                   >
-                    {isRtl ? 'مشاهده پلن‌های اشتراک' : 'View Subscription Plans'}
+                    {isRtl ? 'درخواست جلسه معرفی' : 'Request an Intro Call'}
                   </button>
                 </>
               )}
@@ -401,7 +401,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
                   }}
                   className="bg-[#26B6B6] hover:bg-[#1e9494] text-white px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold shadow-md transition-all hover:scale-105 cursor-pointer animate-fadeIn"
                 >
-                  {isRtl ? 'عضویت در پورتال فعالان' : 'Join the Network'}
+                  {isRtl ? 'همکاری به عنوان BIM Modeler' : 'Collaborate as a BIM Modeler'}
                 </button>
               )}
 
@@ -411,13 +411,13 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
                     onClick={() => onNavigate('for-designers')}
                     className="bg-[#26B6B6] hover:bg-[#1e9494] text-white px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold shadow-md transition-all hover:scale-105 cursor-pointer"
                   >
-                    {isRtl ? 'ثبت‌نام طراحان' : 'Register as a Designer'}
+                    {isRtl ? 'شروع به عنوان طراح یا مهندس' : 'Start as a Designer'}
                   </button>
                   <button
                     onClick={() => onNavigate('for-manufacturers')}
                     className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold shadow-md transition-all hover:scale-105 cursor-pointer"
                   >
-                    {isRtl ? 'ثبت‌نام تولیدکنندگان' : 'Register as a Manufacturer'}
+                    {isRtl ? 'شروع به عنوان تولیدکننده' : 'Start as a Manufacturer'}
                   </button>
                 </>
               )}
