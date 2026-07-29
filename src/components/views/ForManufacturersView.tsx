@@ -63,7 +63,11 @@ const initialFormState = {
   website: '' // Honeypot field; keep hidden in the UI.
 };
 
-export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({ onNavigate }) => {
+export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
+  onNavigate,
+  onOpenAuthModal,
+  currentUser
+}) => {
   const { isRtl } = useLanguage();
   const [formData, setFormData] = useState(initialFormState);
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>('idle');
@@ -76,6 +80,22 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({ onNa
   );
   const telegramUrl = `${TELEGRAM_CONTACT_URL}&text=${contactMessage}`;
   const whatsappUrl = `${WHATSAPP_CONTACT_URL}?text=${contactMessage}`;
+
+  const openManufacturerRegistration = () => {
+    if (currentUser?.role === 'Manufacturer') {
+      onNavigate('manufacturer-dashboard');
+      return;
+    }
+
+    // Ask the existing auth modal to open in register mode and preselect Manufacturer.
+    sessionStorage.setItem('iranbimhub_auth_mode', 'register');
+    sessionStorage.setItem('iranbimhub_register_role', 'Manufacturer');
+    onOpenAuthModal();
+  };
+
+  const scrollToConsultation = () => {
+    document.getElementById('manufacturer-lead-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   const productCategories = [
     { value: '', fa: 'انتخاب دسته محصول', en: 'Select product category' },
@@ -271,16 +291,17 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({ onNa
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
-              <a
-                href="#manufacturer-lead-form"
+              <button
+                type="button"
+                onClick={scrollToConsultation}
                 className="px-7 py-3.5 bg-[#26B6B6] hover:bg-[#1e9494] text-white rounded-xl text-xs sm:text-sm font-extrabold transition-all active:scale-98 shadow-md shadow-[#26B6B6]/20 text-center cursor-pointer flex items-center justify-center gap-2"
               >
                 <span>{isRtl ? 'درخواست مشاوره رایگان' : 'Request Free Consultation'}</span>
                 {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
-              </a>
+              </button>
               <button
                 type="button"
-                onClick={() => onNavigate('for-manufacturers')}
+                onClick={openManufacturerRegistration}
                 className="px-7 py-3.5 bg-white/5 border border-white/15 hover:bg-white/10 text-white rounded-xl text-xs sm:text-sm font-bold transition-all text-center cursor-pointer flex items-center justify-center gap-2"
               >
                 <Factory className="w-4 h-4" />
@@ -346,42 +367,73 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({ onNa
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          {collaborationPaths.map((path, index) => (
-            <div key={path.titleEn} className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-[2rem] p-6 sm:p-7 shadow-sm hover:shadow-md transition-all">
-              <div className="flex items-start gap-4">
-                <div className={`w-14 h-14 rounded-3xl flex items-center justify-center shrink-0 ${index === 0 ? 'bg-emerald-500/10 text-emerald-600' : 'bg-[#26B6B6]/10 text-[#26B6B6]'}`}>
-                  {path.icon}
-                </div>
-                <div className="space-y-3">
-                  <h3 className="text-xl font-black text-gray-900 dark:text-white">{isRtl ? path.titleFa : path.titleEn}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{isRtl ? path.descFa : path.descEn}</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {(isRtl ? path.bulletsFa : path.bulletsEn).map(item => (
-                      <div key={item} className="flex items-center gap-2 text-xs font-bold text-gray-700 dark:text-gray-300">
-                        <CheckCircle2 className="w-4 h-4 text-[#26B6B6] shrink-0" />
-                        <span>{item}</span>
-                      </div>
-                    ))}
+          {collaborationPaths.map((path) => {
+            const isProfilePath = path.mode === 'profile';
+            return (
+              <div
+                key={path.titleEn}
+                className={`relative overflow-hidden rounded-[2rem] p-5 sm:p-7 shadow-sm hover:shadow-lg transition-all border group ${
+                  isProfilePath
+                    ? 'bg-slate-900 text-white border-slate-800'
+                    : 'bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800'
+                }`}
+              >
+                <div className={`absolute -top-20 -left-20 w-48 h-48 rounded-full blur-3xl pointer-events-none ${isProfilePath ? 'bg-[#26B6B6]/20' : 'bg-emerald-400/10'}`} />
+
+                <div className="relative z-10 flex items-start gap-4">
+                  <div className={`w-14 h-14 rounded-3xl flex items-center justify-center shrink-0 ${
+                    isProfilePath
+                      ? 'bg-[#26B6B6]/15 text-[#26B6B6] border border-[#26B6B6]/25'
+                      : 'bg-emerald-500/10 text-emerald-600'
+                  }`}>
+                    {path.icon}
                   </div>
-                  {path.mode === 'profile' ? (
+
+                  <div className="space-y-4 flex-1 min-w-0">
+                    <div className="space-y-2">
+                      <span className={`inline-flex px-2.5 py-1 rounded-full text-[10px] font-black ${
+                        isProfilePath
+                          ? 'bg-[#26B6B6]/15 text-[#26B6B6]'
+                          : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
+                      }`}>
+                        {isProfilePath
+                          ? (isRtl ? 'مسیر رسمی انتشار فایل آماده' : 'Official publishing path')
+                          : (isRtl ? 'مسیر مشاوره رایگان' : 'Free consultation path')}
+                      </span>
+                      <h3 className={`text-xl sm:text-2xl font-black leading-tight ${isProfilePath ? 'text-white' : 'text-gray-900 dark:text-white'}`}>
+                        {isRtl ? path.titleFa : path.titleEn}
+                      </h3>
+                      <p className={`text-sm leading-relaxed ${isProfilePath ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'}`}>
+                        {isRtl ? path.descFa : path.descEn}
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {(isRtl ? path.bulletsFa : path.bulletsEn).map(item => (
+                        <div key={item} className={`flex items-center gap-2 text-xs font-bold ${isProfilePath ? 'text-gray-200' : 'text-gray-700 dark:text-gray-300'}`}>
+                          <CheckCircle2 className="w-4 h-4 text-[#26B6B6] shrink-0" />
+                          <span>{item}</span>
+                        </div>
+                      ))}
+                    </div>
+
                     <button
                       type="button"
-                      onClick={() => onNavigate('for-manufacturers')}
-                      className="inline-flex items-center gap-2 text-xs font-extrabold text-[#26B6B6] hover:text-[#1e9494] transition-colors pt-2 cursor-pointer"
+                      onClick={isProfilePath ? openManufacturerRegistration : scrollToConsultation}
+                      className={`w-full sm:w-auto px-5 py-3 rounded-xl text-xs font-extrabold transition-all cursor-pointer inline-flex items-center justify-center gap-2 shadow-sm active:scale-[0.98] ${
+                        isProfilePath
+                          ? 'bg-[#26B6B6] hover:bg-[#1e9494] text-white shadow-[#26B6B6]/20'
+                          : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/15'
+                      }`}
                     >
                       <span>{isRtl ? path.ctaFa : path.ctaEn}</span>
                       {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
                     </button>
-                  ) : (
-                    <a href="#manufacturer-lead-form" className="inline-flex items-center gap-2 text-xs font-extrabold text-[#26B6B6] hover:text-[#1e9494] transition-colors pt-2">
-                      <span>{isRtl ? path.ctaFa : path.ctaEn}</span>
-                      {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
-                    </a>
-                  )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
@@ -446,7 +498,7 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({ onNa
           <div className="relative z-10 lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3">
             <button
               type="button"
-              onClick={() => onNavigate('for-manufacturers')}
+              onClick={openManufacturerRegistration}
               className="px-5 py-3 bg-[#26B6B6] hover:bg-[#1e9494] rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center gap-2"
             >
               <Factory className="w-4 h-4" />
@@ -642,7 +694,7 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({ onNa
 
                   <button
                     type="button"
-                    onClick={() => onNavigate('for-manufacturers')}
+                    onClick={openManufacturerRegistration}
                     className="px-5 py-3 bg-[#26B6B6] hover:bg-[#1e9494] text-white rounded-xl text-xs font-extrabold transition-all cursor-pointer inline-flex items-center justify-center gap-2"
                   >
                     <Factory className="w-4 h-4" />

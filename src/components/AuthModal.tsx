@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLanguage } from './LanguageContext';
 import { 
   X, 
@@ -52,6 +52,27 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
   // Login Fields
   const [loginPhone, setLoginPhone] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const requestedMode = sessionStorage.getItem('iranbimhub_auth_mode');
+    const requestedRole = sessionStorage.getItem('iranbimhub_register_role');
+
+    if (requestedMode === 'register') {
+      setActiveTab('register');
+    } else if (requestedMode === 'login') {
+      setActiveTab('login');
+    }
+
+    if (requestedRole === 'Manufacturer' || requestedRole === 'Modeler') {
+      setRegAccountType(requestedRole);
+      setOnboardingStep(1);
+    }
+
+    sessionStorage.removeItem('iranbimhub_auth_mode');
+    sessionStorage.removeItem('iranbimhub_register_role');
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
