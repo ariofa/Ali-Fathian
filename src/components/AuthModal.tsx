@@ -49,6 +49,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
   const [regLicenseName, setRegLicenseName] = useState<string>('');
   const [regAgreeTerms, setRegAgreeTerms] = useState(false);
 
+  // Mobile-first registration verification (mock until SMS provider is connected)
+  const [regOtpCode, setRegOtpCode] = useState('');
+  const [regOtpSent, setRegOtpSent] = useState(false);
+  const [regOtpVerified, setRegOtpVerified] = useState(false);
+
   // Login Fields
   const [loginPhone, setLoginPhone] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
@@ -83,6 +88,39 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
     );
   };
 
+  const handleRegPhoneChange = (value: string) => {
+    setRegPhone(value);
+    setRegOtpCode('');
+    setRegOtpSent(false);
+    setRegOtpVerified(false);
+  };
+
+  const handleSendMockOtp = () => {
+    if (!regPhone.trim()) {
+      alert(isRtl ? 'ابتدا شماره موبایل را وارد کنید.' : 'Please enter your mobile number first.');
+      return;
+    }
+
+    // TODO: Replace this mock with backend endpoint POST /api/auth/send-otp connected to SMS provider.
+    setRegOtpSent(true);
+    setRegOtpVerified(false);
+    setRegOtpCode('');
+    alert(isRtl
+      ? 'کد تأیید آزمایشی ارسال شد. تا اتصال پنل پیامکی، کد ۱۲۳۴۵۶ را وارد کنید.'
+      : 'Mock verification code sent. Until SMS provider is connected, use code 123456.'
+    );
+  };
+
+  const handleVerifyMockOtp = () => {
+    // TODO: Replace this mock with backend endpoint POST /api/auth/verify-otp.
+    if (regOtpCode.trim() === '123456') {
+      setRegOtpVerified(true);
+      alert(isRtl ? 'شماره موبایل با موفقیت تأیید شد.' : 'Mobile number verified successfully.');
+      return;
+    }
+    alert(isRtl ? 'کد تأیید نادرست است.' : 'Incorrect verification code.');
+  };
+
   const handleRegisterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -91,8 +129,35 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
       return;
     }
 
+    if (regAccountType === 'Manufacturer') {
+      if (!regName.trim() || !regPhone.trim()) {
+        alert(isRtl ? 'برای ثبت‌نام اولیه برند، نام برند/شرکت و شماره موبایل الزامی است.' : 'For initial brand signup, brand/company name and mobile number are required.');
+        return;
+      }
+
+      if (!regOtpVerified) {
+        alert(isRtl ? 'لطفاً شماره موبایل را با کد پیامکی تأیید کنید.' : 'Please verify your mobile number with the SMS code.');
+        return;
+      }
+
+      if (!regAgreeTerms) {
+        alert(isRtl ? 'لطفاً موافقت خود با قوانین و مقررات را تایید کنید.' : 'Please agree to the Terms of Service.');
+        return;
+      }
+
+      // Manufacturer signup is intentionally lightweight: after mobile verification,
+      // the rest of brand/legal profile is completed inside the manufacturer dashboard.
+      handleFinalizeRegistration();
+      return;
+    }
+
     if (!regPhone || !regName || !regPassword) {
       alert(isRtl ? 'لطفاً تمامی فیلدهای اجباری را تکمیل نمایید.' : 'Please fill in all required fields.');
+      return;
+    }
+
+    if (!regOtpVerified) {
+      alert(isRtl ? 'لطفاً شماره موبایل را با کد پیامکی تأیید کنید.' : 'Please verify your mobile number with the SMS code.');
       return;
     }
 
@@ -106,7 +171,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
       return;
     }
 
-    // Advance to confirmation review step
+    // Advance to confirmation review step for BIM professionals.
     setOnboardingStep(4);
   };
 
@@ -148,12 +213,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
       email: regEmail || null,
       role: regAccountType, // Modeler or Manufacturer
       isPremium: regIsPremium,
-      password: regPassword,
+      authMethod: regAccountType === 'Manufacturer' ? 'sms_otp' : 'password_with_sms_verification',
+      password: regAccountType === 'Manufacturer' ? null : regPassword,
       selectedRoles: mappedRoles,
       selectedTopics: mappedTopics,
       companyType: regAccountType === 'Manufacturer' ? regOrgType : null,
+      brandOwnershipType: regAccountType === 'Manufacturer' ? regOrgType : null,
       companyName: regAccountType === 'Manufacturer' ? regName : null,
-      verificationStatus: regAccountType === 'Manufacturer' ? 'Pending Verification' : 'Approved',
+      phoneVerified: regOtpVerified,
+      verificationStatus: regAccountType === 'Manufacturer' ? 'Pending Brand Documents' : 'Approved',
+      brandVerificationStatus: regAccountType === 'Manufacturer' ? 'not_started' : 'not_required',
+      brandPublishStatus: regAccountType === 'Manufacturer' ? 'private_draft' : 'not_required',
       licenseFile: regLicenseName || null
     };
 
@@ -165,15 +235,26 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
       const mfgProfile = {
         companyName: regName,
         desc: isRtl 
-          ? `پروفایل برند تجاری ${regName} به عنوان تامین‌کننده رسمی حوزه ${regOrgType}.` 
-          : `${regName} official brand page registered as a certified ${regOrgType}.`,
+          ? `پروفایل اولیه ${regName}. انتشار عمومی برند پس از ارزیابی مدارک رسمی فعال می‌شود.` 
+          : `${regName} draft brand profile. Public publishing is enabled after official document evaluation.`,
         website: `https://${regName.toLowerCase().replace(/\s+/g, '') || 'brand'}.ir`,
-        email: regEmail || `contact@${regName.toLowerCase().replace(/\s+/g, '') || 'brand'}.ir`,
+        email: regEmail || null,
         phone: regPhone,
         tier: regIsPremium ? 'VIP' : 'Free',
         companyType: regOrgType,
+        brandOwnershipType: regOrgType,
+        brandVerificationStatus: 'not_started',
+        brandPublishStatus: 'private_draft',
+        officialDocs: {
+          nationalId: '',
+          registrationNumber: '',
+          officialGazetteUrl: '',
+          officialGazetteFile: '',
+          representativeLetterFile: '',
+          adminNote: ''
+        },
         isPendingVerification: true,
-        licenseFile: regLicenseName || 'uploaded_license.pdf'
+        licenseFile: regLicenseName || null
       };
       localStorage.setItem('iranbimhub_mfg_profile', JSON.stringify(mfgProfile));
     }
@@ -181,9 +262,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
     onLoginSuccess(newUser);
     onClose();
 
-    alert(isRtl 
-      ? `ثبت‌نام شما با موفقیت به پایان رسید! خوش آمدید ${regName}` 
-      : `Registration completed successfully! Welcome ${regName}`
+    alert(regAccountType === 'Manufacturer'
+      ? (isRtl
+          ? `ثبت‌نام اولیه برند با موفقیت انجام شد. صفحه برند شما تا زمان تأیید مدارک رسمی توسط واحد ارزیابی به‌صورت عمومی منتشر نمی‌شود.`
+          : `Brand account created. Your public brand page remains private until official documents are approved by the evaluation team.`)
+      : (isRtl
+          ? `ثبت‌نام شما با موفقیت به پایان رسید! خوش آمدید ${regName}`
+          : `Registration completed successfully! Welcome ${regName}`)
     );
   };
 
@@ -270,12 +355,42 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
   ];
 
   const orgTypeOptions = [
-    { id: 'Manufacturer / Producer', labelFa: 'تولیدکننده / سازنده', labelEn: 'Manufacturer / Producer', descFa: 'شرکت‌هایی که مستقیماً محصولات ساختمانی تولید می‌کنند', descEn: 'Companies that physically produce building products' },
-    { id: 'Brand Owner', labelFa: 'صاحب برند', labelEn: 'Brand Owner', descFa: 'مالک برند تجاری (که تولید را برون‌سپاری کرده است)', descEn: 'Companies that own and market a product brand' },
-    { id: 'Distributor / Brand Representative', labelFa: 'توزیع‌کننده / نماینده انحصاری', labelEn: 'Distributor / Representative', descFa: 'نمایندگان فروش و بازرگانی رسمی برندها در ایران', descEn: 'Official reps or distributors marketing a brand in Iran' },
-    { id: 'Material / Product Supplier', labelFa: 'تامین‌کننده مصالح و تجهیزات', labelEn: 'Material & Product Supplier', descFa: 'تامین‌کنندگان عمومی مصالح و متریال ساختمانی', descEn: 'General suppliers of building materials' }
+    {
+      id: 'Direct Manufacturer',
+      labelFa: 'تولیدکننده مستقیم',
+      labelEn: 'Direct Manufacturer',
+      descFa: 'شرکتی که خودش محصول ساختمانی را تولید می‌کند و مالک فرآیند تولید است.',
+      descEn: 'Company that directly manufactures the building product.'
+    },
+    {
+      id: 'Brand Owner',
+      labelFa: 'صاحب برند',
+      labelEn: 'Brand Owner',
+      descFa: 'مالک برند تجاری هستید، حتی اگر تولید را به کارخانه دیگری سپرده باشید.',
+      descEn: 'You own the product brand, even if production is outsourced.'
+    },
+    {
+      id: 'Official Representative / Importer',
+      labelFa: 'نماینده رسمی / واردکننده رسمی',
+      labelEn: 'Official Representative / Importer',
+      descFa: 'نمایندگی یا مجوز رسمی برای معرفی و عرضه محصولات یک برند دارید.',
+      descEn: 'You have official authorization to represent or import a brand.'
+    },
+    {
+      id: 'Distributor / Seller',
+      labelFa: 'توزیع‌کننده / فروشنده',
+      labelEn: 'Distributor / Seller',
+      descFa: 'فروشنده یا توزیع‌کننده هستید. صفحه رسمی برند فقط با مدرک نمایندگی یا مالکیت منتشر می‌شود.',
+      descEn: 'You sell/distribute products. Official brand pages require ownership or authorization proof.'
+    },
+    {
+      id: 'Other / Needs Review',
+      labelFa: 'سایر / نیازمند بررسی',
+      labelEn: 'Other / Needs Review',
+      descFa: 'وضعیت شما در گزینه‌های بالا نیست و باید توسط واحد ارزیابی بررسی شود.',
+      descEn: 'Your case does not fit above options and needs evaluation team review.'
+    }
   ];
-
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-fadeIn" dir={isRtl ? 'rtl' : 'ltr'}>
       <div 
@@ -297,8 +412,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
           <Logo className="h-9 justify-center" />
           <p className="text-xs text-gray-500 dark:text-gray-400">
             {isRtl 
-              ? 'بزرگترین پایگاه کاتالوگ آبجکت‌های ساختمانی بیم در ایران' 
-              : 'Iran\'s Largest Certified Building Information Modeling Object Hub'
+              ? 'ورود موبایل‌محور به کتابخانه آبجکت‌های BIM ایران‌بیم‌هاب' 
+              : 'Mobile-first access to IranBIMhub BIM object library'
             }
           </p>
         </div>
@@ -340,7 +455,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
               <div className="space-y-1">
                 <label className="text-xs font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1">
                   <Phone className="w-3.5 h-3.5 text-[#26B6B6]" />
-                  <span>{isRtl ? 'شماره تلفن همراه (اجباری)' : 'Mobile Phone Number (Required)'}</span>
+                  <span>{isRtl ? 'شماره موبایل، شناسه اصلی حساب (اجباری)' : 'Mobile number, main account ID (Required)'}</span>
                 </label>
                 <input
                   type="tel"
@@ -573,12 +688,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
                       <div className="text-center space-y-1">
                         <h3 className="text-sm font-extrabold text-gray-800 dark:text-white flex items-center justify-center gap-1.5">
                           <Building className="w-4 h-4 text-[#26B6B6]" />
-                          <span>{isRtl ? 'کدام گزینه به بهترین شکل سازمان شما را توصیف می‌کند؟' : 'What best describes your organization?'}</span>
+                          <span>{isRtl ? 'نقش شما نسبت به برند چیست؟' : 'What is your relationship to the brand?'}</span>
                         </h3>
                         <p className="text-[11px] text-gray-400">
                           {isRtl 
-                            ? 'نوع کسب‌وکار رسمی شرکت خود را انتخاب نمایید (انتخاب یک گزینه)' 
-                            : 'Select the category representing your brand operational model in Iran.'
+                            ? 'این انتخاب مشخص می‌کند برای انتشار عمومی صفحه برند چه مدارکی باید توسط واحد ارزیابی بررسی شود.' 
+                            : 'This determines what documents the evaluation team needs before public brand publishing.'
                           }
                         </p>
                       </div>
@@ -610,6 +725,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
                             </div>
                           );
                         })}
+                      </div>
+
+                      <div className="rounded-2xl bg-amber-50 dark:bg-amber-950/25 border border-amber-100 dark:border-amber-900 p-3 flex items-start gap-2.5 text-start">
+                        <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                        <p className="text-[10.5px] leading-relaxed text-amber-800 dark:text-amber-200">
+                          {isRtl
+                            ? 'ثبت‌نام اولیه سریع است؛ اما صفحه برند و محصولات فقط پس از ارسال روزنامه رسمی، مدارک مالکیت یا نمایندگی و تأیید واحد ارزیابی عمومی می‌شود.'
+                            : 'Initial signup is quick; public brand/product pages are enabled only after official gazette, ownership/representation documents, and evaluation team approval.'
+                          }
+                        </p>
                       </div>
                     </div>
                   )}
@@ -643,8 +768,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
                 <form onSubmit={handleRegisterSubmit} className="space-y-4 animate-fadeIn" id="wizard-step-3">
                   <div className="text-center space-y-1">
                     <h3 className="text-sm font-extrabold text-gray-800 dark:text-white">
-                      {isRtl ? 'اطلاعات نهایی حساب کاربری را تکمیل کنید' : 'Complete Your Profile Details'}
+                      {regAccountType === 'Manufacturer'
+                        ? (isRtl ? 'ثبت‌نام اولیه برند را تکمیل کنید' : 'Complete Initial Brand Signup')
+                        : (isRtl ? 'اطلاعات نهایی حساب کاربری را تکمیل کنید' : 'Complete Your Profile Details')
+                      }
                     </h3>
+                    <p className="text-[11px] text-gray-400 leading-relaxed max-w-md mx-auto">
+                      {regAccountType === 'Manufacturer'
+                        ? (isRtl
+                            ? 'در این مرحله فقط نام برند/شرکت و تأیید شماره موبایل کافی است. اطلاعات حقوقی، روزنامه رسمی و فایل‌های BIM بعداً در پنل برند تکمیل می‌شود.'
+                            : 'At this step, only brand/company name and mobile verification are required. Legal documents, official gazette, and BIM files are completed later in the brand panel.')
+                        : (isRtl
+                            ? 'شماره موبایل شناسه اصلی حساب شماست؛ ایمیل اختیاری است.'
+                            : 'Mobile number is the main account ID; email is optional.')
+                      }
+                    </p>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-start">
@@ -662,30 +800,79 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
                       <input
                         type="text"
                         required
-                        placeholder={regAccountType === 'Manufacturer' ? (isRtl ? 'مثال: آلومینیوم آلوپن' : 'e.g., Alupan Aluminum') : (isRtl ? 'مثال: آرش علوی' : 'e.g., Arash Alavi')}
+                        placeholder={regAccountType === 'Manufacturer' ? (isRtl ? 'مثال: صنایع آلومینیوم آلوپن' : 'e.g., Alupan Aluminum Industries') : (isRtl ? 'مثال: آرش علوی' : 'e.g., Arash Alavi')}
                         value={regName}
                         onChange={(e) => setRegName(e.target.value)}
                         className="w-full text-xs p-3 border border-gray-200 dark:border-gray-800 dark:bg-gray-950 dark:text-white rounded-xl focus:ring-1 focus:ring-[#26B6B6] focus:outline-none"
                       />
                     </div>
 
-                    {/* Phone Number */}
-                    <div className="space-y-1">
+                    {/* Phone Number + SMS verification */}
+                    <div className={`space-y-2 ${regAccountType === 'Manufacturer' ? 'sm:col-span-2' : ''}`}>
                       <label className="text-xs font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1">
                         <Phone className="w-3.5 h-3.5 text-[#26B6B6]" />
-                        <span>{isRtl ? 'شماره تلفن همراه (اجباری)' : 'Mobile Phone Number (Required)'}</span>
+                        <span>{isRtl ? 'شماره موبایل، شناسه اصلی حساب (اجباری)' : 'Mobile number, main account ID (Required)'}</span>
                       </label>
-                      <input
-                        type="tel"
-                        required
-                        placeholder={isRtl ? 'مثال: 09123456789' : 'e.g., 09123456789'}
-                        value={regPhone}
-                        onChange={(e) => setRegPhone(e.target.value)}
-                        className="w-full text-xs p-3 border border-gray-200 dark:border-gray-800 dark:bg-gray-950 dark:text-white rounded-xl focus:ring-1 focus:ring-[#26B6B6] focus:outline-none font-semibold"
-                      />
+
+                      <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2">
+                        <input
+                          type="tel"
+                          required
+                          placeholder={isRtl ? 'مثال: 09123456789' : 'e.g., 09123456789'}
+                          value={regPhone}
+                          onChange={(e) => handleRegPhoneChange(e.target.value)}
+                          className="w-full text-xs p-3 border border-gray-200 dark:border-gray-800 dark:bg-gray-950 dark:text-white rounded-xl focus:ring-1 focus:ring-[#26B6B6] focus:outline-none font-semibold"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleSendMockOtp}
+                          className="px-4 py-3 rounded-xl bg-[#26B6B6]/10 hover:bg-[#26B6B6]/15 text-[#138f8f] dark:text-[#26B6B6] text-[10px] font-black transition-all cursor-pointer whitespace-nowrap"
+                        >
+                          {regOtpSent ? (isRtl ? 'ارسال مجدد' : 'Resend') : (isRtl ? 'ارسال کد' : 'Send Code')}
+                        </button>
+                      </div>
+
+                      <div className="rounded-2xl bg-slate-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 p-3 space-y-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2 sm:items-end">
+                          <div>
+                            <label className="text-[10px] font-black text-gray-500 dark:text-gray-400">
+                              {isRtl ? 'کد تأیید پیامکی' : 'SMS Verification Code'}
+                            </label>
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              maxLength={6}
+                              value={regOtpCode}
+                              onChange={(e) => setRegOtpCode(e.target.value)}
+                              disabled={!regOtpSent || regOtpVerified}
+                              placeholder={isRtl ? 'کد آزمایشی: 123456' : 'Mock code: 123456'}
+                              className="mt-1 w-full text-xs p-3 border border-gray-200 dark:border-gray-800 dark:bg-gray-950 dark:text-white rounded-xl focus:ring-1 focus:ring-[#26B6B6] focus:outline-none disabled:opacity-60"
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={handleVerifyMockOtp}
+                            disabled={!regOtpSent || regOtpVerified}
+                            className={`px-4 py-3 rounded-xl text-xs font-black transition-all ${
+                              regOtpVerified
+                                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 cursor-default'
+                                : 'bg-slate-900 hover:bg-slate-800 text-white disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer'
+                            }`}
+                          >
+                            {regOtpVerified ? (isRtl ? 'تأیید شد' : 'Verified') : (isRtl ? 'تأیید کد' : 'Verify')}
+                          </button>
+                        </div>
+                        <p className="text-[9.5px] text-gray-400 leading-relaxed">
+                          {isRtl
+                            ? 'در نسخه فعلی، کد ۱۲۳۴۵۶ آزمایشی است. پس از خرید پنل پیامکی، این بخش به ارسال واقعی پیامک متصل می‌شود.'
+                            : 'For now, 123456 is a mock code. After buying an SMS panel, this will connect to real SMS delivery.'
+                          }
+                        </p>
+                      </div>
                     </div>
 
                     {/* Email */}
+                    {regAccountType !== 'Manufacturer' && (
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1">
                         <Mail className="w-3.5 h-3.5 text-gray-400" />
@@ -699,39 +886,44 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
                         className="w-full text-xs p-3 border border-gray-200 dark:border-gray-800 dark:bg-gray-950 dark:text-white rounded-xl focus:ring-1 focus:ring-[#26B6B6] focus:outline-none"
                       />
                     </div>
+                    )}
 
-                    {/* Password */}
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                        <Lock className="w-3.5 h-3.5 text-gray-400" />
-                        <span>{isRtl ? 'رمز عبور (حداقل ۶ کاراکتر)' : 'Password (Min 6 characters)'}</span>
-                      </label>
-                      <input
-                        type="password"
-                        required
-                        minLength={6}
-                        placeholder="••••••••"
-                        value={regPassword}
-                        onChange={(e) => setRegPassword(e.target.value)}
-                        className="w-full text-xs p-3 border border-gray-200 dark:border-gray-800 dark:bg-gray-950 dark:text-white rounded-xl focus:ring-1 focus:ring-[#26B6B6] focus:outline-none"
-                      />
-                    </div>
+                    {regAccountType !== 'Manufacturer' && (
+                      <>
+                        {/* Password */}
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                            <Lock className="w-3.5 h-3.5 text-gray-400" />
+                            <span>{isRtl ? 'رمز عبور (حداقل ۶ کاراکتر)' : 'Password (Min 6 characters)'}</span>
+                          </label>
+                          <input
+                            type="password"
+                            required
+                            minLength={6}
+                            placeholder="••••••••"
+                            value={regPassword}
+                            onChange={(e) => setRegPassword(e.target.value)}
+                            className="w-full text-xs p-3 border border-gray-200 dark:border-gray-800 dark:bg-gray-950 dark:text-white rounded-xl focus:ring-1 focus:ring-[#26B6B6] focus:outline-none"
+                          />
+                        </div>
 
-                    {/* Confirm Password */}
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                        <Lock className="w-3.5 h-3.5 text-gray-400" />
-                        <span>{isRtl ? 'تکرار رمز عبور' : 'Confirm Password'}</span>
-                      </label>
-                      <input
-                        type="password"
-                        required
-                        placeholder="••••••••"
-                        value={regConfirmPassword}
-                        onChange={(e) => setRegConfirmPassword(e.target.value)}
-                        className="w-full text-xs p-3 border border-gray-200 dark:border-gray-800 dark:bg-gray-950 dark:text-white rounded-xl focus:ring-1 focus:ring-[#26B6B6] focus:outline-none"
-                      />
-                    </div>
+                        {/* Confirm Password */}
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                            <Lock className="w-3.5 h-3.5 text-gray-400" />
+                            <span>{isRtl ? 'تکرار رمز عبور' : 'Confirm Password'}</span>
+                          </label>
+                          <input
+                            type="password"
+                            required
+                            placeholder="••••••••"
+                            value={regConfirmPassword}
+                            onChange={(e) => setRegConfirmPassword(e.target.value)}
+                            className="w-full text-xs p-3 border border-gray-200 dark:border-gray-800 dark:bg-gray-950 dark:text-white rounded-xl focus:ring-1 focus:ring-[#26B6B6] focus:outline-none"
+                          />
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   {/* Language & Bypass options */}
@@ -824,7 +1016,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
                       className="bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-bold px-5 py-3 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer font-sans"
                       id="btn-step3-submit"
                     >
-                      <span>{isRtl ? 'تایید و ادامه' : 'Confirm & Proceed'}</span>
+                      <span>{regAccountType === 'Manufacturer' ? (isRtl ? 'تأیید شماره و ورود به پنل برند' : 'Verify & Enter Brand Panel') : (isRtl ? 'تایید و ادامه' : 'Confirm & Proceed')}</span>
                       {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
                     </button>
                   </div>
@@ -874,7 +1066,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
                     <div className="flex justify-between items-start pb-2 border-b border-gray-100 dark:border-gray-800/50">
                       <span className="font-bold text-gray-400 uppercase tracking-wide text-[10px]">
                         {regAccountType === 'Manufacturer' 
-                          ? (isRtl ? 'مدل ساختار تجاری' : 'Operational Type')
+                          ? (isRtl ? 'نقش شما نسبت به برند' : 'Relationship to Brand')
                           : (isRtl ? 'حوزه‌های تخصصی' : 'Fields of Expertise')
                         }
                       </span>
@@ -914,6 +1106,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
                           <span>{isRtl ? `پروانه پیوست شد: ${regLicenseName}` : `License attached: ${regLicenseName}`}</span>
                         </p>
                       )}
+                      {regAccountType === 'Manufacturer' && (
+                        <div className="mt-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/25 border border-amber-100 dark:border-amber-900 text-amber-800 dark:text-amber-200 text-[10.5px] leading-relaxed">
+                          {isRtl
+                            ? 'پس از ورود به پنل برند، برای انتشار عمومی صفحه برند و محصولات باید روزنامه رسمی، شناسه ملی یا مدارک مالکیت/نمایندگی را تکمیل کنید. تا زمان تأیید واحد ارزیابی، صفحه برند به‌صورت پیش‌نویس خصوصی باقی می‌ماند.'
+                            : 'After entering the brand panel, public brand/product publishing requires official gazette, national ID, or ownership/representation documents. Until evaluation team approval, the brand page remains private draft.'
+                          }
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -924,7 +1124,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
                   >
                     <span>
                       {regAccountType === 'Manufacturer'
-                        ? (isRtl ? 'ایجاد برند کارخانه‌ای و ورود به پیشخوان تولیدکنندگان' : 'Launch Brand Portal & Enter Dashboard')
+                        ? (isRtl ? 'ایجاد حساب برند و ورود به پنل تولیدکننده' : 'Create Brand Account & Enter Dashboard')
                         : (isRtl ? 'تکمیل ثبت‌نام و ورود به پیشخوان طراحان' : 'Access Modeler Catalog & Enter Dashboard')
                       }
                     </span>
