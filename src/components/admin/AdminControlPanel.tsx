@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
+  Factory,
   Shield, 
   Users, 
   FileText, 
@@ -56,6 +57,8 @@ import {
   SEEDED_REVIEWER_METRICS,
   CANNED_RESPONSES
 } from './AdminMockData';
+import { BIMModelerApplicationsAdminView } from './BIMModelerApplicationsAdminView';
+import { ManufacturerLeadsAdminView } from './ManufacturerLeadsAdminView';
 
 export const AdminControlPanel: React.FC = () => {
   const { isRtl } = useLanguage();
@@ -402,6 +405,9 @@ export const AdminControlPanel: React.FC = () => {
         return currentAdmin.role === 'Manufacturer Verification Admin';
       case 'review-management':
         return currentAdmin.role === 'Review Team Manager';
+      case 'manufacturer-leads':
+        return ['Review Team Manager', 'Support & Customer Success', 'Manufacturer Verification Admin'].includes(currentAdmin.role);
+        return ['Review Team Manager', 'Support & Customer Success'].includes(currentAdmin.role);
       case 'my-reviews':
         return currentAdmin.role === 'Reviewer';
       case 'support-tickets':
@@ -1007,6 +1013,36 @@ export const AdminControlPanel: React.FC = () => {
               </button>
             )}
 
+            {/* Tab: Manufacturer Leads */}
+            {hasAccessTo('manufacturer-leads') && (
+              <button
+                onClick={() => setActiveTab('manufacturer-leads')}
+                className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === 'manufacturer-leads'
+                    ? 'bg-[#26B6B6] text-white'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                }`}
+              >
+                <Factory className="w-4 h-4" />
+                <span>{isRtl ? 'درخواست‌های تولیدکنندگان' : 'Manufacturer Leads'}</span>
+              </button>
+            )}
+
+            {/* Tab: BIM Modeler collaboration applications */}
+            {hasAccessTo('bim-modeler-applications') && (
+              <button
+                onClick={() => setActiveTab('bim-modeler-applications')}
+                className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === 'bim-modeler-applications'
+                    ? 'bg-[#26B6B6] text-white'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                }`}
+              >
+                <UserCheck className="w-4 h-4" />
+                <span>{isRtl ? 'درخواست‌های مدل‌سازان BIM' : 'BIM Modeler Applications'}</span>
+              </button>
+            )}
+
             {/* Tab: Reviewer queue */}
             {hasAccessTo('my-reviews') && (
               <button
@@ -1283,6 +1319,16 @@ export const AdminControlPanel: React.FC = () => {
                 </div>
               </div>
             </div>
+          )}
+
+          {/* ==================== TAB: MANUFACTURER LEADS ==================== */}
+          {activeTab === 'manufacturer-leads' && hasAccessTo('manufacturer-leads') && (
+            <ManufacturerLeadsAdminView />
+          )}
+
+          {/* ==================== TAB: BIM MODELER COLLABORATION APPLICATIONS ==================== */}
+          {activeTab === 'bim-modeler-applications' && hasAccessTo('bim-modeler-applications') && (
+            <BIMModelerApplicationsAdminView />
           )}
 
           {/* ==================== TAB 2: MANUFACTURER VERIFICATION & COMPLIANCE ==================== */}

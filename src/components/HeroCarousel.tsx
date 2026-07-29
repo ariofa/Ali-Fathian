@@ -399,7 +399,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
                   onClick={() => onNavigate('for-bim-modelers')}
                   className="bg-[#26B6B6] hover:bg-[#1e9494] text-white px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold shadow-md transition-all hover:scale-105 cursor-pointer animate-fadeIn"
                 >
-                  {isRtl ? 'همکاری بهعنوان مدلساز BIM' : 'Collaborate as a BIM Modeler'}
+                  {isRtl ? 'همکاری به‌عنوان مدل‌ساز BIM' : 'Collaborate as a BIM Modeler'}
                 </button>
               )}
 
@@ -409,13 +409,13 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
                     onClick={() => onNavigate('for-designers')}
                     className="bg-[#26B6B6] hover:bg-[#1e9494] text-white px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold shadow-md transition-all hover:scale-105 cursor-pointer"
                   >
-                    {isRtl ? 'شروع بهعنوان طراح یا مهندس' : 'Start as a Designer'}
+                    {isRtl ? 'شروع به‌عنوان طراح یا مهندس' : 'Start as a Designer'}
                   </button>
                   <button
                     onClick={() => onNavigate('for-manufacturers')}
                     className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold shadow-md transition-all hover:scale-105 cursor-pointer"
                   >
-                    {isRtl ? 'شروع بهعنوان تولیدکننده' : 'Start as a Manufacturer'}
+                    {isRtl ? 'شروع به‌عنوان تولیدکننده' : 'Start as a Manufacturer'}
                   </button>
                 </>
               )}

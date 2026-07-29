@@ -1233,7 +1233,8 @@ export const Header: React.FC<HeaderProps> = ({
                       clearTimeout(hoverTimeoutRef.current);
                       hoverTimeoutRef.current = null;
                     }
-                    setCategoriesDropdownOpen(prev => !prev);
+                    setCategoriesDropdownOpen(false);
+                    onNavigate('categories');
                   }}
                   className={`px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer flex items-center gap-1.5 font-extrabold shadow-2xs hover:shadow-xs hover:scale-102 ${
                     currentView === 'categories' || categoriesDropdownOpen

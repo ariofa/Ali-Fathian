@@ -14,6 +14,7 @@ import {
   Loader2,
   Mail,
   MapPin,
+  MessageCircle,
   Phone,
   Send,
   ShieldCheck,
@@ -29,6 +30,8 @@ interface BIMModelerCollaborationViewProps {
 type SubmitStatus = 'idle' | 'submitting' | 'success' | 'error';
 type ArrayFieldName = 'softwareSkills' | 'preferredProjectTypes';
 
+const WHATSAPP_NUMBER = '989391686878';
+
 const initialFormState = {
   fullName: '',
   phone: '',
@@ -39,6 +42,7 @@ const initialFormState = {
   availability: '',
   portfolioUrl: '',
   linkedinUrl: '',
+  portfolioSentByWhatsApp: false,
   softwareSkills: [] as string[],
   preferredProjectTypes: [] as string[],
   message: '',
@@ -51,6 +55,13 @@ export const BIMModelerCollaborationView: React.FC<BIMModelerCollaborationViewPr
   const [formData, setFormData] = useState(initialFormState);
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+
+  const whatsappMessage = encodeURIComponent(
+    isRtl
+      ? 'سلام، برای همکاری پروژه‌ای به‌عنوان مدل‌ساز BIM در ایران‌بیم‌هاب پیام می‌دهم. نمونه‌کارهایم را ارسال می‌کنم.'
+      : 'Hello, I am applying for project-based collaboration as a BIM modeler with IranBIMhub. I would like to send my portfolio.'
+  );
+  const whatsappPortfolioUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`;
 
   const roleCards = [
     {
@@ -175,6 +186,10 @@ export const BIMModelerCollaborationView: React.FC<BIMModelerCollaborationViewPr
     setFormData(prev => ({ ...prev, hasAcceptedNotice: event.target.checked }));
   };
 
+  const handlePortfolioWhatsAppChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({ ...prev, portfolioSentByWhatsApp: event.target.checked }));
+  };
+
   const toggleArrayValue = (fieldName: ArrayFieldName, value: string) => {
     setFormData(prev => {
       const currentValues = prev[fieldName];
@@ -193,7 +208,7 @@ export const BIMModelerCollaborationView: React.FC<BIMModelerCollaborationViewPr
     if (!formData.experienceYears.trim()) return isRtl ? 'سابقه کاری خود را وارد کنید.' : 'Please enter your experience.';
     if (formData.softwareSkills.length === 0) return isRtl ? 'حداقل یک نرم‌افزار را انتخاب کنید.' : 'Please select at least one software skill.';
     if (formData.preferredProjectTypes.length === 0) return isRtl ? 'حداقل یک نوع پروژه را انتخاب کنید.' : 'Please select at least one project type.';
-    if (!formData.portfolioUrl.trim()) return isRtl ? 'لینک نمونه‌کار یا پورتفولیو را وارد کنید.' : 'Please enter your portfolio link.';
+    if (!formData.portfolioUrl.trim() && !formData.portfolioSentByWhatsApp) return isRtl ? 'لطفاً لینک نمونه‌کار را وارد کنید یا گزینه ارسال نمونه‌کار از طریق واتساپ را انتخاب کنید.' : 'Please enter a portfolio link or select the WhatsApp portfolio option.';
     if (!formData.hasAcceptedNotice) return isRtl ? 'لطفاً توضیح مربوط به پروژه‌ای بودن همکاری را تأیید کنید.' : 'Please confirm the project-based collaboration notice.';
     return '';
   };
@@ -384,8 +399,8 @@ export const BIMModelerCollaborationView: React.FC<BIMModelerCollaborationViewPr
                 <h2 className="text-2xl font-black">{isRtl ? 'فرم ثبت درخواست همکاری' : 'Collaboration Application Form'}</h2>
                 <p className="text-xs sm:text-sm text-gray-300 leading-relaxed max-w-2xl">
                   {isRtl
-                    ? 'لطفاً اطلاعات را کوتاه و دقیق وارد کنید. برای نمونه‌کار، بهتر است لینک Google Drive، OneDrive، Dropbox، LinkedIn یا وب‌سایت شخصی خود را قرار دهید.'
-                    : 'Please keep your answers short and clear. For portfolio, use a Google Drive, OneDrive, Dropbox, LinkedIn or personal website link.'
+                    ? 'لطفاً اطلاعات را کوتاه و دقیق وارد کنید. اگر لینک آنلاین نمونه‌کار ندارید، می‌توانید نمونه‌کارها را از طریق واتساپ ارسال کنید.'
+                    : 'Please keep your answers short and clear. If you do not have an online portfolio link, you can send samples through WhatsApp.'
                   }
                 </p>
               </div>
@@ -572,8 +587,8 @@ export const BIMModelerCollaborationView: React.FC<BIMModelerCollaborationViewPr
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <label className="space-y-2">
-                  <span className="text-xs font-black text-gray-700 dark:text-gray-300">{isRtl ? 'لینک نمونه‌کار / پورتفولیو *' : 'Portfolio Link *'}</span>
+                <div className="space-y-2">
+                  <span className="text-xs font-black text-gray-700 dark:text-gray-300">{isRtl ? 'نمونه‌کار / پورتفولیو' : 'Portfolio / Work Samples'}</span>
                   <input
                     name="portfolioUrl"
                     value={formData.portfolioUrl}
@@ -582,7 +597,33 @@ export const BIMModelerCollaborationView: React.FC<BIMModelerCollaborationViewPr
                     placeholder="https://drive.google.com/..."
                     dir="ltr"
                   />
-                </label>
+                  <div className="rounded-2xl bg-[#26B6B6]/5 border border-[#26B6B6]/15 p-3 space-y-2">
+                    <p className="text-[11px] text-gray-600 dark:text-gray-400 leading-relaxed">
+                      {isRtl
+                        ? 'اگر لینک آنلاین آماده ندارید، گزینه زیر را انتخاب کنید و نمونه‌کارها را در واتساپ ارسال کنید.'
+                        : 'If you do not have an online link, select the option below and send your samples through WhatsApp.'
+                      }
+                    </p>
+                    <label className="flex items-center gap-2 text-[11px] font-bold text-gray-700 dark:text-gray-300 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.portfolioSentByWhatsApp}
+                        onChange={handlePortfolioWhatsAppChange}
+                        className="w-4 h-4 accent-[#26B6B6]"
+                      />
+                      <span>{isRtl ? 'نمونه‌کار را از طریق واتساپ ارسال می‌کنم' : 'I will send my portfolio through WhatsApp'}</span>
+                    </label>
+                    <a
+                      href={whatsappPortfolioUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 text-[11px] font-extrabold text-[#128C7E] hover:text-[#0b6f63] transition-colors"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span>{isRtl ? 'ارسال نمونه‌کار در واتساپ' : 'Send portfolio on WhatsApp'}</span>
+                    </a>
+                  </div>
+                </div>
 
                 <label className="space-y-2">
                   <span className="text-xs font-black text-gray-700 dark:text-gray-300">{isRtl ? 'لینک LinkedIn یا وب‌سایت' : 'LinkedIn or Website'}</span>

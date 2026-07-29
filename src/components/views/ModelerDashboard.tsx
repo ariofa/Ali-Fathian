@@ -802,7 +802,6 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
                           <span className="text-[9.5px] text-gray-400 font-mono block mt-0.5">{obj.lod}</span>
                         </div>
                         <div className="flex items-center justify-between text-[10px]">
-                          <span className="text-[#26B6B6] font-semibold">{obj.priceType}</span>
                           <span className="text-gray-400 font-mono">{obj.fileSize}</span>
                         </div>
                       </div>

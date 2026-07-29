@@ -191,6 +191,17 @@ const MainAppContent: React.FC = () => {
   const [activeDashboardTab, setActiveDashboardTab] = useState<string>('overview');
 
   useEffect(() => {
+    const handleProfileSync = () => {
+      const local = localStorage.getItem('iranbimhub_mfg_profile');
+      if (local) {
+        setCompanyProfile(JSON.parse(local));
+      }
+    };
+    window.addEventListener('iranbimhub_brand_profile_updated', handleProfileSync);
+    return () => window.removeEventListener('iranbimhub_brand_profile_updated', handleProfileSync);
+  }, []);
+
+  useEffect(() => {
     const handleTabSync = (e: Event) => {
       const { tab } = (e as CustomEvent).detail;
       setActiveDashboardTab(tab);
