@@ -322,6 +322,7 @@ app.post("/api/bim-modeler-applications", async (req, res) => {
     const experienceYears = sanitizeString(body.experienceYears, 160);
     const availability = sanitizeString(body.availability, 120);
     const portfolioUrl = sanitizeString(body.portfolioUrl, 600);
+    const portfolioSentByTelegram = Boolean(body.portfolioSentByTelegram);
     const portfolioSentByWhatsApp = Boolean(body.portfolioSentByWhatsApp);
     const linkedinUrl = sanitizeString(body.linkedinUrl, 600);
     const message = sanitizeString(body.message, 1500);
@@ -337,11 +338,11 @@ app.post("/api/bim-modeler-applications", async (req, res) => {
       });
     }
 
-    if (!portfolioUrl && !portfolioSentByWhatsApp) {
+    if (!portfolioUrl && !portfolioSentByTelegram && !portfolioSentByWhatsApp) {
       return res.status(400).json({
         success: false,
-        messageFa: "لطفاً لینک نمونه‌کار را وارد کنید یا گزینه ارسال نمونه‌کار از طریق واتساپ را انتخاب کنید.",
-        messageEn: "Please enter a portfolio link or select the WhatsApp portfolio option."
+        messageFa: "لطفاً لینک نمونه‌کار را وارد کنید یا گزینه ارسال نمونه‌کار از طریق تلگرام/واتساپ را انتخاب کنید.",
+        messageEn: "Please enter a portfolio link or select Telegram/WhatsApp portfolio submission."
       });
     }
 
@@ -366,6 +367,7 @@ app.post("/api/bim-modeler-applications", async (req, res) => {
       experienceYears,
       availability,
       portfolioUrl,
+      portfolioSentByTelegram,
       portfolioSentByWhatsApp,
       linkedinUrl,
       softwareSkills,
@@ -466,9 +468,8 @@ app.patch("/api/admin/bim-modeler-applications/:id", async (req, res) => {
   }
 });
 
-// -----------------------------------------------------------------------------
-// Manufacturer collaboration leads (MVP)
-// Stores manufacturer requests in a local JSON file.
+// Manufacturer consultation / pre-registration requests (MVP)
+// Stores initial manufacturer consultation requests in a local JSON file.
 // Production backend can replace this with a real database table.
 // -----------------------------------------------------------------------------
 const MANUFACTURER_LEADS_FILE = path.join(process.cwd(), "data", "manufacturer-leads.json");
@@ -536,8 +537,8 @@ app.post("/api/manufacturer-leads", async (req, res) => {
     if (!companyName || !contactName || !phone || !city || !productCategory || !hasBimFiles || !hasAcceptedNotice) {
       return res.status(400).json({
         success: false,
-        messageFa: "لطفاً فیلدهای ضروری فرم تولیدکنندگان را تکمیل کنید.",
-        messageEn: "Please complete all required manufacturer request fields."
+        messageFa: "لطفاً فیلدهای ضروری فرم مشاوره تولیدکنندگان را تکمیل کنید.",
+        messageEn: "Please complete all required manufacturer consultation fields."
       });
     }
 
@@ -549,11 +550,14 @@ app.post("/api/manufacturer-leads", async (req, res) => {
       });
     }
 
-    if (!catalogUrl && !filesSentByTelegram && !filesSentByWhatsApp) {
+    // If the manufacturer does not have ready BIM files, we need at least a catalog/product link
+    // or confirmation that initial materials will be sent through Telegram/WhatsApp for consultation.
+    // If they already have ready BIM files, the official upload happens later in the brand panel.
+    if (hasBimFiles !== "yes" && !catalogUrl && !filesSentByTelegram && !filesSentByWhatsApp) {
       return res.status(400).json({
         success: false,
-        messageFa: "لطفاً لینک کاتالوگ/فایل را وارد کنید یا ارسال از طریق تلگرام/واتساپ را انتخاب کنید.",
-        messageEn: "Please enter a catalog/file link or select Telegram/WhatsApp file submission."
+        messageFa: "برای مشاوره اولیه، لطفاً لینک کاتالوگ/صفحه محصول را وارد کنید یا ارسال از طریق تلگرام/واتساپ را انتخاب کنید.",
+        messageEn: "For initial consultation, please enter a catalog/product link or select Telegram/WhatsApp submission."
       });
     }
 
@@ -580,7 +584,7 @@ app.post("/api/manufacturer-leads", async (req, res) => {
       filesSentByWhatsApp,
       message,
       status,
-      source: "manufacturer-collaboration-page",
+      source: "manufacturer-consultation-page",
       createdAt: now,
       updatedAt: now,
       adminNotes: ""
@@ -593,15 +597,15 @@ app.post("/api/manufacturer-leads", async (req, res) => {
       success: true,
       id: lead.id,
       status,
-      messageFa: "درخواست همکاری تولیدکننده با موفقیت ثبت شد.",
-      messageEn: "Manufacturer collaboration request submitted successfully."
+      messageFa: "درخواست مشاوره تولیدکننده با موفقیت ثبت شد.",
+      messageEn: "Manufacturer consultation request submitted successfully."
     });
   } catch (error) {
-    console.error("Failed to save manufacturer lead:", error);
+    console.error("Failed to save manufacturer consultation request:", error);
     return res.status(500).json({
       success: false,
-      messageFa: "ثبت درخواست تولیدکننده با خطا مواجه شد. لطفاً کمی بعد دوباره تلاش کنید.",
-      messageEn: "Manufacturer request failed. Please try again later."
+      messageFa: "ثبت درخواست مشاوره تولیدکننده با خطا مواجه شد. لطفاً کمی بعد دوباره تلاش کنید.",
+      messageEn: "Manufacturer consultation request failed. Please try again later."
     });
   }
 });
@@ -611,11 +615,11 @@ app.get("/api/admin/manufacturer-leads", async (_req, res) => {
     const leads = await readManufacturerLeads();
     return res.json({ success: true, leads, total: leads.length });
   } catch (error) {
-    console.error("Failed to read manufacturer leads:", error);
+    console.error("Failed to read manufacturer consultation requests:", error);
     return res.status(500).json({
       success: false,
-      messageFa: "خطا در دریافت درخواستهای تولیدکنندگان.",
-      messageEn: "Failed to load manufacturer leads."
+      messageFa: "خطا در دریافت درخواست‌های مشاوره تولیدکنندگان.",
+      messageEn: "Failed to load manufacturer consultation requests."
     });
   }
 });
@@ -640,8 +644,8 @@ app.patch("/api/admin/manufacturer-leads/:id", async (req, res) => {
     if (!allowedStatuses.has(nextStatus)) {
       return res.status(400).json({
         success: false,
-        messageFa: "وضعیت انتخابشده معتبر نیست.",
-        messageEn: "Invalid manufacturer lead status."
+        messageFa: "وضعیت انتخاب‌شده معتبر نیست.",
+        messageEn: "Invalid manufacturer consultation status."
       });
     }
 
@@ -651,8 +655,8 @@ app.patch("/api/admin/manufacturer-leads/:id", async (req, res) => {
     if (targetIndex === -1) {
       return res.status(404).json({
         success: false,
-        messageFa: "درخواست تولیدکننده مورد نظر پیدا نشد.",
-        messageEn: "Manufacturer lead not found."
+        messageFa: "درخواست مشاوره تولیدکننده مورد نظر پیدا نشد.",
+        messageEn: "Manufacturer consultation request not found."
       });
     }
 
@@ -668,15 +672,15 @@ app.patch("/api/admin/manufacturer-leads/:id", async (req, res) => {
     return res.json({
       success: true,
       lead: leads[targetIndex],
-      messageFa: "وضعیت درخواست تولیدکننده بروزرسانی شد.",
-      messageEn: "Manufacturer lead status updated."
+      messageFa: "وضعیت مشاوره تولیدکننده بروزرسانی شد.",
+      messageEn: "Manufacturer consultation status updated."
     });
   } catch (error) {
-    console.error("Failed to update manufacturer lead:", error);
+    console.error("Failed to update manufacturer consultation request:", error);
     return res.status(500).json({
       success: false,
-      messageFa: "خطا در بروزرسانی درخواست تولیدکننده.",
-      messageEn: "Failed to update manufacturer lead."
+      messageFa: "خطا در بروزرسانی مشاوره تولیدکننده.",
+      messageEn: "Failed to update manufacturer consultation request."
     });
   }
 });

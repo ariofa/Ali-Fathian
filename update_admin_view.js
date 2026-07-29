@@ -1,4 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+const fs = require('fs');
+
+const adminViewCode = `import React, { useEffect, useMemo, useState } from 'react';
 import {
   AlertCircle,
   Building2,
@@ -86,7 +88,7 @@ const normalizePhone = (phone: string) => {
   const digits = phone.replace(/[^0-9]/g, '');
   if (!digits) return '';
   if (digits.startsWith('00')) return digits.slice(2);
-  if (digits.startsWith('0')) return `98${digits.slice(1)}`;
+  if (digits.startsWith('0')) return \`98\${digits.slice(1)}\`;
   return digits;
 };
 
@@ -175,7 +177,7 @@ export const ManufacturerLeadsAdminView: React.FC = () => {
     setSavingId(leadId);
     setErrorMessage('');
     try {
-      const response = await fetch(`/api/admin/manufacturer-leads/${leadId}`, {
+      const response = await fetch(\`/api/admin/manufacturer-leads/\${leadId}\`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -199,10 +201,10 @@ export const ManufacturerLeadsAdminView: React.FC = () => {
     if (!phone) return '';
     const message = encodeURIComponent(
       isRtl
-        ? `سلام ${lead.contactName} عزیز، از طرف ایران‌بیم‌هاب درباره مشاوره BIM محصولات شرکت ${lead.companyName} پیام می‌دهم.`
-        : `Hello ${lead.contactName}, I am contacting you from IranBIMhub about BIM consultation for ${lead.companyName}.`
+        ? \`سلام \${lead.contactName} عزیز، از طرف ایران‌بیم‌هاب درباره مشاوره BIM محصولات شرکت \${lead.companyName} پیام می‌دهم.\`
+        : \`Hello \${lead.contactName}, I am contacting you from IranBIMhub about BIM consultation for \${lead.companyName}.\`
     );
-    return `https://wa.me/${phone}?text=${message}`;
+    return \`https://wa.me/\${phone}?text=\${message}\`;
   };
 
   const createTelegramUrl = (lead: ManufacturerLead) => {
@@ -210,10 +212,10 @@ export const ManufacturerLeadsAdminView: React.FC = () => {
     if (!phone) return '';
     const message = encodeURIComponent(
       isRtl
-        ? `سلام ${lead.contactName} عزیز، از طرف ایران‌بیم‌هاب درباره مشاوره BIM محصولات شرکت ${lead.companyName} پیام می‌دهم.`
-        : `Hello ${lead.contactName}, I am contacting you from IranBIMhub about BIM consultation for ${lead.companyName}.`
+        ? \`سلام \${lead.contactName} عزیز، از طرف ایران‌بیم‌هاب درباره مشاوره BIM محصولات شرکت \${lead.companyName} پیام می‌دهم.\`
+        : \`Hello \${lead.contactName}, I am contacting you from IranBIMhub about BIM consultation for \${lead.companyName}.\`
     );
-    return `tg://resolve?phone=${phone}&text=${message}`;
+    return \`tg://resolve?phone=\${phone}&text=\${message}\`;
   };
 
   return (
@@ -275,16 +277,16 @@ export const ManufacturerLeadsAdminView: React.FC = () => {
       <div className="bg-white dark:bg-slate-950 border border-gray-150 dark:border-slate-800 rounded-3xl p-5 space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="relative w-full md:max-w-sm">
-            <Search className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 ${isRtl ? 'right-3' : 'left-3'}`} />
+            <Search className={\`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 \${isRtl ? 'right-3' : 'left-3'}\`} />
             <input
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder={isRtl ? 'جستجو بر اساس برند، شهر، محصول یا فرمت...' : 'Search by brand, city, product or format...'}
-              className={`w-full py-2.5 rounded-xl border border-gray-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs outline-none focus:border-[#26B6B6] ${isRtl ? 'pr-10 pl-3' : 'pl-10 pr-3'}`}
+              className={\`w-full py-2.5 rounded-xl border border-gray-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs outline-none focus:border-[#26B6B6] \${isRtl ? 'pr-10 pl-3' : 'pl-10 pr-3'}\`}
             />
           </div>
           <span className="text-[11px] text-gray-400 font-bold">
-            {isRtl ? `${filteredLeads.length.toLocaleString('fa-IR')} درخواست نمایش داده می‌شود` : `${filteredLeads.length} consultations shown`}
+            {isRtl ? \`\${filteredLeads.length.toLocaleString('fa-IR')} درخواست نمایش داده می‌شود\` : \`\${filteredLeads.length} consultations shown\`}
           </span>
         </div>
 
@@ -317,7 +319,7 @@ export const ManufacturerLeadsAdminView: React.FC = () => {
                       <div className="flex flex-wrap items-center gap-2">
                         <h4 className="text-sm font-black text-gray-850 dark:text-white">{lead.companyName}</h4>
                         {lead.brandName && <span className="text-xs font-bold text-gray-500">({lead.brandName})</span>}
-                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-black ${statusClass}`}>
+                        <span className={\`px-2.5 py-1 rounded-full text-[10px] font-black \${statusClass}\`}>
                           {getStatusLabel(lead.status || 'new')}
                         </span>
                         <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-slate-100 dark:bg-slate-800 text-gray-600 dark:text-gray-300">
@@ -334,7 +336,7 @@ export const ManufacturerLeadsAdminView: React.FC = () => {
 
                       <p className="text-[11px] text-gray-500 dark:text-gray-400">
                         {isRtl ? 'مسئول پیگیری:' : 'Contact:'} <strong className="text-gray-800 dark:text-white">{lead.contactName}</strong>
-                        {lead.roleTitle ? ` — ${lead.roleTitle}` : ''}
+                        {lead.roleTitle ? \` — \${lead.roleTitle}\` : ''}
                       </p>
                     </div>
 
@@ -458,3 +460,7 @@ export const ManufacturerLeadsAdminView: React.FC = () => {
     </div>
   );
 };
+`;
+
+fs.writeFileSync('src/components/admin/ManufacturerLeadsAdminView.tsx', adminViewCode, 'utf8');
+console.log('ManufacturerLeadsAdminView.tsx written successfully');

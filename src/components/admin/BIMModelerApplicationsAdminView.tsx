@@ -10,6 +10,7 @@ import {
   MapPin,
   MessageCircle,
   Phone,
+  Send,
   RefreshCw,
   Search,
   UserCheck
@@ -28,6 +29,7 @@ interface BIMModelerApplication {
   experienceYears: string;
   availability?: string;
   portfolioUrl?: string;
+  portfolioSentByTelegram?: boolean;
   portfolioSentByWhatsApp?: boolean;
   linkedinUrl?: string;
   softwareSkills: string[];
@@ -57,7 +59,7 @@ const statusClassName: Record<ModelerApplicationStatus, string> = {
   rejected: 'bg-rose-50 text-rose-700 dark:bg-rose-950/35 dark:text-rose-300'
 };
 
-const normalizePhoneForWhatsApp = (phone: string) => {
+const normalizePhoneForContact = (phone: string) => {
   const digits = phone.replace(/[^0-9]/g, '');
   if (!digits) return '';
   if (digits.startsWith('00')) return digits.slice(2);
@@ -163,7 +165,7 @@ export const BIMModelerApplicationsAdminView: React.FC = () => {
   };
 
   const createApplicantWhatsAppUrl = (application: BIMModelerApplication) => {
-    const normalizedPhone = normalizePhoneForWhatsApp(application.phone);
+    const normalizedPhone = normalizePhoneForContact(application.phone);
     if (!normalizedPhone) return '';
     const message = encodeURIComponent(
       isRtl
@@ -171,6 +173,17 @@ export const BIMModelerApplicationsAdminView: React.FC = () => {
         : `Hello ${application.fullName}, I am contacting you from IranBIMhub about your BIM modeler collaboration application.`
     );
     return `https://wa.me/${normalizedPhone}?text=${message}`;
+  };
+
+  const createApplicantTelegramUrl = (application: BIMModelerApplication) => {
+    const normalizedPhone = normalizePhoneForContact(application.phone);
+    if (!normalizedPhone) return '';
+    const message = encodeURIComponent(
+      isRtl
+        ? `سلام ${application.fullName} عزیز، از طرف ایران‌بیم‌هاب درباره درخواست همکاری پروژه‌ای مدل‌ساز BIM پیام می‌دهم.`
+        : `Hello ${application.fullName}, I am contacting you from IranBIMhub about your BIM modeler collaboration application.`
+    );
+    return `tg://resolve?phone=${normalizedPhone}&text=${message}`;
   };
 
   return (
@@ -265,6 +278,7 @@ export const BIMModelerApplicationsAdminView: React.FC = () => {
           <div className="space-y-4">
             {filteredApplications.map(application => {
               const applicantWhatsAppUrl = createApplicantWhatsAppUrl(application);
+              const applicantTelegramUrl = createApplicantTelegramUrl(application);
               return (
                 <div key={application.id} className="p-4 bg-slate-50 dark:bg-slate-900 border border-gray-150 dark:border-slate-800 rounded-3xl space-y-4">
                   <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
@@ -274,6 +288,11 @@ export const BIMModelerApplicationsAdminView: React.FC = () => {
                         <span className={`px-2.5 py-1 rounded-full text-[10px] font-black ${statusClassName[application.status || 'new']}`}>
                           {getStatusLabel(application.status || 'new')}
                         </span>
+                        {application.portfolioSentByTelegram && (
+                          <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-[#26B6B6]/10 text-[#138f8f] dark:text-[#26B6B6]">
+                            {isRtl ? 'نمونه‌کار از طریق تلگرام' : 'Portfolio via Telegram'}
+                          </span>
+                        )}
                         {application.portfolioSentByWhatsApp && (
                           <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-[#25D366]/10 text-[#128C7E]">
                             {isRtl ? 'نمونه‌کار از طریق واتساپ' : 'Portfolio via WhatsApp'}
@@ -300,6 +319,12 @@ export const BIMModelerApplicationsAdminView: React.FC = () => {
                         <a href={application.linkedinUrl} target="_blank" rel="noreferrer" className="px-3 py-2 bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-800 text-gray-700 dark:text-gray-300 rounded-xl text-[10px] font-extrabold hover:text-[#26B6B6] transition-colors flex items-center gap-1.5">
                           <ExternalLink className="w-3.5 h-3.5" />
                           <span>LinkedIn</span>
+                        </a>
+                      )}
+                      {applicantTelegramUrl && (
+                        <a href={applicantTelegramUrl} className="px-3 py-2 bg-[#26B6B6]/10 border border-[#26B6B6]/20 text-[#138f8f] dark:text-[#26B6B6] rounded-xl text-[10px] font-extrabold hover:bg-[#26B6B6]/15 transition-colors flex items-center gap-1.5">
+                          <Send className="w-3.5 h-3.5" />
+                          <span>{isRtl ? 'پیام تلگرام' : 'Telegram'}</span>
                         </a>
                       )}
                       {applicantWhatsAppUrl && (

@@ -1024,7 +1024,7 @@ export const AdminControlPanel: React.FC = () => {
                 }`}
               >
                 <Factory className="w-4 h-4" />
-                <span>{isRtl ? 'درخواست‌های تولیدکنندگان' : 'Manufacturer Leads'}</span>
+                <span>{isRtl ? 'مشاوره تولیدکنندگان' : 'Manufacturer Consultations'}</span>
               </button>
             )}
 

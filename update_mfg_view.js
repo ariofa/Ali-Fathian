@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+const fs = require('fs');
+
+const mfgViewCode = `import React, { useState } from 'react';
 import { useLanguage } from '../LanguageContext';
 import {
   AlertCircle,
@@ -39,8 +41,8 @@ const CONTACT_PHONE_INTERNATIONAL = '989391686878';
 
 // Telegram does not provide a fully reliable public contact link by phone number alone.
 // For production, replace this with an official Telegram username/bot URL, e.g. https://t.me/IranBIMhubSupport
-const TELEGRAM_CONTACT_URL = `tg://resolve?phone=${CONTACT_PHONE_INTERNATIONAL}`;
-const WHATSAPP_CONTACT_URL = `https://wa.me/${CONTACT_PHONE_INTERNATIONAL}`;
+const TELEGRAM_CONTACT_URL = \`tg://resolve?phone=\${CONTACT_PHONE_INTERNATIONAL}\`;
+const WHATSAPP_CONTACT_URL = \`https://wa.me/\${CONTACT_PHONE_INTERNATIONAL}\`;
 
 const initialFormState = {
   companyName: '',
@@ -74,8 +76,8 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({ onNa
       ? 'سلام، برای دریافت مشاوره رایگان BIM تولیدکنندگان در ایران‌بیم‌هاب پیام می‌دهم. می‌خواهم کاتالوگ یا اطلاعات اولیه محصولات را ارسال کنم.'
       : 'Hello, I am contacting IranBIMhub for free BIM consultation for manufacturers. I would like to send initial product catalogs or information.'
   );
-  const telegramUrl = `${TELEGRAM_CONTACT_URL}&text=${contactMessage}`;
-  const whatsappUrl = `${WHATSAPP_CONTACT_URL}?text=${contactMessage}`;
+  const telegramUrl = \`\${TELEGRAM_CONTACT_URL}&text=\${contactMessage}\`;
+  const whatsappUrl = \`\${WHATSAPP_CONTACT_URL}?text=\${contactMessage}\`;
 
   const productCategories = [
     { value: '', fa: 'انتخاب دسته محصول', en: 'Select product category' },
@@ -290,8 +292,8 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({ onNa
 
             <p className="text-[11px] text-gray-400 leading-relaxed max-w-2xl">
               {isRtl
-                ? `تلگرام و واتساپ فقط برای ارسال کاتالوگ اولیه و هماهنگی مشاوره استفاده می‌شوند. آپلود رسمی فایل BIM آماده، از داخل پنل برند انجام می‌شود. شماره ارتباطی: ${CONTACT_PHONE_DISPLAY}`
-                : `Telegram and WhatsApp are only for initial catalog sharing and consultation coordination. Official BIM file upload is done from the brand panel. Contact: ${CONTACT_PHONE_DISPLAY}`
+                ? \`تلگرام و واتساپ فقط برای ارسال کاتالوگ اولیه و هماهنگی مشاوره استفاده می‌شوند. آپلود رسمی فایل BIM آماده، از داخل پنل برند انجام می‌شود. شماره ارتباطی: \${CONTACT_PHONE_DISPLAY}\`
+                : \`Telegram and WhatsApp are only for initial catalog sharing and consultation coordination. Official BIM file upload is done from the brand panel. Contact: \${CONTACT_PHONE_DISPLAY}\`
               }
             </p>
           </div>
@@ -349,7 +351,7 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({ onNa
           {collaborationPaths.map((path, index) => (
             <div key={path.titleEn} className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-[2rem] p-6 sm:p-7 shadow-sm hover:shadow-md transition-all">
               <div className="flex items-start gap-4">
-                <div className={`w-14 h-14 rounded-3xl flex items-center justify-center shrink-0 ${index === 0 ? 'bg-emerald-500/10 text-emerald-600' : 'bg-[#26B6B6]/10 text-[#26B6B6]'}`}>
+                <div className={\`w-14 h-14 rounded-3xl flex items-center justify-center shrink-0 \${index === 0 ? 'bg-emerald-500/10 text-emerald-600' : 'bg-[#26B6B6]/10 text-[#26B6B6]'}\`}>
                   {path.icon}
                 </div>
                 <div className="space-y-3">
@@ -547,24 +549,24 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({ onNa
                 <label className="space-y-2">
                   <span className="text-xs font-black text-gray-700 dark:text-gray-300">{isRtl ? 'شماره تماس *' : 'Phone Number *'}</span>
                   <div className="relative">
-                    <Phone className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 ${isRtl ? 'right-4' : 'left-4'}`} />
-                    <input name="phone" value={formData.phone} onChange={handleInputChange} className={`w-full py-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 text-sm outline-none focus:border-[#26B6B6] transition-colors ${isRtl ? 'pr-11 pl-4' : 'pl-11 pr-4'}`} placeholder={isRtl ? 'شماره موبایل یا تلفن شرکت' : 'Mobile or company phone'} />
+                    <Phone className={\`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 \${isRtl ? 'right-4' : 'left-4'}\`} />
+                    <input name="phone" value={formData.phone} onChange={handleInputChange} className={\`w-full py-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 text-sm outline-none focus:border-[#26B6B6] transition-colors \${isRtl ? 'pr-11 pl-4' : 'pl-11 pr-4'}\`} placeholder={isRtl ? 'شماره موبایل یا تلفن شرکت' : 'Mobile or company phone'} />
                   </div>
                 </label>
 
                 <label className="space-y-2">
                   <span className="text-xs font-black text-gray-700 dark:text-gray-300">{isRtl ? 'ایمیل' : 'Email'}</span>
                   <div className="relative">
-                    <Mail className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 ${isRtl ? 'right-4' : 'left-4'}`} />
-                    <input type="email" name="email" value={formData.email} onChange={handleInputChange} className={`w-full py-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 text-sm outline-none focus:border-[#26B6B6] transition-colors ${isRtl ? 'pr-11 pl-4' : 'pl-11 pr-4'}`} placeholder="name@company.com" dir="ltr" />
+                    <Mail className={\`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 \${isRtl ? 'right-4' : 'left-4'}\`} />
+                    <input type="email" name="email" value={formData.email} onChange={handleInputChange} className={\`w-full py-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 text-sm outline-none focus:border-[#26B6B6] transition-colors \${isRtl ? 'pr-11 pl-4' : 'pl-11 pr-4'}\`} placeholder="name@company.com" dir="ltr" />
                   </div>
                 </label>
 
                 <label className="space-y-2">
                   <span className="text-xs font-black text-gray-700 dark:text-gray-300">{isRtl ? 'شهر محل فعالیت *' : 'City *'}</span>
                   <div className="relative">
-                    <MapPin className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 ${isRtl ? 'right-4' : 'left-4'}`} />
-                    <input name="city" value={formData.city} onChange={handleInputChange} className={`w-full py-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 text-sm outline-none focus:border-[#26B6B6] transition-colors ${isRtl ? 'pr-11 pl-4' : 'pl-11 pr-4'}`} placeholder={isRtl ? 'مثلاً: تهران، تبریز، اصفهان' : 'e.g. Tehran, Tabriz, Isfahan'} />
+                    <MapPin className={\`absolute top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 \${isRtl ? 'right-4' : 'left-4'}\`} />
+                    <input name="city" value={formData.city} onChange={handleInputChange} className={\`w-full py-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 text-sm outline-none focus:border-[#26B6B6] transition-colors \${isRtl ? 'pr-11 pl-4' : 'pl-11 pr-4'}\`} placeholder={isRtl ? 'مثلاً: تهران، تبریز، اصفهان' : 'e.g. Tehran, Tabriz, Isfahan'} />
                   </div>
                 </label>
 
@@ -593,11 +595,11 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({ onNa
                       type="button"
                       key={option.value}
                       onClick={() => setFormData(prev => ({ ...prev, hasBimFiles: option.value as HasBimFiles }))}
-                      className={`px-4 py-3 rounded-2xl border text-xs font-extrabold transition-all cursor-pointer text-start ${
+                      className={\`px-4 py-3 rounded-2xl border text-xs font-extrabold transition-all cursor-pointer text-start \${
                         formData.hasBimFiles === option.value
                           ? 'bg-[#26B6B6]/10 border-[#26B6B6] text-[#138f8f] dark:text-[#26B6B6]'
                           : 'bg-gray-50 dark:bg-gray-950 border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 hover:border-[#26B6B6]/50'
-                      }`}
+                      }\`}
                     >
                       {isRtl ? option.fa : option.en}
                     </button>
@@ -628,11 +630,11 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({ onNa
                           type="button"
                           key={format}
                           onClick={() => toggleArrayValue('bimFormats', format)}
-                          className={`px-3 py-2 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                          className={\`px-3 py-2 rounded-xl border text-xs font-bold transition-all cursor-pointer \${
                             formData.bimFormats.includes(format)
                               ? 'bg-[#26B6B6] border-[#26B6B6] text-white'
                               : 'bg-white dark:bg-gray-950 border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 hover:border-[#26B6B6]/50'
-                          }`}
+                          }\`}
                         >
                           {format}
                         </button>
@@ -741,3 +743,7 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({ onNa
     </div>
   );
 };
+`;
+
+fs.writeFileSync('src/components/views/ForManufacturersView.tsx', mfgViewCode, 'utf8');
+console.log('ForManufacturersView.tsx written successfully');

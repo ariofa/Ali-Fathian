@@ -110,17 +110,17 @@ export const SLIDE_CONFIGS = [
   },
   {
     id: 'modelers',
-    labelFa: 'متخصصان BIM',
-    labelEn: 'BIM Modelers',
+    labelFa: 'همکاری با ما',
+    labelEn: 'Collaborate',
     numFa: '۰۴',
     numEn: '04',
     bgImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=80',
     overlay: 'bg-gradient-to-r from-[#112a2b]/95 via-slate-950/90 to-slate-900/85',
-    badgeFa: 'دعوت به همکاری برای متخصصان BIM و Revit Family',
-    badgeEn: 'Collaboration Opportunity for BIM & Revit Family Specialists',
-    headingFa: 'در ساخت کتابخانه BIM محصولات ایرانی همراه ما باشید',
-    headingEn: 'Help Build Iran’s BIM Product Library',
-    descFa: 'اگر در مدل‌سازی BIM، ساخت فمیلی Revit، استانداردسازی پارامترها یا کنترل کیفیت فایل‌ها تجربه دارید، ایران بیم هاب می‌تواند خانه همکاری حرفه‌ای شما باشد.',
+    badgeFa: 'همکاری پروژه‌ای با مدل‌سازان BIM و سازندگان Revit Family',
+    badgeEn: 'Project-Based Collaboration for BIM & Revit Family Specialists',
+    headingFa: 'همکاری به‌عنوان مدل‌ساز BIM با ایران‌بیم‌هاب',
+    headingEn: 'Collaborate with IranBIMhub as a BIM Modeler',
+    descFa: 'اگر در مدل‌سازی BIM، ساخت فمیلی Revit، استانداردسازی پارامترها یا کنترل کیفیت فایل‌ها تجربه دارید، ایران‌بیم‌هاب می‌تواند خانه همکاری حرفه‌ای شما باشد.',
     descEn: 'If you work with BIM modeling, Revit families, parameter standards or file quality control, IranBIMhub can become your professional collaboration home.'
   },
   {
@@ -380,16 +380,22 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
               {activeSlide === 2 && (
                 <>
                   <button
-                    onClick={() => onNavigate('for-manufacturers')}
+                    onClick={() => {
+                      sessionStorage.setItem('iranbimhub_manufacturer_page_target', 'consultation');
+                      onNavigate('for-manufacturers');
+                    }}
                     className="bg-[#26B6B6] hover:bg-[#1e9494] text-white px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold shadow-md transition-all hover:scale-105 cursor-pointer"
                   >
-                    {isRtl ? 'ثبت همکاری تولیدکننده' : 'Join as Manufacturer'}
+                    {isRtl ? 'مشاوره رایگان تولیدکنندگان' : 'Free Manufacturer Consultation'}
                   </button>
                   <button
-                    onClick={() => onNavigate('for-manufacturers')}
+                    onClick={() => {
+                      sessionStorage.removeItem('iranbimhub_manufacturer_page_target');
+                      onNavigate('for-manufacturers');
+                    }}
                     className="bg-slate-900/80 hover:bg-slate-800 text-white border border-white/20 backdrop-blur-md px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all hover:scale-105 cursor-pointer"
                   >
-                    {isRtl ? 'درخواست جلسه معرفی' : 'Request an Intro Call'}
+                    {isRtl ? 'صفحه تولیدکنندگان' : 'Manufacturer Page'}
                   </button>
                 </>
               )}
