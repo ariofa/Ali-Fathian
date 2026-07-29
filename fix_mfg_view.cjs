@@ -172,13 +172,13 @@ export const ForManufacturersView: React.FC = () => {
                   {isRtl ? 'فایل BIM آماده دارم' : 'I already have BIM files'}
                 </h3>
                 <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                  {isRtl ? 'ثبت و ممیزی' : 'Registration & Audit'}
+                  {isRtl ? 'ثبت و ارزیابی' : 'Registration & Audit'}
                 </span>
               </div>
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400 font-bold leading-relaxed mb-6">
               {isRtl
-                ? 'اگر برای محصولات خود فایل‌های سه‌بعدی اطلاعات‌محور (Revit, IFC و...) تهیه کرده‌اید، می‌توانید آن‌ها را برای بررسی و ممیزی فنی به ما بسپارید.'
+                ? 'اگر برای محصولات خود فایل‌های سه‌بعدی اطلاعات‌محور (Revit, IFC و...) تهیه کرده‌اید، می‌توانید آن‌ها را برای بررسی و ارزیابی فنی به ما بسپارید.'
                 : 'If you have already created data-driven 3D files (Revit, IFC, etc.) for your products, you can submit them to us for technical review and auditing.'
               }
             </p>
@@ -229,7 +229,7 @@ export const ForManufacturersView: React.FC = () => {
                 isRtl ? 'ارسال کاتالوگ در تلگرام یا فرم' : 'Send catalogs via Telegram or form',
                 isRtl ? 'بررسی دامنه محصولات و برآورد هزینه' : 'Scope review and cost estimation',
                 isRtl ? 'عقد قرارداد ساخت آبجکت BIM' : 'BIM object creation contract sign',
-                isRtl ? 'تولید، ممیزی داخلی و انتشار مستقیم' : 'Production, internal audit & direct publish'
+                isRtl ? 'تولید، ارزیابی داخلی و انتشار مستقیم' : 'Production, internal audit & direct publish'
               ].map((step, idx) => (
                 <li key={idx} className="flex items-start gap-2.5 text-sm font-bold text-gray-700 dark:text-gray-300">
                   <CheckCircle className="w-4 h-4 text-[#26B6B6] shrink-0 mt-0.5" />

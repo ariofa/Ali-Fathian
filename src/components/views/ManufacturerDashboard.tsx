@@ -2761,7 +2761,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                       <div className="p-3 bg-amber-500/5 border border-amber-100 dark:border-amber-950/40 rounded-xl text-start space-y-0.5">
                         <p className="text-[10.5px] text-amber-700 dark:text-amber-400 font-medium">
                           {isRtl 
-                            ? '🔔 زمان تمدید یا ممیزی سالانه این سند فرا رسیده است. لطفاً فایل معتبر جدید را ارسال فرمایید.' 
+                            ? '🔔 زمان تمدید یا ارزیابی سالانه این سند فرا رسیده است. لطفاً فایل معتبر جدید را ارسال فرمایید.' 
                             : '🔔 Annual renewal/auditing period has arrived. Please upload your updated certificate.'}
                         </p>
                       </div>
@@ -3319,7 +3319,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                         <div className="space-y-1">
                           <input 
                             type="text" 
-                            placeholder={isRtl ? 'تاریخ انقضا / ممیزی بعدی' : 'Expiry / Audit Date'}
+                            placeholder={isRtl ? 'تاریخ انقضا / ارزیابی بعدی' : 'Expiry / Audit Date'}
                             value={newStdValidityDate}
                             onChange={(e) => setNewStdValidityDate(e.target.value)}
                             className="w-full p-2.5 border rounded-xl bg-white dark:bg-gray-900"
@@ -5210,7 +5210,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                 <span>{isRtl ? 'میز گفتگوی مستقیم با ناظر فنی کاتالوگ' : 'AEC Supervisor Approval Board'}</span>
               </h2>
               <p className="text-[11px] text-gray-400 mt-1">
-                {isRtl ? 'با ناظر فنی اختصاصی برند خود جهت ممیزی پارامترها و گواهی‌ها گفتگو کنید.' : 'Direct Slack-like communication with your designated account supervisor manager.'}
+                {isRtl ? 'با ناظر فنی اختصاصی برند خود جهت ارزیابی پارامترها و گواهی‌ها گفتگو کنید.' : 'Direct Slack-like communication with your designated account supervisor manager.'}
               </p>
             </div>
 
@@ -5219,7 +5219,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                 S
               </div>
               <div className="text-xs">
-                <span className="font-extrabold text-gray-800 dark:text-white block">{isRtl ? 'مهندس حمیدرضا فرخی (سرپرست ارشد ممیزی کاتالوگ)' : 'Hamidreza Farrokhi (Lead BIM Supervisor)'}</span>
+                <span className="font-extrabold text-gray-800 dark:text-white block">{isRtl ? 'مهندس حمیدرضا فرخی (سرپرست ارشد ارزیابی کاتالوگ)' : 'Hamidreza Farrokhi (Lead BIM Supervisor)'}</span>
                 <span className="text-gray-400 block mt-0.5">{isRtl ? 'پاسخ‌دهی آنلاین: ۲۴ ساعته کاری' : 'Online B2B QA Moderator Desk'}</span>
               </div>
             </div>
@@ -5324,7 +5324,7 @@ const MfgSidebarNavList: React.FC<MfgSidebarNavListProps> = ({
     { id: 'subscription' as const, labelFa: 'اشتراک و صورتحساب', labelEn: 'Subscription & Billing', icon: DollarSign },
     { id: 'analytics' as const, labelFa: 'تحلیل عملکرد کاتالوگ', labelEn: 'Catalog Analytics', icon: BarChart3 },
     { id: 'requests' as const, labelFa: 'درخواست‌ها و سرنخ‌ها', labelEn: 'Requests & Leads', icon: Mail, leadBadge: unansweredLeadsCount > 0 },
-    { id: 'approval-chat' as const, labelFa: 'گفتگو با ناظر ممیزی', labelEn: 'Supervisor Chat', icon: FileCheck },
+    { id: 'approval-chat' as const, labelFa: 'گفتگو با ناظر ارزیابی', labelEn: 'Supervisor Chat', icon: FileCheck },
     { id: 'notifications' as const, labelFa: 'اعلان‌ها', labelEn: 'Notifications', icon: Bell },
     { id: 'logout' as const, labelFa: 'خروج از حساب کاربری', labelEn: 'Sign Out', icon: LogOut, isLogout: true }
   ];

@@ -129,9 +129,9 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
       icon: <FileCheck2 className="w-6 h-6" />,
       titleFa: 'فایل BIM آماده دارید؟',
       titleEn: 'Already have BIM files?',
-      descFa: 'اگر فایل Revit، IFC، ArchiCAD یا سایر فایل‌های BIM آماده دارید، مسیر رسمی شما ساخت پروفایل برند و آپلود فایل در پنل تولیدکننده است. فایل‌ها پس از پرداخت هزینه ممیزی توسط کارشناس بررسی می‌شوند و در صورت تأیید منتشر خواهند شد.',
+      descFa: 'اگر فایل Revit، IFC، ArchiCAD یا سایر فایل‌های BIM آماده دارید، مسیر رسمی شما ساخت پروفایل برند و آپلود فایل در پنل تولیدکننده است. فایل‌ها پس از پرداخت هزینه ارزیابی توسط کارشناس بررسی می‌شوند و در صورت تأیید منتشر خواهند شد.',
       descEn: 'If you already have Revit, IFC, ArchiCAD or other BIM files, the official path is to create a brand profile and upload files from the manufacturer panel. Files are reviewed by a specialist after the audit fee and published only after approval.',
-      bulletsFa: ['آپلود رسمی فقط در پنل برند', 'ممیزی فنی توسط کارشناس', 'گزارش اصلاحات و حداکثر ۳ نوبت بازبینی همان فایل', 'انتشار پس از تأیید نهایی'],
+      bulletsFa: ['آپلود رسمی فقط در پنل برند', 'ارزیابی فنی توسط کارشناس', 'گزارش اصلاحات و حداکثر ۳ نوبت بازبینی همان فایل', 'انتشار پس از تأیید نهایی'],
       bulletsEn: ['Official upload only from brand panel', 'Technical audit by specialist', 'Correction report and up to 3 re-reviews of the same file', 'Publishing after final approval'],
       ctaFa: 'ساخت پروفایل برند و آپلود فایل',
       ctaEn: 'Create Brand Profile & Upload Files',
@@ -153,9 +153,9 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
       descEn: 'Initial catalogs can be sent via Telegram/WhatsApp for consultation; ready BIM files must be uploaded in the brand panel.'
     },
     {
-      titleFa: 'تولید یا ممیزی فایل',
+      titleFa: 'تولید یا ارزیابی فایل',
       titleEn: 'Creation or Audit',
-      descFa: 'برای فایل‌های آماده، ممیزی پولی انجام می‌شود؛ برای فایل‌های ناموجود، مسیر تولید آبجکت BIM پیشنهاد می‌شود.',
+      descFa: 'برای فایل‌های آماده، ارزیابی پولی انجام می‌شود؛ برای فایل‌های ناموجود، مسیر تولید آبجکت BIM پیشنهاد می‌شود.',
       descEn: 'Ready files go through paid audit; missing files follow a BIM object creation proposal.'
     },
     {
@@ -224,7 +224,7 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
         : 'For initial consultation, please enter a catalog/product link or select Telegram/WhatsApp submission.';
     }
 
-    if (!formData.hasAcceptedNotice) return isRtl ? 'لطفاً توضیح مربوط به مسیر رسمی آپلود و ممیزی فنی را تأیید کنید.' : 'Please confirm the official upload and technical audit notice.';
+    if (!formData.hasAcceptedNotice) return isRtl ? 'لطفاً توضیح مربوط به مسیر رسمی آپلود و ارزیابی فنی را تأیید کنید.' : 'Please confirm the official upload and technical audit notice.';
     return '';
   };
 
@@ -285,7 +285,7 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
 
             <p className="text-sm sm:text-base text-gray-300 leading-relaxed max-w-2xl">
               {isRtl
-                ? 'اگر هنوز فایل BIM ندارید، کاتالوگ محصول را برای مشاوره اولیه ارسال کنید. اگر فایل BIM آماده دارید، مسیر حرفه‌ای شما ساخت پروفایل برند و آپلود رسمی فایل در پنل تولیدکننده است؛ سپس فایل‌ها با پرداخت هزینه ممیزی توسط کارشناس بررسی و در صورت تأیید منتشر می‌شوند.'
+                ? 'اگر هنوز فایل BIM ندارید، کاتالوگ محصول را برای مشاوره اولیه ارسال کنید. اگر فایل BIM آماده دارید، مسیر حرفه‌ای شما ساخت پروفایل برند و آپلود رسمی فایل در پنل تولیدکننده است؛ سپس فایل‌ها با پرداخت هزینه ارزیابی توسط کارشناس بررسی و در صورت تأیید منتشر می‌شوند.'
                 : 'If you do not have BIM files yet, send product catalogs for initial consultation. If you already have BIM files, the professional path is to create a brand profile and officially upload files from the manufacturer panel; then files are audited by a specialist after the audit fee and published only after approval.'
               }
             </p>
@@ -339,14 +339,14 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
                 <div className="rounded-2xl bg-white/5 border border-white/10 p-4">
                   <strong className="text-sm text-white">{isRtl ? 'فایل BIM آماده دارید؟' : 'Ready BIM files?'}</strong>
                   <p className="text-[11px] text-gray-300 leading-relaxed mt-2">
-                    {isRtl ? 'پروفایل برند بسازید، فایل را در پنل آپلود کنید و وارد مسیر ممیزی فنی شوید.' : 'Create a brand profile, upload files in the panel and enter technical audit.'}
+                    {isRtl ? 'پروفایل برند بسازید، فایل را در پنل آپلود کنید و وارد مسیر ارزیابی فنی شوید.' : 'Create a brand profile, upload files in the panel and enter technical audit.'}
                   </p>
                 </div>
               </div>
 
               <div className="rounded-2xl bg-amber-400/10 border border-amber-300/20 p-4 text-[11px] leading-relaxed text-amber-50">
                 {isRtl
-                  ? 'ممیزی فایل آماده یک خدمت تخصصی و دارای هزینه است. هزینه می‌تواند بر اساس تعداد فایل‌ها، پیچیدگی محصول و سطح اصلاحات اعلام شود و شامل بررسی اولیه و حداکثر ۳ نوبت بازبینی اصلاحات همان فایل باشد.'
+                  ? 'ارزیابی فایل آماده یک خدمت تخصصی و دارای هزینه است. هزینه می‌تواند بر اساس تعداد فایل‌ها، پیچیدگی محصول و سطح اصلاحات اعلام شود و شامل بررسی اولیه و حداکثر ۳ نوبت بازبینی اصلاحات همان فایل باشد.'
                   : 'Ready-file audit is a specialist paid service. Cost can depend on file count, product complexity and required corrections, and can include initial review plus up to 3 re-reviews of the same corrected file.'
                 }
               </div>
@@ -483,14 +483,14 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
           <div className="relative z-10 lg:col-span-8 space-y-3">
             <div className="inline-flex items-center gap-2 text-[#26B6B6] text-[11px] font-black">
               <ClipboardCheck className="w-4 h-4" />
-              <span>{isRtl ? 'ممیزی فنی فایل BIM آماده' : 'Technical Audit for Ready BIM Files'}</span>
+              <span>{isRtl ? 'ارزیابی فنی فایل BIM آماده' : 'Technical Audit for Ready BIM Files'}</span>
             </div>
             <h2 className="text-2xl font-black">
               {isRtl ? 'آپلود رسمی فایل‌های آماده فقط در پنل برند انجام می‌شود' : 'Official Upload of Ready Files Happens Only in the Brand Panel'}
             </h2>
             <p className="text-sm text-gray-300 leading-relaxed">
               {isRtl
-                ? 'بررسی فایل‌های آماده یک خدمت تخصصی و دارای هزینه است. این ممیزی می‌تواند شامل بررسی اولیه، گزارش اصلاحات و حداکثر ۳ نوبت بازبینی اصلاحات همان فایل باشد. اگر اصلاحات فراتر از محدوده ممیزی باشد، تولیدکننده می‌تواند آن را با تیم خود انجام دهد یا درخواست اصلاح و استانداردسازی را به ایران‌بیم‌هاب بسپارد.'
+                ? 'بررسی فایل‌های آماده یک خدمت تخصصی و دارای هزینه است. این ارزیابی می‌تواند شامل بررسی اولیه، گزارش اصلاحات و حداکثر ۳ نوبت بازبینی اصلاحات همان فایل باشد. اگر اصلاحات فراتر از محدوده ارزیابی باشد، تولیدکننده می‌تواند آن را با تیم خود انجام دهد یا درخواست اصلاح و استانداردسازی را به ایران‌بیم‌هاب بسپارد.'
                 : 'Ready-file review is a specialist paid service. It can include initial audit, correction report and up to 3 re-reviews of the same corrected file. If corrections go beyond the audit scope, the manufacturer can handle them internally or request IranBIMhub standardization service.'
               }
             </p>
@@ -761,7 +761,7 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
                 <input type="checkbox" name="hasAcceptedNotice" checked={formData.hasAcceptedNotice} onChange={handleCheckboxChange} className="mt-1 w-4 h-4 accent-[#26B6B6] shrink-0" />
                 <span className="text-xs text-amber-800 dark:text-amber-200 leading-relaxed">
                   {isRtl
-                    ? 'می‌دانم که ارسال کاتالوگ در تلگرام/واتساپ فقط برای مشاوره اولیه است؛ آپلود رسمی فایل BIM آماده از داخل پنل برند انجام می‌شود و ممیزی فنی آن یک خدمت تخصصی و دارای هزینه است.'
+                    ? 'می‌دانم که ارسال کاتالوگ در تلگرام/واتساپ فقط برای مشاوره اولیه است؛ آپلود رسمی فایل BIM آماده از داخل پنل برند انجام می‌شود و ارزیابی فنی آن یک خدمت تخصصی و دارای هزینه است.'
                     : 'I understand that sending catalogs via Telegram/WhatsApp is only for initial consultation; official ready BIM file upload happens in the brand panel and technical audit is a paid specialist service.'
                   }
                 </span>

@@ -530,7 +530,7 @@ export const AdminControlPanel: React.FC = () => {
           'تخصیص ارزیاب به آبجکت',
           'BIM Object Assignment',
           o.titleFa,
-          `ارجاع پرونده ممیزی به ممیز: ${reviewer.name}`
+          `ارجاع پرونده ارزیابی به ارزیاب: ${reviewer.name}`
         );
         return { ...o, assignedTo: reviewer.id, assignedName: reviewer.name };
       }
@@ -550,7 +550,7 @@ export const AdminControlPanel: React.FC = () => {
   const handleOverrideReviewDecision = (objectId: string, reverseToApprove: boolean, reason: string) => {
     if (currentAdmin?.role !== 'Review Team Manager' && currentAdmin?.role !== 'Super Admin') return;
     if (!reason.trim()) {
-      alert(isRtl ? 'وارد کردن علت همپوشانی و لغو تصمیم ممیز الزامی است!' : 'Providing override reason is mandatory!');
+      alert(isRtl ? 'وارد کردن علت همپوشانی و لغو تصمیم ارزیاب الزامی است!' : 'Providing override reason is mandatory!');
       return;
     }
 
@@ -558,18 +558,18 @@ export const AdminControlPanel: React.FC = () => {
       if (o.id === objectId) {
         const nextStatus = reverseToApprove ? 'Approved' : 'Rejected';
         logAdminAction(
-          'لغو و بازنویسی تصمیم ممیز (Override)',
+          'لغو و بازنویسی تصمیم ارزیاب (Override)',
           'BIM Object Decision Override',
           o.titleFa,
           reason,
-          `تغییر وضعیت از ${o.status} به ${nextStatus} توسط مدیر تیم ممیزی (${currentAdmin.name})`
+          `تغییر وضعیت از ${o.status} به ${nextStatus} توسط مدیر تیم ارزیابی (${currentAdmin.name})`
         );
         return { 
           ...o, 
           status: nextStatus, 
           overrideReason: reason, 
           overriddenBy: currentAdmin.name,
-          reasonDetail: `لغو ممیزی: ${reason}`
+          reasonDetail: `لغو ارزیابی: ${reason}`
         };
       }
       return o;
@@ -584,10 +584,10 @@ export const AdminControlPanel: React.FC = () => {
     logAdminAction(
       'بروزرسانی استانداردهای ارزیابی داخلی',
       'Standard Guidelines',
-      'سند استاندارد ممیزی',
+      'سند استاندارد ارزیابی',
       'تغییر معیارهای تایید ابعاد فنی و پارامتری خانواده‌های بیم'
     );
-    alert(isRtl ? 'دستورالعمل‌های ممیزی با موفقیت بروزرسانی شد.' : 'Review guidelines updated successfully.');
+    alert(isRtl ? 'دستورالعمل‌های ارزیابی با موفقیت بروزرسانی شد.' : 'Review guidelines updated successfully.');
   };
 
   // Role 4 action: Approve/Reject BIM Object
@@ -606,7 +606,7 @@ export const AdminControlPanel: React.FC = () => {
           'BIM Object Review',
           o.titleFa,
           approve ? 'تایید کلیه معیارهای استاندارد و پارامتریک' : `${reasonCode}: ${reasonDetail}`,
-          `ممیز مسئول: ${currentAdmin.name}`
+          `ارزیاب مسئول: ${currentAdmin.name}`
         );
         return { 
           ...o, 
@@ -675,7 +675,7 @@ export const AdminControlPanel: React.FC = () => {
         const escalTarget = target === 'Finance' ? 'Finance' as const : 'Review Manager' as const;
         const note = target === 'Finance' 
           ? 'ارجاع تیکت حل اختلاف مالی به واحد حسابداری و اشتراک‌ها' 
-          : 'ارجاع اعتراض ممیزی سازنده به مدیر تیم ممیزی آبجکت‌ها';
+          : 'ارجاع اعتراض ارزیابی سازنده به مدیر تیم ارزیابی آبجکت‌ها';
         
         logAdminAction(
           'ارجاع تخصصی تیکت (Escalation)',
@@ -931,7 +931,7 @@ export const AdminControlPanel: React.FC = () => {
               <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-[9px] font-bold text-gray-500 tracking-wider">v2.1</span>
             </div>
             <p className="text-[10px] text-gray-400 font-light mt-0.5">
-              {isRtl ? 'پلتفرم ایمن و ممیزی آبجکت‌های آماده صنعت ساختمان' : 'Secure asset auditing & specifications compliance system'}
+              {isRtl ? 'پلتفرم ایمن و ارزیابی آبجکت‌های آماده صنعت ساختمان' : 'Secure asset auditing & specifications compliance system'}
             </p>
           </div>
         </div>
@@ -1009,7 +1009,7 @@ export const AdminControlPanel: React.FC = () => {
                 }`}
               >
                 <Users className="w-4 h-4" />
-                <span>{isRtl ? 'مدیریت تیم ممیزی آبجکت' : 'Reviewer Management'}</span>
+                <span>{isRtl ? 'مدیریت تیم ارزیابی آبجکت' : 'Reviewer Management'}</span>
               </button>
             )}
 
@@ -1054,7 +1054,7 @@ export const AdminControlPanel: React.FC = () => {
                 }`}
               >
                 <FileCheck className="w-4 h-4" />
-                <span>{isRtl ? 'صندوق ممیزی‌های من' : 'My Assigned Reviews'}</span>
+                <span>{isRtl ? 'صندوق ارزیابی‌های من' : 'My Assigned Reviews'}</span>
               </button>
             )}
 
@@ -1099,7 +1099,7 @@ export const AdminControlPanel: React.FC = () => {
                 }`}
               >
                 <History className="w-4 h-4" />
-                <span>{isRtl ? 'ردپای ممیزی و وقایع سیستم' : 'Immutable Audit Trail'}</span>
+                <span>{isRtl ? 'ردپای ارزیابی و وقایع سیستم' : 'Immutable Audit Trail'}</span>
               </button>
             )}
 
@@ -1559,7 +1559,7 @@ export const AdminControlPanel: React.FC = () => {
                 <div className="flex items-center justify-between pb-3 border-b border-gray-150 dark:border-slate-800">
                   <div>
                     <h4 className="text-sm font-black text-gray-800 dark:text-white">
-                      {isRtl ? 'میز نظارت و انطباق استاندارد ممیزی آبجکت‌های BIM (خواندنی)' : 'BIM Objects Review Compliance Portal (Read-only)'}
+                      {isRtl ? 'میز نظارت و انطباق استاندارد ارزیابی آبجکت‌های BIM (خواندنی)' : 'BIM Objects Review Compliance Portal (Read-only)'}
                     </h4>
                     <p className="text-[10px] text-gray-400 mt-0.5">
                       {isRtl ? 'ردیابی مستقل تصمیمات بررسی‌کنندگان جهت مانیتورینگ عملکرد و جلوگیری از رفتارهای سلیقه‌ای.' : 'Audit and monitor decisions taken by the technical review team to guarantee objective evaluations.'}
@@ -1569,22 +1569,22 @@ export const AdminControlPanel: React.FC = () => {
                   {/* Escalate action */}
                   <button
                     onClick={() => {
-                      const reason = prompt(isRtl ? 'شرح پرونده ارجاعی و دلیل لزوم بررسی اضطراری توسط مدیر ممیزی:' : 'Describe the escalation details and reason:');
+                      const reason = prompt(isRtl ? 'شرح پرونده ارجاعی و دلیل لزوم بررسی اضطراری توسط مدیر ارزیابی:' : 'Describe the escalation details and reason:');
                       if (reason) {
                         logAdminAction(
-                          'ارجاع نظارتی تخلف احتمالی یا ناهماهنگی ممیز',
+                          'ارجاع نظارتی تخلف احتمالی یا ناهماهنگی ارزیاب',
                           'Compliance Verification Escalation',
                           'کارگروه بررسی پرونده‌ها',
                           reason,
                           `ارجاع داده شده توسط بازرس انطباق (${currentAdmin.name})`
                         );
-                        alert(isRtl ? 'گزارش نظارتی به منظور بررسی نظارتی به مدیر تیم ممیزی ارجاع داده شد.' : 'Escalation log dispatched to Review Manager.');
+                        alert(isRtl ? 'گزارش نظارتی به منظور بررسی نظارتی به مدیر تیم ارزیابی ارجاع داده شد.' : 'Escalation log dispatched to Review Manager.');
                       }
                     }}
                     className="px-3 py-2 border border-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/20 text-amber-700 dark:text-amber-400 text-[10px] font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5"
                   >
                     <AlertTriangle className="w-4 h-4 text-amber-500" />
-                    <span>{isRtl ? 'ارجاع اضطراری اختلاف به مدیر ممیزی' : 'Escalate to Review Manager'}</span>
+                    <span>{isRtl ? 'ارجاع اضطراری اختلاف به مدیر ارزیابی' : 'Escalate to Review Manager'}</span>
                   </button>
                 </div>
 
@@ -1594,7 +1594,7 @@ export const AdminControlPanel: React.FC = () => {
                       <tr className="border-b border-gray-100 dark:border-slate-800 text-gray-400 font-bold">
                         <th className="py-2.5 text-start">{isRtl ? 'عنوان آبجکت' : 'BIM Asset'}</th>
                         <th className="py-2.5 text-start">{isRtl ? 'کارخانه تولیدی' : 'Manufacturer'}</th>
-                        <th className="py-2.5 text-start">{isRtl ? 'ممیز پرونده' : 'Auditor / Reviewer'}</th>
+                        <th className="py-2.5 text-start">{isRtl ? 'ارزیاب پرونده' : 'Auditor / Reviewer'}</th>
                         <th className="py-2.5 text-start">{isRtl ? 'تاریخ ثبت تصمیم' : 'Decision Date'}</th>
                         <th className="py-2.5 text-center">{isRtl ? 'وضعیت نهایی' : 'Final Status'}</th>
                         <th className="py-2.5 text-end">{isRtl ? 'شرح و علت ثبتی تصمیم' : 'Reason Stated'}</th>
@@ -1678,7 +1678,7 @@ export const AdminControlPanel: React.FC = () => {
                 <div className="lg:col-span-5 bg-white dark:bg-slate-950 border border-gray-150 dark:border-slate-800 p-6 rounded-3xl space-y-4">
                   <h4 className="text-sm font-black text-gray-800 dark:text-white pb-3 border-b border-gray-150 dark:border-slate-800 flex items-center gap-2">
                     <BookOpen className="w-4 h-4 text-[#26B6B6]" />
-                    <span>{isRtl ? 'سند استانداردهای کیفی ممیزی داخلی' : 'Internal Revit/BIM QA Standards'}</span>
+                    <span>{isRtl ? 'سند استانداردهای کیفی ارزیابی داخلی' : 'Internal Revit/BIM QA Standards'}</span>
                   </h4>
 
                   <div className="space-y-2">
@@ -1766,7 +1766,7 @@ export const AdminControlPanel: React.FC = () => {
                                 <button
                                   onClick={() => {
                                     const nextApprove = obj.status === 'Rejected';
-                                    const r = prompt(isRtl ? 'شرح پرونده ارزیابی و علت وتوی حکم ممیز:' : 'Explain the technical justification for overriding this decision:');
+                                    const r = prompt(isRtl ? 'شرح پرونده ارزیابی و علت وتوی حکم ارزیاب:' : 'Explain the technical justification for overriding this decision:');
                                     if (r) {
                                       handleOverrideReviewDecision(obj.id, nextApprove, r);
                                     }
@@ -1797,11 +1797,11 @@ export const AdminControlPanel: React.FC = () => {
                 <AlertCircle className="w-5 h-5 text-[#26B6B6] flex-shrink-0 mt-0.5" />
                 <div>
                   <h4 className="text-xs font-black text-indigo-950 dark:text-indigo-200">
-                    {isRtl ? 'دستورالعمل نظارتی ممیزان فنی ایران‌بیم‌هاب' : 'Official Quality Assurance Checklist'}
+                    {isRtl ? 'دستورالعمل نظارتی ارزیابان فنی ایران‌بیم‌هاب' : 'Official Quality Assurance Checklist'}
                   </h4>
                   <p className="text-[10px] text-indigo-800 dark:text-indigo-400 leading-relaxed font-light mt-1">
                     {isRtl 
-                      ? 'ممیزان محترم، بررسی‌های شما باید فاقد سلیقه شخصی و منطبق بر سند استانداردهای کیفی باشد. برای موارد ریجکت، ثبت دقیق علت نقص به منظور آگاهی و اصلاح سازنده الزامی است.' 
+                      ? 'ارزیابان محترم، بررسی‌های شما باید فاقد سلیقه شخصی و منطبق بر سند استانداردهای کیفی باشد. برای موارد ریجکت، ثبت دقیق علت نقص به منظور آگاهی و اصلاح سازنده الزامی است.' 
                       : 'Please verify family models objectively against platform requirements. Specific, constructive reasons for rejections protect integrity.'}
                   </p>
                 </div>
@@ -1904,7 +1904,7 @@ export const AdminControlPanel: React.FC = () => {
               {/* Personal Past history */}
               <div className="bg-white dark:bg-slate-950 border border-gray-150 dark:border-slate-800 p-6 rounded-3xl space-y-4">
                 <h4 className="text-sm font-black text-gray-800 dark:text-white pb-3 border-b border-gray-150 dark:border-slate-800">
-                  {isRtl ? 'سابقه ممیزی‌های گذشته شما' : 'Your Personal Past Audits History'}
+                  {isRtl ? 'سابقه ارزیابی‌های گذشته شما' : 'Your Personal Past Audits History'}
                 </h4>
 
                 <div className="overflow-x-auto">
@@ -2018,7 +2018,7 @@ export const AdminControlPanel: React.FC = () => {
                               onClick={() => handleEscalateTicket(activeTkt.id, 'Review Manager')}
                               className="px-2 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-600 dark:text-gray-300 rounded text-[9px] font-black cursor-pointer"
                             >
-                              {isRtl ? 'ارجاع به مدیر ممیزی' : 'Escalate to Review Mgr'}
+                              {isRtl ? 'ارجاع به مدیر ارزیابی' : 'Escalate to Review Mgr'}
                             </button>
                           </div>
                         </div>
@@ -2223,10 +2223,10 @@ export const AdminControlPanel: React.FC = () => {
                   <div>
                     <h4 className="text-sm font-black text-gray-800 dark:text-white flex items-center gap-2">
                       <History className="w-4 h-4 text-emerald-500" />
-                      <span>{isRtl ? 'سند دائمی و ابطال‌ناپذیر ردپای ممیزی ایران‌بیم‌هاب' : 'Platform Immutable Audit Log & Transactions Trail'}</span>
+                      <span>{isRtl ? 'سند دائمی و ابطال‌ناپذیر ردپای ارزیابی ایران‌بیم‌هاب' : 'Platform Immutable Audit Log & Transactions Trail'}</span>
                     </h4>
                     <p className="text-[10px] text-gray-400 mt-0.5">
-                      {isRtl ? 'هرگونه تایید، رد ممیزی، تغییر ادمین و وتو با شناسه ادمین، زمان دقیق و ادله فنی جهت تضمین اصل پاسخگویی ثبت می‌گردد.' : 'Every approval, override, role modification, or credential deactivation is permanently recorded below.'}
+                      {isRtl ? 'هرگونه تایید، رد ارزیابی، تغییر ادمین و وتو با شناسه ادمین، زمان دقیق و ادله فنی جهت تضمین اصل پاسخگویی ثبت می‌گردد.' : 'Every approval, override, role modification, or credential deactivation is permanently recorded below.'}
                     </p>
                   </div>
 

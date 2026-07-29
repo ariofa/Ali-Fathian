@@ -408,7 +408,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
             </h1>
             <p className="text-xs sm:text-sm text-gray-300 font-light leading-relaxed">
               {isRtl 
-                ? 'مهندسان مشاور و نمایندگان کارخانجات می‌توانند درخواست‌های ممیزی، تبدیل فایل و همکاری‌های سازمانی را از طریق ارسال تیکت مستقیم پیگیری نمایند.'
+                ? 'مهندسان مشاور و نمایندگان کارخانجات می‌توانند درخواست‌های ارزیابی، تبدیل فایل و همکاری‌های سازمانی را از طریق ارسال تیکت مستقیم پیگیری نمایند.'
                 : 'Consulting engineers and industrial factory reps can coordinate files conversion, validation audits, and B2B alliances via our direct ticketing system.'
               }
             </p>

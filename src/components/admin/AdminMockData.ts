@@ -114,11 +114,11 @@ export const SEEDED_AUDIT_LOGS: AuditLogEntry[] = [
     timestamp: '1405/04/14 10:05',
     adminName: 'امیر محسنی',
     adminRole: 'Review Team Manager',
-    action: 'تغییر ممیز شیء بیم',
+    action: 'تغییر ارزیاب شیء بیم',
     targetType: 'BIM Object Assignment',
     targetName: 'چیلر تراکمی سانتریفیوژ ۱۰۰ تن',
     reason: 'سهراب سپهری مرخصی بود و کار فوری معمار پروژه نیاز داشت.',
-    details: 'انتقال پرونده بررسی به ممیز نیما یوشیج جهت تسریع در فرآیند.'
+    details: 'انتقال پرونده بررسی به ارزیاب نیما یوشیج جهت تسریع در فرآیند.'
   },
   {
     id: 'log-5',

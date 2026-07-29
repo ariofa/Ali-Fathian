@@ -82,7 +82,7 @@ export const PaymentView: React.FC<PaymentViewProps> = ({
         'پشتیبانی از تمامی فرمت‌های مدل سه‌بعدی (Revit, IFC, DWG)',
         'دسترسی به داشبورد آنالیز و پایش هفتگی ترافیک کالا',
         'دریافت سرنخ‌های فروش (Leads) و پیام مستقیم طراحان',
-        'نشان ممیزی شده درجه ۲ (Silver Verified Provider)'
+        'نشان ارزیابی شده درجه ۲ (Silver Verified Provider)'
       ],
       featuresEn: [
         'Catalog hosting up to 30 products (SKUs)',
@@ -110,7 +110,7 @@ export const PaymentView: React.FC<PaymentViewProps> = ({
         'مدلسازی سه‌بعدی اختصاصی محصولات توسط مهندسان ما',
         'داشبورد آنالیز پیشرفته پیش‌بینی‌کننده لحظه‌ای ترافیک کالا',
         'سیستم هماهنگ‌سازی سرنخ‌ها با سیستم CRM سازمانی کارخانه',
-        'نشان ویژه ممیزی طلایی (Gold Verified Provider SLA)'
+        'نشان ویژه ارزیابی طلایی (Gold Verified Provider SLA)'
       ],
       featuresEn: [
         'Unlimited SKU uploads in the catalog',

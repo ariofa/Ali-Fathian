@@ -141,7 +141,7 @@ export const PrivacyPolicyView: React.FC<PrivacyPolicyViewProps> = ({ onNavigate
                     <strong className="text-gray-800 dark:text-white font-bold">اطلاعات حساب کاربری:</strong> نام و نام خانوادگی، نشانی ایمیل معتبر، شماره تلفن همراه، رمز عبور به صورت رمزنگاری‌شده برگشت‌ناپذیر.
                   </li>
                   <li>
-                    <strong className="text-gray-800 dark:text-white font-bold">برای حساب‌های تولیدکننده:</strong> نام رسمی شرکت، اسناد هویتی شرکتی و مدارک ثبتی/مجوز کسب‌وکار، اطلاعات تماس اداری و مالی شرکت جهت ممیزی و ارزیابی اصالت برند.
+                    <strong className="text-gray-800 dark:text-white font-bold">برای حساب‌های تولیدکننده:</strong> نام رسمی شرکت، اسناد هویتی شرکتی و مدارک ثبتی/مجوز کسب‌وکار، اطلاعات تماس اداری و مالی شرکت جهت ارزیابی و ارزیابی اصالت برند.
                   </li>
                   <li>
                     <strong className="text-gray-800 dark:text-white font-bold">اطلاعات استفاده از پلتفرم:</strong> تاریخچه جستجوهای پارامتریک، دسته‌بندی‌های مورد بازدید، تاریخچه دقیق دانلود فایل‌ها به منظور مدیریت سقف مجاز دانلود روزانه.

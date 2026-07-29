@@ -66,7 +66,7 @@ const STATUS_OPTIONS: { value: ManufacturerLeadStatus; fa: string; en: string }[
   { value: 'waiting_files', fa: 'در انتظار کاتالوگ اولیه', en: 'Waiting for Initial Catalog' },
   { value: 'has_bim_ready', fa: 'فایل BIM آماده دارد؛ ارجاع به پنل برند', en: 'Has BIM Files — Send to Brand Panel' },
   { value: 'needs_bim_creation', fa: 'نیازمند مشاوره ساخت آبجکت BIM', en: 'Needs BIM Creation Consultation' },
-  { value: 'technical_review', fa: 'مسیر ممیزی و هزینه توضیح داده شد', en: 'Audit Path & Fee Explained' },
+  { value: 'technical_review', fa: 'مسیر ارزیابی و هزینه توضیح داده شد', en: 'Audit Path & Fee Explained' },
   { value: 'ready_to_publish', fa: 'آماده ساخت پروفایل برند', en: 'Ready for Brand Profile' },
   { value: 'published', fa: 'پیگیری انجام شد / ثبت‌نام رسمی', en: 'Follow-up Done / Official Signup' },
   { value: 'rejected', fa: 'نامرتبط / رد شده', en: 'Irrelevant / Rejected' }
@@ -373,7 +373,7 @@ export const ManufacturerLeadsAdminView: React.FC = () => {
                       <ShieldCheck className="w-5 h-5 text-[#26B6B6] shrink-0 mt-0.5" />
                       <p className="text-xs text-cyan-900 dark:text-cyan-100 leading-relaxed">
                         {isRtl
-                          ? 'این تولیدکننده اعلام کرده فایل BIM آماده دارد. مسیر پیشنهادی: ساخت پروفایل برند، آپلود رسمی در پنل تولیدکننده، پرداخت هزینه ممیزی، بررسی توسط کارشناس، گزارش اصلاحات و حداکثر ۳ نوبت بازبینی همان فایل.'
+                          ? 'این تولیدکننده اعلام کرده فایل BIM آماده دارد. مسیر پیشنهادی: ساخت پروفایل برند، آپلود رسمی در پنل تولیدکننده، پرداخت هزینه ارزیابی، بررسی توسط کارشناس، گزارش اصلاحات و حداکثر ۳ نوبت بازبینی همان فایل.'
                           : 'This manufacturer says they have ready BIM files. Recommended path: create brand profile, official upload in manufacturer panel, audit fee, specialist review, correction report and up to 3 re-reviews of the same file.'
                         }
                       </p>
@@ -436,7 +436,7 @@ export const ManufacturerLeadsAdminView: React.FC = () => {
                       <input
                         value={notesById[lead.id] || ''}
                         onChange={(event) => setNotesById(prev => ({ ...prev, [lead.id]: event.target.value }))}
-                        placeholder={isRtl ? 'مثلاً: فایل آماده دارد؛ هزینه و مسیر ممیزی توضیح داده شود و به ثبت‌نام رسمی هدایت شود.' : 'Example: Has ready file; explain audit cost/path and route to official signup.'}
+                        placeholder={isRtl ? 'مثلاً: فایل آماده دارد؛ هزینه و مسیر ارزیابی توضیح داده شود و به ثبت‌نام رسمی هدایت شود.' : 'Example: Has ready file; explain audit cost/path and route to official signup.'}
                         className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-xs outline-none"
                       />
                     </div>

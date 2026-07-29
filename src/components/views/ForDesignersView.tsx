@@ -91,7 +91,7 @@ export const ForDesignersView: React.FC<ForDesignersViewProps> = ({
     {
       qFa: 'آیا آبجکت‌ها منطبق با استانداردهای ملی و اجرایی ایران هستند؟',
       qEn: 'Are objects compliant with Iranian building standards?',
-      aFa: 'بله. کاتالوگ‌های دیجیتال برندها قبل از انتشار عمومی توسط تیم ممیزی فنی ما ارزیابی می‌شوند تا با پارامترهای مقررات ملی ساختمان (مانند عایق‌بندی حرارتی مبحث ۱۹ و کدهای حریق) مطابقت کامل داشته باشند.',
+      aFa: 'بله. کاتالوگ‌های دیجیتال برندها قبل از انتشار عمومی توسط تیم ارزیابی فنی ما ارزیابی می‌شوند تا با پارامترهای مقررات ملی ساختمان (مانند عایق‌بندی حرارتی مبحث ۱۹ و کدهای حریق) مطابقت کامل داشته باشند.',
       aEn: 'Yes. Digital catalogs undergo rigorous QA checks by our engineering team to ensure alignment with national building codes (e.g., thermal performance Section 19 and safety standards).'
     }
   ];
@@ -480,7 +480,7 @@ export const ForDesignersView: React.FC<ForDesignersViewProps> = ({
                     <li className="flex items-center gap-2">✓ {isRtl ? 'دانلود ۵ فایل در روز' : '5 downloads per day'}</li>
                     <li className="flex items-center gap-2">✓ {isRtl ? 'سازماندهی در پوشه پیش‌فرض' : 'Single default folder'}</li>
                     <li className="flex items-center gap-2">✓ {isRtl ? 'لیست علاقه‌مندی ساده' : 'Basic bookmark list'}</li>
-                    <li className="flex items-center gap-2 text-gray-400">✕ {isRtl ? 'بدون پشتیبانی ممیزی فنی ممتاز' : 'No priority support'}</li>
+                    <li className="flex items-center gap-2 text-gray-400">✕ {isRtl ? 'بدون پشتیبانی ارزیابی فنی ممتاز' : 'No priority support'}</li>
                   </ul>
                   <button
                     onClick={handleStartFree}
