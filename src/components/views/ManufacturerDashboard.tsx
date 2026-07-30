@@ -1325,9 +1325,35 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
 
   const handleSaveBrandInfo = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    const normalizedEmail = (brandInfo.email || '').trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!normalizedEmail) {
+      alert(isRtl
+        ? 'برای تکمیل پروفایل برند، ثبت ایمیل رسمی شرکت الزامی است.'
+        : 'Official company email is required to complete the brand profile.'
+      );
+      return;
+    }
+
+    if (!emailRegex.test(normalizedEmail)) {
+      alert(isRtl
+        ? 'لطفاً یک ایمیل رسمی معتبر برای شرکت وارد کنید.'
+        : 'Please enter a valid official company email.'
+      );
+      return;
+    }
+
+    const profileToSave = {
+      ...brandInfo,
+      email: normalizedEmail,
+      emailVerificationStatus: (brandInfo as any).emailVerificationStatus || 'pending'
+    };
+
     try {
-      localStorage.setItem('iranbimhub_mfg_profile', JSON.stringify(brandInfo));
-      localStorage.setItem('iranbimhub_mfg_profile_m1', JSON.stringify(brandInfo));
+      localStorage.setItem('iranbimhub_mfg_profile', JSON.stringify(profileToSave));
+      localStorage.setItem('iranbimhub_mfg_profile_m1', JSON.stringify(profileToSave));
+      setBrandInfo(profileToSave);
       window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
       alert(isRtl 
         ? 'اطلاعات برند با موفقیت ذخیره شد و در صفحه عمومی برند به‌روزرسانی گردید.' 
@@ -2386,7 +2412,10 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[11px] font-bold text-gray-400 block">{isRtl ? 'پست الکترونیکی (ایمیل)' : 'Official Email'}</label>
+                      <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 flex items-center justify-between gap-2">
+                        <span>{isRtl ? 'ایمیل رسمی شرکت *' : 'Official Company Email *'}</span>
+                        <span className="text-[9px] bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-300 px-2 py-0.5 rounded-full font-black">{isRtl ? 'الزامی' : 'Required'}</span>
+                      </label>
                       <input 
                         type="email" 
                         value={brandInfo.email || ''}
@@ -2394,6 +2423,12 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                         placeholder="info@example.com"
                         className="w-full text-xs p-3 border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl focus:outline-none font-mono"
                       />
+                      <p className="text-[10px] text-gray-400 leading-relaxed mt-1">
+                        {isRtl
+                          ? 'برای ارسال فاکتورهای رسمی، دریافت پیام‌های مشتریان بالقوه، اعلان‌های واحد ارزیابی و اطلاع‌رسانی‌های مهم پلتفرم، ثبت ایمیل رسمی شرکت الزامی است. در نسخه نهایی، این ایمیل با لینک تأیید ایمیلی فعال خواهد شد.'
+                          : 'An official company email is required for formal invoices, potential customer messages, evaluation team notifications, and important platform updates. In production, this email will be activated through an email verification link.'
+                        }
+                      </p>
                     </div>
                   </div>
 

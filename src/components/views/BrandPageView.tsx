@@ -852,12 +852,12 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
           </div>
           <div className="space-y-2">
             <h1 className="text-xl font-black text-gray-900 dark:text-white">
-              {isRtl ? 'این برند هنوز برای نمایش عمومی تأیید نشده است' : 'This brand is not approved for public display yet'}
+              {isRtl ? 'این برند هنوز توسط تیم ایران‌بیم‌هاب ارزیابی و تأیید نشده است' : 'This brand has not yet been evaluated and approved by IranBIMhub'}
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
               {isRtl
-                ? 'ایران‌بیم‌هاب برای حفاظت از اصالت برندها، صفحه برند را فقط پس از تأیید مدارک رسمی توسط واحد ارزیابی عمومی می‌کند.'
-                : 'To protect brand authenticity, IranBIMhub publishes brand pages only after official documents are approved by the evaluation team.'
+                ? 'برای حفاظت از هویت و اصالت برندها، صفحه برند تنها پس از بررسی مدارک رسمی و تأیید واحد ارزیابی ایران‌بیم‌هاب منتشر می‌شود.'
+                : 'To protect brand identity and authenticity, brand pages are published only after official documents are reviewed and approved by the IranBIMhub evaluation team.'
               }
             </p>
           </div>
@@ -985,8 +985,8 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
                 </h3>
                 <p className="text-xs leading-relaxed">
                   {isRtl
-                    ? 'این صفحه فعلاً فقط برای شما و ادمین‌های ایران‌بیم‌هاب قابل مشاهده است. پس از تأیید مدارک رسمی توسط واحد ارزیابی، صفحه برند برای عموم منتشر می‌شود.'
-                    : 'This page is currently visible only to you and IranBIMhub admins. After official documents are approved by the evaluation team, the brand page becomes public.'
+                    ? 'این برند هنوز توسط تیم ایران‌بیم‌هاب ارزیابی و تأیید نشده است. این صفحه فعلاً فقط برای شما و ادمین‌های سایت قابل مشاهده است.'
+                    : 'This brand has not yet been evaluated and approved by IranBIMhub. This page is currently visible only to you and site admins.'
                   }
                 </p>
               </div>

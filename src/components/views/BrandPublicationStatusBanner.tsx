@@ -53,10 +53,10 @@ const getStatusMeta = (status: string, isRtl: boolean) => {
     default:
       return {
         icon: <ShieldCheck className="w-5 h-5 text-[#26B6B6]" />,
-        title: isRtl ? 'صفحه برند شما هنوز عمومی نشده است' : 'Your brand page is not public yet',
+        title: isRtl ? 'حفاظت از هویت رسمی برند شما، اولویت ایران‌بیم‌هاب است' : 'Protecting your official brand identity is an IranBIMhub priority',
         desc: isRtl
-          ? 'ما از اصالت برند شما محافظت می‌کنیم. برای انتشار عمومی صفحه برند و محصولات، ابتدا مدارک رسمی شرکت یا نمایندگی را تکمیل و برای واحد ارزیابی ارسال کنید.'
-          : 'We protect your brand authenticity. To publish your brand and products publicly, first complete official company or representation documents for evaluation.',
+          ? 'صفحه برند شما هنوز عمومی نشده است. برای انتشار عمومی صفحه برند و محصولات، ابتدا مدارک رسمی شرکت یا نمایندگی را تکمیل و برای واحد ارزیابی ارسال کنید.'
+          : 'Your brand page is not public yet. To publish your brand and products publicly, first complete official company or representation documents for evaluation.',
         className: 'bg-[#26B6B6]/5 border-[#26B6B6]/15 text-gray-800 dark:text-gray-100',
         cta: isRtl ? 'تکمیل مدارک برند' : 'Complete Brand Documents'
       };
