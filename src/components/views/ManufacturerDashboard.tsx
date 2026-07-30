@@ -3,6 +3,7 @@ import { useLanguage } from '../LanguageContext';
 import { CATEGORIES, MANUFACTURERS, BIM_OBJECTS } from '../../data';
 import { BIMObject } from '../../types';
 import { ManufacturerAnalyticsView } from './ManufacturerAnalyticsView';
+import { BrandOwnershipVerificationPanel } from './BrandOwnershipVerificationPanel';
 import { parseVideoEmbedUrl } from '../../lib/videoUtils';
 import { 
   BarChart3, 
@@ -323,6 +324,47 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
       ]
     };
   });
+
+  useEffect(() => {
+    const syncBrandProfileFromStorage = () => {
+      try {
+        const saved = localStorage.getItem('iranbimhub_mfg_profile') || localStorage.getItem('iranbimhub_mfg_profile_m1');
+        if (!saved) return;
+
+        const parsed = JSON.parse(saved) as any;
+        setBrandInfo((prev: any) => ({
+          ...prev,
+          ...parsed,
+          officialDocs: {
+            ...(prev.officialDocs || {}),
+            ...(parsed.officialDocs || {})
+          },
+          verificationDocs: parsed.verificationDocs || prev.verificationDocs || [],
+          brandEvaluationMessages: parsed.brandEvaluationMessages || prev.brandEvaluationMessages || []
+        }));
+      } catch (error) {
+        console.error('Failed to sync manufacturer profile from storage:', error);
+      }
+    };
+
+    const handleStorage = (event: StorageEvent) => {
+      if (!event.key || [
+        'iranbimhub_mfg_profile',
+        'iranbimhub_mfg_profile_m1',
+        'iranbimhub_brand_profile_last_admin_message'
+      ].includes(event.key)) {
+        syncBrandProfileFromStorage();
+      }
+    };
+
+    window.addEventListener('iranbimhub_brand_profile_updated', syncBrandProfileFromStorage);
+    window.addEventListener('storage', handleStorage);
+
+    return () => {
+      window.removeEventListener('iranbimhub_brand_profile_updated', syncBrandProfileFromStorage);
+      window.removeEventListener('storage', handleStorage);
+    };
+  }, []);
 
   // Verification document state updates
   const [newDocName, setNewDocName] = useState('');
@@ -2077,6 +2119,11 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                   </p>
                 </div>
 
+            <BrandOwnershipVerificationPanel
+              brandInfo={brandInfo}
+              setBrandInfo={setBrandInfo}
+            />
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
               {/* Left Column: Logos & Covers previews */}
               <div className="space-y-6">
@@ -2633,345 +2680,6 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* FULL WIDTH SECTION 1: Verification Documents Upload */}
-            <div className="border-t border-gray-100 dark:border-gray-800 pt-8 mt-8 space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div className="space-y-0.5 text-start">
-                  <h4 className="text-xs font-bold text-gray-700 dark:text-gray-200">
-                    {isRtl ? 'اسناد رسمی و مدارک احراز صلاحیت کارخانه' : 'Official Credentials & Verification Docs'}
-                  </h4>
-                  <p className="text-[10.5px] text-gray-400">
-                    {isRtl ? 'جهت بررسی هویت حقوقی، تایید برند و صدور دسترسی انتشار فایل‌ها.' : 'For corporate identity verification, brand approval, and BIM catalog release permissions.'}
-                  </p>
-                </div>
-
-                {/* Guidelines Tooltip Button */}
-                <div className="relative group cursor-help self-start sm:self-auto shrink-0">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 dark:bg-gray-800 border border-slate-200 dark:border-gray-700 text-slate-600 dark:text-slate-300 rounded-xl text-[10.5px] font-bold hover:bg-slate-100 transition-all select-none">
-                    <HelpCircle className="w-3.5 h-3.5 text-[#26B6B6]" />
-                    <span>{isRtl ? 'راهنمای بارگذاری مدارک' : 'Document Guidelines'}</span>
-                  </span>
-                  <div className="absolute bottom-full right-0 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 mb-2 hidden group-hover:block w-72 p-3.5 bg-slate-900/95 dark:bg-gray-950 border border-slate-800 text-white text-[10.5px] rounded-2xl shadow-xl z-50 leading-relaxed font-normal">
-                    <div className="font-extrabold text-[#26B6B6] mb-1">{isRtl ? 'ضوابط پذیرش اسناد رسمی:' : 'Acceptable Document Guidelines:'}</div>
-                    <p>{isRtl ? '• فرمت مجاز: PDF یا تصاویر اسکن‌شده با فرمت JPG یا PNG' : '• Formats: PDF or high-resolution JPG / PNG scans'}</p>
-                    <p>{isRtl ? '• حداکثر حجم مجاز: ۵ مگابایت برای هر مدرک' : '• Max size: 5MB per document'}</p>
-                    <p>{isRtl ? '• تصویر یا اسکن مدرک ارسالی باید کاملاً خوانا، بدون خط‌خوردگی و با حاشیه کامل باشد.' : '• Scans must be fully legible, uncropped, and free of physical damage.'}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-6 w-full">
-                {brandInfo.verificationDocs.map(doc => (
-                  <div key={doc.id} className="p-5 sm:p-6 bg-slate-50 dark:bg-gray-950/40 border border-slate-100 dark:border-gray-800 rounded-2xl space-y-5 text-xs transition-all w-full shadow-2xs hover:shadow-xs">
-                    {/* Hidden File Input just for this doc */}
-                    <input 
-                      type="file" 
-                      id={`file-input-${doc.id}`}
-                      accept=".pdf,image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) return;
-                        const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
-                        if (!allowedTypes.includes(file.type)) {
-                          alert(isRtl ? 'خطا: فرمت فایل غیرمجاز است. تنها فایل‌های PDF و تصاویر (JPG/PNG) پذیرفته می‌شوند.' : 'Error: Unsupported format. Only PDF and image files (JPG/PNG) are accepted.');
-                          return;
-                        }
-                        if (file.size > 5 * 1024 * 1024) {
-                          alert(isRtl ? 'خطا: حجم فایل نباید بیشتر از ۵ مگابایت باشد.' : 'Error: File size must not exceed 5MB.');
-                          return;
-                        }
-                        const localUrl = URL.createObjectURL(file);
-                        handleUpdateDocumentDetails(doc.id, {
-                          fileName: file.name,
-                          fileUrl: localUrl,
-                          date: isRtl ? '۱۴۰۵/۰۴/۰۱' : '2026-07-01'
-                        });
-                        alert(isRtl ? `فایل ${file.name} با موفقیت پیوست شد و وضعیت سند به در حال بررسی تغییر یافت.` : `File ${file.name} attached successfully. Status set to Pending review.`);
-                      }}
-                    />
-
-                    {/* Top Info Header */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-gray-100/60 dark:border-gray-800/60">
-                      <div className="flex items-start gap-2.5">
-                        <div className="p-2 bg-slate-100 dark:bg-gray-800 text-[#26B6B6] rounded-xl shrink-0 mt-0.5">
-                          <FileText className="w-4 h-4" />
-                        </div>
-                        <div className="text-start">
-                          <h5 className="font-extrabold text-gray-800 dark:text-gray-100">
-                            {isRtl ? doc.nameFa : doc.nameEn}
-                          </h5>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-[10px] text-gray-400 font-mono flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              <span>{doc.date}</span>
-                            </span>
-                            {doc.isGazette && (
-                              <span className="text-[9px] bg-sky-500/10 text-sky-600 dark:text-sky-400 px-2 py-0.5 rounded-full font-bold">
-                                {isRtl ? 'مدرک پایه الزامی' : 'Required Prerequisite'}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Status Badge */}
-                      <div className="flex items-center gap-2 self-end sm:self-auto">
-                        <span className={`text-[10px] font-extrabold px-3 py-1 rounded-full ${
-                          doc.status === 'Verified' 
-                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' 
-                            : doc.status === 'Rejected'
-                            ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 font-black'
-                            : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold'
-                        }`}>
-                          {doc.status === 'Verified' ? (isRtl ? 'تایید شده ✓' : 'Verified ✓') : 
-                           doc.status === 'Rejected' ? (isRtl ? 'رد شده ✗' : 'Rejected ✗') : 
-                           (isRtl ? 'در انتظار تایید ⏳' : 'Pending Review ⏳')}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Special Explanation Row for Official Gazette */}
-                    {doc.isGazette && (
-                      <div className="p-3 bg-sky-500/5 border border-sky-100 dark:border-sky-950/40 rounded-xl text-start">
-                        <p className="text-[10.5px] text-sky-700/90 dark:text-sky-400 font-light leading-relaxed">
-                          {isRtl 
-                            ? 'ℹ️ آگهی رسمی ثبت شرکت که در روزنامه رسمی کشور منتشر شده است.' 
-                            : 'ℹ️ The official company registration notice published in the national Official Gazette.'}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Custom Rejection Reason Alert Box */}
-                    {doc.status === 'Rejected' && (
-                      <div className="p-3.5 bg-rose-500/5 border border-rose-100 dark:border-rose-950/40 rounded-xl text-start space-y-1">
-                        <div className="text-[11px] font-extrabold text-rose-700 dark:text-rose-400 flex items-center gap-1.5">
-                          <span>⚠️ {isRtl ? 'علت رد صلاحیت سند تجاری:' : 'Rejection Reason Details:'}</span>
-                        </div>
-                        <p className="text-[10.5px] text-rose-600 dark:text-rose-400/90 leading-relaxed font-light">
-                          {isRtl ? (doc.rejectionReasonFa || 'اعتبار زمانی سند منقضی شده است یا کیفیت تصویر خوانا نیست.') : (doc.rejectionReasonEn || 'The quality of the upload is insufficient or the credential period has expired.')}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Custom VAT Expiry Warning Alert Box */}
-                    {doc.id === 'doc-3' && (
-                      <div className="p-3 bg-amber-500/5 border border-amber-100 dark:border-amber-950/40 rounded-xl text-start space-y-0.5">
-                        <p className="text-[10.5px] text-amber-700 dark:text-amber-400 font-medium">
-                          {isRtl 
-                            ? '🔔 زمان تمدید یا ارزیابی سالانه این سند فرا رسیده است. لطفاً فایل معتبر جدید را ارسال فرمایید.' 
-                            : '🔔 Annual renewal/auditing period has arrived. Please upload your updated certificate.'}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* File Details & Inline Inputs */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-                      {/* Left Details: Attached File info */}
-                      <div className="space-y-2 text-start flex flex-col justify-center">
-                        <span className="text-[10.5px] font-bold text-gray-400 block">{isRtl ? 'فایل ضمیمه‌شده:' : 'Attached File:'}</span>
-                        {doc.fileName ? (
-                          <div className="p-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-2 truncate">
-                              <FileText className="w-4 h-4 text-[#26B6B6] shrink-0" />
-                              <span className="text-[10.5px] text-gray-700 dark:text-gray-300 font-mono truncate">{doc.fileName}</span>
-                            </div>
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              {doc.fileUrl && (
-                                <a 
-                                  href={doc.fileUrl} 
-                                  target="_blank" 
-                                  rel="noreferrer" 
-                                  className="p-1.5 text-gray-400 hover:text-[#26B6B6] transition-colors"
-                                  title={isRtl ? 'مشاهده سند' : 'View Document'}
-                                >
-                                  <ExternalLink className="w-3.5 h-3.5" />
-                                </a>
-                              )}
-                              <button
-                                type="button"
-                                onClick={() => handleUpdateDocumentDetails(doc.id, { fileName: '', fileUrl: '' })}
-                                className="p-1.5 text-gray-400 hover:text-rose-500 transition-colors cursor-pointer"
-                                title={isRtl ? 'حذف فایل' : 'Delete File'}
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="py-3 px-4 bg-slate-100/50 dark:bg-gray-900/50 border border-dashed border-gray-200 dark:border-gray-800 rounded-xl text-center text-gray-400 text-[10.5px]">
-                            {isRtl ? 'فایلی بارگذاری نشده است.' : 'No file attached yet.'}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Right Details: Inline Description & Lookup URL fields */}
-                      <div className="space-y-2 text-start">
-                        <span className="text-[10.5px] font-bold text-gray-400 block">{isRtl ? 'اطلاعات تکمیلی:' : 'Supplementary Details:'}</span>
-                        <div className="space-y-2">
-                          <input 
-                            type="text"
-                            placeholder={isRtl ? 'آدرس اینترنتی استعلام مدرک (اختیاری)...' : 'Verification lookup URL (optional)...'}
-                            value={doc.url || ''}
-                            onChange={(e) => handleUpdateDocumentDetails(doc.id, { url: e.target.value })}
-                            className="w-full text-[10.5px] p-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl focus:outline-none"
-                          />
-                          <input 
-                            type="text"
-                            placeholder={isRtl ? 'توضیحات کوتاه یا یادداشت...' : 'Short description or notes...'}
-                            value={doc.description || ''}
-                            onChange={(e) => handleUpdateDocumentDetails(doc.id, { description: e.target.value })}
-                            className="w-full text-[10.5px] p-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl focus:outline-none"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Row action: Trigger file picker & Permanent Delete */}
-                    <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-2 border-t border-gray-100/60 dark:border-gray-800/60">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleDeleteDoc(doc.id);
-                        }}
-                        className="bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-950/30 dark:hover:bg-rose-900/50 dark:text-rose-400 text-[10.5px] font-extrabold px-3.5 py-2 rounded-xl cursor-pointer flex items-center justify-center gap-1.5 transition-all"
-                      >
-                        <Trash2 className="w-3.5 h-3.5 shrink-0" />
-                        <span>{isRtl ? 'حذف دائمی مدرک' : 'Permanent Delete'}</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => document.getElementById(`file-input-${doc.id}`)?.click()}
-                        className="bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800 text-slate-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 text-[10.5px] font-extrabold px-3.5 py-2 rounded-xl cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs transition-all hover:scale-102"
-                      >
-                        <Upload className="w-3.5 h-3.5 text-[#26B6B6] shrink-0" />
-                        <span>{doc.fileName ? (isRtl ? 'جایگزینی فایل ضمیمه' : 'Replace File') : (isRtl ? 'بارگذاری فایل ضمیمه' : 'Upload File')}</span>
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Add New Custom Document */}
-              <div className="bg-[#26B6B6]/5 border border-[#26B6B6]/15 rounded-2xl p-4.5 space-y-3 text-start">
-                <h5 className="text-[11px] font-extrabold text-[#26B6B6]">
-                  {isRtl ? '＋ افزودن سند یا مدرک جدید' : '＋ Add New Credential or Document'}
-                </h5>
-                <form onSubmit={handleVerifyDocumentSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <input 
-                      type="text" 
-                      required
-                      placeholder={isRtl ? 'نام سند رسمی (مثلاً: پروانه کسب، گواهی ثبت برند)' : 'Legal document name (e.g. Trademark Cert)'}
-                      value={newDocName}
-                      onChange={(e) => setNewDocName(e.target.value)}
-                      className="w-full text-[10.5px] p-2.5 bg-white dark:bg-gray-900 border border-gray-200/60 dark:border-gray-800 rounded-xl focus:outline-none"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <input 
-                      type="text" 
-                      placeholder={isRtl ? 'لینک استعلام اینترنتی مدرک (اختیاری)' : 'Lookup verification URL (optional)'}
-                      value={newDocUrl}
-                      onChange={(e) => setNewDocUrl(e.target.value)}
-                      className="w-full text-[10.5px] p-2.5 bg-white dark:bg-gray-900 border border-gray-200/60 dark:border-gray-800 rounded-xl focus:outline-none"
-                    />
-                  </div>
-                  <div className="sm:col-span-2 space-y-1">
-                    <textarea 
-                      rows={1}
-                      placeholder={isRtl ? 'توضیحات کوتاه یا یادداشت مربوط به سند ارسالی...' : 'Short description or notes...'}
-                      value={newDocDesc}
-                      onChange={(e) => setNewDocDesc(e.target.value)}
-                      className="w-full text-[10.5px] p-2.5 bg-white dark:bg-gray-900 border border-gray-200/60 dark:border-gray-800 rounded-xl focus:outline-none resize-none"
-                    />
-                  </div>
-
-                  {/* Attach File for New Doc Form */}
-                  <div className="sm:col-span-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
-                    <div className="flex items-center gap-2">
-                      <input 
-                        type="file" 
-                        id="new-doc-file-picker"
-                        accept=".pdf,image/*"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (!file) return;
-                          if (file.size > 5 * 1024 * 1024) {
-                            alert(isRtl ? 'خطا: حجم فایل نباید بیشتر از ۵ مگابایت باشد.' : 'Error: File size must not exceed 5MB.');
-                            return;
-                          }
-                          setNewDocFileName(file.name);
-                          setNewDocFileUrl(URL.createObjectURL(file));
-                        }}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => document.getElementById('new-doc-file-picker')?.click()}
-                        className="bg-white hover:bg-slate-50 dark:bg-gray-900 text-slate-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 text-[10px] font-bold px-3 py-2 rounded-lg cursor-pointer flex items-center gap-1.5"
-                      >
-                        <Upload className="w-3.5 h-3.5 text-[#26B6B6]" />
-                        <span>{newDocFileName ? (isRtl ? 'تغییر فایل ضمیمه' : 'Change Attached File') : (isRtl ? 'ضمیمه کردن فایل (PDF/عکس)' : 'Attach Document File (PDF/Image)')}</span>
-                      </button>
-                      {newDocFileName && (
-                        <span className="text-[10px] text-gray-500 font-mono truncate max-w-xs block">
-                          ✓ {newDocFileName}
-                        </span>
-                      )}
-                    </div>
-
-                    <button 
-                      type="submit" 
-                      className="bg-[#26B6B6] hover:bg-[#1e9494] text-white text-[10.5px] font-extrabold px-5 py-2.5 rounded-xl cursor-pointer shadow-xs transition-all hover:scale-102 flex items-center justify-center gap-1.5 shrink-0"
-                    >
-                      <Plus className="w-3.5 h-3.5 shrink-0" />
-                      <span>{isRtl ? 'ثبت و ارسال سند رسمی' : 'Add Legal Credential'}</span>
-                    </button>
-                  </div>
-                </form>
-              </div>
-
-              <p className="text-[10px] text-gray-400 mt-2.5">
-                {isRtl ? (
-                  <span>
-                    اطلاعات بارگذاری‌شده شما طبق ضوابط{' '}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (typeof window !== 'undefined' && (window as any).onNavigateToView) {
-                          (window as any).onNavigateToView('privacy');
-                        }
-                      }}
-                      className="text-[#26B6B6] hover:underline font-bold cursor-pointer"
-                    >
-                      سیاست حفظ حریم خصوصی
-                    </button>{' '}
-                    ایران‌بیم‌هاب به صورت کاملاً محرمانه محافظت خواهد شد.
-                  </span>
-                ) : (
-                  <span>
-                    Your corporate verification records are fully secured in compliance with our{' '}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (typeof window !== 'undefined' && (window as any).onNavigateToView) {
-                          (window as any).onNavigateToView('privacy');
-                        }
-                      }}
-                      className="text-[#26B6B6] hover:underline font-bold cursor-pointer"
-                    >
-                      Privacy Policy
-                    </button>
-                    .
-                  </span>
-                )}
-              </p>
             </div>
 
             {/* FULL WIDTH SECTION 2: LINK / REGISTER PROFESSIONAL ACCOUNT OPTION */}

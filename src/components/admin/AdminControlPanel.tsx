@@ -59,6 +59,7 @@ import {
 } from './AdminMockData';
 import { BIMModelerApplicationsAdminView } from './BIMModelerApplicationsAdminView';
 import { ManufacturerLeadsAdminView } from './ManufacturerLeadsAdminView';
+import { BrandVerificationAdminView } from './BrandVerificationAdminView';
 
 export const AdminControlPanel: React.FC = () => {
   const { isRtl } = useLanguage();
@@ -1334,6 +1335,13 @@ export const AdminControlPanel: React.FC = () => {
           {/* ==================== TAB 2: MANUFACTURER VERIFICATION & COMPLIANCE ==================== */}
           {activeTab === 'mfg-verification' && hasAccessTo('mfg-verification') && (
             <div className="space-y-6 animate-fadeIn">
+              <BrandVerificationAdminView
+                mfgProfile={mfgProfile}
+                setMfgProfile={setMfgProfile}
+                currentAdminName={currentAdmin?.name}
+                onLogAction={logAdminAction}
+              />
+
               {/* Manufacturer Request approvals queue */}
               <div className="bg-white dark:bg-slate-950 border border-gray-150 dark:border-slate-800 p-6 rounded-3xl space-y-4">
                 <div className="pb-3 border-b border-gray-150 dark:border-slate-800">
