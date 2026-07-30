@@ -555,13 +555,17 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const newestObjectsScrollRef = useRef<HTMLDivElement>(null);
 
   const scrollNewestObjects = (direction: 'left' | 'right') => {
-    if (newestObjectsScrollRef.current) {
-      const scrollAmount = 260;
-      newestObjectsScrollRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
-    }
+    const el = newestObjectsScrollRef.current;
+    if (!el) return;
+
+    const firstCard = el.querySelector('[data-newest-object-card]') as HTMLElement | null;
+    const gap = 20;
+    const scrollAmount = firstCard ? firstCard.offsetWidth + gap : Math.min(el.clientWidth * 0.85, 280);
+
+    el.scrollBy({
+      left: direction === 'left' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth'
+    });
   };
 
   // Filter suggestions based on searchQuery
@@ -974,56 +978,51 @@ export const HomeView: React.FC<HomeViewProps> = ({
               {isRtl ? 'جدیدترین آبجکت‌های منتشر شده' : 'Newest Standardized BIM Objects'}
             </h2>
             <p className="text-xs sm:text-sm text-gray-400 dark:text-gray-400 leading-relaxed font-light">
-              {isRtl 
-                ? 'آخرین مدل‌های پارامتریک تاییدشده، فمیلی‌های رویت و جزئیات فنی قطعات که به تازگی به دایرکتوری اضافه شده‌اند.' 
-                : 'Browse the latest architect-approved families, Revit models, and parametric building objects added this week.'}
+              {isRtl
+                ? 'آخرین مدل‌های پارامتریک تأییدشده، فمیلی‌های رویت و جزئیات فنی قطعات که به‌تازگی به دایرکتوری اضافه شده‌اند.'
+                : 'Browse the latest evaluated families, Revit models, and parametric building objects added to the directory.'}
             </p>
-          </div>
-
-          <div className="shrink-0 flex items-center justify-between sm:justify-end gap-3">
-            <button
-              onClick={() => {
-                onFilterChange({});
-                onNavigate('library');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className="inline-flex items-center gap-1.5 text-xs font-black text-[#26B6B6] hover:text-[#1e9494] transition-colors cursor-pointer group whitespace-nowrap"
-            >
-              <span>{isRtl ? 'مشاهده همه محصولات' : 'Explore Entire Library'}</span>
-              <ArrowRight className={`w-3.5 h-3.5 transition-transform group-hover:translate-x-1 shrink-0 ${isRtl ? 'rotate-180 group-hover:-translate-x-1' : ''}`} />
-            </button>
-
-            {/* Left/Right scroll controls */}
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => scrollNewestObjects('left')}
-                className="w-8 h-8 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-[#26B6B6] hover:border-[#26B6B6] transition-all shadow-2xs cursor-pointer"
-                aria-label="Scroll left"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => scrollNewestObjects('right')}
-                className="w-8 h-8 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-[#26B6B6] hover:border-[#26B6B6] transition-all shadow-2xs cursor-pointer"
-                aria-label="Scroll right"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
           </div>
         </div>
 
         {/* Objects Horizontally Scrollable Row */}
         <div className="relative group/newest">
+          {/* Soft edge gradients */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 sm:w-16 bg-gradient-to-r from-white dark:from-gray-950 to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 sm:w-16 bg-gradient-to-l from-white dark:from-gray-950 to-transparent" />
+
+          {/* Glass side navigation buttons */}
+          <button
+            type="button"
+            onClick={() => scrollNewestObjects('left')}
+            className="absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/75 dark:bg-gray-950/70 backdrop-blur-xl border border-white/70 dark:border-gray-800/80 shadow-lg flex items-center justify-center text-gray-700 dark:text-gray-200 hover:text-[#26B6B6] hover:border-[#26B6B6]/40 hover:bg-white/90 dark:hover:bg-gray-900/90 transition-all active:scale-95 cursor-pointer"
+            aria-label={isRtl ? 'اسکرول به چپ' : 'Scroll left'}
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => scrollNewestObjects('right')}
+            className="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/75 dark:bg-gray-950/70 backdrop-blur-xl border border-white/70 dark:border-gray-800/80 shadow-lg flex items-center justify-center text-gray-700 dark:text-gray-200 hover:text-[#26B6B6] hover:border-[#26B6B6]/40 hover:bg-white/90 dark:hover:bg-gray-900/90 transition-all active:scale-95 cursor-pointer"
+            aria-label={isRtl ? 'اسکرول به راست' : 'Scroll right'}
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+
           <div
             ref={newestObjectsScrollRef}
-            className="flex gap-3.5 sm:gap-4 md:gap-5 overflow-x-auto pb-4 pt-1 px-1 scrollbar-none snap-x snap-mandatory scroll-smooth cursor-grab active:cursor-grabbing"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            dir="ltr"
+            className="flex gap-3.5 sm:gap-4 md:gap-5 overflow-x-auto pb-4 pt-1 px-10 sm:px-12 scrollbar-none snap-x snap-mandatory scroll-smooth overscroll-x-contain [touch-action:pan-x]"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
           >
             {combinedObjects.slice(-8).reverse().map((obj) => (
-              <div key={`new-obj-${obj.id}`} className="flex-shrink-0 w-[200px] sm:w-[220px] md:w-[240px] snap-start">
+              <div
+                key={`new-obj-${obj.id}`}
+                data-newest-object-card
+                dir={isRtl ? 'rtl' : 'ltr'}
+                className="flex-shrink-0 w-[200px] sm:w-[220px] md:w-[240px] snap-center sm:snap-start"
+              >
                 <BIMObjectCard
                   object={obj}
                   isSaved={savedObjects.includes(obj.id)}
