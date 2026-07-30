@@ -39,6 +39,7 @@ import {
   Compass,
   Factory,
   Package,
+  ShieldCheck,
   Ruler,
   FolderOpen,
   DoorOpen
@@ -689,20 +690,20 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#26B6B6]/10 text-[#138f8f] dark:text-[#26B6B6] text-[10px] sm:text-xs font-black">
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>
-                  {isRtl ? 'معرفی ساده مسیر ایران‌بیم‌هاب' : 'A simple look at the IranBIMhub path'}
+                  {isRtl ? 'از معرفی محصول تا حضور در مدل ساختمان' : 'From product introduction to building model use'}
                 </span>
               </div>
 
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 dark:text-white leading-tight tracking-tight">
                 {isRtl
-                  ? 'از کاتالوگ محصول تا مدل سه‌بعدی اطلاعاتی ساختمان'
-                  : 'From Product Catalogs to Information-Rich 3D Building Models'}
+                  ? 'جایی که کاتالوگ محصول وارد طراحی و مدل‌سازی BIM ساختمان می‌شود'
+                  : 'Where product catalogs enter BIM-based building design'}
               </h2>
 
               <p className="text-xs sm:text-sm lg:text-base text-gray-500 dark:text-gray-400 leading-relaxed max-w-3xl mx-auto">
                 {isRtl
-                  ? 'ایران‌بیم‌هاب کمک می‌کند اطلاعات واقعی محصولات ساختمانی، از کاتالوگ و دیتاشیت به فایل‌های قابل استفاده در طراحی BIM تبدیل شود؛ با تأیید هویت برند، ارزیابی فایل‌ها و همکاری متخصصان مدل‌سازی.'
-                  : 'IranBIMhub helps real building product information move from catalogs and datasheets into BIM-ready files, through brand verification, file evaluation, and collaboration with modeling specialists.'
+                  ? 'ایران‌بیم‌هاب کمک می‌کند اطلاعات واقعی محصولات ساختمانی از کاتالوگ، دیتاشیت و تجربه تولیدکننده، به آبجکت‌های BIM قابل استفاده در طراحی تبدیل شود؛ مسیری که با احراز هویت برند، ارزیابی فایل و همکاری مدل‌سازان متخصص کامل می‌شود.'
+                  : 'IranBIMhub helps real building product information move from catalogs, datasheets, and manufacturer knowledge into BIM objects that can be used in design workflows, supported by brand verification, file evaluation, and specialist modelers.'
                 }
               </p>
             </div>
@@ -712,30 +713,30 @@ export const HomeView: React.FC<HomeViewProps> = ({
               {[
                 {
                   icon: <BookOpen className="w-5 h-5" />,
-                  titleFa: 'کاتالوگ‌ها برای معرفی‌اند؛ مدل‌ها برای طراحی',
-                  titleEn: 'Catalogs introduce products; models support design',
+                  titleFa: 'وقتی کاتالوگ فقط خوانده نمی‌شود',
+                  titleEn: 'When a catalog becomes more than something to read',
                   descFa:
-                    'PDF، عکس و دیتاشیت محصول برای معرفی کافی‌اند؛ اما در پروژه‌های BIM، طراح به مدلی نیاز دارد که ابعاد، مشخصات و اطلاعات فنی محصول را در خود داشته باشد.',
+                    'کاتالوگ PDF، عکس و دیتاشیت محصول برای معرفی کافی‌اند؛ اما در پروژه‌های BIM، اطلاعات محصول باید به‌صورت یک آبجکت قابل استفاده وارد مدل ساختمان شود.',
                   descEn:
-                    'PDFs, images, and datasheets are useful for introducing products, but BIM projects need objects that carry dimensions, specifications, and technical product data.'
+                    'PDF catalogs, images, and datasheets are useful for introducing products, but BIM projects need product information to become usable objects inside the building model.'
                 },
                 {
                   icon: <Package className="w-5 h-5" />,
-                  titleFa: 'محصولی که وارد مدل شود، جدی‌تر بررسی می‌شود',
-                  titleEn: 'A product inside the model is easier to evaluate',
+                  titleFa: 'محصول شما وارد تصمیم طراحی می‌شود',
+                  titleEn: 'Your product enters the design decision',
                   descFa:
-                    'وقتی محصول شما به آبجکت BIM استاندارد تبدیل شود، معمار و مهندس می‌توانند آن را در مرحله طراحی ببینند، بررسی کنند و در تصمیم‌گیری پروژه جدی‌تر در نظر بگیرند.',
+                    'وقتی محصول واقعی برند شما به آبجکت BIM استاندارد تبدیل شود، معمار و مهندس می‌توانند آن را در مرحله طراحی ببینند، مقایسه کنند و با مشخصات واقعی برند بسنجند.',
                   descEn:
-                    'When a product becomes a standard BIM object, architects and engineers can review it during design and consider it more clearly in project decisions.'
+                    'When a real product becomes a standard BIM object, architects and engineers can view, compare, and evaluate it during the design stage using real brand specifications.'
                 },
                 {
                   icon: <FileCheck2 className="w-5 h-5" />,
-                  titleFa: 'اعتماد، قبل از انتشار ساخته می‌شود',
-                  titleEn: 'Trust is built before publishing',
+                  titleFa: 'طراحی با محصول واقعی، نه مدل فرضی',
+                  titleEn: 'Design with real products, not placeholders',
                   descFa:
-                    'در ایران‌بیم‌هاب، صفحه برند و فایل‌های BIM تنها پس از بررسی مدارک رسمی، احراز هویت برند و ارزیابی تخصصی برای نمایش عمومی آماده می‌شوند.',
+                    'به‌جای مدل‌سازی حدسی یا استفاده از فایل‌های نامعتبر، طراح به آبجکت‌هایی دسترسی پیدا می‌کند که به محصول واقعی، برند مشخص و اطلاعات فنی قابل ارزیابی متصل‌اند.',
                   descEn:
-                    'On IranBIMhub, brand pages and BIM files are prepared for public display only after official documents, brand identity, and files are evaluated.'
+                    'Instead of using approximate models or unreliable files, designers can work with BIM objects connected to real products, identified brands, and reviewable technical information.'
                 }
               ].map((item, index) => (
                 <div
@@ -769,21 +770,21 @@ export const HomeView: React.FC<HomeViewProps> = ({
               ))}
             </div>
 
-            {/* Expert note */}
+            {/* Trust note */}
             <div className="rounded-2xl bg-[#26B6B6]/5 dark:bg-[#26B6B6]/10 border border-[#26B6B6]/15 p-4 sm:p-5 text-start">
               <div className="flex flex-col sm:flex-row sm:items-start gap-3">
                 <div className="w-9 h-9 rounded-xl bg-white dark:bg-gray-950 text-[#26B6B6] flex items-center justify-center shrink-0 border border-[#26B6B6]/10">
-                  <Ruler className="w-4.5 h-4.5" />
+                  <ShieldCheck className="w-4.5 h-4.5" />
                 </div>
 
                 <div className="space-y-1.5">
                   <h4 className="text-xs sm:text-sm font-black text-gray-900 dark:text-white">
-                    {isRtl ? 'برای مخاطب آشنا با BIM' : 'For BIM-aware users'}
+                    {isRtl ? 'حفاظت از هویت رسمی برندها، بخشی از مسیر انتشار است' : 'Protecting official brand identity is part of publishing'}
                   </h4>
                   <p className="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                     {isRtl
-                      ? 'در ایران‌بیم‌هاب، آبجکت BIM فقط یک مدل سه‌بعدی نیست؛ باید از نظر فرمت، دسته‌بندی، متادیتا، سطح جزئیات، حجم فایل و انطباق با مشخصات واقعی محصول قابل بررسی باشد.'
-                      : 'On IranBIMhub, a BIM object is not just a 3D model; it should be reviewable in terms of format, category, metadata, level of detail, file size, and alignment with real product specifications.'
+                      ? 'در ایران‌بیم‌هاب، صفحه برند و فایل‌های BIM پیش از نمایش عمومی باید به محصول واقعی، هویت مشخص برند و اطلاعات قابل ارزیابی متصل باشند.'
+                      : 'On IranBIMhub, brand pages and BIM files must be connected to real products, clear brand identity, and reviewable information before public display.'
                     }
                   </p>
                 </div>
