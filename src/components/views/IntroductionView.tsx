@@ -46,8 +46,8 @@ export const IntroductionView: React.FC<IntroductionViewProps> = ({ onNavigate }
           
           <p className="text-xs sm:text-sm md:text-base text-gray-300 font-light leading-relaxed max-w-3xl">
             {isRtl 
-              ? 'بزرگترین پایگاه ملی آبجکت‌های پارامتریک و کاتالوگ‌های هوشمند صنعت ساختمان ایران. ما فاصله‌ی میان نقشه‌های سه‌بعدی طراحان و زنجیره خرید فیزیکی کارفرما را با کدهای فنی و ابعاد دقیق مسطح کرده‌ایم.'
-              : 'Iran’s premium engineering portal for standard BIM objects and industrial brand catalogs. We bridge the gap between virtual design terminals and real-world procurement sheets.'
+              ? 'پایگاه ملی در حال توسعه برای آبجکت‌های پارامتریک و کاتالوگ‌های هوشمند صنعت ساختمان ایران؛ با هدف اتصال مدل‌های دیجیتال طراحان به محصولات واقعی و قابل ارزیابی.'
+              : 'IranBIMhub is a developing national platform for standard BIM objects and industrial brand catalogs, connecting digital design workflows to real product data.'
             }
           </p>
         </div>
@@ -70,15 +70,15 @@ export const IntroductionView: React.FC<IntroductionViewProps> = ({ onNavigate }
           
           <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-light leading-relaxed">
             {isRtl 
-              ? 'ایران‌بیم‌هاب (IranBIMhub) یک اکوسیستم فنی-تجاری برای مدل‌سازی اطلاعات ساختمان (BIM) است. در روش‌های سنتی، مشخصات مصالح و تجهیزات ساختمان در قالب برگه‌های کاتالوگ کاغذی یا فایل‌های PDF غیرپویا مبادله می‌شد. طراحان ناچار بودند ابعاد تقریبی را ترسیم کنند که منجر به تداخلات شدید لوله‌کشی، حریق و تاسیسات در کارگاه می‌شد.'
-              : 'IranBIMhub is a comprehensive digital asset environment. Historically, architectural component specifications were locked inside static brochures or flat PDF catalogs, forcing BIM modelers to draft approximate visual blocks. This discrepancy regularly resulted in severe on-site spatial collisions and expensive procurement modifications.'
+              ? 'ایران‌بیم‌هاب (IranBIMhub) یک پلتفرم فنی-تجاری در حال توسعه برای مدل‌سازی اطلاعات ساختمان (BIM) است. در روش‌های سنتی، مشخصات مصالح و تجهیزات ساختمان در قالب برگه‌های کاتالوگ کاغذی یا فایل‌های PDF غیرپویا مبادله می‌شد. طراحان ناچار بودند ابعاد تقریبی را ترسیم کنند که منجر به تداخلات شدید لوله‌کشی، حریق و تاسیسات در کارگاه می‌شد.'
+              : 'IranBIMhub is a technical-commercial platform under development for Building Information Modeling (BIM). Historically, building material specifications were exchanged as static paper catalogs or flat PDF files, forcing designers to draft approximate dimensions that often caused severe MEP clashes and costly on-site modifications.'
             }
           </p>
 
           <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-light leading-relaxed">
             {isRtl 
-              ? 'با ایران‌بیم‌هاب، کارخانجات صنعتی محصولات خود را به فایل‌های سه‌بعدی پارامتریک با کدگذاری فنی (مانند ابعاد دقیق، مقاومت حرارتی مبحث ۱۹، اطلاعات هیدرولیکی، و ضرایب مصرف انرژی) تبدیل می‌کنند. معماران و مهندسان با دانلود مستقیم این فایل‌ها و قراردادن آن‌ها در نرم‌افزارهای خود، طرح‌هایی ۱۰۰٪ انطباق‌پذیر با واقعیت پدید می‌آورند.'
-              : 'Through our specialized platform, manufacturers transition their catalogs into verified 3D smart components rich in spatial, mechanical, thermal, and hydraulic attributes. Architects drop these certified digital representations into their models, guaranteeing designs that are 100% compliant with actual manufacturing lines.'
+              ? 'با ایران‌بیم‌هاب، کارخانجات صنعتی محصولات خود را به فایل‌های سه‌بعدی پارامتریک با کدگذاری فنی (مانند ابعاد دقیق، مقاومت حرارتی مبحث ۱۹، اطلاعات هیدرولیکی، و ضرایب مصرف انرژی) تبدیل می‌کنند. معماران و مهندسان با دانلود مستقیم این فایل‌ها و قراردادن آن‌ها در نرم‌افزارهای خود، طرح‌هایی نزدیک‌تر به واقعیت محصول پدید می‌آورند.'
+              : 'Through our platform, manufacturers convert their products into parametric 3D files with technical parameters (such as exact dimensions, thermal resistance, hydraulic data, and energy coefficients). Architects and engineers download these files directly into their software, producing designs that are closer to real product specifications.'
             }
           </p>
 

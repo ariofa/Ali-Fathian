@@ -43,6 +43,7 @@ import {
   FolderOpen,
   DoorOpen
 } from 'lucide-react';
+import { StayConnectedBlock } from '../SocialLinks';
 
 const toPersianDigits = (num: string | number) => {
   const id = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
@@ -108,8 +109,8 @@ const SLIDE_CONFIGS = [
     badgeEn: "Iran's National BIM Ecosystem",
     headingFa: 'ایران‌بیم‌هاب، خانه صنعت ساختمان هوشمند ایران',
     headingEn: "IranBIMhub — Home of Iran's Smart Construction Industry",
-    descFa: 'جایی که مهندسان و معماران، دقیق‌ترین آبجکت‌های بیم را می‌یابند؛ و تولیدکنندگان ایرانی، محصولات خود را وارد آینده دیجیتال ساخت‌وساز می‌کنند.',
-    descEn: 'Where engineers and architects find precise BIM objects, and Iranian manufacturers step into the digital future of construction.'
+    descFa: 'جایی برای ساخت تدریجی کتابخانه‌ای قابل اعتماد از آبجکت‌های BIM محصولات واقعی ایران؛ با احراز برند، ارزیابی فایل و همکاری متخصصان BIM.',
+    descEn: 'A place to gradually build a trusted library of BIM objects for real Iranian products, through brand verification, file evaluation, and BIM specialist collaboration.'
   },
   {
     id: 'designers',
@@ -123,8 +124,8 @@ const SLIDE_CONFIGS = [
     badgeEn: 'For Architects, Engineers & BIM Modelers',
     headingFa: 'هر آبجکتی که برای پروژه‌تان نیاز دارید، همین‌جاست',
     headingEn: 'Every Object Your Project Needs, Right Here',
-    descFa: 'دسترسی به هزاران آبجکت بیم استاندارد ایرانی، آماده دانلود مستقیم. با عضویت ویژه، دانلود نامحدود و ابزارهای مدیریت پروژه را تجربه کنید.',
-    descEn: 'Access thousands of standardized Iranian BIM objects, ready to download instantly. Upgrade to VIP for unlimited downloads and advanced project tools.'
+    descFa: 'به نمونه آبجکت‌های اولیه و کاتالوگ‌های فنی دسترسی پیدا کنید و مسیر استفاده از محصولات واقعی در پروژه‌های BIM را ساده‌تر کنید.',
+    descEn: 'Explore early BIM object samples and technical catalogs designed to make real products easier to use in BIM workflows.'
   },
   {
     id: 'manufacturers',
@@ -138,23 +139,23 @@ const SLIDE_CONFIGS = [
     badgeEn: 'For Manufacturers & Brand Owners',
     headingFa: 'برند شما، در دستان مهندسانی که تصمیم می‌گیرند',
     headingEn: 'Your Brand, In the Hands of Decision-Making Engineers',
-    descFa: 'کاتالوگ محصولات خود را به زبان مهندسی امروز ترجمه کنید و مستقیماً در پروژه‌های واقعی ساختمانی ایران دیده شوید. با اشتراک ویژه، از تحلیل بازار و اولویت نمایش بهره‌مند شوید.',
-    descEn: "Translate your product catalog into today's engineering language and get specified directly into real Iranian construction projects. Upgrade for market analytics and priority placement."
+    descFa: 'اگر فایل BIM آماده دارید، از مسیر پنل برند و ارزیابی فایل اقدام کنید؛ اگر هنوز فایل BIM ندارید، برای تولید آبجکت استاندارد از کاتالوگ محصول مشاوره بگیرید.',
+    descEn: 'Use the brand panel and file evaluation path if BIM files are ready, or start with consultation if you need standard BIM objects created from product catalogs.'
   },
   {
     id: 'trust',
-    labelFa: 'اعتماد',
-    labelEn: 'Trust',
+    labelFa: 'اصالت برند',
+    labelEn: 'Authenticity',
     numFa: '۰۴',
     numEn: '04',
     bgImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=80',
     overlay: 'bg-gradient-to-r from-[#112a2b]/95 via-slate-950/90 to-slate-900/85',
-    badgeFa: 'پویایی بازار ایران‌بیم‌هاب',
-    badgeEn: 'IranBIMhub Market Momentum',
-    headingFa: 'اعتمادی که هر روز رشد می‌کند',
-    headingEn: 'Trust That Grows Every Day',
-    descFa: 'بستری پویا برای دسترسی به باکیفیت‌ترین مدل‌های BIM استاندارد و بومی، به پشتوانه تولیدکنندگان طراز اول کشور و بازخورد زنده بازار ساختمان ایران.',
-    descEn: 'A dynamic ecosystem for accessing high-quality standardized domestic BIM models, backed by top-tier suppliers and real-time market momentum.'
+    badgeFa: 'حفاظت از هویت رسمی برندها',
+    badgeEn: 'Protecting Official Brand Identity',
+    headingFa: 'اعتماد از مسیر احراز برند و ارزیابی فایل ساخته می‌شود',
+    headingEn: 'Trust Starts with Brand Verification and File Evaluation',
+    descFa: 'صفحه برند و فایل‌های BIM تنها پس از تکمیل مدارک رسمی و ارزیابی تخصصی برای نمایش عمومی آماده می‌شوند.',
+    descEn: 'Brand pages and BIM files become public only after official documents and technical evaluation are completed.'
   },
   {
     id: 'start',
@@ -168,8 +169,8 @@ const SLIDE_CONFIGS = [
     badgeEn: 'Free Start',
     headingFa: 'شروع، بدون هیچ هزینه‌ای',
     headingEn: 'Start — At No Cost',
-    descFa: 'چه به‌دنبال آبجکت بیم هستید، چه می‌خواهید برندتان دیده شود؛ ایران‌بیم‌هاب رایگان شروع می‌شود.',
-    descEn: "Whether you're looking for a BIM object or want your brand seen, IranBIMhub starts free."
+    descFa: 'چه به‌دنبال نمونه آبجکت BIM باشید، چه بخواهید مسیر رسمی برندتان را شروع کنید؛ ایران‌بیم‌هاب از یک مسیر ساده و قابل اعتماد آغاز می‌شود.',
+    descEn: 'Whether you are looking for BIM object samples or want to start your official brand path, IranBIMhub begins with a simple, trusted workflow.'
   }
 ];
 
@@ -536,65 +537,19 @@ export const HomeView: React.FC<HomeViewProps> = ({
   };
 
   const testimonialScrollRef = useRef<HTMLDivElement>(null);
-  const [isTestimonialHovered, setIsTestimonialHovered] = useState(false);
-  const isDraggingTestimonialRef = useRef(false);
-  const testimonialStartXRef = useRef(0);
-  const testimonialScrollLeftRef = useRef(0);
-  const testimonialHasDraggedRef = useRef(false);
-
-  const handleTestimonialMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!testimonialScrollRef.current) return;
-    isDraggingTestimonialRef.current = true;
-    testimonialHasDraggedRef.current = false;
-    testimonialStartXRef.current = e.pageX - testimonialScrollRef.current.offsetLeft;
-    testimonialScrollLeftRef.current = testimonialScrollRef.current.scrollLeft;
-  };
-
-  const handleTestimonialMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isDraggingTestimonialRef.current || !testimonialScrollRef.current) return;
-    e.preventDefault();
-    const x = e.pageX - testimonialScrollRef.current.offsetLeft;
-    const walk = (x - testimonialStartXRef.current) * 1.5;
-    if (Math.abs(walk) > 5) {
-      testimonialHasDraggedRef.current = true;
-    }
-    testimonialScrollRef.current.scrollLeft = testimonialScrollLeftRef.current - walk;
-  };
-
-  const handleTestimonialMouseUpOrLeave = () => {
-    isDraggingTestimonialRef.current = false;
-  };
-
-  const handleTestimonialTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (!testimonialScrollRef.current || e.touches.length === 0) return;
-    isDraggingTestimonialRef.current = true;
-    testimonialHasDraggedRef.current = false;
-    testimonialStartXRef.current = e.touches[0].pageX - testimonialScrollRef.current.offsetLeft;
-    testimonialScrollLeftRef.current = testimonialScrollRef.current.scrollLeft;
-  };
-
-  const handleTestimonialTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (!isDraggingTestimonialRef.current || !testimonialScrollRef.current || e.touches.length === 0) return;
-    const x = e.touches[0].pageX - testimonialScrollRef.current.offsetLeft;
-    const walk = (x - testimonialStartXRef.current) * 1.5;
-    if (Math.abs(walk) > 5) {
-      testimonialHasDraggedRef.current = true;
-    }
-    testimonialScrollRef.current.scrollLeft = testimonialScrollLeftRef.current - walk;
-  };
-
-  const handleTestimonialTouchEnd = () => {
-    isDraggingTestimonialRef.current = false;
-  };
 
   const scrollTestimonials = (direction: 'left' | 'right') => {
-    if (testimonialScrollRef.current) {
-      const scrollAmount = 350;
-      testimonialScrollRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
-    }
+    const el = testimonialScrollRef.current;
+    if (!el) return;
+
+    const firstCard = el.querySelector('[data-testimonial-card]') as HTMLElement | null;
+    const gap = 24;
+    const scrollAmount = firstCard ? firstCard.offsetWidth + gap : Math.min(el.clientWidth * 0.9, 380);
+
+    el.scrollBy({
+      left: direction === 'left' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth'
+    });
   };
 
   const newestObjectsScrollRef = useRef<HTMLDivElement>(null);
@@ -608,60 +563,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
       });
     }
   };
-
-  // Continuous auto horizontal movement scroll for testimonials
-  useEffect(() => {
-    const el = testimonialScrollRef.current;
-    if (!el) return;
-
-    // Set initial scroll position to middle of the 3 cloned groups
-    // Use a small timeout to make sure elements are fully rendered and scrollWidth is ready
-    const timer = setTimeout(() => {
-      const oneGroupWidth = el.scrollWidth / 3;
-      if (oneGroupWidth > 0) {
-        el.scrollLeft = isRtl ? -oneGroupWidth : oneGroupWidth;
-      }
-    }, 150);
-
-    let animationFrameId: number;
-    let lastTime = performance.now();
-    const speed = 25; // elegant slow speed
-
-    const scroll = (time: number) => {
-      if (!isTestimonialHovered && !isDraggingTestimonialRef.current && el) {
-        const delta = (time - lastTime) / 1000;
-        const oneGroupWidth = el.scrollWidth / 3;
-
-        if (oneGroupWidth > 0) {
-          if (isRtl) {
-            el.scrollLeft -= speed * delta;
-            // If we scrolled past 2/3, loop back to 1/3
-            if (Math.abs(el.scrollLeft) >= oneGroupWidth * 2) {
-              el.scrollLeft += oneGroupWidth;
-            } else if (Math.abs(el.scrollLeft) <= oneGroupWidth / 2) {
-              // If user dragged back, loop forward
-              el.scrollLeft -= oneGroupWidth;
-            }
-          } else {
-            el.scrollLeft += speed * delta;
-            if (el.scrollLeft >= oneGroupWidth * 2) {
-              el.scrollLeft -= oneGroupWidth;
-            } else if (el.scrollLeft <= oneGroupWidth / 2) {
-              el.scrollLeft += oneGroupWidth;
-            }
-          }
-        }
-      }
-      lastTime = time;
-      animationFrameId = requestAnimationFrame(scroll);
-    };
-
-    animationFrameId = requestAnimationFrame(scroll);
-    return () => {
-      clearTimeout(timer);
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, [isTestimonialHovered, isRtl]);
 
   // Filter suggestions based on searchQuery
   const suggestions = searchQuery.trim().length > 1 ? {
@@ -1415,81 +1316,80 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
       {/* 7. TESTIMONIALS */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6" id="homepage-testimonials-preview">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-gray-150/50 dark:border-gray-800/60 pb-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-gray-150/50 dark:border-gray-800/60 pb-4">
           <div className="text-start space-y-1 flex-1">
             <h2 className="text-base sm:text-lg font-black text-gray-800 dark:text-gray-200 flex items-center gap-2">
               <MessageSquare className="w-5 h-5 text-[#26B6B6] shrink-0" />
-              <span>{isRtl ? 'دیدگاه معماران و متخصصان بیم' : 'Insights from Architects & BIM Specialists'}</span>
+              <span>{isRtl ? 'بازخوردهای اولیه و گفت‌وگوهای تخصصی' : 'Early Feedback & Expert Conversations'}</span>
             </h2>
             <p className="text-[10.5px] sm:text-xs text-gray-400 font-medium">
-              {isRtl ? 'نظرات طراحان، معماران و مدیران پروژه‌ها درباره پلتفرم ایران‌بیم‌هاب' : 'What leading architectural designers and BIM managers say about us'}
+              {isRtl
+                ? 'دیدگاه‌ها و گفت‌وگوهای اولیه درباره نیاز بازار BIM ایران'
+                : 'Early conversations about the BIM needs of Iran’s construction market'}
             </p>
-          </div>
-
-          {/* Navigation buttons */}
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              type="button"
-              onClick={() => scrollTestimonials('left')}
-              className="w-8 h-8 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-[#26B6B6] hover:border-[#26B6B6] transition-all shadow-2xs cursor-pointer"
-              aria-label="Previous review"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => scrollTestimonials('right')}
-              className="w-8 h-8 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-[#26B6B6] hover:border-[#26B6B6] transition-all shadow-2xs cursor-pointer"
-              aria-label="Next review"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
           </div>
         </div>
 
         <div className="relative group/testimonials">
-          <div 
-            ref={testimonialScrollRef}
-            onMouseEnter={() => setIsTestimonialHovered(true)}
-            onMouseLeave={() => setIsTestimonialHovered(false)}
-            onMouseDown={handleTestimonialMouseDown}
-            onMouseMove={handleTestimonialMouseMove}
-            onMouseUp={handleTestimonialMouseUpOrLeave}
-            onTouchStart={handleTestimonialTouchStart}
-            onTouchMove={handleTestimonialTouchMove}
-            onTouchEnd={handleTestimonialTouchEnd}
-            className="flex gap-4 sm:gap-6 overflow-x-auto py-2 px-1 scrollbar-none snap-x snap-mandatory scroll-smooth cursor-grab active:cursor-grabbing"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          {/* Soft edge gradients */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 sm:w-16 bg-gradient-to-r from-white dark:from-gray-950 to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 sm:w-16 bg-gradient-to-l from-white dark:from-gray-950 to-transparent" />
+
+          {/* Glass side navigation buttons */}
+          <button
+            type="button"
+            onClick={() => scrollTestimonials('left')}
+            className="absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/75 dark:bg-gray-950/70 backdrop-blur-xl border border-white/70 dark:border-gray-800/80 shadow-lg flex items-center justify-center text-gray-700 dark:text-gray-200 hover:text-[#26B6B6] hover:border-[#26B6B6]/40 hover:bg-white/90 dark:hover:bg-gray-900/90 transition-all active:scale-95 cursor-pointer"
+            aria-label={isRtl ? 'اسکرول به چپ' : 'Scroll left'}
           >
-            {[[...MOCK_REVIEWS], [...MOCK_REVIEWS], [...MOCK_REVIEWS]].map((group, groupIdx) => (
-              <React.Fragment key={groupIdx}>
-                {group.map((rev, revIdx) => (
-                  <div 
-                    key={`${groupIdx}-${rev.id}-${revIdx}`} 
-                    className="flex-shrink-0 w-[260px] sm:w-[320px] md:w-[350px] snap-start bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-2xl p-4 sm:p-5 shadow-2xs flex flex-col justify-between text-start relative select-none"
-                  >
-                    <div className="absolute top-4 end-4 text-gray-100 dark:text-gray-800 text-5xl sm:text-6xl font-serif select-none leading-none opacity-50 dark:opacity-30 pointer-events-none">
-                      ”
-                    </div>
-                    <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed italic relative z-10 mb-4 line-clamp-4">
-                      "{isRtl ? rev.textFa : rev.textEn}"
-                    </p>
-                    <div className="flex items-center gap-3 border-t border-gray-100 dark:border-gray-800/60 pt-3">
-                      <div className="w-9 h-9 bg-[#26B6B6]/10 text-[#26B6B6] rounded-full flex items-center justify-center font-black text-xs shrink-0">
-                        {rev.nameEn.substring(5,7).trim() || rev.nameEn.substring(0,2)}
-                      </div>
-                      <div className="min-w-0">
-                        <h4 className="text-xs font-black text-gray-800 dark:text-gray-200 truncate">
-                          {isRtl ? rev.nameFa : rev.nameEn}
-                        </h4>
-                        <p className="text-[10px] text-gray-400 dark:text-gray-500 truncate">
-                          {isRtl ? rev.roleFa : rev.roleEn}
-                        </p>
-                      </div>
-                    </div>
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => scrollTestimonials('right')}
+            className="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/75 dark:bg-gray-950/70 backdrop-blur-xl border border-white/70 dark:border-gray-800/80 shadow-lg flex items-center justify-center text-gray-700 dark:text-gray-200 hover:text-[#26B6B6] hover:border-[#26B6B6]/40 hover:bg-white/90 dark:hover:bg-gray-900/90 transition-all active:scale-95 cursor-pointer"
+            aria-label={isRtl ? 'اسکرول به راست' : 'Scroll right'}
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+
+          <div
+            ref={testimonialScrollRef}
+            dir="ltr"
+            className="flex gap-4 sm:gap-6 overflow-x-auto py-2 px-1 sm:px-2 scrollbar-none snap-x snap-mandatory scroll-smooth overscroll-x-contain [touch-action:pan-x]"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
+          >
+            {MOCK_REVIEWS.map((rev) => (
+              <div
+                key={`testimonial-${rev.id}`}
+                data-testimonial-card
+                dir={isRtl ? 'rtl' : 'ltr'}
+                className="flex-shrink-0 w-[280px] sm:w-[340px] md:w-[380px] snap-center sm:snap-start bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-2xl p-4 sm:p-5 shadow-2xs hover:shadow-xs transition-shadow flex flex-col justify-between text-start relative select-text"
+              >
+                <div className="absolute top-4 end-4 text-gray-100 dark:text-gray-800 text-5xl sm:text-6xl font-serif select-none leading-none opacity-50 dark:opacity-30 pointer-events-none">
+                  ”
+                </div>
+
+                <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed italic relative z-10 mb-4 line-clamp-4">
+                  "{isRtl ? rev.textFa : rev.textEn}"
+                </p>
+
+                <div className="flex items-center gap-3 border-t border-gray-100 dark:border-gray-800/60 pt-3">
+                  <div className="w-9 h-9 bg-[#26B6B6]/10 text-[#26B6B6] rounded-full flex items-center justify-center font-black text-xs shrink-0">
+                    {rev.nameEn.substring(5, 7).trim() || rev.nameEn.substring(0, 2)}
                   </div>
-                ))}
-              </React.Fragment>
+
+                  <div className="min-w-0">
+                    <h4 className="text-xs font-black text-gray-800 dark:text-gray-200 truncate">
+                      {isRtl ? rev.nameFa : rev.nameEn}
+                    </h4>
+                    <p className="text-[10px] text-gray-400 dark:text-gray-500 truncate">
+                      {isRtl ? rev.roleFa : rev.roleEn}
+                    </p>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -1594,8 +1494,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
             {
               qFa: 'ایران‌بیم‌هاب چیست؟',
               qEn: 'What is IranBIMhub?',
-              aFa: 'ایران‌بیم‌هاب اولین پلتفرم ملی و پایگاه نوآوری تخصصی کاتالوگ دیجیتال و مدل‌های هوشمند (BIM) برای صنعت ساختمان ایران است. ما محصولات واقعی کارخانجات صنعتی و تولیدکنندگان مصالح را به مدل‌های باکیفیت استاندارد Revit و IFC تبدیل کرده و در اختیار جامعه معماران و مهندسان قرار می‌دهیم تا مستقیماً در پروژه‌های عمرانی خود استفاده کنند.',
-              aEn: 'IranBIMhub is the premier national platform and innovation hub for digital brand catalogs and smart BIM models in Iran\'s construction industry. We translate real physical manufacturer catalog specifications into standardized, high-quality Revit & open IFC families, enabling AEC designers to integrate them directly into active blueprints.'
+               aFa: 'ایران‌بیم‌هاب به‌عنوان اولین مسیر ملی تخصصی برای کاتالوگ دیجیتال و آبجکت‌های BIM محصولات ساختمانی ایران، در حال ساخت ارتباطی قابل اعتماد میان تولیدکنندگان، متخصصان BIM و جامعه طراحی ساختمان است.',
+               aEn: 'IranBIMhub is building Iran\'s first specialized national path for digital brand catalogs and BIM objects of real building products, connecting manufacturers, BIM specialists, and the AEC design community.'
             },
             {
               qFa: 'آیا دانلود آبجکت‌های بیم در این سایت رایگان است؟',
@@ -1648,6 +1548,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
             );
           })}
         </div>
+      </section>
+
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 pb-8 sm:pb-10 lg:pb-12 -mt-2 sm:-mt-4">
+        <StayConnectedBlock isRtl={isRtl} variant="landing" />
       </section>
 
     </div>

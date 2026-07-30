@@ -90,8 +90,8 @@ export const SLIDE_CONFIGS = [
     badgeEn: 'For Architects, Engineers & Design Offices',
     headingFa: 'آبجکت‌های BIM قابل استفاده برای پروژه‌های واقعی',
     headingEn: 'BIM Objects Ready for Real Design Projects',
-    descFa: 'به جای ساختن دوباره مدل‌ها از روی PDF و کاتالوگ، فایل‌های سبک، استاندارد و قابل بررسی را پیدا کنید و سریع‌تر وارد فرآیند طراحی، متره و مستندسازی شوید.',
-    descEn: 'Instead of rebuilding models from PDF catalogs, find clean, lightweight and reviewable BIM files that help you design, document and specify products faster.'
+    descFa: 'به‌جای ساختن دوباره مدل‌ها از روی PDF و کاتالوگ، نمونه فایل‌های سبک، استاندارد و قابل بررسی را پیدا کنید و مسیر طراحی، متره و مستندسازی را سریع‌تر پیش ببرید.',
+    descEn: 'Instead of rebuilding models from PDF catalogs, find sample lightweight, standard and reviewable BIM files and advance the design, quantity surveying and documentation workflow faster.'
   },
   {
     id: 'manufacturers',
@@ -105,8 +105,8 @@ export const SLIDE_CONFIGS = [
     badgeEn: 'For Manufacturers & Building Product Brands',
     headingFa: 'محصول شما قبل از خرید، وارد نقشه پروژه می‌شود',
     headingEn: 'Your Product Enters the Project Before Procurement',
-    descFa: 'ایران بیم هاب کاتالوگ فنی شما را به زبان قابل استفاده برای معماران و مهندسان تبدیل می‌کند؛ تا برند شما در مرحله طراحی دیده، بررسی و انتخاب شود.',
-    descEn: 'IranBIMhub turns your technical catalog into a format architects and engineers can actually use, helping your brand get discovered, evaluated and specified during design.'
+    descFa: 'ایران‌بیم‌هاب کاتالوگ فنی شما را به مسیر قابل استفاده برای معماران و مهندسان تبدیل می‌کند؛ از مشاوره و احراز برند تا تولید یا ارزیابی فایل BIM.',
+    descEn: 'IranBIMhub turns your technical catalog into a usable workflow for architects and engineers; from consultation and brand verification to BIM file creation or evaluation.'
   },
   {
     id: 'modelers',
@@ -135,8 +135,8 @@ export const SLIDE_CONFIGS = [
     badgeEn: 'Start Your Early Access',
     headingFa: 'از امروز وارد جریان BIM ایران شوید',
     headingEn: 'Join the BIM Movement in Iran Today',
-    descFa: 'چه طراح باشید، چه تولیدکننده یا متخصص BIM؛ همین حالا می‌توانید به نسخه اولیه ایران بیم هاب بپیوندید و در شکل‌گیری آینده دیجیتال صنعت ساختمان ایران نقش داشته باشید.',
-    descEn: 'Whether you are a designer, manufacturer or BIM specialist, you can join IranBIMhub early and help shape the digital future of Iran’s construction industry.'
+    descFa: 'چه طراح باشید، چه تولیدکننده یا متخصص BIM؛ می‌توانید در نسخه اولیه ایران‌بیم‌هاب همراه ما باشید و به شکل‌گیری مسیر قابل اعتماد BIM در صنعت ساختمان ایران کمک کنید.',
+    descEn: 'Whether you are a designer, manufacturer or BIM specialist, you can join IranBIMhub early and help shape a trusted BIM path in Iran’s construction industry.'
   }
 ];
 

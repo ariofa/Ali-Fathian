@@ -382,19 +382,19 @@ export const ForDesignersView: React.FC<ForDesignersViewProps> = ({
         </div>
       </section>
 
-      {/* 4. FREE VS VIP COMPARISON (With mobile responsive swipeable layout) */}
+      {/* 4. FREE ACCOUNT & FUTURE ADVANCED FEATURES (With mobile responsive swipeable layout) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-start">
         <div className="space-y-10">
           
           <div className="text-center max-w-2xl mx-auto space-y-3">
             <span className="text-xs font-bold text-[#26B6B6] uppercase tracking-wider">
-              {isRtl ? 'طرح‌های اشتراکی طراحان و مهندسان' : 'Designer Subscription Tiers'}
+              {isRtl ? 'حساب رایگان و امکانات پیشرفته آینده' : 'Free Account & Future Advanced Features'}
             </span>
             <h2 className="text-xl sm:text-2xl font-black text-gray-800 dark:text-white">
-              {isRtl ? 'انتخاب شفاف طرح؛ بدون هزینه‌های پنهان' : 'Transparent Pricing: Free vs. VIP Membership'}
+              {isRtl ? 'شروع رایگان؛ امکانات پیشرفته پس از تکمیل نسخه اولیه' : 'Start Free; Advanced Features After Initial Platform Is Ready'}
             </h2>
             <p className="text-xs text-gray-400 font-light">
-              {isRtl ? 'عضویت خود را متناسب با پروژه‌های فنی و نیاز روزانه انتخاب نمایید.' : 'Pick the tier that fits your engineering team and volume.'}
+              {isRtl ? 'در این مرحله تمرکز ایران‌بیم‌هاب روی دسترسی اولیه، جمع‌آوری بازخورد و ساخت کتابخانه قابل اعتماد است.' : 'At this stage, IranBIMhub focuses on early access, feedback, and building a trusted library.'}
             </p>
           </div>
 
@@ -405,19 +405,19 @@ export const ForDesignersView: React.FC<ForDesignersViewProps> = ({
                 <tr className="border-b border-gray-150 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
                   <th className="p-4 text-start font-bold text-gray-800 dark:text-white w-2/5">{isRtl ? 'امکانات و ویژگی‌ها' : 'Features & Benefits'}</th>
                   <th className="p-4 text-center font-extrabold text-gray-500 dark:text-gray-400 w-1/5">{isRtl ? 'طرح عادی (رایگان)' : 'Free Account'}</th>
-                  <th className="p-4 text-center font-extrabold text-[#26B6B6] w-1/5 bg-[#26B6B6]/5">{isRtl ? 'حساب VIP ویژه طراحان' : 'VIP Membership'}</th>
+                  <th className="p-4 text-center font-extrabold text-[#26B6B6] w-1/5 bg-[#26B6B6]/5">{isRtl ? 'امکانات پیشرفته آینده' : 'Future Advanced Features'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-150 dark:divide-gray-800">
                 <tr>
                   <td className="p-4 font-bold text-gray-700 dark:text-gray-300">{isRtl ? 'سقف دانلود روزانه فمیلی‌ها' : 'Daily download limit'}</td>
                   <td className="p-4 text-center text-gray-500">{isRtl ? '۵ فایل در روز' : '5 files per day'}</td>
-                  <td className="p-4 text-center font-bold text-[#26B6B6] bg-[#26B6B6]/5">{isRtl ? 'نامحدود' : 'Unlimited downloads'}</td>
+                  <td className="p-4 text-center font-bold text-[#26B6B6] bg-[#26B6B6]/5">{isRtl ? 'پس از فعال‌سازی' : 'After activation'}</td>
                 </tr>
                 <tr>
                   <td className="p-4 font-bold text-gray-700 dark:text-gray-300">{isRtl ? 'سازماندهی پروژه‌ها و پوشه‌ها' : 'Project & folder structures'}</td>
                   <td className="p-4 text-center text-gray-400 font-light">{isRtl ? 'پوشه پیش‌فرض تکی' : 'Single default folder'}</td>
-                  <td className="p-4 text-center font-bold text-[#26B6B6] bg-[#26B6B6]/5">{isRtl ? 'نامحدود (دسته‌بندی پروژه‌ای)' : 'Unlimited nested folders'}</td>
+                  <td className="p-4 text-center font-bold text-[#26B6B6] bg-[#26B6B6]/5">{isRtl ? 'قابل توسعه در نسخه‌های بعدی' : 'Planned for future versions'}</td>
                 </tr>
                 <tr>
                   <td className="p-4 font-bold text-gray-700 dark:text-gray-300">{isRtl ? 'مجموعه علاقه‌مندی‌های شخصی' : 'Custom bookmark collections'}</td>
@@ -427,7 +427,7 @@ export const ForDesignersView: React.FC<ForDesignersViewProps> = ({
                 <tr>
                   <td className="p-4 font-bold text-gray-700 dark:text-gray-300">{isRtl ? 'پشتیبانی فنی در رفع نقص فایل‌ها' : 'Priority engineering support'}</td>
                   <td className="p-4 text-center text-gray-400 font-light">✕</td>
-                  <td className="p-4 text-center font-bold text-[#26B6B6] bg-[#26B6B6]/5">{isRtl ? 'تیکت ممتاز و فوری' : 'Instant VIP helpdesk'}</td>
+                  <td className="p-4 text-center font-bold text-[#26B6B6] bg-[#26B6B6]/5">{isRtl ? 'پشتیبانی اولویت‌دار پس از فعال‌سازی' : 'Priority support after activation'}</td>
                 </tr>
                 <tr>
                   <td className="p-4 font-bold text-gray-700 dark:text-gray-300">{isRtl ? 'دسترسی به اسنادBEP بومی شده' : 'BEP & LOD templates'}</td>
@@ -435,10 +435,10 @@ export const ForDesignersView: React.FC<ForDesignersViewProps> = ({
                   <td className="p-4 text-center font-bold text-[#26B6B6] bg-[#26B6B6]/5">{isRtl ? 'شامل نسخه‌های اداری ویژه' : 'Premium organizational files'}</td>
                 </tr>
                 <tr className="bg-gray-50/30 dark:bg-gray-900/30">
-                  <td className="p-5 font-extrabold text-gray-800 dark:text-white">{isRtl ? 'تعرفه عضویت' : 'Pricing Rate'}</td>
+                  <td className="p-5 font-extrabold text-gray-800 dark:text-white">{isRtl ? 'وضعیت فعلی' : 'Current Status'}</td>
                   <td className="p-5 text-center font-black text-gray-500">{isRtl ? 'رایگان همیشگی' : 'Free Forever'}</td>
                   <td className="p-5 text-center font-black text-[#26B6B6] bg-[#26B6B6]/10 text-sm">
-                    {isRtl ? '۹۹,۰۰۰ تومان / ماه' : '99,000 Toman / mo'}
+                    {isRtl ? 'پس از تکمیل نسخه اولیه اعلام می‌شود' : 'To be announced after MVP validation'}
                   </td>
                 </tr>
               </tbody>
@@ -464,7 +464,7 @@ export const ForDesignersView: React.FC<ForDesignersViewProps> = ({
                   compareTab === 'vip' ? 'bg-[#26B6B6] text-white' : 'text-gray-500 dark:text-gray-400'
                 }`}
               >
-                {isRtl ? 'حساب ویژه VIP' : 'VIP Tier'}
+                {isRtl ? 'امکانات پیشرفته آینده' : 'Future Advanced Features'}
               </button>
             </div>
 
@@ -492,8 +492,8 @@ export const ForDesignersView: React.FC<ForDesignersViewProps> = ({
               ) : (
                 <>
                   <div className="flex justify-between items-center border-b border-gray-50 dark:border-gray-800 pb-2">
-                    <span className="font-black text-sm text-[#26B6B6]">{isRtl ? 'حساب ویژه VIP طراحان' : 'VIP Membership'}</span>
-                    <span className="text-xs font-black text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full">{isRtl ? '۹۹,۰۰۰ تومان / ماه' : '99k Toman / mo'}</span>
+                    <span className="font-black text-sm text-[#26B6B6]">{isRtl ? 'امکانات پیشرفته آینده' : 'Future Advanced Features'}</span>
+                    <span className="text-xs font-black text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full">{isRtl ? 'به‌زودی' : 'Coming soon'}</span>
                   </div>
                   <ul className="space-y-2 text-[11px] text-gray-600 dark:text-gray-300">
                     <li className="flex items-center gap-2">✓ {isRtl ? 'دانلود کاملاً نامحدود روزانه' : 'Unlimited downloads'}</li>
@@ -504,14 +504,14 @@ export const ForDesignersView: React.FC<ForDesignersViewProps> = ({
                   <button
                     onClick={() => {
                       if (currentUser) {
-                        onNavigate('payment', undefined, undefined, 'modeler-vip');
+                        onNavigate('modeler-dashboard');
                       } else {
                         onOpenAuthModal();
                       }
                     }}
                     className="w-full py-2.5 bg-[#26B6B6] text-white rounded-xl text-xs font-black hover:bg-[#1e9494] transition-colors cursor-pointer"
                   >
-                    {isRtl ? 'ارتقا به حساب VIP' : 'Upgrade to VIP'}
+                    {isRtl ? 'اعلام علاقه‌مندی به امکانات پیشرفته' : 'Register Interest in Advanced Features'}
                   </button>
                 </>
               )}
@@ -528,10 +528,10 @@ export const ForDesignersView: React.FC<ForDesignersViewProps> = ({
           
           <div className="text-center max-w-2xl mx-auto space-y-3">
             <span className="text-xs font-black text-[#26B6B6] uppercase tracking-wider">
-              {isRtl ? 'اعتماد پیشروان معماری ایران' : 'Trusted by Leading Iranian Architects'}
+              {isRtl ? 'گفت‌وگو با فعالان طراحی و BIM' : 'Conversations with Design & BIM Professionals'}
             </span>
             <h2 className="text-xl sm:text-2xl font-black text-gray-800 dark:text-white">
-              {isRtl ? 'معماران و مهندسان درباره ما چه می‌گویند؟' : 'What AEC Professionals Say'}
+              {isRtl ? 'نیازهای واقعی طراحان را جدی می‌گیریم' : 'We listen to real designer needs'}
             </h2>
           </div>
 

@@ -32,7 +32,7 @@ const translations: Record<string, { fa: string; en: string }> = {
   
   // Hero
   heroTitle: { fa: 'طراحی هوشمند با کتابخانه جامع آبجکتهای BIM واقعی ایرانی', en: 'Smart Design with the Comprehensive Library of Real Iranian BIM Objects' },
-  heroSubtitle: { fa: 'هزاران آبجکت BIM از برندهای معتبر ایرانی برای معماران و مهندسان', en: 'Thousands of BIM objects from reliable Iranian brands for architects and engineers' },
+  heroSubtitle: { fa: 'نمونه‌های اولیه آبجکت BIM، کاتالوگ فنی و مسیر احراز برند برای معماران، مهندسان و تولیدکنندگان', en: 'Early BIM object samples, technical catalogs, and brand verification workflows for architects, engineers, and manufacturers' },
   searchPlaceholder: { fa: 'جستجوی در و پنجره، پکیج، شیرآلات، برند یا محصول...', en: 'Search doors, HVAC, faucets, brands, or products...' },
   allCategories: { fa: 'همه دسته‌بندی‌ها', en: 'All Categories' },
   allFormats: { fa: 'تمامی فرمت‌ها', en: 'All Formats' },
@@ -40,13 +40,13 @@ const translations: Record<string, { fa: string; en: string }> = {
   
   // Home Sections
   browseByCategory: { fa: 'مرور بر اساس دسته‌بندی موضوعی', en: 'Browse by Technical Category' },
-  trustedPartners: { fa: 'اعضای برگزیده و برندهای پیشروی حوزه BIM', en: 'Featured Members & Leading Brands in BIM' },
-  trustedPartnersSub: { fa: 'محصولات خود را در دایرکتوری رسمی قطعات مدرن ساختمان ثبت کنید و مستقیماً به ویترین طراحان و مهندسان بزرگ کشور وارد شوید.', en: 'Register your products in the official directory of modern building components and directly enter the showcase of the country’s leading designers and engineers.' },
-  newAndTrending: { fa: 'جدیدترین و پردانلودترین آبجکت‌ها', en: 'New & Trending BIM Objects' },
+  trustedPartners: { fa: 'برندها و تولیدکنندگان در مسیر BIM', en: 'Brands & Manufacturers Entering BIM' },
+  trustedPartnersSub: { fa: 'با احراز هویت برند، ارزیابی فایل‌ها و تولید آبجکت‌های استاندارد، محصولات واقعی خود را برای حضور در جریان طراحی BIM آماده کنید.', en: 'Prepare real products for BIM-based design through brand verification, file evaluation, and standard object creation.' },
+  newAndTrending: { fa: 'نمونه آبجکت‌های اولیه', en: 'Early BIM Object Samples' },
   manufacturerPromoTitle: { fa: 'آیا تولیدکننده مصالح یا تجهیزات ساختمانی هستید؟', en: 'Are You a Building Product Manufacturer?' },
-  manufacturerPromoDesc: { fa: 'کاتالوگ محصولات خود را به آبجکت‌های هوشمند BIM تبدیل کنید و مستقیماً در نقشه‌های فاز دو مهندسین معمار و سازه ایران حضور یابید. مشخص شدن در مدل یعنی فروش قطعی در کارگاه ساختمانی.', en: 'Convert your physical products into smart BIM families. Get discovered and specified directly inside the design stage of top Iranian projects. Getting specified means secured project sales.' },
-  manufacturerPromoCTA: { fa: 'ثبت‌نام و آپلود کاتالوگ محصولات', en: 'Register & Upload Your Catalog' },
-  testimonials: { fa: 'صدای کاربران و متخصصان صنعت', en: 'AEC Industry Testimonials' },
+  manufacturerPromoDesc: { fa: 'اگر فایل BIM آماده دارید، از مسیر پنل برند و ارزیابی فایل اقدام کنید؛ اگر هنوز فایل BIM ندارید، کاتالوگ محصول را برای مشاوره اولیه و بررسی مسیر تولید آبجکت استاندارد ارسال کنید.', en: 'If you already have BIM files, use the brand panel and file evaluation path; if not, send product catalogs for consultation and standard BIM object creation guidance.' },
+  manufacturerPromoCTA: { fa: 'مشاوره تولیدکنندگان و مسیر برند', en: 'Manufacturer Consultation & Brand Path' },
+  testimonials: { fa: 'بازخوردهای اولیه و گفت‌وگوهای تخصصی', en: 'Early Feedback & Expert Conversations' },
   
   // General Buttons / Labels
   download: { fa: 'دانلود فایل', en: 'Download File' },
@@ -67,7 +67,7 @@ const translations: Record<string, { fa: string; en: string }> = {
   no: { fa: 'خیر', en: 'No' },
   free: { fa: 'رایگان', en: 'Free' },
   paid: { fa: 'تجاری', en: 'Paid' },
-  subscriptionOnly: { fa: 'مخصوص اعضا', en: 'Subscription-only' },
+  subscriptionOnly: { fa: 'نیازمند حساب کاربری', en: 'Account required' },
   toman: { fa: 'تومان', en: 'Tomans' },
   
   // Filter Sidebar
@@ -91,10 +91,10 @@ const translations: Record<string, { fa: string; en: string }> = {
   sendInquiry: { fa: 'ارسال درخواست استعلام', en: 'Send Technical Inquiry' },
   
   // Manufacturer Landing & Onboarding
-  mLandingTitle: { fa: 'نمایش و فروش کاتالوگ محصولات شما در پروژه‌های بزرگ کشور', en: 'Get Specified in Iran’s Top Construction Projects' },
-  mLandingSubtitle: { fa: 'بزرگترین پلتفرم تخصصی معرفی و دانلود آبجکت‌های BIM برای مهندسان مشاور، معماران و مجریان ساخت و ساز در ایران.', en: 'The central digital warehouse where Iranian engineering firms find, specify, and procure local building components.' },
-  pricingTiers: { fa: 'طرح‌های عضویت و آبونمان تولیدکنندگان', en: 'Manufacturer Subscription Tiers' },
-  featuresComparison: { fa: 'جدول مقایسه امکانات طرح‌ها', en: 'Plan Comparison' },
+  mLandingTitle: { fa: 'مشاوره رایگان BIM برای تولیدکنندگان', en: 'Free BIM Consultation for Manufacturers' },
+  mLandingSubtitle: { fa: 'اگر فایل BIM آماده دارید، از مسیر ورود/ثبت‌نام و پنل برند اقدام کنید؛ اگر هنوز فایل BIM ندارید، کاتالوگ محصول را برای بررسی اولیه و پیشنهاد مسیر تولید آبجکت BIM ارسال کنید.', en: 'If you already have BIM files, use the login/register and brand panel path; if not, send product catalogs for initial review and BIM object creation guidance.' },
+  pricingTiers: { fa: 'مسیرهای همکاری تولیدکنندگان', en: 'Manufacturer Collaboration Paths' },
+  featuresComparison: { fa: 'مقایسه مسیرهای همکاری', en: 'Collaboration Path Comparison' },
   registerAsManufacturer: { fa: 'ثبت‌نام تولیدکننده جدید', en: 'Register as a Manufacturer' },
   registerAsModeler: { fa: 'ثبت‌نام معمار / طراح (رایگان)', en: 'Register as an Architect/Modeler' },
   
@@ -122,7 +122,7 @@ const translations: Record<string, { fa: string; en: string }> = {
   objectDescFa: { fa: 'توضیحات و ویژگی‌های کاربردی (به فارسی)', en: 'Description & Applications (in Persian)' },
   objectDescEn: { fa: 'توضیحات و ویژگی‌های کاربردی (به انگلیسی)', en: 'Description & Applications (in English)' },
   step2Directions: { fa: 'مشخصات فنی و فیلترهای پارامتریک را جهت جستجوی دقیق معماران تکمیل کنید:', en: 'Fill out these parametric parameters so engineers can filter your product accurately:' },
-  publishSuccess: { fa: 'تبریک! آبجکت بیم شما با موفقیت ثبت، پردازش و در مارکت IranBIMhub منتشر شد.', en: 'Success! Your BIM object has been processed, verified, and published on IranBIMhub.' },
+  publishSuccess: { fa: 'پیش‌نویس آبجکت BIM شما ثبت شد و پس از ارزیابی فنی برای انتشار آماده می‌شود.', en: 'Your BIM object draft was saved and will be prepared for publishing after technical evaluation.' },
   uploadMore: { fa: 'بارگذاری محصول جدید دیگر', en: 'Upload Another Product' },
   
   // Dashboards
@@ -132,7 +132,7 @@ const translations: Record<string, { fa: string; en: string }> = {
   myCatalog: { fa: 'مدیریت کاتالوگ محصولات', en: 'My Product Catalog' },
   analyticsOverview: { fa: 'گزارش و آمارهای بازدید', en: 'Analytics Overview' },
   contactInquiries: { fa: 'پیام‌های دریافتی از طراحان', en: 'Inquiries from Architects' },
-  subscriptionStatus: { fa: 'وضعیت اشتراک', en: 'Subscription Status' },
+  subscriptionStatus: { fa: 'وضعیت حساب', en: 'Account Status' },
   noInquiries: { fa: 'هنوز پیامی دریافت نشده است.', en: 'No messages received yet.' },
   favorites: { fa: 'آبجکت‌های نشان‌شده شما', en: 'Your Saved Collections' },
   downloadHistory: { fa: 'تاریخچه دانلودهای شما', en: 'Your Download History' },

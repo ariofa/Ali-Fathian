@@ -22,8 +22,8 @@ export const MANUFACTURERS: Manufacturer[] = [
     nameFa: 'گروه صنعتی بوتان',
     nameEn: 'Butane Industrial Group',
     logo: 'BUTANE',
-    descriptionFa: 'بزرگترین تولیدکننده پکیج‌های گرمایشی دیواری، آبگرمکن و رادیاتورهای آلومینیومی در خاورمیانه.',
-    descriptionEn: 'The largest manufacturer of wall-hung heating boilers, water heaters, and aluminum radiators in the Middle East.',
+    descriptionFa: 'تولیدکننده شناخته‌شده پکیج‌های گرمایشی دیواری، آبگرمکن و رادیاتورهای آلومینیومی در بازار ایران.',
+    descriptionEn: 'A well-known manufacturer of wall-hung heating boilers, water heaters, and aluminum radiators in the Iranian market.',
     website: 'https://butane.ir',
     email: 'sales@butane.ir',
     phone: '+98 21 8890 5678',
@@ -70,8 +70,8 @@ export const MANUFACTURERS: Manufacturer[] = [
     nameFa: 'صنایع بهسرام',
     nameEn: 'Behceram Porcelain Tiles',
     logo: 'BEHCERAM',
-    descriptionFa: 'اولین و بزرگترین تولیدکننده کاشی و سرامیک پرسلانی سوپر پولیش و لعاب‌دار در ابعاد بزرگ در ایران.',
-    descriptionEn: 'The first and largest manufacturer of super polished and glazed porcelain tiles and slabs in Iran.',
+    descriptionFa: 'تولیدکننده کاشی و سرامیک پرسلانی سوپر پولیش و لعاب‌دار در ابعاد بزرگ در ایران.',
+    descriptionEn: 'Manufacturer of super polished and glazed porcelain tiles and slabs in Iran.',
     website: 'https://behceram.ir',
     email: 'design@behceram.ir',
     phone: '+98 31 3266 1234',
@@ -877,8 +877,8 @@ export const FAQ_ITEMS = [
   {
     qFa: 'مزیت عضویت برای تولیدکنندگان چیست؟',
     qEn: 'What is the benefit of joining for manufacturers?',
-    aFa: 'با قرار دادن محصولات خود در IranBIMhub، بیش از هزاران معمار، طراح و مهندس ایرانی که روزانه پروژه‌های واقعی طراحی می‌کنند، کاتالوگ و مدل‌های سه‌بعدی شما را مستقیماً وارد مدل ساختمان خود می‌کنند که منجر به خرید قطعی در مرحله ساخت می‌شود.',
-    aEn: 'By listing your products on IranBIMhub, thousands of Iranian architects and engineers actively drafting real construction projects can find and specify your exact catalog models, leading directly to procurement during construction.'
+     aFa: 'با قرار دادن محصولات خود در IranBIMhub، مسیر معرفی فنی و قابل ارزیابی محصول برای معماران، طراحان و مهندسان ایرانی فراهم می‌شود. حضور درست در مدل BIM می‌تواند شانس دیده‌شدن و انتخاب محصول در مراحل طراحی و اجرا را افزایش دهد.',
+     aEn: 'By listing products on IranBIMhub, manufacturers create a clearer technical path for architects and engineers to evaluate and use real product data in BIM workflows, increasing the chance of specification during design and construction.'
   },
   {
     qFa: 'منظور از سطح توسعه (LOD) در مدل‌های بیم چیست؟',

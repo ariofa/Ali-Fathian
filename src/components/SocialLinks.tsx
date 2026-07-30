@@ -177,23 +177,54 @@ export const SocialIconsRow: React.FC<SocialIconsRowProps> = ({
 // STAY CONNECTED Block
 interface StayConnectedProps {
   isRtl?: boolean;
+  variant?: 'default' | 'landing';
 }
 
-export const StayConnectedBlock: React.FC<StayConnectedProps> = ({ isRtl = true }) => {
+export const StayConnectedBlock: React.FC<StayConnectedProps> = ({ isRtl = true, variant = 'default' }) => {
+  const isLanding = variant === 'landing';
+
   return (
-    <div className="bg-slate-50 dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-start">
-      <div className="space-y-1.5 flex-1 w-full">
-        <h3 className="font-extrabold text-sm sm:text-base text-gray-800 dark:text-white">
-          {isRtl ? 'با ما در ارتباط باشید' : 'Stay Connected'}
-        </h3>
-        <p className="text-xs text-gray-400 leading-relaxed font-light">
-          {isRtl
-            ? 'با دنبال کردن شبکه‌های اجتماعی رسمی ایران‌بیم‌هاب، از آخرین اخبار پلتفرم، وبینارهای آموزشی و انتشار کاتالوگ‌های جدید مطلع شوید.'
-            : 'Follow IranBIMhub’s official channels to receive real-time updates, BIM webinars, and brand catalog listings.'}
-        </p>
-      </div>
-      <div className="shrink-0 w-full sm:w-auto flex justify-center sm:justify-start">
-        <SocialIconsRow className="flex gap-3 bg-white dark:bg-gray-950 p-2 rounded-2xl border border-gray-100 dark:border-gray-850" />
+    <div
+      className={`relative overflow-hidden border transition-colors text-start ${
+        isLanding
+          ? 'bg-gradient-to-br from-white via-[#F7FFFF] to-[#EAFBFB] dark:from-gray-900 dark:via-gray-900 dark:to-[#112a2b] border-[#26B6B6]/20 dark:border-[#26B6B6]/20 rounded-[2rem] p-5 sm:p-6 lg:p-7 shadow-sm'
+          : 'bg-slate-50 dark:bg-gray-900 border-gray-150 dark:border-gray-800 rounded-3xl p-6 sm:p-8'
+      }`}
+    >
+      {isLanding && (
+        <>
+          <div className="absolute -top-24 -left-24 w-56 h-56 rounded-full bg-[#26B6B6]/15 blur-3xl pointer-events-none" />
+          <div className="absolute inset-0 opacity-[0.055] bg-[radial-gradient(#26B6B6_1.2px,transparent_1.2px)] [background-size:18px_18px] pointer-events-none" />
+        </>
+      )}
+
+      <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-5 sm:gap-6">
+        <div className="space-y-2 flex-1 w-full">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#26B6B6]/10 text-[#138f8f] dark:text-[#26B6B6] text-[10px] font-black">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#26B6B6] animate-pulse" />
+            <span>{isRtl ? 'کانال‌های رسمی ایران‌بیم‌هاب' : 'Official IranBIMhub channels'}</span>
+          </div>
+
+          <h3 className="font-black text-base sm:text-xl text-gray-850 dark:text-white leading-tight">
+            {isRtl ? 'با ایران‌بیم‌هاب همراه بمانید' : 'Stay connected with IranBIMhub'}
+          </h3>
+
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 leading-relaxed max-w-2xl">
+            {isRtl
+              ? 'اخبار انتشار نمونه آبجکت‌ها، فراخوان همکاری مدل‌سازان BIM، راهنمای تولیدکنندگان و به‌روزرسانی‌های ایران‌بیم‌هاب را از کانال‌های رسمی دنبال کنید.'
+              : 'Follow IranBIMhub’s official channels for BIM object updates, modeler collaboration calls, manufacturer guidance, and IranBIMhub news.'}
+          </p>
+        </div>
+
+        <div className="shrink-0 w-full lg:w-auto flex flex-col items-stretch sm:items-center lg:items-end gap-2">
+          <SocialIconsRow
+            className="flex flex-wrap justify-center gap-2 bg-white/80 dark:bg-gray-950/70 backdrop-blur-sm p-2.5 rounded-2xl border border-white/70 dark:border-gray-800 shadow-xs"
+            iconClassName="w-4.5 h-4.5"
+          />
+          <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold text-center lg:text-end">
+            {isRtl ? 'اخبار و اطلاع‌رسانی رسمی ایران‌بیم‌هاب' : 'Official IranBIMhub news and updates'}
+          </span>
+        </div>
       </div>
     </div>
   );
