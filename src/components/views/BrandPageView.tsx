@@ -732,6 +732,37 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
     }
   }, [manufacturer.id, customObjectsVersion]);
 
+  const draftBrandProfile = React.useMemo(() => {
+    try {
+      const saved = localStorage.getItem('iranbimhub_mfg_profile') || localStorage.getItem('iranbimhub_mfg_profile_m1');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  }, [manufacturer.id, customObjectsVersion]);
+
+  const hasLocalDraftProfile = Boolean(draftBrandProfile);
+  const isBrandPublic = !hasLocalDraftProfile || draftBrandProfile?.brandVerificationStatus === 'verified' || draftBrandProfile?.brandPublishStatus === 'public';
+
+  let sessionUser: any = null;
+  try {
+    const savedUser = localStorage.getItem('iranbimhub_user_session') || localStorage.getItem('iranbimhub_user');
+    sessionUser = savedUser ? JSON.parse(savedUser) : null;
+  } catch {}
+
+  const isOwnerPreview = hasLocalDraftProfile && sessionUser?.role === 'Manufacturer' && (
+    !draftBrandProfile?.phone || !sessionUser?.phone || draftBrandProfile.phone === sessionUser.phone || manufacturer.id === 'm1'
+  );
+  const isAdminPreview = Boolean(localStorage.getItem('iranbimhub_current_admin'));
+  const canPreviewPrivateBrand = isBrandPublic || isOwnerPreview || isAdminPreview;
+  const canSeeDraftObjects = isOwnerPreview || isAdminPreview;
+  const visibleManufacturerObjects = canSeeDraftObjects
+    ? manufacturerObjects
+    : manufacturerObjects.filter((obj: any) => {
+        const hasPublicationMetadata = obj.isPublic !== undefined || obj.status !== undefined || obj.evaluationStatus !== undefined;
+        return !hasPublicationMetadata || obj.isPublic === true || obj.status === 'Published' || obj.evaluationStatus === 'approved';
+      });
+
   // Catalog Filtering State
   const [catalogSearchQuery, setCatalogSearchQuery] = useState('');
   const [selectedSubcategory, setSelectedSubcategory] = useState('all');
@@ -739,22 +770,22 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
 
   const availableSubcategories = React.useMemo(() => {
     const subs = new Set<string>();
-    manufacturerObjects.forEach(obj => {
+    visibleManufacturerObjects.forEach(obj => {
       if (obj.subcategory) subs.add(obj.subcategory);
     });
     return Array.from(subs);
-  }, [manufacturerObjects]);
+  }, [visibleManufacturerObjects]);
 
   const availableFormats = React.useMemo(() => {
     const fmts = new Set<string>();
-    manufacturerObjects.forEach(obj => {
+    visibleManufacturerObjects.forEach(obj => {
       obj.formats.forEach(f => fmts.add(f));
     });
     return Array.from(fmts);
-  }, [manufacturerObjects]);
+  }, [visibleManufacturerObjects]);
 
   const filteredCatalogObjects = React.useMemo(() => {
-    return manufacturerObjects.filter(obj => {
+    return visibleManufacturerObjects.filter(obj => {
       const title = isRtl ? obj.titleFa : obj.titleEn;
       const desc = isRtl ? obj.descriptionFa : obj.descriptionEn;
       const matchesSearch = 
@@ -767,7 +798,7 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
 
       return matchesSearch && matchesSub && matchesFormat;
     });
-  }, [manufacturerObjects, catalogSearchQuery, selectedSubcategory, selectedFormat, isRtl]);
+  }, [visibleManufacturerObjects, catalogSearchQuery, selectedSubcategory, selectedFormat, isRtl]);
 
   // Helper to map products to specific brand collections
   const getCollectionObjects = React.useCallback((colId: string, objects: BIMObject[]): BIMObject[] => {
@@ -811,6 +842,35 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [manufacturer.id]);
+
+  if (!canPreviewPrivateBrand) {
+    return (
+      <div className="min-h-screen bg-[#FBFBFC] dark:bg-gray-950 flex items-center justify-center p-4" dir={isRtl ? 'rtl' : 'ltr'}>
+        <div className="max-w-lg w-full bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-[2rem] shadow-xl p-8 text-center space-y-5">
+          <div className="w-16 h-16 rounded-3xl bg-[#26B6B6]/10 text-[#26B6B6] flex items-center justify-center mx-auto">
+            <ShieldCheck className="w-8 h-8" />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-xl font-black text-gray-900 dark:text-white">
+              {isRtl ? 'این برند هنوز برای نمایش عمومی تأیید نشده است' : 'This brand is not approved for public display yet'}
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+              {isRtl
+                ? 'ایران‌بیم‌هاب برای حفاظت از اصالت برندها، صفحه برند را فقط پس از تأیید مدارک رسمی توسط واحد ارزیابی عمومی می‌کند.'
+                : 'To protect brand authenticity, IranBIMhub publishes brand pages only after official documents are approved by the evaluation team.'
+              }
+            </p>
+          </div>
+          <button
+            onClick={onBack}
+            className="px-5 py-3 rounded-xl bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-black transition-all cursor-pointer"
+          >
+            {isRtl ? 'بازگشت' : 'Go Back'}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white dark:bg-gray-950 text-gray-800 dark:text-gray-100 transition-colors" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -876,7 +936,7 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
                 <div className="flex items-center gap-3 text-[11px] text-gray-400 font-bold font-mono">
                   <span>{followersCount} {isRtl ? 'دنبال‌کننده' : 'followers'}</span>
                   <span>•</span>
-                  <span>{manufacturerObjects.length} {isRtl ? 'مدل BIM فعال' : 'Active BIM Models'}</span>
+                  <span>{visibleManufacturerObjects.length} {isRtl ? 'مدل BIM فعال' : 'Active BIM Models'}</span>
                 </div>
               </div>
             </div>
@@ -915,6 +975,23 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
               </button>
             </div>
           </div>
+
+          {!isBrandPublic && (isOwnerPreview || isAdminPreview) && (
+            <div className="rounded-2xl border border-amber-100 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/25 text-amber-900 dark:text-amber-100 p-4 text-start flex items-start gap-3">
+              <ShieldCheck className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <h3 className="text-sm font-black">
+                  {isRtl ? 'پیش‌نمایش خصوصی برند' : 'Private Brand Preview'}
+                </h3>
+                <p className="text-xs leading-relaxed">
+                  {isRtl
+                    ? 'این صفحه فعلاً فقط برای شما و ادمین‌های ایران‌بیم‌هاب قابل مشاهده است. پس از تأیید مدارک رسمی توسط واحد ارزیابی، صفحه برند برای عموم منتشر می‌شود.'
+                    : 'This page is currently visible only to you and IranBIMhub admins. After official documents are approved by the evaluation team, the brand page becomes public.'
+                  }
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Table of Contacts & Custom Stats Block */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-gray-100 dark:border-gray-800/60">
@@ -1750,7 +1827,7 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
                     className="w-full text-xs p-2.5 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#26B6B6]"
                   >
                     <option value="general">{isRtl ? 'مشاوره عمومی برند (کل کاتالوگ)' : 'General Brand Consultation'}</option>
-                    {manufacturerObjects.map(obj => (
+                    {visibleManufacturerObjects.map(obj => (
                       <option key={obj.id} value={obj.id}>
                         {isRtl ? obj.titleFa : obj.titleEn}
                       </option>

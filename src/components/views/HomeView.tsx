@@ -223,7 +223,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
       const custom = saved ? JSON.parse(saved) : [];
       const map = new Map<string, BIMObject>();
       BIM_OBJECTS.forEach(obj => { if (obj && obj.id) map.set(obj.id, obj); });
-      custom.forEach((obj: BIMObject) => { if (obj && obj.id) map.set(obj.id, obj); });
+      custom.forEach((obj: any) => {
+        const isPublicObject = obj?.isPublic === true || obj?.status === 'Published' || obj?.evaluationStatus === 'approved';
+        if (obj && obj.id && isPublicObject) map.set(obj.id, obj);
+      });
       return Array.from(map.values());
     } catch {
       return BIM_OBJECTS;

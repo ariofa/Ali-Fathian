@@ -4,6 +4,7 @@ import { CATEGORIES, MANUFACTURERS, BIM_OBJECTS } from '../../data';
 import { BIMObject } from '../../types';
 import { ManufacturerAnalyticsView } from './ManufacturerAnalyticsView';
 import { BrandOwnershipVerificationPanel } from './BrandOwnershipVerificationPanel';
+import { BrandPublicationStatusBanner } from './BrandPublicationStatusBanner';
 import { parseVideoEmbedUrl } from '../../lib/videoUtils';
 import { 
   BarChart3, 
@@ -171,6 +172,12 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
           portfolioPdfName: parsed.portfolioPdfName || 'Alupan_Corporate_Catalog_2026.pdf',
           portfolioPdfUrl: parsed.portfolioPdfUrl || 'https://alupan.com/catalog.pdf',
           tier: currentTier,
+          brandOwnershipType: parsed.brandOwnershipType || parsed.companyType || '',
+          brandVerificationStatus: parsed.brandVerificationStatus || 'not_started',
+          brandPublishStatus: parsed.brandPublishStatus || 'private_draft',
+          officialDocs: parsed.officialDocs || {},
+          brandEvaluationMessages: parsed.brandEvaluationMessages || [],
+          isPendingVerification: parsed.isPendingVerification !== undefined ? parsed.isPendingVerification : true,
           verificationDocs: parsed.verificationDocs || [
             { 
               id: 'doc-gazette', 
@@ -219,11 +226,11 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
               description: 'گواهی ثبت‌نام موقت مالیاتی دوره‌ای.',
               url: 'https://intamedia.ir',
               fileUrl: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=400&q=80',
-              fileName: 'VAT_Certificate_1404.pdf',
-              rejectionReasonFa: 'اعتبار گواهی ارزش افزوده بارگذاری شده منقضی شده است. لطفا آخرین تمدیدیه را تمدید و ارسال کنید.',
-              rejectionReasonEn: 'The uploaded VAT certificate has expired. Please upload the latest renewal.'
-            }
-          ]
+               fileName: 'VAT_Certificate_1404.pdf',
+               rejectionReasonFa: 'اعتبار گواهی ارزش افزوده بارگذاری شده منقضی شده است. لطفا آخرین تمدیدیه را تمدید و ارسال کنید.',
+               rejectionReasonEn: 'The uploaded VAT certificate has expired. Please upload the latest renewal.'
+             }
+           ]
         };
       }
     } catch (e) {
@@ -269,6 +276,12 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
       portfolioPdfName: 'Alupan_Corporate_Catalog_2026.pdf',
       portfolioPdfUrl: 'https://alupan.com/catalog.pdf',
       tier: currentTier,
+      brandOwnershipType: (companyProfile as any)?.companyType || '',
+      brandVerificationStatus: (companyProfile as any)?.brandVerificationStatus || 'not_started',
+      brandPublishStatus: (companyProfile as any)?.brandPublishStatus || 'private_draft',
+      officialDocs: (companyProfile as any)?.officialDocs || {},
+      brandEvaluationMessages: (companyProfile as any)?.brandEvaluationMessages || [],
+      isPendingVerification: (companyProfile as any)?.isPendingVerification !== undefined ? (companyProfile as any).isPendingVerification : true,
       verificationDocs: [
         { 
           id: 'doc-gazette', 
@@ -393,14 +406,22 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
     // Set some state fields like status (Approved, In Review, Draft, Rejected)
     return uniqueObjects.map(obj => ({
       ...obj,
-      status: (obj.id === 'obj1' || obj.id === 'obj2') ? 'Published' : 'Pending Review',
-      views: obj.id === 'obj1' ? 1420 : (obj.id === 'obj2' ? 940 : 12),
-      downloads: obj.id === 'obj1' ? 420 : (obj.id === 'obj2' ? 240 : 1)
+      status: (obj as any).status || ((obj.id === 'obj1' || obj.id === 'obj2') ? 'Published' : 'Awaiting Evaluation Payment'),
+      isPublic: (obj as any).isPublic !== undefined ? (obj as any).isPublic : (obj.id === 'obj1' || obj.id === 'obj2'),
+      evaluationStatus: (obj as any).evaluationStatus || ((obj.id === 'obj1' || obj.id === 'obj2') ? 'approved' : 'waiting_payment'),
+      views: (obj as any).views ?? (obj.id === 'obj1' ? 1420 : (obj.id === 'obj2' ? 940 : 12)),
+      downloads: (obj as any).downloads ?? (obj.id === 'obj1' ? 420 : (obj.id === 'obj2' ? 240 : 1))
     })) as any[];
   });
 
   useEffect(() => {
-    localStorage.setItem('iranbimhub_custom_objects_v2', JSON.stringify(catalogObjects));
+    // Only custom/manufacturer-created objects should be stored here.
+    // Seed objects from src/data.ts stay in code and should not be duplicated into localStorage.
+    const customOnly = catalogObjects.filter((obj: any) => {
+      const id = String(obj?.id || '');
+      return id.startsWith('mfg-product-') || obj.manufacturerId === 'custom';
+    });
+    localStorage.setItem('iranbimhub_custom_objects_v2', JSON.stringify(customOnly));
   }, [catalogObjects]);
 
   // Catalog Filters & Search
@@ -910,13 +931,21 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
 
     const enhancedProduct = {
       ...newProduct,
-      status: 'Pending Review',
+      status: 'Awaiting Evaluation Payment',
+      evaluationStatus: 'waiting_payment',
+      isPublic: false,
+      brandVerificationStatusAtUpload: brandInfo.brandVerificationStatus || 'not_started',
+      createdAsDraft: true,
       views: 0,
       downloads: 0
     };
 
     setCatalogObjects(prev => [enhancedProduct as any, ...prev]);
-    onPublishNewObject(newProduct);
+    window.dispatchEvent(new CustomEvent('iranbimhub_custom_objects_updated'));
+    alert(isRtl
+      ? 'فایل/محصول به‌صورت پیش‌نویس ثبت شد. انتشار عمومی پس از پرداخت هزینه ارزیابی، بررسی تیم ارزیاب و تأیید نهایی انجام می‌شود.'
+      : 'Product/file saved as draft. Public publishing happens after evaluation fee payment, evaluation team review, and final approval.'
+    );
     setWizardStep(3);
   };
 
@@ -1660,6 +1689,20 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
         {/* OVERVIEW HOME TAB */}
         {activeTab === 'overview' && (
           <div className="space-y-8 animate-fadeIn">
+            <BrandPublicationStatusBanner
+              brandInfo={brandInfo}
+              onGoToProfile={() => {
+                setActiveTab('profile');
+                setProfileSubTab('info');
+              }}
+              onPreviewBrand={() => {
+                if (typeof window !== 'undefined' && (window as any).onNavigateToView) {
+                  (window as any).onNavigateToView('brand', mfgId);
+                } else if (onViewBrand) {
+                  onViewBrand(mfgId);
+                }
+              }}
+            />
             {/* Top Stat Dashboard B2B */}
             <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl p-6 border border-white/5 shadow-xs relative overflow-hidden">
               <div className="absolute right-0 top-0 w-1/4 h-full opacity-5 bg-[radial-gradient(#26B6B6_1px,transparent_1px)] [background-size:12px_12px]" />
@@ -2118,6 +2161,21 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                     {isRtl ? 'تصویر لوگو، کاتالوگ‌های چاپی، شبکه‌های اجتماعی و اسناد شرکت برای جلب اعتماد معماران ساختمانی.' : 'Manage public presentation specs, company registration files and website links.'}
                   </p>
                 </div>
+
+            <BrandPublicationStatusBanner
+              brandInfo={brandInfo}
+              onGoToProfile={() => {
+                setActiveTab('profile');
+                setProfileSubTab('info');
+              }}
+              onPreviewBrand={() => {
+                if (typeof window !== 'undefined' && (window as any).onNavigateToView) {
+                  (window as any).onNavigateToView('brand', mfgId);
+                } else if (onViewBrand) {
+                  onViewBrand(mfgId);
+                }
+              }}
+            />
 
             <BrandOwnershipVerificationPanel
               brandInfo={brandInfo}
@@ -4332,7 +4390,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                           onClick={handlePublishNewProduct}
                           className="bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-bold py-2.5 px-5 rounded-xl cursor-pointer"
                         >
-                          {isRtl ? 'انتشار و ارسال جهت تایید فنی' : 'Publish to Supervisor'}
+                          {isRtl ? 'ثبت پیش‌نویس و ارسال برای ارزیابی' : 'Save Draft & Send for Evaluation'}
                         </button>
                       </div>
                     </div>
