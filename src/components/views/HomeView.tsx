@@ -672,6 +672,127 @@ export const HomeView: React.FC<HomeViewProps> = ({
       {/* 1. CAROUSEL HERO SECTION WITH REAL PHOTOGRAPHY & CARD STACK */}
       <HeroCarousel onNavigate={onNavigate} onOpenAuthModal={onOpenAuthModal} />
 
+      {/* 2. INTRODUCTION / VALUE CLARITY SECTION */}
+      <section
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10"
+        id="iranbimhub-value-introduction"
+      >
+        <div className="relative overflow-hidden bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-7 lg:p-9 shadow-sm">
+          {/* Subtle background grid */}
+          <div className="absolute inset-0 opacity-[0.035] bg-[radial-gradient(#26B6B6_1.4px,transparent_1.4px)] [background-size:22px_22px] pointer-events-none" />
+          <div className="absolute -top-24 -left-24 w-64 h-64 rounded-full bg-[#26B6B6]/10 blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 -right-24 w-64 h-64 rounded-full bg-slate-400/10 blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 space-y-7">
+            {/* Header */}
+            <div className="max-w-4xl mx-auto text-center space-y-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#26B6B6]/10 text-[#138f8f] dark:text-[#26B6B6] text-[10px] sm:text-xs font-black">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>
+                  {isRtl ? 'معرفی ساده مسیر ایران‌بیم‌هاب' : 'A simple look at the IranBIMhub path'}
+                </span>
+              </div>
+
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 dark:text-white leading-tight tracking-tight">
+                {isRtl
+                  ? 'از کاتالوگ محصول تا مدل سه‌بعدی اطلاعاتی ساختمان'
+                  : 'From Product Catalogs to Information-Rich 3D Building Models'}
+              </h2>
+
+              <p className="text-xs sm:text-sm lg:text-base text-gray-500 dark:text-gray-400 leading-relaxed max-w-3xl mx-auto">
+                {isRtl
+                  ? 'ایران‌بیم‌هاب کمک می‌کند اطلاعات واقعی محصولات ساختمانی، از کاتالوگ و دیتاشیت به فایل‌های قابل استفاده در طراحی BIM تبدیل شود؛ با تأیید هویت برند، ارزیابی فایل‌ها و همکاری متخصصان مدل‌سازی.'
+                  : 'IranBIMhub helps real building product information move from catalogs and datasheets into BIM-ready files, through brand verification, file evaluation, and collaboration with modeling specialists.'
+                }
+              </p>
+            </div>
+
+            {/* Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
+              {[
+                {
+                  icon: <BookOpen className="w-5 h-5" />,
+                  titleFa: 'کاتالوگ‌ها برای معرفی‌اند؛ مدل‌ها برای طراحی',
+                  titleEn: 'Catalogs introduce products; models support design',
+                  descFa:
+                    'PDF، عکس و دیتاشیت محصول برای معرفی کافی‌اند؛ اما در پروژه‌های BIM، طراح به مدلی نیاز دارد که ابعاد، مشخصات و اطلاعات فنی محصول را در خود داشته باشد.',
+                  descEn:
+                    'PDFs, images, and datasheets are useful for introducing products, but BIM projects need objects that carry dimensions, specifications, and technical product data.'
+                },
+                {
+                  icon: <Package className="w-5 h-5" />,
+                  titleFa: 'محصولی که وارد مدل شود، جدی‌تر بررسی می‌شود',
+                  titleEn: 'A product inside the model is easier to evaluate',
+                  descFa:
+                    'وقتی محصول شما به آبجکت BIM استاندارد تبدیل شود، معمار و مهندس می‌توانند آن را در مرحله طراحی ببینند، بررسی کنند و در تصمیم‌گیری پروژه جدی‌تر در نظر بگیرند.',
+                  descEn:
+                    'When a product becomes a standard BIM object, architects and engineers can review it during design and consider it more clearly in project decisions.'
+                },
+                {
+                  icon: <FileCheck2 className="w-5 h-5" />,
+                  titleFa: 'اعتماد، قبل از انتشار ساخته می‌شود',
+                  titleEn: 'Trust is built before publishing',
+                  descFa:
+                    'در ایران‌بیم‌هاب، صفحه برند و فایل‌های BIM تنها پس از بررسی مدارک رسمی، احراز هویت برند و ارزیابی تخصصی برای نمایش عمومی آماده می‌شوند.',
+                  descEn:
+                    'On IranBIMhub, brand pages and BIM files are prepared for public display only after official documents, brand identity, and files are evaluated.'
+                }
+              ].map((item, index) => (
+                <div
+                  key={item.titleEn}
+                  className="group relative overflow-hidden bg-slate-50/70 dark:bg-gray-950/60 border border-gray-150 dark:border-gray-800 rounded-3xl p-5 sm:p-6 text-start hover:border-[#26B6B6]/40 hover:shadow-md transition-all"
+                >
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-br from-[#26B6B6]/5 to-transparent transition-opacity pointer-events-none" />
+
+                  <div className="relative z-10 space-y-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="w-11 h-11 rounded-2xl bg-[#26B6B6]/10 text-[#26B6B6] border border-[#26B6B6]/15 flex items-center justify-center shrink-0">
+                        {item.icon}
+                      </div>
+
+                      <span className="text-[10px] font-black text-gray-300 dark:text-gray-700 font-mono">
+                        {isRtl ? `۰${index + 1}` : `0${index + 1}`}
+                      </span>
+                    </div>
+
+                    <div className="space-y-2">
+                      <h3 className="text-sm sm:text-base font-black text-gray-900 dark:text-white leading-snug">
+                        {isRtl ? item.titleFa : item.titleEn}
+                      </h3>
+
+                      <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                        {isRtl ? item.descFa : item.descEn}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Expert note */}
+            <div className="rounded-2xl bg-[#26B6B6]/5 dark:bg-[#26B6B6]/10 border border-[#26B6B6]/15 p-4 sm:p-5 text-start">
+              <div className="flex flex-col sm:flex-row sm:items-start gap-3">
+                <div className="w-9 h-9 rounded-xl bg-white dark:bg-gray-950 text-[#26B6B6] flex items-center justify-center shrink-0 border border-[#26B6B6]/10">
+                  <Ruler className="w-4.5 h-4.5" />
+                </div>
+
+                <div className="space-y-1.5">
+                  <h4 className="text-xs sm:text-sm font-black text-gray-900 dark:text-white">
+                    {isRtl ? 'برای مخاطب آشنا با BIM' : 'For BIM-aware users'}
+                  </h4>
+                  <p className="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                    {isRtl
+                      ? 'در ایران‌بیم‌هاب، آبجکت BIM فقط یک مدل سه‌بعدی نیست؛ باید از نظر فرمت، دسته‌بندی، متادیتا، سطح جزئیات، حجم فایل و انطباق با مشخصات واقعی محصول قابل بررسی باشد.'
+                      : 'On IranBIMhub, a BIM object is not just a 3D model; it should be reviewable in terms of format, category, metadata, level of detail, file size, and alignment with real product specifications.'
+                    }
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 3. PRECISION SEARCH AND BROWSE BY CATEGORY - MERGED WITH CATEGORIES */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20" id="search-and-browse-categories">
         
