@@ -11,7 +11,13 @@ import {
   TrendingUp,
   Compass,
   Factory,
-  DoorOpen
+  DoorOpen,
+  FileText,
+  Database,
+  Box,
+  Building2,
+  ShieldCheck,
+  Layers
 } from 'lucide-react';
 
 const toPersianDigits = (num: string | number) => {
@@ -61,6 +67,68 @@ const CountUp: React.FC<{ end: number; duration?: number; prefix?: string; suffi
     </span>
   );
 };
+
+const HERO_BIM_ASSETS = {
+  window: '/hero/bim-window.webp',
+  fireDoor: '/hero/bim-fire-door.webp',
+  rotatingHalogen: '/hero/bim-rotating-halogen.webp',
+  wallHungToilet: '/hero/bim-wall-hung-toilet.webp'
+};
+
+const HERO_BIM_GALLERY = [
+  {
+    src: HERO_BIM_ASSETS.window,
+    titleFa: 'آبجکت BIM پنجره ترمال‌بریک',
+    titleEn: 'Thermal Window BIM Object',
+    meta: [
+      { labelFa: 'گروه', labelEn: 'Group', valueFa: 'در و پنجره', valueEn: 'Openings' },
+      { labelFa: 'فرمت', labelEn: 'Format', valueFa: 'RFA / IFC', valueEn: 'RFA / IFC' },
+      { labelFa: 'LOD', labelEn: 'LOD', valueFa: '۳۰۰', valueEn: '300' },
+      { labelFa: 'پارامتر', labelEn: 'Param', valueFa: 'ابعاد / تیپ', valueEn: 'Size / Type' },
+      { labelFa: 'متریال', labelEn: 'Material', valueFa: 'آلومینیوم', valueEn: 'Aluminum' },
+      { labelFa: 'وضعیت', labelEn: 'Status', valueFa: 'قابل ارزیابی', valueEn: 'Reviewable' }
+    ]
+  },
+  {
+    src: HERO_BIM_ASSETS.rotatingHalogen,
+    titleFa: 'چراغ هالوژن چرخشی BIM',
+    titleEn: 'Adjustable Halogen BIM Light',
+    meta: [
+      { labelFa: 'گروه', labelEn: 'Group', valueFa: 'روشنایی', valueEn: 'Lighting' },
+      { labelFa: 'فرمت', labelEn: 'Format', valueFa: 'RFA / IFC', valueEn: 'RFA / IFC' },
+      { labelFa: 'LOD', labelEn: 'LOD', valueFa: '۳۰۰', valueEn: '300' },
+      { labelFa: 'نور', labelEn: 'Light', valueFa: 'IES', valueEn: 'IES' },
+      { labelFa: 'چرخش', labelEn: 'Rotate', valueFa: 'قابل تنظیم', valueEn: 'Adjustable' },
+      { labelFa: 'وضعیت', labelEn: 'Status', valueFa: 'قابل ارزیابی', valueEn: 'Reviewable' }
+    ]
+  },
+  {
+    src: HERO_BIM_ASSETS.fireDoor,
+    titleFa: 'در ضدحریق دو لنگه BIM',
+    titleEn: 'Double-Leaf Fire Door BIM',
+    meta: [
+      { labelFa: 'گروه', labelEn: 'Group', valueFa: 'ایمنی', valueEn: 'Safety' },
+      { labelFa: 'فرمت', labelEn: 'Format', valueFa: 'RFA / IFC', valueEn: 'RFA / IFC' },
+      { labelFa: 'LOD', labelEn: 'LOD', valueFa: '۳۵۰', valueEn: '350' },
+      { labelFa: 'حریق', labelEn: 'Fire', valueFa: '۱۲۰ دقیقه', valueEn: '120 min' },
+      { labelFa: 'پارامتر', labelEn: 'Param', valueFa: 'بازشو / یراق', valueEn: 'Swing / Hardware' },
+      { labelFa: 'وضعیت', labelEn: 'Status', valueFa: 'قابل ارزیابی', valueEn: 'Reviewable' }
+    ]
+  },
+  {
+    src: HERO_BIM_ASSETS.wallHungToilet,
+    titleFa: 'توالت وال‌هنگ BIM',
+    titleEn: 'Wall-Hung Toilet BIM Object',
+    meta: [
+      { labelFa: 'گروه', labelEn: 'Group', valueFa: 'سرویس بهداشتی', valueEn: 'Sanitary' },
+      { labelFa: 'فرمت', labelEn: 'Format', valueFa: 'RFA / IFC', valueEn: 'RFA / IFC' },
+      { labelFa: 'LOD', labelEn: 'LOD', valueFa: '۳۰۰', valueEn: '300' },
+      { labelFa: 'اتصال', labelEn: 'Connect', valueFa: 'فاضلاب', valueEn: 'Waste' },
+      { labelFa: 'نصب', labelEn: 'Mount', valueFa: 'دیواری', valueEn: 'Wall' },
+      { labelFa: 'وضعیت', labelEn: 'Status', valueFa: 'قابل ارزیابی', valueEn: 'Reviewable' }
+    ]
+  }
+];
 
 export const SLIDE_CONFIGS = [
   {
@@ -159,6 +227,8 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
   const [isPaused, setIsPaused] = useState(false);
   const [dragStartX, setDragStartX] = useState<number | null>(null);
   const [dragOffsetX, setDragOffsetX] = useState(0);
+  const [activeHeroAsset, setActiveHeroAsset] = useState(0);
+  const activeHeroAssetData = HERO_BIM_GALLERY[activeHeroAsset];
 
   const handleNextSlide = () => {
     setActiveSlide((prev) => (prev + 1) % activeSlides.length);
@@ -188,6 +258,16 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
       setSlideProgress(0);
     }
   }, [slideProgress, activeSlides.length]);
+
+  useEffect(() => {
+    if (activeSlide !== 0) return;
+
+    const timer = window.setInterval(() => {
+      setActiveHeroAsset((prev) => (prev + 1) % HERO_BIM_GALLERY.length);
+    }, 3400);
+
+    return () => window.clearInterval(timer);
+  }, [activeSlide]);
 
   const handleDragStart = (clientX: number) => {
     setDragStartX(clientX);
@@ -280,6 +360,51 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
         .animate-tech-pulse {
           animation: techPulse 4s ease-in-out infinite;
         }
+        @keyframes heroVisualFloat {
+          0%, 100% { transform: translate3d(0, 0, 0); }
+          50% { transform: translate3d(0, -8px, 0); }
+        }
+        @keyframes heroVisualFloatAlt {
+          0%, 100% { transform: translate3d(0, 0, 0) rotate(-1deg); }
+          50% { transform: translate3d(6px, -10px, 0) rotate(1deg); }
+        }
+        @keyframes heroVisualScan {
+          0% { transform: translateX(-120%); opacity: 0; }
+          15% { opacity: 0.6; }
+          75% { opacity: 0.6; }
+          100% { transform: translateX(120%); opacity: 0; }
+        }
+        @keyframes heroVisualGridShift {
+          0% { background-position: 0 0, 0 0; }
+          100% { background-position: 44px 44px, -44px -44px; }
+        }
+        .animate-hero-visual-float {
+          animation: heroVisualFloat 7s ease-in-out infinite;
+        }
+        .animate-hero-visual-float-alt {
+          animation: heroVisualFloatAlt 8s ease-in-out infinite;
+        }
+        .animate-hero-visual-scan {
+          animation: heroVisualScan 5s ease-in-out infinite;
+        }
+        .animate-hero-visual-grid {
+          animation: heroVisualGridShift 36s linear infinite;
+        }
+        @keyframes heroAlbumGlow {
+          0%, 100% { opacity: 0.35; transform: scale(0.98); }
+          50% { opacity: 0.75; transform: scale(1.02); }
+        }
+        .animate-hero-album-glow {
+          animation: heroAlbumGlow 4.5s ease-in-out infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .animate-hero-visual-float,
+          .animate-hero-visual-float-alt,
+          .animate-hero-visual-scan,
+          .animate-hero-visual-grid {
+            animation: none !important;
+          }
+        }
       `}</style>
 
       {/* Dynamic Background Photo & Dark Gradient Overlay for Active Slide */}
@@ -308,13 +433,17 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
       {/* Content Container */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-3.5 sm:py-8 md:py-12 relative z-20">
         <div
-          className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10 items-center min-h-[350px] sm:min-h-[440px] md:min-h-[420px] lg:min-h-[400px] transition-transform duration-100 ease-out"
+          dir="ltr"
+          className="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-7 md:gap-10 items-center min-h-[430px] sm:min-h-[520px] md:min-h-[460px] lg:min-h-[430px] transition-transform duration-100 ease-out"
           style={{
             transform: dragOffsetX !== 0 ? `translateX(${dragOffsetX}px) rotate(${dragOffsetX * 0.015}deg)` : 'none'
           }}
         >
-          {/* Left Text Content */}
-          <div className="md:col-span-12 space-y-2 sm:space-y-5 flex flex-col justify-center animate-fadeIn">
+          {/* Text Content */}
+          <div
+            dir={isRtl ? 'rtl' : 'ltr'}
+            className={`${activeSlide === 0 ? 'md:col-span-7 lg:col-span-7 order-1 ' + (isRtl ? 'md:order-2' : 'md:order-1') : 'md:col-span-12 order-1'} space-y-2 sm:space-y-5 flex flex-col justify-center animate-fadeIn`}
+          >
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-950/80 backdrop-blur-md border border-[#26B6B6]/30 rounded-full text-[10px] sm:text-xs font-bold text-[#26B6B6] self-start shadow-md max-w-full">
               <Sparkles className="w-3.5 h-3.5 text-[#26B6B6] shrink-0" />
               <span className="truncate">
@@ -428,9 +557,109 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
             </div>
           </div>
 
+          {activeSlide === 0 && (
+            <div
+              dir="ltr"
+              className={`${isRtl ? 'md:order-1' : 'md:order-2'} order-2 md:col-span-5 lg:col-span-5 relative h-[280px] sm:h-[330px] md:h-[390px] lg:h-[410px] animate-fadeIn`}
+              aria-label={isRtl ? 'آلبوم تصویری آبجکت‌های BIM' : 'BIM object visual album'}
+            >
+              {/* Ambient stage */}
+              <div className="absolute inset-0 rounded-[2rem] bg-white/[0.06] border border-white/10 backdrop-blur-md shadow-2xl overflow-hidden">
+                <div className="absolute inset-0 opacity-[0.13] bg-[linear-gradient(to_right,#26B6B6_1px,transparent_1px),linear-gradient(to_bottom,#26B6B6_1px,transparent_1px)] [background-size:22px_22px] animate-hero-visual-grid" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_20%,rgba(38,182,182,0.26),transparent_28%),radial-gradient(circle_at_78%_72%,rgba(255,255,255,0.10),transparent_32%)]" />
+                <div className="absolute -top-24 -right-24 w-64 h-64 rounded-full bg-[#26B6B6]/20 blur-3xl animate-hero-album-glow" />
+                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#26B6B6]/70 to-transparent" />
+              </div>
+
+              {/* Image album deck */}
+              <div className="absolute inset-x-0 top-4 sm:top-5 bottom-[86px] sm:bottom-[92px] flex items-center justify-center px-4 sm:px-6">
+                <div className="relative w-full max-w-[430px] h-full">
+                  {HERO_BIM_GALLERY.map((asset, idx) => {
+                    const total = HERO_BIM_GALLERY.length;
+                    const offset = (idx - activeHeroAsset + total) % total;
+                    const isActiveAsset = offset === 0;
+                    const isNextAsset = offset === 1;
+                    const isPrevAsset = offset === total - 1;
+                    const isVisible = isActiveAsset || isNextAsset || isPrevAsset;
+
+                    if (!isVisible) return null;
+
+                    const transformClass = isActiveAsset
+                      ? 'translate-x-0 translate-y-0 rotate-0 scale-100 z-30 opacity-100'
+                      : isNextAsset
+                      ? 'translate-x-9 sm:translate-x-14 translate-y-5 rotate-[5deg] scale-[0.84] z-20 opacity-55'
+                      : '-translate-x-9 sm:-translate-x-14 translate-y-5 rotate-[-5deg] scale-[0.84] z-10 opacity-55';
+
+                    return (
+                      <div
+                        key={asset.src}
+                        className={`absolute inset-x-4 sm:inset-x-8 top-0 bottom-0 rounded-[1.75rem] overflow-hidden border border-white/15 bg-slate-950/80 shadow-2xl transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${transformClass}`}
+                      >
+                        <div className="absolute inset-0 flex items-center justify-center text-white/10">
+                          <Box className="w-16 h-16" />
+                        </div>
+                        <img
+                          src={asset.src}
+                          alt={isRtl ? asset.titleFa : asset.titleEn}
+                          loading="eager"
+                          className="w-full h-full object-cover"
+                          onError={(e) => { e.currentTarget.style.opacity = '0'; }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/30 via-transparent to-white/5" />
+                        <div className="absolute inset-0 opacity-10 bg-[linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] [background-size:24px_24px]" />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Synced concise metadata */}
+              <div className="absolute left-4 right-4 bottom-4 z-40">
+                <div className="rounded-2xl bg-slate-950/82 border border-white/10 backdrop-blur-md px-3 py-3 shadow-xl">
+                  <div className="flex items-center justify-between gap-3 mb-2.5">
+                    <div className="text-start min-w-0">
+                      <div className="text-[11px] sm:text-xs font-black text-white truncate">
+                        {isRtl ? activeHeroAssetData.titleFa : activeHeroAssetData.titleEn}
+                      </div>
+                      <div className="text-[9px] sm:text-[10px] text-[#7ee7e7] font-bold truncate">
+                        {isRtl ? 'متادیتای خلاصه آبجکت' : 'Synced object metadata'}
+                      </div>
+                    </div>
+                    <div className="flex gap-1.5 shrink-0">
+                      {HERO_BIM_GALLERY.map((asset, idx) => (
+                        <button
+                          key={asset.src}
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveHeroAsset(idx);
+                          }}
+                          className={`w-2 h-2 rounded-full transition-all ${idx === activeHeroAsset ? 'bg-[#26B6B6] w-5' : 'bg-white/25 hover:bg-white/50'}`}
+                          aria-label={`Show hero image ${idx + 1}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5 text-center">
+                    {activeHeroAssetData.meta.map((item) => (
+                      <div key={item.labelEn} className="rounded-xl bg-white/[0.055] border border-white/10 px-2 py-1.5 min-w-0">
+                        <div className="text-[8px] sm:text-[9px] text-gray-400 font-bold leading-tight truncate">
+                          {isRtl ? item.labelFa : item.labelEn}
+                        </div>
+                        <div className="text-[9px] sm:text-[10px] text-white font-black leading-tight truncate mt-0.5">
+                          {isRtl ? item.valueFa : item.valueEn}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
         </div>
 
-        {/* Carousel Clickable Tabs + Progress Bar + Transparent Navigation Arrows */}
         <div className="mt-4 pt-2.5 border-t border-white/15">
           <div className="flex items-center justify-between gap-1.5 sm:gap-4 max-w-5xl mx-auto px-1 sm:px-2">
             {/* Left Navigation Arrow */}
