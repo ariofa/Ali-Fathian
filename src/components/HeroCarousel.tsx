@@ -131,40 +131,21 @@ const HERO_BIM_GALLERY = [
   }
 ];
 
-const DESIGNER_WORKFLOW_STEPS = [
-  {
-    icon: FileText,
-    titleFa: 'کاتالوگ PDF',
-    titleEn: 'PDF Catalog',
-    subtitleFa: 'داده پراکنده و مدل‌سازی دستی',
-    subtitleEn: 'Scattered data and manual modeling',
-    tagFa: 'ورودی پراکنده',
-    tagEn: 'Scattered Input',
-    accentClass: 'text-amber-600 bg-amber-50 border-amber-200',
-    iconClass: 'bg-amber-100 text-amber-700'
-  },
-  {
-    icon: Box,
-    titleFa: 'مدل اطلاعاتی محصول',
-    titleEn: 'Product BIM Data',
-    subtitleFa: 'آبجکت BIM با داده قابل بررسی',
-    subtitleEn: 'BIM object with reviewable data',
-    tagFa: 'RFA / IFC',
-    tagEn: 'RFA / IFC',
-    accentClass: 'text-[#0F8F8F] bg-[#E8FBFB] border-[#26B6B6]/35',
-    iconClass: 'bg-[#26B6B6] text-white'
-  },
-  {
-    icon: Building2,
-    titleFa: 'مدل پروژه',
-    titleEn: 'Project Model',
-    subtitleFa: 'مستندسازی و مسیر متره',
-    subtitleEn: 'Documentation and QTO path',
-    tagFa: 'Schedule / QTO',
-    tagEn: 'Schedule / QTO',
-    accentClass: 'text-emerald-700 bg-emerald-50 border-emerald-200',
-    iconClass: 'bg-emerald-100 text-emerald-700'
-  }
+const DESIGNER_PROBLEM_INPUTS = [
+  { icon: FileText, labelFa: 'PDF پراکنده', labelEn: 'Scattered PDF' },
+  { icon: Box, labelFa: 'مدل عمومی نامطمئن', labelEn: 'Unverified Generic Model' }
+];
+
+const DESIGNER_PROBLEM_RESULTS = [
+  { labelFa: 'دوباره‌کاری', labelEn: 'Rework' },
+  { labelFa: 'ابهام مشخصات', labelEn: 'Unclear Specs' },
+  { labelFa: 'خروجی کم‌اتکا', labelEn: 'Lower Confidence' }
+];
+
+const DESIGNER_SOLUTION_RESULTS = [
+  { labelFa: 'طراحی واقعی‌تر', labelEn: 'More Realistic Design' },
+  { labelFa: 'مستندسازی بهتر', labelEn: 'Better Documentation' },
+  { labelFa: 'آماده‌تر برای متره', labelEn: 'Better Prepared for QTO' }
 ];
 
 const DESIGNER_BENEFITS = [
@@ -750,19 +731,19 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
             <div
               dir={isRtl ? 'rtl' : 'ltr'}
               className={`${isRtl ? 'md:order-1' : 'md:order-2'} order-2 md:col-span-6 lg:col-span-6 relative w-full animate-fadeIn`}
-              aria-label={isRtl ? 'نمای مسیر استفاده معماران از آبجکت‌های BIM' : 'Architect BIM object workflow visual'}
+              aria-label={isRtl ? 'اینفوگرافی مسیر ارزش برای معماران و مدل‌سازان BIM' : 'Architect and BIM modeler value infographic'}
             >
-              <div className="relative min-h-[420px] sm:min-h-[430px] md:h-[410px] lg:h-[420px] overflow-hidden rounded-[2rem] border border-white/10 bg-[#07111F]/78 backdrop-blur-md shadow-2xl p-3 sm:p-4 md:p-5">
+              <div className="relative min-h-[350px] sm:min-h-[370px] md:h-[390px] lg:h-[400px] overflow-hidden rounded-[2rem] border border-white/10 bg-[#07111F]/78 backdrop-blur-md shadow-2xl p-3 sm:p-4 md:p-5">
                 <div className="pointer-events-none absolute inset-0 opacity-[0.07] bg-[linear-gradient(to_right,#26B6B6_1px,transparent_1px),linear-gradient(to_bottom,#26B6B6_1px,transparent_1px)] [background-size:22px_22px] animate-hero-visual-grid" />
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(38,182,182,0.24),transparent_30%),radial-gradient(circle_at_78%_74%,rgba(59,130,246,0.13),transparent_32%)]" />
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_16%_18%,rgba(38,182,182,0.22),transparent_30%),radial-gradient(circle_at_84%_78%,rgba(59,130,246,0.13),transparent_34%)]" />
                 <div className="pointer-events-none absolute -top-24 -left-20 w-64 h-64 rounded-full bg-[#26B6B6]/16 blur-3xl animate-hero-album-glow" />
                 <div className="pointer-events-none absolute -bottom-24 -right-16 w-60 h-60 rounded-full bg-sky-400/12 blur-3xl" />
 
-                <div className="relative z-10 flex h-full min-h-0 flex-col justify-between gap-3 sm:gap-4">
+                <div className="relative z-10 flex h-full min-h-0 flex-col justify-between gap-3">
                   <div className="flex items-center justify-between gap-3">
                     <div className="inline-flex items-center gap-1.5 rounded-full bg-[#26B6B6]/12 border border-[#26B6B6]/25 px-2.5 py-1 text-[9px] sm:text-[10px] text-[#7EE7E7] font-extrabold">
                       <Sparkles className="w-3 h-3" />
-                      <span>{isRtl ? 'از کاتالوگ تا مدل پروژه' : 'Catalog to Project Model'}</span>
+                      <span>{isRtl ? 'کیفیت ورودی، دقت خروجی را می‌سازد' : 'Better input creates better output'}</span>
                     </div>
                     <div className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-white/[0.08] border border-white/10 px-2.5 py-1 text-[9px] sm:text-[10px] text-white/82 font-bold">
                       <Database className="w-3 h-3 text-[#7EE7E7]" />
@@ -770,57 +751,98 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
                     </div>
                   </div>
 
-                  <div className="relative flex-1 min-h-[270px] md:min-h-0 rounded-[1.5rem] border border-white/10 bg-white/[0.075] p-3 sm:p-4 overflow-hidden">
-                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_8%,rgba(255,255,255,0.14),transparent_38%)]" />
+                  <div className="relative flex-1 min-h-[238px] md:min-h-0 rounded-[1.5rem] border border-white/10 bg-white/[0.075] p-3 sm:p-4 overflow-hidden">
+                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_8%,rgba(255,255,255,0.13),transparent_38%)]" />
                     <div className="pointer-events-none absolute inset-0 opacity-[0.045] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:18px_18px]" />
 
-                    <div className="relative z-10 flex h-full flex-col xl:flex-row items-stretch justify-center gap-2.5 xl:gap-2">
-                      {DESIGNER_WORKFLOW_STEPS.map((step, idx) => {
-                        const StepIcon = step.icon;
-                        const isCoreStep = idx === 1;
-                        const ArrowIcon = isRtl ? ChevronLeft : ChevronRight;
-                        return (
-                          <React.Fragment key={step.titleEn}>
-                            <div className={`relative flex-1 min-h-[72px] xl:min-h-0 rounded-2xl border p-3 sm:p-3.5 shadow-xl overflow-hidden transition-all duration-500 ${isCoreStep ? 'bg-gradient-to-br from-white via-[#F3FEFE] to-[#E7FBFB] border-[#26B6B6]/45 ring-1 ring-[#26B6B6]/30 animate-hero-workflow-float' : 'bg-gradient-to-br from-white via-[#F8FBFC] to-slate-100 border-white/80'}`}>
-                              {isCoreStep && <div className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/2 bg-gradient-to-r from-transparent via-[#26B6B6]/12 to-transparent animate-hero-workflow-scan" />}
-                              <div className="relative z-10 flex items-start justify-between gap-2">
-                                <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${step.iconClass}`}>
-                                  <StepIcon className="w-4 h-4" />
-                                </div>
-                                <span className={`rounded-full border px-2 py-1 text-[8px] font-black leading-none whitespace-nowrap ${step.accentClass}`}>
-                                  {isRtl ? step.tagFa : step.tagEn}
-                                </span>
+                    <div className="relative z-10 flex h-full min-h-0 flex-col lg:flex-row items-stretch justify-center gap-2.5 lg:gap-2">
+                      {/* Common / risky path */}
+                      <div className="flex-1 min-h-0 rounded-[1.25rem] border border-amber-200/65 bg-gradient-to-br from-white via-[#FFFDF7] to-amber-50 p-2.5 sm:p-3 shadow-xl overflow-hidden">
+                        <div className="flex items-start justify-between gap-2.5">
+                          <div className="text-start min-w-0">
+                            <div className="text-[9px] sm:text-[10px] font-black text-amber-600 leading-none">
+                              {isRtl ? 'مسیر رایج' : 'Common Path'}
+                            </div>
+                            <div className="mt-1 text-[12px] sm:text-[13px] font-black text-slate-800 leading-tight">
+                              {isRtl ? 'ورودی نامطمئن' : 'Uncertain Input'}
+                            </div>
+                            <div className="mt-0.5 text-[9px] sm:text-[10px] font-bold text-slate-500 leading-snug">
+                              {isRtl ? 'داده پراکنده و مدل‌سازی دستی' : 'Scattered data and manual modeling'}
+                            </div>
+                          </div>
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+                            <FileText className="w-4 h-4" />
+                          </div>
+                        </div>
+
+                        <div className="mt-2 grid grid-cols-2 gap-1.5">
+                          {DESIGNER_PROBLEM_INPUTS.map((item) => {
+                            const ItemIcon = item.icon;
+                            return (
+                              <div key={item.labelEn} className="flex items-center gap-1.5 rounded-xl border border-amber-100 bg-white/78 px-2 py-1.5 text-[8px] sm:text-[9px] font-extrabold text-slate-600">
+                                <ItemIcon className="w-3 h-3 text-amber-600 shrink-0" />
+                                <span className="truncate">{isRtl ? item.labelFa : item.labelEn}</span>
                               </div>
-                              <div className="relative z-10 mt-3 text-start">
-                                <div className={`font-black leading-tight ${isCoreStep ? 'text-[#073F46]' : 'text-slate-800'} text-[13px] sm:text-sm xl:text-[13px]`}>
-                                  {isRtl ? step.titleFa : step.titleEn}
-                                </div>
-                                <div className="mt-1 text-[10px] sm:text-[11px] xl:text-[10px] leading-relaxed text-slate-500 font-bold">
-                                  {isRtl ? step.subtitleFa : step.subtitleEn}
-                                </div>
+                            );
+                          })}
+                        </div>
+
+                        <div className="mt-2 rounded-xl bg-amber-100/65 px-2 py-1.5">
+                          <div className="text-[8px] sm:text-[9px] font-black text-amber-700 leading-snug">
+                            {isRtl ? 'نتیجه: دوباره‌کاری، ابهام مشخصات، خروجی کم‌اتکا' : 'Result: rework, unclear specs, lower confidence'}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Replacement cue */}
+                      <div className="flex shrink-0 items-center justify-center min-h-7 lg:min-h-0 lg:w-9" aria-hidden="true">
+                        <div className="hidden lg:flex h-9 w-9 items-center justify-center rounded-full border border-[#26B6B6]/35 bg-[#26B6B6]/14 text-[#7EE7E7] shadow-[0_0_18px_rgba(38,182,182,0.18)] animate-hero-workflow-pulse">
+                          {isRtl ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                        </div>
+                        <div className="lg:hidden inline-flex items-center gap-1.5 rounded-full border border-[#26B6B6]/35 bg-[#26B6B6]/14 px-3 py-1 text-[9px] font-black text-[#B8FFFF] shadow-[0_0_18px_rgba(38,182,182,0.18)]">
+                          <ChevronDown className="w-3.5 h-3.5 animate-down-arrow" />
+                          <span>{isRtl ? 'جایگزین با داده قابل بررسی' : 'Replace with reviewable data'}</span>
+                        </div>
+                      </div>
+
+                      {/* IranBIMhub path */}
+                      <div className="relative flex-1 lg:flex-[1.12] min-h-0 rounded-[1.35rem] border border-[#26B6B6]/45 bg-gradient-to-br from-white via-[#F3FEFE] to-[#E5FBFB] p-2.5 sm:p-3 shadow-2xl ring-1 ring-[#26B6B6]/25 overflow-hidden animate-hero-workflow-float">
+                        <div className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/2 bg-gradient-to-r from-transparent via-[#26B6B6]/12 to-transparent animate-hero-workflow-scan" />
+                        <div className="relative z-10 flex items-start justify-between gap-2.5">
+                          <div className="text-start min-w-0">
+                            <div className="text-[9px] sm:text-[10px] font-black text-[#0F8F8F] leading-none">
+                              {isRtl ? 'مسیر ایران‌بیم‌هاب' : 'IranBIMhub Path'}
+                            </div>
+                            <div className="mt-1 text-[14px] sm:text-base font-black text-[#073F46] leading-tight">
+                              {isRtl ? 'مدل اطلاعاتی محصول' : 'Product BIM Data Model'}
+                            </div>
+                            <div className="mt-0.5 text-[9px] sm:text-[10px] font-bold text-slate-500 leading-snug">
+                              {isRtl ? 'آبجکت BIM با داده فنی قابل بررسی' : 'BIM object with reviewable technical data'}
+                            </div>
+                          </div>
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#26B6B6] text-white shadow-lg">
+                            <Box className="w-4 h-4" />
+                          </div>
+                        </div>
+
+                        <div className="relative z-10 mt-2 grid grid-cols-3 gap-1.5">
+                          {DESIGNER_SOLUTION_RESULTS.map((item, idx) => (
+                            <div key={item.labelEn} className="rounded-xl border border-[#26B6B6]/18 bg-white/75 px-1.5 sm:px-2 py-1.5 text-start">
+                              <div className="flex items-center gap-1 text-[7.5px] sm:text-[8.5px] font-black text-[#0F8F8F] leading-tight">
+                                {idx === 0 ? <Check className="w-3 h-3 shrink-0" /> : idx === 1 ? <ShieldCheck className="w-3 h-3 shrink-0" /> : <TrendingUp className="w-3 h-3 shrink-0" />}
+                                <span>{isRtl ? item.labelFa : item.labelEn}</span>
                               </div>
                             </div>
-
-                            {idx < DESIGNER_WORKFLOW_STEPS.length - 1 && (
-                              <div className="flex shrink-0 items-center justify-center min-h-5 xl:min-h-0 xl:w-7" aria-hidden="true">
-                                <div className="hidden xl:flex h-9 w-9 items-center justify-center rounded-full border border-[#26B6B6]/35 bg-[#26B6B6]/14 text-[#7EE7E7] shadow-[0_0_22px_rgba(38,182,182,0.20)] animate-hero-workflow-pulse">
-                                  <ArrowIcon className="w-4 h-4" />
-                                </div>
-                                <div className="xl:hidden flex h-7 w-7 items-center justify-center rounded-full border border-[#26B6B6]/35 bg-[#26B6B6]/14 text-[#7EE7E7] shadow-[0_0_18px_rgba(38,182,182,0.18)]">
-                                  <ChevronDown className="w-4 h-4" />
-                                </div>
-                              </div>
-                            )}
-                          </React.Fragment>
-                        );
-                      })}
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <div className="hidden sm:grid grid-cols-3 gap-2">
                     {DESIGNER_BENEFITS.map((benefit, idx) => (
                       <div key={benefit.labelEn} className="rounded-2xl bg-white/[0.085] border border-white/10 px-3 py-2 text-start">
-                        <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-black text-white">
+                        <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-black text-white leading-tight">
                           {idx === 0 ? <Check className="w-3.5 h-3.5 text-[#7EE7E7] shrink-0" /> : idx === 1 ? <ShieldCheck className="w-3.5 h-3.5 text-[#7EE7E7] shrink-0" /> : <TrendingUp className="w-3.5 h-3.5 text-[#7EE7E7] shrink-0" />}
                           <span>{isRtl ? benefit.labelFa : benefit.labelEn}</span>
                         </div>
