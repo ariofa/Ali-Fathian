@@ -581,17 +581,16 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
                 t={t}
                 isPremium={currentUser.isPremium}
               />
-            </div>
 
-            {/* Footer buttons */}
-            <div className="pt-4 border-t border-gray-100 dark:border-gray-800 space-y-2">
-              <button
-                onClick={onLogout}
-                className="w-full flex items-center justify-center gap-2 py-2 bg-rose-50 dark:bg-rose-950/20 text-rose-500 hover:bg-rose-100 rounded-xl text-xs font-bold transition-all cursor-pointer"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>{isRtl ? 'خروج از حساب' : 'Log Out'}</span>
-              </button>
+              <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+                <button
+                  onClick={onLogout}
+                  className="w-full flex items-center justify-center gap-2 py-2 bg-rose-50 dark:bg-rose-950/20 text-rose-500 hover:bg-rose-100 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>{isRtl ? 'خروج از حساب' : 'Log Out'}</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -676,17 +675,16 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
             isPremium={currentUser.isPremium}
             collapsed={isSidebarCollapsed}
           />
-        </div>
 
-        {/* Sidebar Footer Logout */}
-        <div className="p-3 border-t border-gray-100 dark:border-gray-800">
-          <button
-            onClick={onLogout}
-            className={`w-full flex items-center gap-2.5 py-2.5 bg-rose-50 dark:bg-rose-950/10 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-950/30 rounded-xl text-xs font-bold transition-all cursor-pointer ${isSidebarCollapsed ? 'justify-center' : 'px-3'}`}
-          >
-            <LogOut className="w-4 h-4 shrink-0" />
-            {!isSidebarCollapsed && <span>{isRtl ? 'خروج از حساب' : 'Log Out'}</span>}
-          </button>
+          <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+            <button
+              onClick={onLogout}
+              className={`w-full flex items-center gap-2.5 py-2.5 bg-rose-50 dark:bg-rose-950/10 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-950/30 rounded-xl text-xs font-bold transition-all cursor-pointer ${isSidebarCollapsed ? 'justify-center' : 'px-3'}`}
+            >
+              <LogOut className="w-4 h-4 shrink-0" />
+              {!isSidebarCollapsed && <span>{isRtl ? 'خروج از حساب' : 'Log Out'}</span>}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1077,68 +1075,6 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
               </div>
             </form>
 
-            {/* LINK / REGISTER MANUFACTURER BRAND ACCOUNT OPTION */}
-            <div className="border-t border-gray-100 dark:border-gray-800 pt-6 mt-6">
-              <div className="bg-slate-50/50 dark:bg-gray-950 p-6 rounded-2xl border border-gray-200/60 dark:border-gray-800 space-y-4 max-w-xl text-start">
-                <div className="flex gap-3 items-start">
-                  <div className="w-10 h-10 bg-[#26B6B6]/10 text-[#26B6B6] rounded-xl flex items-center justify-center shrink-0">
-                    <Building className="w-5 h-5" />
-                  </div>
-                  <div className="space-y-1">
-                    <h4 className="text-xs font-bold text-gray-800 dark:text-white">
-                      {isRtl ? 'آیا شما نیز تولیدکننده یا تامین‌کننده مصالح و تجهیزات ساختمانی هستید؟' : 'Do you also produce or supply building materials / equipment?'}
-                    </h4>
-                    <p className="text-[10px] text-gray-400 leading-normal">
-                      {isRtl 
-                        ? 'یک صفحه تجاری کاتالوگ و نمایه برند برای شرکت یا کارخانه خود ثبت کنید. محصولات خود را در قالب آبجکت‌های بیم جهت استفاده مهندسان آپلود کنید و آمارهای زنده دانلود قطعات را پیگیری نمایید.' 
-                        : 'Register an official manufacturer/brand profile under your same login to upload and organize BIM product families for Iranian AEC modelers.'
-                      }
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex justify-start">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const brandName = prompt(
-                        isRtl 
-                          ? 'لطفاً نام رسمی برند یا کارخانه تولیدی خود را وارد نمایید:' 
-                          : 'Please enter your official brand/factory name:'
-                      );
-                      if (!brandName || !brandName.trim()) {
-                        alert(isRtl ? 'نام برند نمی‌تواند خالی باشد.' : 'Brand name cannot be empty.');
-                        return;
-                      }
-
-                      // Seed manufacturer profile
-                      const mfgProfile = {
-                        companyName: brandName,
-                        desc: isRtl 
-                          ? `تولیدکننده رسمی مصالح و تجهیزات ساختمانی ${brandName}. کاتالوگ کات‌شیت و فایل‌های سه بعدی.` 
-                          : `${brandName} official brand catalog and BIM resource directory page.`,
-                        website: `https://${brandName.toLowerCase().replace(/\s+/g, '') || 'brand'}.ir`,
-                        phone: currentUser?.phone || '09121112233',
-                        tier: 'Standard',
-                        companyType: 'Manufacturer / Producer',
-                        isPendingVerification: true,
-                        licenseFile: 'uploaded_license.pdf'
-                      };
-
-                      localStorage.setItem('iranbimhub_mfg_profile', JSON.stringify(mfgProfile));
-                      alert(isRtl 
-                        ? `حساب کاربری برند "${brandName}" با موفقیت ایجاد و پیوند شد! اکنون می‌توانید از طریق دکمه‌های سوئیچر بالا بین پنل طراح و تولیدکننده جابجا شوید.` 
-                        : `Brand account "${brandName}" registered and linked successfully! Switch views anytime via the header toggle.`
-                      );
-                      window.location.reload();
-                    }}
-                    className="bg-gray-100 dark:bg-gray-800 hover:bg-[#26B6B6]/10 hover:text-[#26B6B6] text-gray-700 dark:text-gray-200 text-[11px] font-bold px-4 py-2 rounded-xl transition-all border border-transparent hover:border-[#26B6B6]/30 cursor-pointer"
-                  >
-                    {isRtl ? 'ثبت‌نام و ایجاد حساب کاربری تولیدکننده جدید' : 'Register & Create Brand Manufacturer Account'}
-                  </button>
-                </div>
-              </div>
-            </div>
           </div>
         )}
 

@@ -2775,65 +2775,6 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
               </div>
             </div>
 
-            {/* FULL WIDTH SECTION 2: LINK / REGISTER PROFESSIONAL ACCOUNT OPTION */}
-            <div className="border-t border-gray-100 dark:border-gray-800 pt-6 mt-6">
-              <div className="bg-slate-50/50 dark:bg-gray-950 p-6 rounded-2xl border border-gray-200/60 dark:border-gray-800 space-y-4 max-w-xl text-start">
-                <div className="flex gap-3 items-start">
-                  <div className="w-10 h-10 bg-[#26B6B6]/10 text-[#26B6B6] rounded-xl flex items-center justify-center shrink-0">
-                    <Briefcase className="w-5 h-5" />
-                  </div>
-                  <div className="space-y-1">
-                    <h4 className="text-xs font-bold text-gray-800 dark:text-white">
-                      {isRtl ? 'آیا شما نیز طراح، معمار یا مهندس سازه هستید؟' : 'Are you also a BIM Professional / Modeler?'}
-                    </h4>
-                    <p className="text-[10px] text-gray-400 leading-normal">
-                      {isRtl 
-                        ? 'یک حساب کاربری طراح ایجاد کنید تا بتوانید کاتالوگ آبجکت‌های ساختمانی را دانلود کرده، پوشه‌های پروژه‌ها را سازماندهی کنید و در نقش طراح فعالیت داشته باشید. حساب طراح شما کاملاً مجزا خواهد بود ولی به صورت لینک‌شده در بالای صفحه قابل سوئیچ سریع است.' 
-                        : 'Link a professional designer profile under your same login to search, download, and organize Revit/IFC catalog objects for building models.'
-                      }
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex justify-start">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const userSession = localStorage.getItem('iranbimhub_user');
-                      if (userSession) {
-                        const usr = JSON.parse(userSession);
-                        usr.hasModelerAccount = true;
-                        usr.selectedRoles = usr.selectedRoles || ['Architect'];
-                        usr.selectedTopics = usr.selectedTopics || ['Facades', 'Sustainable Materials'];
-                        localStorage.setItem('iranbimhub_user', JSON.stringify(usr));
-                        alert(isRtl 
-                          ? 'حساب طراح حرفه‌ای با موفقیت برای شما فعال شد! اکنون می‌توانید از دکمه سوئیچر در هدر سایت برای تعویض پنل استفاده کنید.' 
-                          : 'BIM Professional account activated successfully! Use the header role switcher to navigate views.'
-                        );
-                        window.location.reload();
-                      } else {
-                        // If no session, create a default one
-                        const mockUsr = {
-                          name: 'BIM User',
-                          fullName: 'BIM User',
-                          phone: '09121112233',
-                          role: 'Manufacturer',
-                          hasModelerAccount: true,
-                          selectedRoles: ['Architect'],
-                          selectedTopics: ['Facades', 'Sustainable Materials']
-                        };
-                        localStorage.setItem('iranbimhub_user', JSON.stringify(mockUsr));
-                        alert('BIM Professional account activated successfully!');
-                        window.location.reload();
-                      }
-                    }}
-                    className="bg-gray-100 dark:bg-gray-800 hover:bg-[#26B6B6]/10 hover:text-[#26B6B6] text-gray-700 dark:text-gray-200 text-[11px] font-bold px-4 py-2 rounded-xl transition-all border border-transparent hover:border-[#26B6B6]/30 cursor-pointer"
-                  >
-                    {isRtl ? 'فعال‌سازی و ثبت‌نام حساب طراح حرفه‌ای' : 'Link & Activate BIM Professional Account'}
-                  </button>
-                </div>
-              </div>
-            </div>
           </div>
         )}
 
