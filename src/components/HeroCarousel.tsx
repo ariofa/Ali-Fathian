@@ -728,45 +728,35 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
                     <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_8%,rgba(255,255,255,0.12),transparent_38%)]" />
                     <div className="relative z-10 flex h-full min-h-0 flex-col md:flex-row items-stretch justify-center gap-3 md:gap-4">
                       {/* Common path */}
-                      <div className="relative flex min-h-0 flex-1 flex-col rounded-[1.35rem] bg-gradient-to-br from-white via-[#FFF9F9] to-red-50 p-3 sm:p-4 shadow-xl overflow-hidden ring-1 ring-red-200/60">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="text-start min-w-0 min-h-[78px] sm:min-h-[88px]">
-                            <div className="text-base sm:text-lg font-black text-slate-900 leading-tight">
-                              {isRtl ? 'آبجکت سه‌بعدی غیرواقعی' : 'Unrealistic 3D Object'}
-                            </div>
-                            <p className="mt-1 text-[11px] sm:text-xs font-extrabold text-slate-600 leading-relaxed">
-                              {isRtl ? 'طراحی پرخطا و غیراصولی، از دست رفتن زمان، دوباره‌کاری، کاهش دقت طراحی' : 'Error-prone design, lost time, rework, lower design accuracy'}
-                            </p>
+                      <div className="relative flex min-h-0 flex-1 flex-row md:flex-col items-stretch gap-2 md:gap-0 rounded-[1.35rem] bg-gradient-to-br from-white via-[#FFF9F9] to-red-50 p-2.5 sm:p-3 md:p-4 shadow-xl overflow-hidden ring-1 ring-red-200/60">
+                        <div className="text-center flex-[1.62] md:flex-none min-w-0 min-h-0 md:min-h-[82px] lg:min-h-[92px] flex flex-col items-center justify-center md:justify-start px-1 md:px-0">
+                          <div className="text-[14px] sm:text-[15px] md:text-[15px] lg:text-lg font-black text-slate-900 leading-tight max-w-full">
+                            {isRtl ? 'آبجکت سه‌بعدی غیرواقعی' : 'Unrealistic 3D Object'}
                           </div>
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-700">
-                            <FileText className="w-4 h-4" />
-                          </div>
+                          <p className="mt-1.5 text-[10.5px] sm:text-[11px] md:text-[10.5px] lg:text-xs font-extrabold text-slate-600 leading-relaxed max-w-[210px] mx-auto">
+                            {isRtl ? 'طراحی پرخطا و غیراصولی، از دست رفتن زمان، دوباره‌کاری، کاهش دقت طراحی' : 'Error-prone design, lost time, rework, lower design accuracy'}
+                          </p>
                         </div>
 
-                        <div className="flex flex-1 min-h-[86px] sm:min-h-[104px] items-center justify-center" aria-hidden="true">
-                          <span className="font-black text-[72px] sm:text-[88px] leading-none text-red-500/92 drop-shadow-[0_10px_22px_rgba(239,68,68,0.24)]">×</span>
+                        <div className="flex flex-1 min-w-[88px] md:min-w-0 md:min-h-[86px] lg:min-h-[104px] items-center justify-center" aria-hidden="true">
+                          <span className="font-black text-[56px] sm:text-[64px] md:text-[72px] lg:text-[88px] leading-none text-red-500/92 drop-shadow-[0_10px_22px_rgba(239,68,68,0.24)]">×</span>
                         </div>
                       </div>
 
                       {/* IranBIMhub path */}
-                      <div className="relative flex min-h-0 flex-1 md:flex-1 flex-col rounded-[1.35rem] bg-gradient-to-br from-white via-[#F3FEFE] to-[#E5FBFB] p-3 sm:p-4 shadow-2xl ring-1 ring-[#26B6B6]/35 overflow-hidden animate-hero-workflow-float">
+                      <div className="relative flex min-h-0 flex-1 md:flex-1 flex-row md:flex-col items-stretch gap-2 md:gap-0 rounded-[1.35rem] bg-gradient-to-br from-white via-[#F3FEFE] to-[#E5FBFB] p-2.5 sm:p-3 md:p-4 shadow-2xl ring-1 ring-[#26B6B6]/35 overflow-hidden animate-hero-workflow-float">
                         <div className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/2 bg-gradient-to-r from-transparent via-[#26B6B6]/12 to-transparent animate-hero-workflow-scan" />
-                        <div className="relative z-10 flex items-start justify-between gap-3">
-                          <div className="text-start min-w-0 min-h-[78px] sm:min-h-[88px]">
-                            <div className="text-base sm:text-lg font-black text-[#073F46] leading-tight">
-                              {isRtl ? 'آبجکت BIM واقعی با داده فنی' : 'Real BIM Object with Technical Data'}
-                            </div>
-                            <p className="mt-1 text-[11px] sm:text-xs font-extrabold text-slate-600 leading-relaxed">
-                              {isRtl ? 'طراحی سریع‌تر و متره دقیق‌تر، کاهش دوباره‌کاری' : 'Faster design, more accurate takeoff, less rework'}
-                            </p>
+                        <div className="relative z-10 text-center flex-[1.62] md:flex-none min-w-0 min-h-0 md:min-h-[82px] lg:min-h-[92px] flex flex-col items-center justify-center md:justify-start px-1 md:px-0">
+                          <div className="text-[14px] sm:text-[15px] md:text-[15px] lg:text-lg font-black text-[#073F46] leading-tight max-w-full">
+                            {isRtl ? 'آبجکت BIM واقعی با داده فنی' : 'Real BIM Object with Technical Data'}
                           </div>
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#26B6B6] text-white shadow-lg">
-                            <Box className="w-4 h-4" />
-                          </div>
+                          <p className="mt-1.5 text-[11px] sm:text-xs md:text-[10.5px] lg:text-xs font-extrabold text-slate-600 leading-relaxed max-w-[190px] mx-auto">
+                            {isRtl ? 'طراحی سریع‌تر و متره دقیق‌تر، کاهش دوباره‌کاری' : 'Faster design, more accurate takeoff, less rework'}
+                          </p>
                         </div>
 
-                        <div className="relative z-10 flex flex-1 min-h-[86px] sm:min-h-[104px] items-center justify-center" aria-hidden="true">
-                          <Check className="w-[72px] h-[72px] sm:w-[88px] sm:h-[88px] text-emerald-500 drop-shadow-[0_10px_22px_rgba(16,185,129,0.24)]" strokeWidth={3.2} />
+                        <div className="relative z-10 flex flex-1 min-w-[88px] md:min-w-0 md:min-h-[86px] lg:min-h-[104px] items-center justify-center" aria-hidden="true">
+                          <Check className="w-[56px] h-[56px] sm:w-[64px] sm:h-[64px] md:w-[72px] md:h-[72px] lg:w-[88px] lg:h-[88px] text-emerald-500 drop-shadow-[0_10px_22px_rgba(16,185,129,0.24)]" strokeWidth={3.2} />
                         </div>
                       </div>
                     </div>
