@@ -67,6 +67,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const mobileSearchRefCombined = useRef<HTMLDivElement>(null);
+  const mobileSearchInputRef = useRef<HTMLInputElement>(null);
   const hoverTimeoutRef = useRef<any>(null);
 
   const handleMouseEnter = (e?: React.MouseEvent) => {
@@ -244,6 +245,7 @@ export const Header: React.FC<HeaderProps> = ({
         setIsSearchFocused(false);
       }
       if (mobileSearchRefCombined.current && !mobileSearchRefCombined.current.contains(target)) {
+        setMobileSearchOpen(false);
         setShowAutocomplete(false);
         setIsSearchFocused(false);
       }
@@ -251,6 +253,22 @@ export const Header: React.FC<HeaderProps> = ({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Focus the compact mobile/tablet search after it opens.
+  useEffect(() => {
+    if (!mobileSearchOpen) return;
+
+    setAccountDropdownOpen(false);
+    setNotificationsOpen(false);
+    setCategoriesDropdownOpen(false);
+    setIsSearchFocused(true);
+
+    const focusTimer = window.setTimeout(() => {
+      mobileSearchInputRef.current?.focus();
+    }, 90);
+
+    return () => window.clearTimeout(focusTimer);
+  }, [mobileSearchOpen]);
 
   // Compute matched suggestions
   const getSuggestions = () => {
@@ -887,7 +905,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* MOBILE LAYOUT (md:hidden) */}
-        <div className="flex md:hidden flex-col gap-2 py-2.5 relative">
+        <div ref={mobileSearchRefCombined} className="flex md:hidden flex-col gap-2 py-2.5 relative">
           {/* ROW 1: Logo & Logotype + Compact Icon Cluster */}
           <div className="flex items-center justify-between gap-2">
             {/* Logo & Logotype */}
@@ -905,17 +923,41 @@ export const Header: React.FC<HeaderProps> = ({
               {/* 1. Language Toggle */}
               <button
                 onClick={() => setLanguage(language === 'fa' ? 'en' : 'fa')}
-                className="flex items-center justify-center p-1.5 border border-gray-200/60 dark:border-gray-800/80 rounded-full hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors text-[10px] font-extrabold text-[#464E56] dark:text-gray-300 cursor-pointer h-8 w-8 gap-0.5 shrink-0"
+                className="order-1 flex items-center justify-center p-1.5 border border-gray-200/60 dark:border-gray-800/80 rounded-full hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors text-[10px] font-extrabold text-[#464E56] dark:text-gray-300 cursor-pointer h-8 w-8 gap-0.5 shrink-0"
                 title={language === 'fa' ? 'Switch to English' : 'تغییر به فارسی'}
               >
                 <Globe className="w-3.5 h-3.5 text-[#26B6B6]" />
                 <span className="text-[8px]">{language === 'fa' ? 'EN' : 'فا'}</span>
               </button>
 
+              {/* 2. Compact Search Toggle */}
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileSearchOpen(prev => !prev);
+                  setAccountDropdownOpen(false);
+                  setNotificationsOpen(false);
+                  setCategoriesDropdownOpen(false);
+                }}
+                className={`order-2 p-1.5 rounded-full transition-all duration-200 cursor-pointer flex items-center justify-center h-8 w-8 border border-gray-200/60 dark:border-gray-800/80 active:scale-95 ${
+                  mobileSearchOpen
+                    ? 'bg-[#26B6B6] border-[#26B6B6] text-white shadow-[0_8px_20px_rgba(38,182,182,0.25)]'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-[#26B6B6] hover:bg-gray-50 dark:hover:bg-gray-900'
+                }`}
+                title={isRtl ? 'جستجو' : 'Search'}
+                aria-expanded={mobileSearchOpen}
+                aria-controls="mobile-header-search-panel"
+              >
+                {mobileSearchOpen ? <X className="w-3.5 h-3.5" /> : <Search className="w-3.5 h-3.5" />}
+              </button>
+
               {/* 3. Notifications Bell */}
-              <div className="relative" ref={mobileNotificationsRef}>
+              <div className="relative order-3" ref={mobileNotificationsRef}>
                 <button
-                  onClick={() => setNotificationsOpen(!notificationsOpen)}
+                  onClick={() => {
+                    setNotificationsOpen(!notificationsOpen);
+                    setMobileSearchOpen(false);
+                  }}
                   className={`p-1.5 rounded-full transition-all cursor-pointer flex items-center justify-center h-8 w-8 border border-gray-200/60 dark:border-gray-800/80 ${
                     notificationsOpen 
                       ? 'bg-slate-100 dark:bg-gray-900 text-[#26B6B6]' 
@@ -962,9 +1004,12 @@ export const Header: React.FC<HeaderProps> = ({
 
 
               {/* 3. Account Dropdown */}
-              <div className="relative" ref={mobileAccountRef}>
+              <div className="relative order-4" ref={mobileAccountRef}>
                 <button
-                  onClick={() => setAccountDropdownOpen(!accountDropdownOpen)}
+                  onClick={() => {
+                    setAccountDropdownOpen(!accountDropdownOpen);
+                    setMobileSearchOpen(false);
+                  }}
                   className={`p-1.5 rounded-full transition-all cursor-pointer flex items-center justify-center h-8 w-8 border ${
                     currentUser 
                       ? 'border-[#26B6B6]/40 dark:border-[#26B6B6]/40 bg-[#26B6B6]/5' 
@@ -1106,13 +1151,24 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           </div>
 
-          {/* ROW 2: Persistent Search Bar (Only visible on tablet widths between 640px and 768px) */}
-          <div ref={mobileSearchRef} className="w-full relative hidden sm:block md:hidden">
-            <form 
-              onSubmit={handleSearchSubmit} 
-              className="w-full flex items-center bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-full p-1 focus-within:ring-2 focus-within:ring-[#26B6B6]/20 focus-within:border-[#26B6B6] transition-all h-10"
+          {/* ROW 2: Compact Search Panel (opens only when the search icon is tapped) */}
+          <div
+            id="mobile-header-search-panel"
+            ref={mobileSearchRef}
+            className={`relative w-full transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              mobileSearchOpen
+                ? 'max-h-[96px] opacity-100 translate-y-0 overflow-visible'
+                : 'max-h-0 opacity-0 -translate-y-2 overflow-hidden pointer-events-none'
+            }`}
+          >
+            <form
+              onSubmit={handleSearchSubmit}
+              className={`w-full flex items-center bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-full p-1 focus-within:ring-2 focus-within:ring-[#26B6B6]/20 focus-within:border-[#26B6B6] transition-all h-10 shadow-sm ${
+                mobileSearchOpen ? 'scale-100' : 'scale-[0.98]'
+              }`}
             >
               <input
+                ref={mobileSearchInputRef}
                 id="header-search-input"
                 type="text"
                 placeholder={isRtl ? 'جستجو در آبجکت‌های بیم، دسته‌بندی‌ها یا برندها' : 'Search BIM objects, categories or brands'}
@@ -1122,17 +1178,18 @@ export const Header: React.FC<HeaderProps> = ({
                 onFocus={() => setIsSearchFocused(true)}
                 className="w-full text-xs bg-transparent border-0 focus:outline-none focus:ring-0 placeholder-gray-400 dark:placeholder-gray-500 text-gray-800 dark:text-gray-100 px-3.5"
               />
-              <button 
+              <button
                 type="submit"
-                className="bg-[#464E56] dark:bg-[#26B6B6] text-white rounded-full p-1.5 h-8 w-8 flex items-center justify-center cursor-pointer transition-all active:scale-95 shrink-0"
+                className="bg-[#464E56] hover:bg-[#2c3136] dark:bg-[#26B6B6] dark:hover:bg-[#1e9494] text-white rounded-full p-1.5 h-8 w-8 flex items-center justify-center cursor-pointer transition-all active:scale-95 shrink-0"
+                aria-label={isRtl ? 'اجرای جستجو' : 'Submit search'}
               >
                 <Search className="w-3.5 h-3.5" />
               </button>
             </form>
 
             {/* Recent Searches & Autocomplete Dropdown */}
-            {isSearchFocused && (
-              <div className="absolute left-0 right-0 top-full mt-1.5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl overflow-hidden z-50 text-xs">
+            {mobileSearchOpen && isSearchFocused && (
+              <div className="absolute left-0 right-0 top-full mt-1.5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl shadow-xl overflow-hidden z-50 text-xs animate-fadeIn">
                 {searchQuery.trim().length < 2 && recentSearches.length > 0 ? (
                   <div className="py-2 px-1">
                     <div className="flex items-center justify-between px-3 py-1.5 border-b border-gray-100 dark:border-gray-800/60 mb-1">
@@ -1151,7 +1208,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <div className="space-y-0.5 max-h-60 overflow-y-auto">
                       {recentSearches.map((query, index) => (
                         <div
-                          key={`recent-${index}`}
+                          key={`recent-mobile-${index}`}
                           onClick={() => handleRecentSearchClick(query)}
                           className="w-full flex items-center justify-between px-3 py-2 text-start rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/40 cursor-pointer transition-colors group"
                         >
@@ -1178,13 +1235,13 @@ export const Header: React.FC<HeaderProps> = ({
                         const isSelected = idx === autocompleteIndex;
                         return (
                           <button
-                            key={sug.id}
+                            key={`suggest-mobile-${sug.id}`}
                             type="button"
                             onClick={() => handleSelectSuggestion(sug)}
                             onMouseEnter={() => setAutocompleteIndex(idx)}
                             className={`w-full flex items-center gap-3 px-4 py-2.5 text-start border-b border-gray-50 dark:border-gray-800/50 last:border-0 transition-colors ${
-                              isSelected 
-                                ? 'bg-[#26B6B6]/5 dark:bg-[#26B6B6]/10 text-[#26B6B6]' 
+                              isSelected
+                                ? 'bg-[#26B6B6]/5 dark:bg-[#26B6B6]/10 text-[#26B6B6]'
                                 : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/40'
                             }`}
                           >

@@ -70,62 +70,62 @@ const CountUp: React.FC<{ end: number; duration?: number; prefix?: string; suffi
 
 const HERO_BIM_ASSETS = {
   window: '/hero/bim-window.webp',
-  fireDoor: '/hero/bim-fire-door.webp',
   rotatingHalogen: '/hero/bim-rotating-halogen.webp',
+  fireDoor: '/hero/bim-fire-door.webp',
   wallHungToilet: '/hero/bim-wall-hung-toilet.webp'
 };
 
 const HERO_BIM_GALLERY = [
   {
     src: HERO_BIM_ASSETS.window,
-    titleFa: 'آبجکت BIM پنجره ترمال‌بریک',
-    titleEn: 'Thermal Window BIM Object',
+    titleFa: 'پنجره ترمال‌بریک BIM',
+    titleEn: 'Thermal Break Window BIM',
+    categoryFa: 'در و پنجره',
+    categoryEn: 'Openings',
     meta: [
-      { labelFa: 'گروه', labelEn: 'Group', valueFa: 'در و پنجره', valueEn: 'Openings' },
-      { labelFa: 'فرمت', labelEn: 'Format', valueFa: 'RFA / IFC', valueEn: 'RFA / IFC' },
-      { labelFa: 'LOD', labelEn: 'LOD', valueFa: '۳۰۰', valueEn: '300' },
-      { labelFa: 'پارامتر', labelEn: 'Param', valueFa: 'ابعاد / تیپ', valueEn: 'Size / Type' },
-      { labelFa: 'متریال', labelEn: 'Material', valueFa: 'آلومینیوم', valueEn: 'Aluminum' },
-      { labelFa: 'وضعیت', labelEn: 'Status', valueFa: 'قابل ارزیابی', valueEn: 'Reviewable' }
+      { icon: FileText, labelFa: 'فرمت', labelEn: 'Format', valueFa: 'RFA / IFC', valueEn: 'RFA / IFC' },
+      { icon: Layers, labelFa: 'جزئیات', labelEn: 'Detail', valueFa: 'LOD ۳۰۰', valueEn: 'LOD 300' },
+      { icon: Database, labelFa: 'منطق', labelEn: 'Logic', valueFa: 'پارامتریک', valueEn: 'Parametric' },
+      { icon: ShieldCheck, labelFa: 'وضعیت', labelEn: 'Status', valueFa: 'قابل ارزیابی', valueEn: 'Reviewable' }
     ]
   },
   {
     src: HERO_BIM_ASSETS.rotatingHalogen,
-    titleFa: 'چراغ هالوژن چرخشی BIM',
+    titleFa: 'هالوژن چرخشی BIM',
     titleEn: 'Adjustable Halogen BIM Light',
+    categoryFa: 'روشنایی داخلی',
+    categoryEn: 'Interior Lighting',
     meta: [
-      { labelFa: 'گروه', labelEn: 'Group', valueFa: 'روشنایی', valueEn: 'Lighting' },
-      { labelFa: 'فرمت', labelEn: 'Format', valueFa: 'RFA / IFC', valueEn: 'RFA / IFC' },
-      { labelFa: 'LOD', labelEn: 'LOD', valueFa: '۳۰۰', valueEn: '300' },
-      { labelFa: 'نور', labelEn: 'Light', valueFa: 'IES', valueEn: 'IES' },
-      { labelFa: 'چرخش', labelEn: 'Rotate', valueFa: 'قابل تنظیم', valueEn: 'Adjustable' },
-      { labelFa: 'وضعیت', labelEn: 'Status', valueFa: 'قابل ارزیابی', valueEn: 'Reviewable' }
+      { icon: FileText, labelFa: 'فرمت', labelEn: 'Format', valueFa: 'RFA / IFC', valueEn: 'RFA / IFC' },
+      { icon: Layers, labelFa: 'جزئیات', labelEn: 'Detail', valueFa: 'LOD ۳۰۰', valueEn: 'LOD 300' },
+      { icon: Database, labelFa: 'نور', labelEn: 'Light Data', valueFa: 'IES آماده', valueEn: 'IES Ready' },
+      { icon: Compass, labelFa: 'حرکت', labelEn: 'Motion', valueFa: 'چرخش‌پذیر', valueEn: 'Adjustable' }
     ]
   },
   {
     src: HERO_BIM_ASSETS.fireDoor,
-    titleFa: 'در ضدحریق دو لنگه BIM',
-    titleEn: 'Double-Leaf Fire Door BIM',
+    titleFa: 'درِ ضدحریق BIM',
+    titleEn: 'Fire-Rated Door BIM Object',
+    categoryFa: 'ایمنی ساختمان',
+    categoryEn: 'Building Safety',
     meta: [
-      { labelFa: 'گروه', labelEn: 'Group', valueFa: 'ایمنی', valueEn: 'Safety' },
-      { labelFa: 'فرمت', labelEn: 'Format', valueFa: 'RFA / IFC', valueEn: 'RFA / IFC' },
-      { labelFa: 'LOD', labelEn: 'LOD', valueFa: '۳۵۰', valueEn: '350' },
-      { labelFa: 'حریق', labelEn: 'Fire', valueFa: '۱۲۰ دقیقه', valueEn: '120 min' },
-      { labelFa: 'پارامتر', labelEn: 'Param', valueFa: 'بازشو / یراق', valueEn: 'Swing / Hardware' },
-      { labelFa: 'وضعیت', labelEn: 'Status', valueFa: 'قابل ارزیابی', valueEn: 'Reviewable' }
+      { icon: FileText, labelFa: 'فرمت', labelEn: 'Format', valueFa: 'RFA / IFC', valueEn: 'RFA / IFC' },
+      { icon: Layers, labelFa: 'جزئیات', labelEn: 'Detail', valueFa: 'LOD ۳۵۰', valueEn: 'LOD 350' },
+      { icon: ShieldCheck, labelFa: 'مقاومت', labelEn: 'Rating', valueFa: '۱۲۰ دقیقه', valueEn: '120 min' },
+      { icon: Database, labelFa: 'پارامتر', labelEn: 'Params', valueFa: 'بازشو / یراق', valueEn: 'Swing / Hardware' }
     ]
   },
   {
     src: HERO_BIM_ASSETS.wallHungToilet,
     titleFa: 'توالت وال‌هنگ BIM',
     titleEn: 'Wall-Hung Toilet BIM Object',
+    categoryFa: 'سرویس بهداشتی',
+    categoryEn: 'Sanitary Fixtures',
     meta: [
-      { labelFa: 'گروه', labelEn: 'Group', valueFa: 'سرویس بهداشتی', valueEn: 'Sanitary' },
-      { labelFa: 'فرمت', labelEn: 'Format', valueFa: 'RFA / IFC', valueEn: 'RFA / IFC' },
-      { labelFa: 'LOD', labelEn: 'LOD', valueFa: '۳۰۰', valueEn: '300' },
-      { labelFa: 'اتصال', labelEn: 'Connect', valueFa: 'فاضلاب', valueEn: 'Waste' },
-      { labelFa: 'نصب', labelEn: 'Mount', valueFa: 'دیواری', valueEn: 'Wall' },
-      { labelFa: 'وضعیت', labelEn: 'Status', valueFa: 'قابل ارزیابی', valueEn: 'Reviewable' }
+      { icon: FileText, labelFa: 'فرمت', labelEn: 'Format', valueFa: 'RFA / IFC', valueEn: 'RFA / IFC' },
+      { icon: Layers, labelFa: 'جزئیات', labelEn: 'Detail', valueFa: 'LOD ۳۰۰', valueEn: 'LOD 300' },
+      { icon: Database, labelFa: 'اتصال', labelEn: 'Connect', valueFa: 'اتصال فاضلاب', valueEn: 'Waste Outlet' },
+      { icon: Building2, labelFa: 'نصب', labelEn: 'Mount', valueFa: 'نصب دیواری', valueEn: 'Wall Mounted' }
     ]
   }
 ];
@@ -451,11 +451,11 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
               </span>
             </div>
 
-            <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tight leading-snug sm:leading-tight md:leading-tight text-white drop-shadow-md transition-all duration-300">
+            <h1 className="text-[26px] sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tight leading-[1.28] sm:leading-tight md:leading-tight text-white drop-shadow-md transition-all duration-300">
               {isRtl ? activeSlides[activeSlide].headingFa : activeSlides[activeSlide].headingEn}
             </h1>
 
-            <p className="text-[11px] sm:text-base md:text-lg text-gray-200 leading-relaxed font-normal max-w-2xl drop-shadow-sm transition-all duration-300">
+            <p className="text-xs sm:text-base md:text-lg text-gray-200 leading-relaxed font-normal max-w-2xl drop-shadow-sm transition-all duration-300">
               {isRtl ? activeSlides[activeSlide].descFa : activeSlides[activeSlide].descEn}
             </p>
 
@@ -560,98 +560,116 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
           {activeSlide === 0 && (
             <div
               dir="ltr"
-              className={`${isRtl ? 'md:order-1' : 'md:order-2'} order-2 md:col-span-5 lg:col-span-5 relative h-[280px] sm:h-[330px] md:h-[390px] lg:h-[410px] animate-fadeIn`}
+              className={`${isRtl ? 'md:order-1' : 'md:order-2'} order-2 md:col-span-5 lg:col-span-5 relative w-full animate-fadeIn`}
               aria-label={isRtl ? 'آلبوم تصویری آبجکت‌های BIM' : 'BIM object visual album'}
             >
-              {/* Ambient stage */}
-              <div className="absolute inset-0 rounded-[2rem] bg-white/[0.06] border border-white/10 backdrop-blur-md shadow-2xl overflow-hidden">
-                <div className="absolute inset-0 opacity-[0.13] bg-[linear-gradient(to_right,#26B6B6_1px,transparent_1px),linear-gradient(to_bottom,#26B6B6_1px,transparent_1px)] [background-size:22px_22px] animate-hero-visual-grid" />
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_20%,rgba(38,182,182,0.26),transparent_28%),radial-gradient(circle_at_78%_72%,rgba(255,255,255,0.10),transparent_32%)]" />
-                <div className="absolute -top-24 -right-24 w-64 h-64 rounded-full bg-[#26B6B6]/20 blur-3xl animate-hero-album-glow" />
-                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#26B6B6]/70 to-transparent" />
-              </div>
+              <div className="relative min-h-[410px] sm:min-h-[430px] md:h-[400px] lg:h-[420px] overflow-hidden rounded-[2rem] border border-white/10 bg-[#07111F]/72 backdrop-blur-md shadow-2xl p-3 sm:p-4 md:p-5">
+                {/* Ambient stage: subtle, branded, and behind the content only */}
+                <div className="pointer-events-none absolute inset-0 opacity-[0.07] bg-[linear-gradient(to_right,#26B6B6_1px,transparent_1px),linear-gradient(to_bottom,#26B6B6_1px,transparent_1px)] [background-size:22px_22px] animate-hero-visual-grid" />
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_22%_14%,rgba(38,182,182,0.22),transparent_30%),radial-gradient(circle_at_82%_76%,rgba(255,255,255,0.10),transparent_34%)]" />
+                <div className="pointer-events-none absolute -top-24 -right-24 w-64 h-64 rounded-full bg-[#26B6B6]/18 blur-3xl animate-hero-album-glow" />
+                <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#26B6B6]/60 to-transparent" />
 
-              {/* Image album deck */}
-              <div className="absolute inset-x-0 top-4 sm:top-5 bottom-[86px] sm:bottom-[92px] flex items-center justify-center px-4 sm:px-6">
-                <div className="relative w-full max-w-[430px] h-full">
-                  {HERO_BIM_GALLERY.map((asset, idx) => {
-                    const total = HERO_BIM_GALLERY.length;
-                    const offset = (idx - activeHeroAsset + total) % total;
-                    const isActiveAsset = offset === 0;
-                    const isNextAsset = offset === 1;
-                    const isPrevAsset = offset === total - 1;
-                    const isVisible = isActiveAsset || isNextAsset || isPrevAsset;
+                <div className="relative z-10 flex h-full min-h-0 flex-col gap-3 sm:gap-4">
+                  {/* Square image slot: keeps every BIM object predictable on mobile and desktop */}
+                  <div className="relative flex min-h-[238px] sm:min-h-[258px] md:min-h-0 flex-1 items-center justify-center">
+                    <div className="relative aspect-square w-[min(74vw,270px)] sm:w-[min(58vw,300px)] md:w-full md:max-w-[300px] lg:max-w-[314px]">
+                      {HERO_BIM_GALLERY.map((asset, idx) => {
+                        const total = HERO_BIM_GALLERY.length;
+                        const offset = (idx - activeHeroAsset + total) % total;
+                        const isActiveAsset = offset === 0;
+                        const isNextAsset = offset === 1;
+                        const isPrevAsset = offset === total - 1;
+                        const isVisible = isActiveAsset || isNextAsset || isPrevAsset;
 
-                    if (!isVisible) return null;
+                        if (!isVisible) return null;
 
-                    const transformClass = isActiveAsset
-                      ? 'translate-x-0 translate-y-0 rotate-0 scale-100 z-30 opacity-100'
-                      : isNextAsset
-                      ? 'translate-x-9 sm:translate-x-14 translate-y-5 rotate-[5deg] scale-[0.84] z-20 opacity-55'
-                      : '-translate-x-9 sm:-translate-x-14 translate-y-5 rotate-[-5deg] scale-[0.84] z-10 opacity-55';
+                        const transformClass = isActiveAsset
+                          ? 'translate-x-0 translate-y-0 rotate-0 scale-100 z-30 opacity-100'
+                          : isNextAsset
+                          ? 'hidden sm:block sm:translate-x-12 md:translate-x-14 translate-y-5 rotate-[5deg] scale-[0.84] z-20 opacity-45'
+                          : 'hidden sm:block sm:-translate-x-12 md:-translate-x-14 translate-y-5 rotate-[-5deg] scale-[0.84] z-10 opacity-45';
 
-                    return (
-                      <div
-                        key={asset.src}
-                        className={`absolute inset-x-4 sm:inset-x-8 top-0 bottom-0 rounded-[1.75rem] overflow-hidden border border-white/15 bg-slate-950/80 shadow-2xl transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${transformClass}`}
-                      >
-                        <div className="absolute inset-0 flex items-center justify-center text-white/10">
-                          <Box className="w-16 h-16" />
-                        </div>
-                        <img
-                          src={asset.src}
-                          alt={isRtl ? asset.titleFa : asset.titleEn}
-                          loading="eager"
-                          className="w-full h-full object-cover"
-                          onError={(e) => { e.currentTarget.style.opacity = '0'; }}
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/30 via-transparent to-white/5" />
-                        <div className="absolute inset-0 opacity-10 bg-[linear-gradient(to_right,#fff_1px,transparent_1px),linear-gradient(to_bottom,#fff_1px,transparent_1px)] [background-size:24px_24px]" />
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+                        const cardToneClass = isActiveAsset
+                          ? 'border-white/70 bg-[#F4F7F8] shadow-[0_22px_70px_rgba(0,0,0,0.34)]'
+                          : 'border-white/15 bg-[#111827]/80 shadow-xl';
 
-              {/* Synced concise metadata */}
-              <div className="absolute left-4 right-4 bottom-4 z-40">
-                <div className="rounded-2xl bg-slate-950/82 border border-white/10 backdrop-blur-md px-3 py-3 shadow-xl">
-                  <div className="flex items-center justify-between gap-3 mb-2.5">
-                    <div className="text-start min-w-0">
-                      <div className="text-[11px] sm:text-xs font-black text-white truncate">
-                        {isRtl ? activeHeroAssetData.titleFa : activeHeroAssetData.titleEn}
-                      </div>
-                      <div className="text-[9px] sm:text-[10px] text-[#7ee7e7] font-bold truncate">
-                        {isRtl ? 'متادیتای خلاصه آبجکت' : 'Synced object metadata'}
-                      </div>
-                    </div>
-                    <div className="flex gap-1.5 shrink-0">
-                      {HERO_BIM_GALLERY.map((asset, idx) => (
-                        <button
-                          key={asset.src}
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveHeroAsset(idx);
-                          }}
-                          className={`w-2 h-2 rounded-full transition-all ${idx === activeHeroAsset ? 'bg-[#26B6B6] w-5' : 'bg-white/25 hover:bg-white/50'}`}
-                          aria-label={`Show hero image ${idx + 1}`}
-                        />
-                      ))}
+                        return (
+                          <button
+                            key={asset.src}
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveHeroAsset(idx);
+                            }}
+                            className={`absolute inset-0 rounded-[1.65rem] overflow-hidden border transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] cursor-pointer ${cardToneClass} ${transformClass}`}
+                            aria-label={`Show ${asset.titleEn}`}
+                          >
+                            <div className={`absolute inset-x-8 bottom-5 h-8 rounded-full blur-2xl ${isActiveAsset ? 'bg-slate-900/12' : 'bg-black/25'}`} />
+                            <img
+                              src={asset.src}
+                              alt={isRtl ? asset.titleFa : asset.titleEn}
+                              loading="eager"
+                              className={`relative z-10 w-full h-full object-contain ${isActiveAsset ? '' : 'opacity-72'}`}
+                              onError={(e) => { e.currentTarget.style.opacity = '0'; }}
+                            />
+                            {isActiveAsset ? (
+                              <div className="pointer-events-none absolute inset-0 rounded-[1.65rem] ring-1 ring-inset ring-white/55" />
+                            ) : (
+                              <div className="pointer-events-none absolute inset-0 bg-slate-950/20" />
+                            )}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5 text-center">
-                    {activeHeroAssetData.meta.map((item) => (
-                      <div key={item.labelEn} className="rounded-xl bg-white/[0.055] border border-white/10 px-2 py-1.5 min-w-0">
-                        <div className="text-[8px] sm:text-[9px] text-gray-400 font-bold leading-tight truncate">
-                          {isRtl ? item.labelFa : item.labelEn}
+                  {/* Synced concise metadata: normal flow, never over the image */}
+                  <div dir={isRtl ? 'rtl' : 'ltr'} className="relative z-40 shrink-0 rounded-[1.35rem] bg-[#0B1020]/92 border border-white/10 backdrop-blur-md px-3 sm:px-4 py-3 shadow-xl">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <div className="text-start min-w-0">
+                        <div className="inline-flex items-center gap-1.5 rounded-full bg-[#26B6B6]/12 border border-[#26B6B6]/25 px-2 py-1 text-[9px] sm:text-[10px] text-[#7EE7E7] font-extrabold leading-none max-w-full">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#26B6B6] shrink-0" />
+                          <span className="truncate">
+                            {isRtl ? activeHeroAssetData.categoryFa : activeHeroAssetData.categoryEn}
+                          </span>
                         </div>
-                        <div className="text-[9px] sm:text-[10px] text-white font-black leading-tight truncate mt-0.5">
-                          {isRtl ? item.valueFa : item.valueEn}
+                        <div className="mt-1 text-[12px] sm:text-sm font-black text-white leading-snug">
+                          {isRtl ? activeHeroAssetData.titleFa : activeHeroAssetData.titleEn}
                         </div>
                       </div>
-                    ))}
+                      <div dir="ltr" className="flex items-center gap-1.5 shrink-0 pt-1">
+                        {HERO_BIM_GALLERY.map((asset, idx) => (
+                          <button
+                            key={asset.src}
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveHeroAsset(idx);
+                            }}
+                            className={`h-2 rounded-full transition-all ${idx === activeHeroAsset ? 'bg-[#26B6B6] w-5' : 'bg-white/25 hover:bg-white/50 w-2'}`}
+                            aria-label={`Show hero image ${idx + 1}`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-start">
+                      {activeHeroAssetData.meta.map((item) => {
+                        const MetaIcon = item.icon;
+                        return (
+                          <div key={item.labelEn} className="min-w-0 rounded-xl bg-white/[0.06] border border-white/10 px-2.5 py-2">
+                            <div className="flex items-center gap-1.5 text-[8px] sm:text-[9px] text-gray-400 font-extrabold leading-none">
+                              <MetaIcon className="w-3 h-3 text-[#7EE7E7] shrink-0" />
+                              <span className="truncate">{isRtl ? item.labelFa : item.labelEn}</span>
+                            </div>
+                            <div className="mt-1 text-[10px] sm:text-[11px] text-white font-black leading-snug">
+                              {isRtl ? item.valueFa : item.valueEn}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>
