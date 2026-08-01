@@ -6,6 +6,7 @@ import {
   Sparkles,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Download,
   Check,
   TrendingUp,
@@ -130,6 +131,48 @@ const HERO_BIM_GALLERY = [
   }
 ];
 
+const DESIGNER_WORKFLOW_STEPS = [
+  {
+    icon: FileText,
+    titleFa: 'کاتالوگ PDF',
+    titleEn: 'PDF Catalog',
+    subtitleFa: 'داده پراکنده و مدل‌سازی دستی',
+    subtitleEn: 'Scattered data and manual modeling',
+    tagFa: 'ورودی پراکنده',
+    tagEn: 'Scattered Input',
+    accentClass: 'text-amber-600 bg-amber-50 border-amber-200',
+    iconClass: 'bg-amber-100 text-amber-700'
+  },
+  {
+    icon: Box,
+    titleFa: 'مدل اطلاعاتی محصول',
+    titleEn: 'Product BIM Data',
+    subtitleFa: 'آبجکت BIM با داده قابل بررسی',
+    subtitleEn: 'BIM object with reviewable data',
+    tagFa: 'RFA / IFC',
+    tagEn: 'RFA / IFC',
+    accentClass: 'text-[#0F8F8F] bg-[#E8FBFB] border-[#26B6B6]/35',
+    iconClass: 'bg-[#26B6B6] text-white'
+  },
+  {
+    icon: Building2,
+    titleFa: 'مدل پروژه',
+    titleEn: 'Project Model',
+    subtitleFa: 'مستندسازی و مسیر متره',
+    subtitleEn: 'Documentation and QTO path',
+    tagFa: 'Schedule / QTO',
+    tagEn: 'Schedule / QTO',
+    accentClass: 'text-emerald-700 bg-emerald-50 border-emerald-200',
+    iconClass: 'bg-emerald-100 text-emerald-700'
+  }
+];
+
+const DESIGNER_BENEFITS = [
+  { labelFa: 'کاهش دوباره‌کاری', labelEn: 'Less Rework' },
+  { labelFa: 'داده فنی قابل بررسی', labelEn: 'Reviewable Technical Data' },
+  { labelFa: 'آماده‌تر برای متره', labelEn: 'Better Prepared for QTO' }
+];
+
 export const SLIDE_CONFIGS = [
   {
     id: 'identity',
@@ -154,12 +197,12 @@ export const SLIDE_CONFIGS = [
     numEn: '02',
     bgImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80',
     overlay: 'bg-gradient-to-r from-slate-950/95 via-slate-900/85 to-[#26B6B6]/25',
-    badgeFa: 'برای معماران، مهندسان و دفاتر طراحی',
-    badgeEn: 'For Architects, Engineers & Design Offices',
-    headingFa: 'آبجکت‌های BIM قابل استفاده برای پروژه‌های واقعی',
-    headingEn: 'BIM Objects Ready for Real Design Projects',
-    descFa: 'به‌جای ساختن دوباره مدل‌ها از روی PDF و کاتالوگ، نمونه فایل‌های سبک، استاندارد و قابل بررسی را پیدا کنید و مسیر طراحی، متره و مستندسازی را سریع‌تر پیش ببرید.',
-    descEn: 'Instead of rebuilding models from PDF catalogs, find sample lightweight, standard and reviewable BIM files and advance the design, quantity surveying and documentation workflow faster.'
+    badgeFa: 'برای معماران، مهندسان و تیم‌های BIM',
+    badgeEn: 'For Architects, Engineers & BIM Teams',
+    headingFa: 'دیگر لازم نیست هر آبجکت را از صفر مدل کنید',
+    headingEn: 'Stop Modeling Every Object from Scratch',
+    descFa: 'به‌جای مدل‌سازی دستی از روی PDF و کاتالوگ‌های پراکنده، آبجکت‌های BIM سبک و قابل بررسی را پیدا کنید؛ آماده‌تر برای طراحی، مستندسازی و متره و برآورد.',
+    descEn: 'Instead of rebuilding objects from PDFs and scattered catalogs, find lightweight, reviewable BIM objects—better prepared for design documentation and quantity takeoff.'
   },
   {
     id: 'manufacturers',
@@ -397,11 +440,38 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
         .animate-hero-album-glow {
           animation: heroAlbumGlow 4.5s ease-in-out infinite;
         }
+        @keyframes heroWorkflowPulse {
+          0%, 100% { opacity: 0.35; transform: scaleX(0.96); }
+          50% { opacity: 0.95; transform: scaleX(1); }
+        }
+        @keyframes heroWorkflowFloat {
+          0%, 100% { transform: translate3d(0, 0, 0); }
+          50% { transform: translate3d(0, -7px, 0); }
+        }
+        @keyframes heroWorkflowScan {
+          0% { transform: translateX(-120%); opacity: 0; }
+          20% { opacity: 0.55; }
+          70% { opacity: 0.55; }
+          100% { transform: translateX(120%); opacity: 0; }
+        }
+        .animate-hero-workflow-pulse {
+          animation: heroWorkflowPulse 2.6s ease-in-out infinite;
+          transform-origin: center;
+        }
+        .animate-hero-workflow-float {
+          animation: heroWorkflowFloat 6.5s ease-in-out infinite;
+        }
+        .animate-hero-workflow-scan {
+          animation: heroWorkflowScan 4.8s ease-in-out infinite;
+        }
         @media (prefers-reduced-motion: reduce) {
           .animate-hero-visual-float,
           .animate-hero-visual-float-alt,
           .animate-hero-visual-scan,
-          .animate-hero-visual-grid {
+          .animate-hero-visual-grid,
+          .animate-hero-workflow-pulse,
+          .animate-hero-workflow-float,
+          .animate-hero-workflow-scan {
             animation: none !important;
           }
         }
@@ -442,7 +512,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
           {/* Text Content */}
           <div
             dir={isRtl ? 'rtl' : 'ltr'}
-            className={`${activeSlide === 0 ? 'md:col-span-7 lg:col-span-7 order-1 ' + (isRtl ? 'md:order-2' : 'md:order-1') : 'md:col-span-12 order-1'} space-y-2 sm:space-y-5 flex flex-col justify-center animate-fadeIn`}
+            className={`${activeSlide === 0 ? 'md:col-span-7 lg:col-span-7 order-1 ' + (isRtl ? 'md:order-2' : 'md:order-1') : activeSlide === 1 ? 'md:col-span-6 lg:col-span-6 order-1 ' + (isRtl ? 'md:order-2' : 'md:order-1') : 'md:col-span-12 order-1'} space-y-2 sm:space-y-5 flex flex-col justify-center animate-fadeIn`}
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-950/80 backdrop-blur-md border border-[#26B6B6]/30 rounded-full text-[10px] sm:text-xs font-bold text-[#26B6B6] self-start shadow-md max-w-full">
               <Sparkles className="w-3.5 h-3.5 text-[#26B6B6] shrink-0" />
@@ -480,7 +550,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
                     onClick={() => onNavigate('about')}
                     className="bg-slate-900/60 hover:bg-slate-800/80 text-white border border-[#26B6B6]/50 hover:border-[#26B6B6] backdrop-blur-md px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all hover:scale-105 cursor-pointer flex items-center gap-1.5"
                   >
-                    <span>{isRtl ? 'ایران بیم هاب چیست؟' : 'What is IranBIMhub?'}</span>
+                    <span>{isRtl ? 'ایران‌بیم‌هاب چیست؟' : 'What is IranBIMhub?'}</span>
                   </button>
                 </>
               )}
@@ -495,7 +565,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
                     }}
                     className="bg-[#26B6B6] hover:bg-[#1e9494] text-white px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold shadow-md transition-all hover:scale-105 cursor-pointer"
                   >
-                    {isRtl ? 'مشاهده نمونه آبجکتها' : 'View Sample Objects'}
+                    {isRtl ? 'مشاهده نمونه آبجکت‌ها' : 'View Sample Objects'}
                   </button>
                   <button
                     onClick={() => onNavigate('for-designers')}
@@ -676,6 +746,91 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
             </div>
           )}
 
+          {activeSlide === 1 && (
+            <div
+              dir={isRtl ? 'rtl' : 'ltr'}
+              className={`${isRtl ? 'md:order-1' : 'md:order-2'} order-2 md:col-span-6 lg:col-span-6 relative w-full animate-fadeIn`}
+              aria-label={isRtl ? 'نمای مسیر استفاده معماران از آبجکت‌های BIM' : 'Architect BIM object workflow visual'}
+            >
+              <div className="relative min-h-[420px] sm:min-h-[430px] md:h-[410px] lg:h-[420px] overflow-hidden rounded-[2rem] border border-white/10 bg-[#07111F]/78 backdrop-blur-md shadow-2xl p-3 sm:p-4 md:p-5">
+                <div className="pointer-events-none absolute inset-0 opacity-[0.07] bg-[linear-gradient(to_right,#26B6B6_1px,transparent_1px),linear-gradient(to_bottom,#26B6B6_1px,transparent_1px)] [background-size:22px_22px] animate-hero-visual-grid" />
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(38,182,182,0.24),transparent_30%),radial-gradient(circle_at_78%_74%,rgba(59,130,246,0.13),transparent_32%)]" />
+                <div className="pointer-events-none absolute -top-24 -left-20 w-64 h-64 rounded-full bg-[#26B6B6]/16 blur-3xl animate-hero-album-glow" />
+                <div className="pointer-events-none absolute -bottom-24 -right-16 w-60 h-60 rounded-full bg-sky-400/12 blur-3xl" />
+
+                <div className="relative z-10 flex h-full min-h-0 flex-col justify-between gap-3 sm:gap-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="inline-flex items-center gap-1.5 rounded-full bg-[#26B6B6]/12 border border-[#26B6B6]/25 px-2.5 py-1 text-[9px] sm:text-[10px] text-[#7EE7E7] font-extrabold">
+                      <Sparkles className="w-3 h-3" />
+                      <span>{isRtl ? 'از کاتالوگ تا مدل پروژه' : 'Catalog to Project Model'}</span>
+                    </div>
+                    <div className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-white/[0.08] border border-white/10 px-2.5 py-1 text-[9px] sm:text-[10px] text-white/82 font-bold">
+                      <Database className="w-3 h-3 text-[#7EE7E7]" />
+                      <span>{isRtl ? 'مدل اطلاعاتی محصول' : 'Product BIM Data'}</span>
+                    </div>
+                  </div>
+
+                  <div className="relative flex-1 min-h-[270px] md:min-h-0 rounded-[1.5rem] border border-white/10 bg-white/[0.075] p-3 sm:p-4 overflow-hidden">
+                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_8%,rgba(255,255,255,0.14),transparent_38%)]" />
+                    <div className="pointer-events-none absolute inset-0 opacity-[0.045] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:18px_18px]" />
+
+                    <div className="relative z-10 flex h-full flex-col xl:flex-row items-stretch justify-center gap-2.5 xl:gap-2">
+                      {DESIGNER_WORKFLOW_STEPS.map((step, idx) => {
+                        const StepIcon = step.icon;
+                        const isCoreStep = idx === 1;
+                        const ArrowIcon = isRtl ? ChevronLeft : ChevronRight;
+                        return (
+                          <React.Fragment key={step.titleEn}>
+                            <div className={`relative flex-1 min-h-[72px] xl:min-h-0 rounded-2xl border p-3 sm:p-3.5 shadow-xl overflow-hidden transition-all duration-500 ${isCoreStep ? 'bg-gradient-to-br from-white via-[#F3FEFE] to-[#E7FBFB] border-[#26B6B6]/45 ring-1 ring-[#26B6B6]/30 animate-hero-workflow-float' : 'bg-gradient-to-br from-white via-[#F8FBFC] to-slate-100 border-white/80'}`}>
+                              {isCoreStep && <div className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/2 bg-gradient-to-r from-transparent via-[#26B6B6]/12 to-transparent animate-hero-workflow-scan" />}
+                              <div className="relative z-10 flex items-start justify-between gap-2">
+                                <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${step.iconClass}`}>
+                                  <StepIcon className="w-4 h-4" />
+                                </div>
+                                <span className={`rounded-full border px-2 py-1 text-[8px] font-black leading-none whitespace-nowrap ${step.accentClass}`}>
+                                  {isRtl ? step.tagFa : step.tagEn}
+                                </span>
+                              </div>
+                              <div className="relative z-10 mt-3 text-start">
+                                <div className={`font-black leading-tight ${isCoreStep ? 'text-[#073F46]' : 'text-slate-800'} text-[13px] sm:text-sm xl:text-[13px]`}>
+                                  {isRtl ? step.titleFa : step.titleEn}
+                                </div>
+                                <div className="mt-1 text-[10px] sm:text-[11px] xl:text-[10px] leading-relaxed text-slate-500 font-bold">
+                                  {isRtl ? step.subtitleFa : step.subtitleEn}
+                                </div>
+                              </div>
+                            </div>
+
+                            {idx < DESIGNER_WORKFLOW_STEPS.length - 1 && (
+                              <div className="flex shrink-0 items-center justify-center min-h-5 xl:min-h-0 xl:w-7" aria-hidden="true">
+                                <div className="hidden xl:flex h-9 w-9 items-center justify-center rounded-full border border-[#26B6B6]/35 bg-[#26B6B6]/14 text-[#7EE7E7] shadow-[0_0_22px_rgba(38,182,182,0.20)] animate-hero-workflow-pulse">
+                                  <ArrowIcon className="w-4 h-4" />
+                                </div>
+                                <div className="xl:hidden flex h-7 w-7 items-center justify-center rounded-full border border-[#26B6B6]/35 bg-[#26B6B6]/14 text-[#7EE7E7] shadow-[0_0_18px_rgba(38,182,182,0.18)]">
+                                  <ChevronDown className="w-4 h-4" />
+                                </div>
+                              </div>
+                            )}
+                          </React.Fragment>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    {DESIGNER_BENEFITS.map((benefit, idx) => (
+                      <div key={benefit.labelEn} className="rounded-2xl bg-white/[0.085] border border-white/10 px-3 py-2 text-start">
+                        <div className="flex items-center gap-2 text-[10px] sm:text-[11px] font-black text-white">
+                          {idx === 0 ? <Check className="w-3.5 h-3.5 text-[#7EE7E7] shrink-0" /> : idx === 1 ? <ShieldCheck className="w-3.5 h-3.5 text-[#7EE7E7] shrink-0" /> : <TrendingUp className="w-3.5 h-3.5 text-[#7EE7E7] shrink-0" />}
+                          <span>{isRtl ? benefit.labelFa : benefit.labelEn}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="mt-4 pt-2.5 border-t border-white/15">
