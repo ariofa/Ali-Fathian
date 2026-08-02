@@ -6,19 +6,151 @@
   --font-mono: "Vazirmatn", "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
+/*
+ * IranBIMhub design tokens
+ *
+ * Components should use these semantic tokens instead of hard-coded color
+ * values. The values can be changed centrally without redesigning each view.
+ */
+@theme inline {
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-primary-hover: var(--brand-primary-hover);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-accent-strong: var(--brand-accent-strong);
+  --color-brand-accent-deep: var(--brand-accent-deep);
+  --color-brand-accent-on: var(--brand-accent-on);
+  --color-brand-spark: var(--brand-spark);
+  --color-brand-spark-on: var(--brand-spark-on);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-ink-soft: var(--brand-ink-soft);
+
+  --color-ui-background: var(--ui-background);
+  --color-ui-surface: var(--ui-surface);
+  --color-ui-surface-muted: var(--ui-surface-muted);
+  --color-ui-border: var(--ui-border);
+  --color-ui-border-strong: var(--ui-border-strong);
+  --color-ui-text-primary: var(--ui-text-primary);
+  --color-ui-text-secondary: var(--ui-text-secondary);
+  --color-ui-text-muted: var(--ui-text-muted);
+  --color-ui-text-inverse: var(--ui-text-inverse);
+
+  --color-state-success: var(--state-success);
+  --color-state-success-strong: var(--state-success-strong);
+  --color-state-success-surface: var(--state-success-surface);
+  --color-state-warning: var(--state-warning);
+  --color-state-warning-strong: var(--state-warning-strong);
+  --color-state-warning-surface: var(--state-warning-surface);
+  --color-state-error: var(--state-error);
+  --color-state-error-strong: var(--state-error-strong);
+  --color-state-error-surface: var(--state-error-surface);
+  --color-state-info: var(--state-info);
+  --color-state-info-strong: var(--state-info-strong);
+  --color-state-info-surface: var(--state-info-surface);
+}
+
 @variant dark (&:where(.dark, .dark *));
 
-html, body {
+:root {
+  color-scheme: light;
+
+  /* Brand */
+  --brand-primary: #0F3D5E;
+  --brand-primary-hover: #0A2D47;
+  --brand-accent: #0FB9B1;
+  --brand-accent-strong: #087F7A;
+  --brand-accent-deep: #064E4B;
+  --brand-accent-on: #0B1220;
+  --brand-spark: #D6A01D;
+  --brand-spark-on: #2B2F33;
+  --brand-ink: #2B2F33;
+  --brand-ink-soft: #3D4650;
+
+  /* Light UI */
+  --ui-background: #F8FAFC;
+  --ui-surface: #FFFFFF;
+  --ui-surface-muted: #F1F5F9;
+  --ui-border: #E2E8F0;
+  --ui-border-strong: #CBD5E1;
+  --ui-text-primary: #2B2F33;
+  --ui-text-secondary: #64748B;
+  --ui-text-muted: #94A3B8;
+  --ui-text-inverse: #FFFFFF;
+
+  /* Semantic states */
+  --state-success: #059669;
+  --state-success-strong: #047857;
+  --state-success-surface: #ECFDF5;
+  --state-warning: #D97706;
+  --state-warning-strong: #B45309;
+  --state-warning-surface: #FFFBEB;
+  --state-error: #BE123C;
+  --state-error-strong: #9F1239;
+  --state-error-surface: #FFF1F2;
+  --state-info: #0FB9B1;
+  --state-info-strong: #087F7A;
+  --state-info-surface: #F0FDFA;
+
+  /* Interaction */
+  --focus-ring: rgba(15, 185, 177, 0.35);
+  --selection-background: rgba(15, 185, 177, 0.20);
+}
+
+html.dark {
+  color-scheme: dark;
+
+  /* Brand adaptations for dark surfaces */
+  --brand-primary: #0F3D5E;
+  --brand-primary-hover: #145579;
+  --brand-accent: #22D3EE;
+  --brand-accent-strong: #06B6D4;
+  --brand-accent-deep: #0891B2;
+  --brand-accent-on: #0B1220;
+  --brand-spark: #D6A01D;
+  --brand-spark-on: #2B2F33;
+  --brand-ink: #F1F5F9;
+  --brand-ink-soft: #CBD5E1;
+
+  /* Dark UI */
+  --ui-background: #0B1220;
+  --ui-surface: #1E293B;
+  --ui-surface-muted: #172033;
+  --ui-border: #334155;
+  --ui-border-strong: #475569;
+  --ui-text-primary: #F1F5F9;
+  --ui-text-secondary: #CBD5E1;
+  --ui-text-muted: #94A3B8;
+  --ui-text-inverse: #0B1220;
+
+  /* Semantic adaptations for dark surfaces */
+  --state-success: #34D399;
+  --state-success-strong: #6EE7B7;
+  --state-success-surface: #064E3B;
+  --state-warning: #F59E0B;
+  --state-warning-strong: #FBBF24;
+  --state-warning-surface: #451A03;
+  --state-error: #FB7185;
+  --state-error-strong: #FDA4AF;
+  --state-error-surface: #4C0519;
+  --state-info: #22D3EE;
+  --state-info-strong: #67E8F9;
+  --state-info-surface: #083344;
+
+  --focus-ring: rgba(34, 211, 238, 0.45);
+  --selection-background: rgba(34, 211, 238, 0.25);
+}
+
+html,
+body {
   font-family: var(--font-sans);
-  background-color: #FFFFFF;
-  color: #464E56;
+  background-color: var(--ui-background);
+  color: var(--ui-text-primary);
   transition-property: color, background-color;
   transition-duration: 200ms;
 }
 
-html.dark, html.dark body {
-  background-color: #030712;
-  color: #f3f4f6;
+::selection {
+  background-color: var(--selection-background);
+  color: var(--ui-text-primary);
 }
 
 @media (orientation: landscape) and (max-width: 1023px) {

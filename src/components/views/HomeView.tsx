@@ -538,6 +538,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
   };
 
   const testimonialScrollRef = useRef<HTMLDivElement>(null);
+  const [isTestimonialsHovered, setIsTestimonialsHovered] = useState(false);
+  const isDraggingTestimonialsRef = useRef(false);
+  const testimonialsStartXRef = useRef(0);
+  const testimonialsScrollLeftRef = useRef(0);
+  const testimonialsHasDraggedRef = useRef(false);
 
   const scrollTestimonials = (direction: 'left' | 'right') => {
     const el = testimonialScrollRef.current;
@@ -553,7 +558,124 @@ export const HomeView: React.FC<HomeViewProps> = ({
     });
   };
 
+  // Keep testimonials aligned with the trusted-brands carousel:
+  // mouse drag on desktop and native touch scrolling on mobile.
+  const handleTestimonialsMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.button !== 0 || !testimonialScrollRef.current) return;
+
+    const el = testimonialScrollRef.current;
+    isDraggingTestimonialsRef.current = true;
+    testimonialsHasDraggedRef.current = false;
+    testimonialsStartXRef.current = e.pageX - el.offsetLeft;
+    testimonialsScrollLeftRef.current = el.scrollLeft;
+  };
+
+  const handleTestimonialsMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDraggingTestimonialsRef.current || !testimonialScrollRef.current) return;
+
+    e.preventDefault();
+    const el = testimonialScrollRef.current;
+    const x = e.pageX - el.offsetLeft;
+    const walk = (x - testimonialsStartXRef.current) * 1.5;
+
+    if (Math.abs(walk) > 5) {
+      testimonialsHasDraggedRef.current = true;
+    }
+
+    el.scrollLeft = testimonialsScrollLeftRef.current - walk;
+  };
+
+  const handleTestimonialsMouseUpOrLeave = () => {
+    isDraggingTestimonialsRef.current = false;
+  };
+
+  const handleTestimonialsTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!testimonialScrollRef.current || e.touches.length === 0) return;
+
+    const el = testimonialScrollRef.current;
+    isDraggingTestimonialsRef.current = true;
+    testimonialsHasDraggedRef.current = false;
+    testimonialsStartXRef.current = e.touches[0].pageX - el.offsetLeft;
+    testimonialsScrollLeftRef.current = el.scrollLeft;
+  };
+
+  const handleTestimonialsTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (
+      !isDraggingTestimonialsRef.current ||
+      !testimonialScrollRef.current ||
+      e.touches.length === 0
+    ) {
+      return;
+    }
+
+    const el = testimonialScrollRef.current;
+    const x = e.touches[0].pageX - el.offsetLeft;
+    const walk = (x - testimonialsStartXRef.current) * 1.5;
+
+    if (Math.abs(walk) > 5) {
+      testimonialsHasDraggedRef.current = true;
+    }
+
+    el.scrollLeft = testimonialsScrollLeftRef.current - walk;
+  };
+
+  const handleTestimonialsTouchEnd = () => {
+    isDraggingTestimonialsRef.current = false;
+  };
+
+  const handleTestimonialsClickCapture = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!testimonialsHasDraggedRef.current) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    testimonialsHasDraggedRef.current = false;
+  };
+
+  const handleTestimonialsDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  // Continuous movement, matching the trusted-brands carousel.
+  useEffect(() => {
+    const el = testimonialScrollRef.current;
+    if (!el) return;
+
+    let animationFrameId: number;
+    let lastTime = performance.now();
+    const speed = 35;
+
+    const scroll = (time: number) => {
+      if (!isTestimonialsHovered && !isDraggingTestimonialsRef.current && el) {
+        const delta = (time - lastTime) / 1000;
+        const oneGroupWidth = el.scrollWidth / 3;
+
+        if (isRtl) {
+          el.scrollLeft -= speed * delta;
+          if (Math.abs(el.scrollLeft) >= oneGroupWidth) {
+            el.scrollLeft += oneGroupWidth;
+          }
+        } else {
+          el.scrollLeft += speed * delta;
+          if (el.scrollLeft >= oneGroupWidth) {
+            el.scrollLeft -= oneGroupWidth;
+          }
+        }
+      }
+
+      lastTime = time;
+      animationFrameId = requestAnimationFrame(scroll);
+    };
+
+    animationFrameId = requestAnimationFrame(scroll);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [isTestimonialsHovered, isRtl]);
+
   const newestObjectsScrollRef = useRef<HTMLDivElement>(null);
+  const [isNewestObjectsHovered, setIsNewestObjectsHovered] = useState(false);
+  const isDraggingNewestObjectsRef = useRef(false);
+  const newestObjectsStartXRef = useRef(0);
+  const newestObjectsScrollLeftRef = useRef(0);
+  const newestObjectsHasDraggedRef = useRef(false);
 
   const scrollNewestObjects = (direction: 'left' | 'right') => {
     const el = newestObjectsScrollRef.current;
@@ -568,6 +690,118 @@ export const HomeView: React.FC<HomeViewProps> = ({
       behavior: 'smooth'
     });
   };
+
+  // Keep this carousel interaction aligned with the trusted-brands carousel:
+  // mouse drag on desktop and native touch scrolling on mobile.
+  const handleNewestObjectsMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.button !== 0 || !newestObjectsScrollRef.current) return;
+
+    const el = newestObjectsScrollRef.current;
+    isDraggingNewestObjectsRef.current = true;
+    newestObjectsHasDraggedRef.current = false;
+    newestObjectsStartXRef.current = e.pageX - el.offsetLeft;
+    newestObjectsScrollLeftRef.current = el.scrollLeft;
+  };
+
+  const handleNewestObjectsMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDraggingNewestObjectsRef.current || !newestObjectsScrollRef.current) return;
+
+    e.preventDefault();
+    const el = newestObjectsScrollRef.current;
+    const x = e.pageX - el.offsetLeft;
+    const walk = (x - newestObjectsStartXRef.current) * 1.5;
+
+    if (Math.abs(walk) > 5) {
+      newestObjectsHasDraggedRef.current = true;
+    }
+
+    el.scrollLeft = newestObjectsScrollLeftRef.current - walk;
+  };
+
+  const handleNewestObjectsMouseUpOrLeave = () => {
+    isDraggingNewestObjectsRef.current = false;
+  };
+
+  const handleNewestObjectsTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!newestObjectsScrollRef.current || e.touches.length === 0) return;
+
+    const el = newestObjectsScrollRef.current;
+    isDraggingNewestObjectsRef.current = true;
+    newestObjectsHasDraggedRef.current = false;
+    newestObjectsStartXRef.current = e.touches[0].pageX - el.offsetLeft;
+    newestObjectsScrollLeftRef.current = el.scrollLeft;
+  };
+
+  const handleNewestObjectsTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (
+      !isDraggingNewestObjectsRef.current ||
+      !newestObjectsScrollRef.current ||
+      e.touches.length === 0
+    ) {
+      return;
+    }
+
+    const el = newestObjectsScrollRef.current;
+    const x = e.touches[0].pageX - el.offsetLeft;
+    const walk = (x - newestObjectsStartXRef.current) * 1.5;
+
+    if (Math.abs(walk) > 5) {
+      newestObjectsHasDraggedRef.current = true;
+    }
+
+    el.scrollLeft = newestObjectsScrollLeftRef.current - walk;
+  };
+
+  const handleNewestObjectsTouchEnd = () => {
+    isDraggingNewestObjectsRef.current = false;
+  };
+
+  const handleNewestObjectsClickCapture = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!newestObjectsHasDraggedRef.current) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    newestObjectsHasDraggedRef.current = false;
+  };
+
+  const handleNewestObjectsDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  // Continuous movement, matching the trusted-brands carousel.
+  useEffect(() => {
+    const el = newestObjectsScrollRef.current;
+    if (!el) return;
+
+    let animationFrameId: number;
+    let lastTime = performance.now();
+    const speed = 35;
+
+    const scroll = (time: number) => {
+      if (!isNewestObjectsHovered && !isDraggingNewestObjectsRef.current && el) {
+        const delta = (time - lastTime) / 1000;
+        const oneGroupWidth = el.scrollWidth / 3;
+
+        if (isRtl) {
+          el.scrollLeft -= speed * delta;
+          if (Math.abs(el.scrollLeft) >= oneGroupWidth) {
+            el.scrollLeft += oneGroupWidth;
+          }
+        } else {
+          el.scrollLeft += speed * delta;
+          if (el.scrollLeft >= oneGroupWidth) {
+            el.scrollLeft -= oneGroupWidth;
+          }
+        }
+      }
+
+      lastTime = time;
+      animationFrameId = requestAnimationFrame(scroll);
+    };
+
+    animationFrameId = requestAnimationFrame(scroll);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [isNewestObjectsHovered, isRtl]);
 
   // Filter suggestions based on searchQuery
   const suggestions = searchQuery.trim().length > 1 ? {
@@ -1134,27 +1368,46 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
           <div
             ref={newestObjectsScrollRef}
-            dir="ltr"
-            className="flex gap-3.5 sm:gap-4 md:gap-5 overflow-x-auto pb-4 pt-1 px-10 sm:px-12 scrollbar-none snap-x snap-mandatory scroll-smooth overscroll-x-contain [touch-action:pan-x]"
+            dir={isRtl ? 'rtl' : 'ltr'}
+            onMouseEnter={() => setIsNewestObjectsHovered(true)}
+            onMouseLeave={() => {
+              setIsNewestObjectsHovered(false);
+              handleNewestObjectsMouseUpOrLeave();
+            }}
+            onMouseDown={handleNewestObjectsMouseDown}
+            onMouseMove={handleNewestObjectsMouseMove}
+            onMouseUp={handleNewestObjectsMouseUpOrLeave}
+            onTouchStart={handleNewestObjectsTouchStart}
+            onTouchMove={handleNewestObjectsTouchMove}
+            onTouchEnd={handleNewestObjectsTouchEnd}
+            onClickCapture={handleNewestObjectsClickCapture}
+            onDragStart={handleNewestObjectsDragStart}
+            className="flex gap-3.5 sm:gap-4 md:gap-5 overflow-x-auto pb-4 pt-1 scrollbar-none overscroll-x-contain [touch-action:pan-x] select-none cursor-grab active:cursor-grabbing"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
           >
-            {combinedObjects.slice(-8).reverse().map((obj) => (
-              <div
-                key={`new-obj-${obj.id}`}
-                data-newest-object-card
-                dir={isRtl ? 'rtl' : 'ltr'}
-                className="flex-shrink-0 w-[200px] sm:w-[220px] md:w-[240px] snap-center sm:snap-start"
-              >
-                <BIMObjectCard
-                  object={obj}
-                  isSaved={savedObjects.includes(obj.id)}
-                  onToggleSave={() => onToggleSave(obj.id)}
-                  onClick={() => onSelectObject(obj)}
-                  onQuickDownload={(format) => onQuickDownload(obj, format)}
-                  onViewBrand={onViewBrand}
-                />
-              </div>
-            ))}
+            <div className="flex gap-3.5 sm:gap-4 md:gap-5 px-10 sm:px-12 shrink-0">
+              {[1, 2, 3].map((groupIndex) => (
+                <div key={`newest-group-${groupIndex}`} className="flex gap-3.5 sm:gap-4 md:gap-5 shrink-0">
+                  {combinedObjects.slice(-8).reverse().map((obj) => (
+                    <div
+                      key={`new-obj-${groupIndex}-${obj.id}`}
+                      data-newest-object-card
+                      dir={isRtl ? 'rtl' : 'ltr'}
+                      className="flex-shrink-0 w-[200px] sm:w-[220px] md:w-[240px]"
+                    >
+                      <BIMObjectCard
+                        object={obj}
+                        isSaved={savedObjects.includes(obj.id)}
+                        onToggleSave={() => onToggleSave(obj.id)}
+                        onClick={() => onSelectObject(obj)}
+                        onQuickDownload={(format) => onQuickDownload(obj, format)}
+                        onViewBrand={onViewBrand}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -1477,41 +1730,60 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
           <div
             ref={testimonialScrollRef}
-            dir="ltr"
-            className="flex gap-4 sm:gap-6 overflow-x-auto py-2 px-1 sm:px-2 scrollbar-none snap-x snap-mandatory scroll-smooth overscroll-x-contain [touch-action:pan-x]"
+            dir={isRtl ? 'rtl' : 'ltr'}
+            onMouseEnter={() => setIsTestimonialsHovered(true)}
+            onMouseLeave={() => {
+              setIsTestimonialsHovered(false);
+              handleTestimonialsMouseUpOrLeave();
+            }}
+            onMouseDown={handleTestimonialsMouseDown}
+            onMouseMove={handleTestimonialsMouseMove}
+            onMouseUp={handleTestimonialsMouseUpOrLeave}
+            onTouchStart={handleTestimonialsTouchStart}
+            onTouchMove={handleTestimonialsTouchMove}
+            onTouchEnd={handleTestimonialsTouchEnd}
+            onClickCapture={handleTestimonialsClickCapture}
+            onDragStart={handleTestimonialsDragStart}
+            className="flex overflow-x-auto scrollbar-none overscroll-x-contain [touch-action:pan-x] select-none cursor-grab active:cursor-grabbing"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
           >
-            {MOCK_REVIEWS.map((rev) => (
-              <div
-                key={`testimonial-${rev.id}`}
-                data-testimonial-card
-                dir={isRtl ? 'rtl' : 'ltr'}
-                className="flex-shrink-0 w-[280px] sm:w-[340px] md:w-[380px] snap-center sm:snap-start bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-2xl p-4 sm:p-5 shadow-2xs hover:shadow-xs transition-shadow flex flex-col justify-between text-start relative select-text"
-              >
-                <div className="absolute top-4 end-4 text-gray-100 dark:text-gray-800 text-5xl sm:text-6xl font-serif select-none leading-none opacity-50 dark:opacity-30 pointer-events-none">
-                  ”
+            <div className="flex gap-4 sm:gap-6 py-2 px-1 sm:px-2 shrink-0">
+              {[1, 2, 3].map((groupIndex) => (
+                <div key={`testimonial-group-${groupIndex}`} className="flex gap-4 sm:gap-6 shrink-0">
+                  {MOCK_REVIEWS.map((rev) => (
+                    <div
+                      key={`testimonial-${groupIndex}-${rev.id}`}
+                      data-testimonial-card
+                      dir={isRtl ? 'rtl' : 'ltr'}
+                      className="flex-shrink-0 w-[280px] sm:w-[340px] md:w-[380px] bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-2xl p-4 sm:p-5 shadow-2xs hover:shadow-xs transition-shadow flex flex-col justify-between text-start relative select-none"
+                    >
+                      <div className="absolute top-4 end-4 text-gray-100 dark:text-gray-800 text-5xl sm:text-6xl font-serif select-none leading-none opacity-50 dark:opacity-30 pointer-events-none">
+                        ”
+                      </div>
+
+                      <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed italic relative z-10 mb-4 line-clamp-4">
+                        "{isRtl ? rev.textFa : rev.textEn}"
+                      </p>
+
+                      <div className="flex items-center gap-3 border-t border-gray-100 dark:border-gray-800/60 pt-3">
+                        <div className="w-9 h-9 bg-[#26B6B6]/10 text-[#26B6B6] rounded-full flex items-center justify-center font-black text-xs shrink-0">
+                          {rev.nameEn.substring(5, 7).trim() || rev.nameEn.substring(0, 2)}
+                        </div>
+
+                        <div className="min-w-0">
+                          <h4 className="text-xs font-black text-gray-800 dark:text-gray-200 truncate">
+                            {isRtl ? rev.nameFa : rev.nameEn}
+                          </h4>
+                          <p className="text-[10px] text-gray-400 dark:text-gray-500 truncate">
+                            {isRtl ? rev.roleFa : rev.roleEn}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-
-                <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed italic relative z-10 mb-4 line-clamp-4">
-                  "{isRtl ? rev.textFa : rev.textEn}"
-                </p>
-
-                <div className="flex items-center gap-3 border-t border-gray-100 dark:border-gray-800/60 pt-3">
-                  <div className="w-9 h-9 bg-[#26B6B6]/10 text-[#26B6B6] rounded-full flex items-center justify-center font-black text-xs shrink-0">
-                    {rev.nameEn.substring(5, 7).trim() || rev.nameEn.substring(0, 2)}
-                  </div>
-
-                  <div className="min-w-0">
-                    <h4 className="text-xs font-black text-gray-800 dark:text-gray-200 truncate">
-                      {isRtl ? rev.nameFa : rev.nameEn}
-                    </h4>
-                    <p className="text-[10px] text-gray-400 dark:text-gray-500 truncate">
-                      {isRtl ? rev.roleFa : rev.roleEn}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
