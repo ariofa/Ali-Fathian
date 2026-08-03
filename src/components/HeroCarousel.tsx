@@ -578,24 +578,32 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
               {activeSlide === 2 && (
                 <>
                   <button
-                    onClick={() => {
-                      sessionStorage.setItem('iranbimhub_manufacturer_page_target', 'consultation');
-                      onNavigate('for-manufacturers');
-                    }}
-                    className="bg-[#26B6B6] hover:bg-[#1e9494] text-white px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold shadow-md transition-all hover:scale-105 cursor-pointer"
-                  >
-                    {isRtl ? 'مشاورهٔ رایگان' : 'Free Consultation'}
-                  </button>
-
-
-                  <button
+                    type="button"
                     onClick={() => {
                       sessionStorage.removeItem('iranbimhub_manufacturer_page_target');
                       onNavigate('for-manufacturers');
                     }}
-                    className="bg-slate-900/80 hover:bg-slate-800 text-white border border-white/20 backdrop-blur-md px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all hover:scale-105 cursor-pointer"
+                    className="w-full sm:w-auto bg-[#26B6B6] hover:bg-[#1e9494] text-white px-4 sm:px-5 py-2.5 rounded-xl text-[11px] sm:text-sm leading-tight text-center font-extrabold shadow-md transition-all hover:scale-105 cursor-pointer"
                   >
-                    {isRtl ? 'راهنمای تولیدکنندگان' : 'Manufacturer Guide'}
+                    {isRtl ? 'مشاورهٔ رایگان و راهنمای تولیدکنندگان' : 'Free Consultation & Manufacturer Guide'}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      sessionStorage.removeItem('iranbimhub_manufacturer_page_target');
+                      sessionStorage.setItem('iranbimhub_auth_mode', 'register');
+                      sessionStorage.setItem('iranbimhub_register_role', 'Manufacturer');
+
+                      if (onOpenAuthModal) {
+                        onOpenAuthModal();
+                      } else {
+                        onNavigate('for-manufacturers');
+                      }
+                    }}
+                    className="w-full sm:w-auto bg-slate-900/80 hover:bg-slate-800 text-white border border-white/20 backdrop-blur-md px-4 py-2.5 rounded-xl text-[11px] sm:text-sm leading-tight text-center font-extrabold transition-all hover:scale-105 cursor-pointer"
+                  >
+                    {isRtl ? 'ثبت‌نام به‌عنوان تولیدکننده' : 'Register as a Manufacturer'}
                   </button>
                 </>
               )}
