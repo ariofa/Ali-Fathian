@@ -214,6 +214,7 @@ const CONFIG_FILE_PATH = path.join(process.cwd(), "config.json");
 // Default site layout configuration (the "WordPress" CMS schema)
 const DEFAULT_SITE_CONFIG = {
   landingPageOrder: ["hero", "stats", "categories", "video_introduction", "bookshelf", "latest_arrivals", "trusted_brands", "faq"],
+  manufacturerHeroVideoUrl: "",
   footer: {
     phone: "+98 (21) 8877-4433",
     email: "info@iranbimhub.ir",

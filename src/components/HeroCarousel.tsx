@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from './LanguageContext';
 import { useSiteConfig } from './SiteConfigContext';
+import { parseVideoEmbedUrl } from '../lib/videoUtils';
 import { Logo } from './Logo';
 import {
   Sparkles,
@@ -18,7 +19,9 @@ import {
   Box,
   Building2,
   ShieldCheck,
-  Layers
+  Layers,
+  Play,
+  X
 } from 'lucide-react';
 
 const toPersianDigits = (num: string | number) => {
@@ -157,10 +160,10 @@ export const SLIDE_CONFIGS = [
     overlay: 'bg-gradient-to-r from-slate-950/95 via-slate-900/85 to-[#26B6B6]/25',
     badgeFa: 'برای معماران، مهندسان و تیم‌های BIM',
     badgeEn: 'For Architects, Engineers & BIM Teams',
-    headingFa: 'دیگر لازم نیست هر آبجکت را از صفر مدل کنید',
-    headingEn: 'Stop Modeling Every Object from Scratch',
-    descFa: 'به‌جای مدل‌سازی دستی از روی PDF و کاتالوگ‌های پراکنده، آبجکت‌های BIM سبک و قابل بررسی را پیدا کنید؛ آماده‌تر برای طراحی، مستندسازی و متره و برآورد.',
-    descEn: 'Instead of rebuilding objects from PDFs and scattered catalogs, find lightweight, reviewable BIM objects—better prepared for design documentation and quantity takeoff.'
+    headingFa: 'دیگر لازم نیست هر آبجکت بیم را از صفر مدل کنید',
+    headingEn: 'You No Longer Need to Model Every BIM Object from Scratch',
+    descFa: 'با آبجکت‌های بیم واقعی، سریع‌تر طراحی کنید و دقیق‌تر تصمیم بگیرید.',
+    descEn: 'With real BIM objects, design faster and make better-informed decisions.'
   },
   {
     id: 'manufacturers',
@@ -229,7 +232,15 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
   const [dragStartX, setDragStartX] = useState<number | null>(null);
   const [dragOffsetX, setDragOffsetX] = useState(0);
   const [activeHeroAsset, setActiveHeroAsset] = useState(0);
+  const [isManufacturerVideoOpen, setIsManufacturerVideoOpen] = useState(false);
   const activeHeroAssetData = HERO_BIM_GALLERY[activeHeroAsset];
+
+  const manufacturerHeroVideoUrl = siteConfig?.manufacturerHeroVideoUrl?.trim() || '';
+  const parsedManufacturerVideo = parseVideoEmbedUrl(manufacturerHeroVideoUrl);
+  const manufacturerVideoEmbedUrl = parsedManufacturerVideo.type === 'aparat'
+    ? parsedManufacturerVideo.embedUrl
+    : '';
+  const manufacturerSlide = activeSlides.find((slide) => slide.id === 'manufacturers');
 
   const handleNextSlide = () => {
     setActiveSlide((prev) => (prev + 1) % activeSlides.length);
@@ -269,6 +280,36 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
 
     return () => window.clearInterval(timer);
   }, [activeSlide]);
+
+  useEffect(() => {
+    if (!isManufacturerVideoOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsManufacturerVideoOpen(false);
+        setIsPaused(false);
+      }
+    };
+
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isManufacturerVideoOpen]);
+
+  const handleOpenManufacturerVideo = () => {
+    if (!manufacturerVideoEmbedUrl) return;
+    setIsPaused(true);
+    setIsManufacturerVideoOpen(true);
+  };
+
+  const handleCloseManufacturerVideo = () => {
+    setIsManufacturerVideoOpen(false);
+    setIsPaused(false);
+  };
 
   const handleDragStart = (clientX: number) => {
     setDragStartX(clientX);
@@ -470,7 +511,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
           {/* Text Content */}
           <div
             dir={isRtl ? 'rtl' : 'ltr'}
-            className={`${activeSlide === 0 ? 'md:col-span-7 lg:col-span-7 order-1 ' + (isRtl ? 'md:order-2' : 'md:order-1') : activeSlide === 1 ? 'md:col-span-6 lg:col-span-6 order-1 ' + (isRtl ? 'md:order-2' : 'md:order-1') : 'md:col-span-12 order-1'} space-y-2 sm:space-y-5 flex flex-col justify-center animate-fadeIn`}
+            className={`${activeSlide === 0 ? 'md:col-span-7 lg:col-span-7 order-1 ' + (isRtl ? 'md:order-2' : 'md:order-1') : activeSlide === 1 || activeSlide === 2 ? 'md:col-span-6 lg:col-span-6 order-1 ' + (isRtl ? 'md:order-2' : 'md:order-1') : 'md:col-span-12 order-1'} space-y-2 sm:space-y-5 flex flex-col justify-center animate-fadeIn`}
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-950/80 backdrop-blur-md border border-[#26B6B6]/30 rounded-full text-[10px] sm:text-xs font-bold text-[#26B6B6] self-start shadow-md max-w-full">
               <Sparkles className="w-3.5 h-3.5 text-[#26B6B6] shrink-0" />
@@ -545,6 +586,8 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
                   >
                     {isRtl ? 'مشاوره رایگان تولیدکنندگان' : 'Free Manufacturer Consultation'}
                   </button>
+
+
                   <button
                     onClick={() => {
                       sessionStorage.removeItem('iranbimhub_manufacturer_page_target');
@@ -766,6 +809,60 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
             </div>
           )}
 
+          {activeSlide === 2 && manufacturerVideoEmbedUrl && manufacturerSlide?.bgImage && (
+            <div
+              dir={isRtl ? 'rtl' : 'ltr'}
+              className={`${isRtl ? 'md:order-1' : 'md:order-2'} order-2 md:col-span-6 lg:col-span-6 relative w-full animate-fadeIn`}
+              aria-label={isRtl ? 'ویدیوی معرفی مسیر تولیدکنندگان' : 'Manufacturer introduction video'}
+            >
+              <div className="relative min-h-[328px] sm:min-h-[350px] md:h-[370px] lg:h-[386px] overflow-hidden rounded-[2rem] border border-white/10 bg-[#07111F]/76 backdrop-blur-md shadow-2xl p-3 sm:p-4 md:p-5">
+                <div className="pointer-events-none absolute inset-0 opacity-[0.055] bg-[linear-gradient(to_right,#26B6B6_1px,transparent_1px),linear-gradient(to_bottom,#26B6B6_1px,transparent_1px)] [background-size:22px_22px] animate-hero-visual-grid" />
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_16%,rgba(38,182,182,0.20),transparent_30%),radial-gradient(circle_at_84%_78%,rgba(255,255,255,0.10),transparent_36%)]" />
+                <div className="pointer-events-none absolute -top-24 -right-20 w-64 h-64 rounded-full bg-[#26B6B6]/14 blur-3xl animate-hero-album-glow" />
+                <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#26B6B6]/60 to-transparent" />
+
+                <div className="relative z-10 flex h-full min-h-0 flex-col gap-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-[#26B6B6]/12 border border-[#26B6B6]/25 px-3 py-1.5 text-[11px] sm:text-xs md:text-[13px] text-[#7EE7E7] font-black leading-snug max-w-full shadow-[0_0_22px_rgba(38,182,182,0.16)]">
+                      <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                      <span>{isRtl ? 'مسیر سادهٔ معرفی برند به طراحان' : 'A simple path from your brand to designers'}</span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleOpenManufacturerVideo}
+                    className="group relative flex-1 min-h-0 overflow-hidden rounded-[1.5rem] border border-white/20 bg-slate-950 text-white shadow-xl cursor-pointer"
+                    aria-label={isRtl ? 'پخش ویدیوی مسیر معرفی برند' : 'Play the manufacturer introduction video'}
+                  >
+                    <img
+                      src={manufacturerSlide.bgImage}
+                      alt=""
+                      aria-hidden="true"
+                      className="absolute inset-0 w-full h-full object-cover opacity-70 transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <span className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/35 to-slate-950/25" />
+                    <span className="absolute inset-0 bg-[#07111F]/20" />
+
+                    <span className="relative z-10 flex h-full min-h-[245px] flex-col items-center justify-center gap-4 px-5 text-center">
+                      <span className="flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-white text-brand-primary shadow-2xl transition-transform duration-300 group-hover:scale-110">
+                        <Play className="w-7 h-7 sm:w-9 sm:h-9 fill-current" />
+                      </span>
+                      <span>
+                        <span className="block text-sm sm:text-base font-black leading-tight">
+                          {isRtl ? 'چطور محصول شما وارد مسیر طراحی می‌شود؟' : 'How does your product enter the design process?'}
+                        </span>
+                        <span className="mt-1.5 block text-[10px] sm:text-xs font-bold text-white/75">
+                          {isRtl ? 'تماشای ویدیوی کوتاه معرفی مسیر همکاری' : 'Watch the short manufacturer pathway video'}
+                        </span>
+                      </span>
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
         </div>
 
         <div className="mt-4 pt-2.5 border-t border-white/15">
@@ -848,6 +945,46 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
           </div>
         </div>
       </div>
+
+      {isManufacturerVideoOpen && manufacturerVideoEmbedUrl && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/90 backdrop-blur-sm p-3 sm:p-6"
+          role="dialog"
+          aria-modal="true"
+          aria-label={isRtl ? 'ویدیوی معرفی مسیر تولیدکنندگان' : 'Manufacturer pathway video'}
+          onMouseDown={handleCloseManufacturerVideo}
+        >
+          <div
+            className="relative w-full max-w-4xl max-h-[92vh] overflow-hidden rounded-2xl sm:rounded-3xl border border-white/15 bg-slate-950 shadow-2xl"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-3 px-3 sm:px-5 py-2.5 sm:py-3 border-b border-white/10">
+              <span className="text-xs sm:text-sm font-black text-white">
+                {isRtl ? 'مسیر معرفی برند و محصول' : 'Brand & Product Introduction Path'}
+              </span>
+              <button
+                type="button"
+                onClick={handleCloseManufacturerVideo}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-white/75 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                aria-label={isRtl ? 'بستن ویدیو' : 'Close video'}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="aspect-video w-full bg-black">
+              <iframe
+                src={manufacturerVideoEmbedUrl}
+                title={isRtl ? 'ویدیوی معرفی مسیر تولیدکنندگان ایران‌بیم‌هاب' : 'IranBIMhub manufacturer pathway video'}
+                className="h-full w-full border-0"
+                loading="eager"
+                allow="autoplay; fullscreen; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

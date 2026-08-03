@@ -2403,6 +2403,64 @@ export const AdminControlPanel: React.FC = () => {
                       {isRtl ? '+ افزودن بنر جدید' : '+ Add New Banner'}
                     </button>
                   </div>
+
+                  {/* Manufacturer Hero Video Setting */}
+                  <div className="mb-5 rounded-2xl border border-[#26B6B6]/20 bg-[#26B6B6]/5 p-4">
+                    <label className="block text-xs font-black text-gray-800 dark:text-white mb-2">
+                      {isRtl ? 'لینک ویدیوی آپارات برای اسلاید تولیدکنندگان' : 'Aparat Video URL for the Manufacturers Hero Slide'}
+                    </label>
+                    <input
+                      type="url"
+                      value={localConfig.manufacturerHeroVideoUrl || ''}
+                      onChange={(e) => setLocalConfig({
+                        ...localConfig,
+                        manufacturerHeroVideoUrl: e.target.value
+                      })}
+                      placeholder="https://www.aparat.com/v/VIDEO_HASH"
+                      dir="ltr"
+                      className="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2.5 text-xs text-gray-800 dark:text-white outline-none focus:ring-2 focus:ring-[#26B6B6]/30 focus:border-[#26B6B6]"
+                    />
+                    <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className={`w-2 h-2 rounded-full shrink-0 ${localConfig.manufacturerHeroVideoUrl?.trim() ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-600'}`} />
+                        <p className="text-[10px] leading-relaxed text-gray-500 dark:text-gray-400">
+                          {localConfig.manufacturerHeroVideoUrl?.trim()
+                            ? (isRtl ? 'لینک وارد شده است؛ برای فعال‌شدن در Hero ذخیره کنید.' : 'URL entered; save to activate it in the Hero.')
+                            : (isRtl ? 'هنوز لینک ویدیویی ثبت نشده است.' : 'No video URL has been added yet.')}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        {localConfig.manufacturerHeroVideoUrl?.trim() && (
+                          <button
+                            type="button"
+                            onClick={() => setLocalConfig({
+                              ...localConfig,
+                              manufacturerHeroVideoUrl: ''
+                            })}
+                            className="px-3 py-2 rounded-lg border border-gray-200 dark:border-slate-700 text-[10px] font-black text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                          >
+                            {isRtl ? 'پاک‌کردن' : 'Clear'}
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={handleSaveThemeConfig}
+                          className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#26B6B6] hover:bg-[#1e9494] text-white text-[10px] font-black transition-all shadow-sm hover:shadow-md cursor-pointer"
+                        >
+                          <CheckCircle className="w-3.5 h-3.5" />
+                          <span>{isRtl ? 'ذخیره لینک ویدیو' : 'Save Video Link'}</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <p className="mt-2 text-[10px] leading-relaxed text-gray-500 dark:text-gray-400">
+                      {isRtl
+                        ? 'لینک صفحه یا لینک embed آپارات را وارد کنید. ویدیو فقط پس از کلیک کاربر در پنجرهٔ ویدیو بارگذاری می‌شود.'
+                        : 'Enter an Aparat page or embed URL. The video loads only after the user clicks the poster.'}
+                    </p>
+                  </div>
+
                   <div className="space-y-4">
                     {(localConfig.heroBanners || []).map((banner: any, idx: number) => (
                       <div key={idx} className="p-4 bg-slate-50 dark:bg-slate-900 border border-gray-150 dark:border-slate-800 rounded-xl space-y-3 relative group">

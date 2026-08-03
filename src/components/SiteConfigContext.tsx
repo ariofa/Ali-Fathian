@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 export interface SiteConfig {
   landingPageOrder: string[];
+  manufacturerHeroVideoUrl?: string;
   heroBanners: {
     id: string;
     labelFa: string;
