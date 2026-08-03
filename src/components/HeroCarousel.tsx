@@ -584,7 +584,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
                     }}
                     className="bg-[#26B6B6] hover:bg-[#1e9494] text-white px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold shadow-md transition-all hover:scale-105 cursor-pointer"
                   >
-                    {isRtl ? 'مشاوره رایگان تولیدکنندگان' : 'Free Manufacturer Consultation'}
+                    {isRtl ? 'مشاورهٔ رایگان' : 'Free Consultation'}
                   </button>
 
 
@@ -595,7 +595,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
                     }}
                     className="bg-slate-900/80 hover:bg-slate-800 text-white border border-white/20 backdrop-blur-md px-4 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all hover:scale-105 cursor-pointer"
                   >
-                    {isRtl ? 'صفحه تولیدکنندگان' : 'Manufacturer Page'}
+                    {isRtl ? 'راهنمای تولیدکنندگان' : 'Manufacturer Guide'}
                   </button>
                 </>
               )}

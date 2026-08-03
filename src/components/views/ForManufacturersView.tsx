@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLanguage } from '../LanguageContext';
 import {
   AlertCircle,
@@ -96,6 +96,29 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
   const scrollToConsultation = () => {
     document.getElementById('manufacturer-lead-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
+
+  // The Hero consultation CTA sets this target before navigating here.
+  // Poll briefly because the view is mounted after the app transition animation.
+  useEffect(() => {
+    const target = sessionStorage.getItem('iranbimhub_manufacturer_page_target');
+    if (target !== 'consultation') return;
+
+    sessionStorage.removeItem('iranbimhub_manufacturer_page_target');
+    let attempts = 0;
+    const timer = window.setInterval(() => {
+      const form = document.getElementById('manufacturer-lead-form');
+      attempts += 1;
+
+      if (form) {
+        form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        window.clearInterval(timer);
+      } else if (attempts >= 40) {
+        window.clearInterval(timer);
+      }
+    }, 50);
+
+    return () => window.clearInterval(timer);
+  }, []);
 
   const productCategories = [
     { value: '', fa: 'انتخاب دسته محصول', en: 'Select product category' },
@@ -513,7 +536,7 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
       </section>
 
       {/* FORM */}
-      <section id="manufacturer-lead-form" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 text-start">
+      <section id="manufacturer-lead-form" className="scroll-mt-24 sm:scroll-mt-28 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 text-start">
         <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-[2rem] shadow-xl overflow-hidden">
           <div className="bg-gradient-to-r from-[#1E2326] to-[#2F3539] text-white p-6 sm:p-8">
             <div className="flex items-start gap-4">
