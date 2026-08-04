@@ -4,10 +4,10 @@ import { Logo } from './Logo';
 import { CATEGORIES, BIM_OBJECTS } from '../data';
 import { CategoryIcon } from './CategoryIcon';
 import { SplitPaneNavMenu } from './SplitPaneNavMenu';
-import { 
-  Globe, 
-  User, 
-  Heart, 
+import {
+  Globe,
+  User,
+  Heart,
   Search,
   Sun,
   Moon,
@@ -25,7 +25,10 @@ import {
   Clock,
   Trash2,
   Building2,
-  BookOpen
+  BookOpen,
+  Layers,
+  Factory,
+  MessageSquare
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -65,8 +68,10 @@ export const Header: React.FC<HeaderProps> = ({
   const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const mobileSearchRefCombined = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
   const mobileSearchInputRef = useRef<HTMLInputElement>(null);
   const hoverTimeoutRef = useRef<any>(null);
 
@@ -249,10 +254,27 @@ export const Header: React.FC<HeaderProps> = ({
         setShowAutocomplete(false);
         setIsSearchFocused(false);
       }
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(target)) {
+        setMobileMenuOpen(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Close the mobile menu with Escape.
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+
+    const handleMenuEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleMenuEscape);
+    return () => window.removeEventListener('keydown', handleMenuEscape);
+  }, [mobileMenuOpen]);
 
   // Focus the compact mobile/tablet search after it opens.
   useEffect(() => {
@@ -334,7 +356,7 @@ export const Header: React.FC<HeaderProps> = ({
       const title = isRtl ? obj.titleFa : obj.titleEn;
       const otherTitle = isRtl ? obj.titleEn : obj.titleFa;
       const matchesTitle = title.toLowerCase().includes(query) || otherTitle.toLowerCase().includes(query);
-      const matchesTags = (obj.tagsFa && obj.tagsFa.some(t => t.toLowerCase().includes(query))) || 
+      const matchesTags = (obj.tagsFa && obj.tagsFa.some(t => t.toLowerCase().includes(query))) ||
                           (obj.tagsEn && obj.tagsEn.some(t => t.toLowerCase().includes(query)));
 
       if (matchesTitle || matchesTags) {
@@ -407,12 +429,12 @@ export const Header: React.FC<HeaderProps> = ({
     onNavigate('categories');
     onHeaderSearch(''); // clear query if we click category
     setTimeout(() => {
-      const event = new CustomEvent('select-category-filter', { 
-        detail: { 
-          categoryId: catId, 
+      const event = new CustomEvent('select-category-filter', {
+        detail: {
+          categoryId: catId,
           subcategoryId: subId,
           format: format
-        } 
+        }
       });
       window.dispatchEvent(event);
     }, 50);
@@ -430,6 +452,35 @@ export const Header: React.FC<HeaderProps> = ({
       window.dispatchEvent(new CustomEvent('change-dashboard-tab', { detail: { tab } }));
     }, 120);
   };
+
+  const handleMobileMenuNavigate = (view: string) => {
+    setMobileMenuOpen(false);
+    setMobileSearchOpen(false);
+    setNotificationsOpen(false);
+    setShowAutocomplete(false);
+    setIsSearchFocused(false);
+    onNavigate(view);
+  };
+
+  const isManufacturerAccount = Boolean(currentUser && (currentUser.role === 'Manufacturer' || userRole === 'Manufacturer'));
+  const savedManufacturerProfile = (() => {
+    if (!isManufacturerAccount) return null;
+    try {
+      const raw = localStorage.getItem('iranbimhub_mfg_profile');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  })();
+  const accountDisplayName = isManufacturerAccount
+    ? (savedManufacturerProfile?.companyName || currentUser?.companyName || currentUser?.fullName || currentUser?.name || '')
+    : (currentUser?.fullName || currentUser?.name || '');
+  const accountSubtitle = isManufacturerAccount
+    ? (currentUser?.roleTitle || currentUser?.title || (isRtl ? 'مدیر صفحهٔ برند' : 'Brand Page Manager'))
+    : (currentUser?.officeName || currentUser?.companyName || '');
+  const accountRoleLabel = isManufacturerAccount
+    ? (isRtl ? 'تولیدکننده / صاحب برند' : 'Manufacturer / Brand Owner')
+    : (currentUser?.selectedRoles?.slice?.(0, 2)?.join(' / ') || (isRtl ? 'مدل‌ساز BIM / معمار / مهندس' : 'BIM Modeler / Architect / Engineer'));
 
   // Mock Notification List
   const mockNotifications = [
@@ -462,13 +513,13 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className={`sticky top-0 z-50 bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-800 shadow-sm transition-colors ${currentView === 'home' ? 'is-landing-page' : ''}`} dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* DESKTOP LAYOUT (md:flex) */}
-        <div className="hidden md:flex items-center justify-between h-16 gap-3 sm:gap-6 relative">
+
+        {/* DESKTOP LAYOUT (lg:flex) */}
+        <div className="hidden lg:flex items-center justify-between h-16 gap-3 sm:gap-6 relative">
           {/* Logo Area */}
           <div className="flex items-center shrink-0">
-            <button 
-              onClick={() => onNavigate('home')} 
+            <button
+              onClick={() => onNavigate('home')}
               className="focus:outline-none cursor-pointer transition-transform duration-200 active:scale-95"
             >
               <Logo className="h-11 md:h-12" iconOnly={false} />
@@ -477,12 +528,12 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Desktop Persistent Search Bar (BIMobject style) - Rendered ONLY on non-landing pages */}
           {currentView !== 'home' && (
-            <div 
-              ref={desktopSearchRef} 
+            <div
+              ref={desktopSearchRef}
               className="transition-all duration-300 ease-in-out relative mx-4 flex-1 max-w-xl"
             >
-              <form 
-                onSubmit={handleSearchSubmit} 
+              <form
+                onSubmit={handleSearchSubmit}
                 className="flex items-center bg-gray-50 dark:bg-slate-50 border border-gray-200 dark:border-gray-300 rounded-full p-1 focus-within:ring-2 focus-within:ring-[#26B6B6]/20 focus-within:border-[#26B6B6] transition-all h-11 w-full"
               >
                 <input
@@ -494,7 +545,7 @@ export const Header: React.FC<HeaderProps> = ({
                   onFocus={() => setIsSearchFocused(true)}
                   className="text-xs bg-transparent border-0 focus:outline-none focus:ring-0 placeholder-gray-400 dark:placeholder-gray-400 text-gray-800 dark:text-gray-900 w-full px-4 opacity-100"
                 />
-                <button 
+                <button
                   type="submit"
                   className="rounded-full flex items-center justify-center transition-all duration-300 active:scale-95 shrink-0 cursor-pointer bg-[#464E56] hover:bg-[#2c3136] text-white dark:bg-[#26B6B6] dark:hover:bg-[#1e9494] px-5 h-8 gap-1.5 text-xs font-black"
                 >
@@ -556,8 +607,8 @@ export const Header: React.FC<HeaderProps> = ({
                               onClick={() => handleSelectSuggestion(sug)}
                               onMouseEnter={() => setAutocompleteIndex(idx)}
                               className={`w-full flex items-center gap-3 px-4 py-2.5 text-start border-b border-gray-50 dark:border-gray-800/50 last:border-0 transition-colors ${
-                                isSelected 
-                                  ? 'bg-[#26B6B6]/5 dark:bg-[#26B6B6]/10 text-[#26B6B6]' 
+                                isSelected
+                                  ? 'bg-[#26B6B6]/5 dark:bg-[#26B6B6]/10 text-[#26B6B6]'
                                   : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/40'
                               }`}
                             >
@@ -587,8 +638,8 @@ export const Header: React.FC<HeaderProps> = ({
             {currentView === 'home' && (
               <div ref={desktopSearchRef} className="relative flex items-center">
                 {isSearchExpanded ? (
-                  <form 
-                    onSubmit={handleSearchSubmit} 
+                  <form
+                    onSubmit={handleSearchSubmit}
                     className="flex items-center bg-gray-50 dark:bg-slate-50 border border-gray-200 dark:border-gray-300 rounded-full p-1 focus-within:ring-2 focus-within:ring-[#26B6B6]/20 focus-within:border-[#26B6B6] transition-all h-9 w-64 animate-fadeIn"
                   >
                     <input
@@ -601,7 +652,7 @@ export const Header: React.FC<HeaderProps> = ({
                       onFocus={() => setIsSearchFocused(true)}
                       className="text-xs bg-transparent border-0 focus:outline-none focus:ring-0 placeholder-gray-400 dark:placeholder-gray-400 text-gray-800 dark:text-gray-900 w-full px-3 py-1"
                     />
-                    <button 
+                    <button
                       type="submit"
                       className="bg-[#464E56] hover:bg-[#2c3136] text-white dark:bg-[#26B6B6] dark:hover:bg-[#1e9494] rounded-full p-1.5 h-7 w-7 flex items-center justify-center cursor-pointer transition-all active:scale-95 shrink-0"
                     >
@@ -674,8 +725,8 @@ export const Header: React.FC<HeaderProps> = ({
                                 onClick={() => handleSelectSuggestion(sug)}
                                 onMouseEnter={() => setAutocompleteIndex(idx)}
                                 className={`w-full flex items-center gap-3 px-4 py-2.5 text-start border-b border-gray-50 dark:border-gray-800/50 last:border-0 transition-colors ${
-                                  isSelected 
-                                    ? 'bg-[#26B6B6]/5 dark:bg-[#26B6B6]/10 text-[#26B6B6]' 
+                                  isSelected
+                                    ? 'bg-[#26B6B6]/5 dark:bg-[#26B6B6]/10 text-[#26B6B6]'
                                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/40'
                                 }`}
                               >
@@ -716,8 +767,8 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 onClick={() => setNotificationsOpen(!notificationsOpen)}
                 className={`p-2 rounded-full transition-all cursor-pointer flex items-center justify-center h-9 w-9 border border-gray-200/60 dark:border-gray-800/80 ${
-                  notificationsOpen 
-                    ? 'bg-slate-100 dark:bg-gray-900 text-[#26B6B6]' 
+                  notificationsOpen
+                    ? 'bg-slate-100 dark:bg-gray-900 text-[#26B6B6]'
                     : 'text-gray-500 dark:text-gray-400 hover:text-[#26B6B6] hover:bg-gray-50 dark:hover:bg-gray-900'
                 }`}
                 title={isRtl ? 'اعلان‌ها' : 'Notifications'}
@@ -737,11 +788,11 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
                   <div className="max-h-72 overflow-y-auto px-2 space-y-1">
                     {mockNotifications.map(notif => (
-                      <div 
-                        key={notif.id} 
+                      <div
+                        key={notif.id}
                         className={`p-2.5 rounded-lg transition-colors text-[11px] ${
-                          notif.unread 
-                            ? 'bg-[#26B6B6]/5 dark:bg-[#26B6B6]/10 border-r-2 border-[#26B6B6]' 
+                          notif.unread
+                            ? 'bg-[#26B6B6]/5 dark:bg-[#26B6B6]/10 border-r-2 border-[#26B6B6]'
                             : 'hover:bg-gray-50 dark:hover:bg-gray-800'
                         }`}
                       >
@@ -763,12 +814,12 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 onClick={() => setAccountDropdownOpen(!accountDropdownOpen)}
                 className={`p-2 rounded-full transition-all cursor-pointer flex items-center justify-center h-9 w-9 border ${
-                  currentUser 
-                    ? 'border-[#26B6B6]/40 dark:border-[#26B6B6]/40 bg-[#26B6B6]/5' 
+                  currentUser
+                    ? 'border-[#26B6B6]/40 dark:border-[#26B6B6]/40 bg-[#26B6B6]/5'
                     : 'border-gray-200/60 dark:border-gray-800/80 hover:bg-gray-50 dark:hover:bg-gray-900'
                 } ${
-                  accountDropdownOpen 
-                    ? 'bg-slate-100 dark:bg-gray-900 text-[#26B6B6]' 
+                  accountDropdownOpen
+                    ? 'bg-slate-100 dark:bg-gray-900 text-[#26B6B6]'
                     : 'text-gray-500 dark:text-gray-400 hover:text-[#26B6B6]'
                 }`}
                 title={isRtl ? 'حساب کاربری' : 'User Account'}
@@ -788,8 +839,8 @@ export const Header: React.FC<HeaderProps> = ({
                         {currentUser.email || currentUser.phone}
                       </p>
                       <span className="inline-block mt-2 px-2.5 py-0.5 bg-[#26B6B6]/15 text-[#26B6B6] text-[9px] font-black rounded-full uppercase tracking-wider">
-                        {isRtl 
-                          ? (userRole === 'Manufacturer' ? 'تولیدکننده کاتالوگ' : 'طراح و مدل‌ساز بیم') 
+                        {isRtl
+                          ? (userRole === 'Manufacturer' ? 'تولیدکننده کاتالوگ' : 'طراح و مدل‌ساز بیم')
                           : (userRole === 'Manufacturer' ? 'Manufacturer' : 'BIM Modeler')
                         }
                       </span>
@@ -820,8 +871,8 @@ export const Header: React.FC<HeaderProps> = ({
                       >
                         <User className="w-4 h-4 text-gray-400" />
                         <span>
-                          {userRole === 'Manufacturer' 
-                            ? (isRtl ? 'پروفایل شرکت' : 'Company Profile') 
+                          {userRole === 'Manufacturer'
+                            ? (isRtl ? 'پروفایل شرکت' : 'Company Profile')
                             : (isRtl ? 'پروفایل من' : 'My Profile')
                           }
                         </span>
@@ -904,45 +955,58 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* MOBILE LAYOUT (md:hidden) */}
-        <div ref={mobileSearchRefCombined} className="flex md:hidden flex-col gap-2 py-2.5 relative">
-          {/* ROW 1: Logo & Logotype + Compact Icon Cluster */}
+        {/* MOBILE / TABLET LAYOUT (below lg) */}
+        <div ref={mobileSearchRefCombined} className="flex lg:hidden flex-col gap-2 py-2.5 relative">
+          <div className="relative w-full">
+          {/* ROW 1: Mobile menu + logo + account/search actions */}
           <div className="flex items-center justify-between gap-2">
-            {/* Logo & Logotype */}
-            <div className="flex items-center shrink-0">
-              <button 
-                onClick={() => onNavigate('home')} 
+            {/* In RTL: hamburger at the far right, logo immediately to its left. */}
+            <div className="flex items-center gap-2 shrink-0" dir={isRtl ? 'rtl' : 'ltr'}>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(prev => !prev);
+                  setMobileSearchOpen(false);
+                  setNotificationsOpen(false);
+                  setShowAutocomplete(false);
+                  setIsSearchFocused(false);
+                }}
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-all cursor-pointer active:scale-95 ${
+                  mobileMenuOpen
+                    ? 'bg-[#26B6B6] border-[#26B6B6] text-white shadow-md'
+                    : 'border-gray-200/70 dark:border-gray-800/80 text-gray-600 dark:text-gray-300 hover:text-[#26B6B6] hover:bg-gray-50 dark:hover:bg-gray-900'
+                }`}
+                aria-label={isRtl ? 'بازکردن منوی اصلی' : 'Open main menu'}
+                aria-expanded={mobileMenuOpen}
+                aria-controls="mobile-primary-menu"
+              >
+                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleMobileMenuNavigate('home')}
                 className="focus:outline-none cursor-pointer transition-transform duration-200 active:scale-95"
+                aria-label={isRtl ? 'صفحه اصلی ایران‌بیم‌هاب' : 'IranBIMhub home'}
               >
                 <Logo className="h-9 sm:h-10" iconOnly={false} />
               </button>
             </div>
 
-            {/* Compact Icon Cluster */}
-            <div className="flex items-center gap-1.5 shrink-0">
-              {/* 1. Language Toggle */}
-              <button
-                onClick={() => setLanguage(language === 'fa' ? 'en' : 'fa')}
-                className="order-1 flex items-center justify-center p-1.5 border border-gray-200/60 dark:border-gray-800/80 rounded-full hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors text-[10px] font-extrabold text-[#464E56] dark:text-gray-300 cursor-pointer h-8 w-8 gap-0.5 shrink-0"
-                title={language === 'fa' ? 'Switch to English' : 'تغییر به فارسی'}
-              >
-                <Globe className="w-3.5 h-3.5 text-[#26B6B6]" />
-                <span className="text-[8px]">{language === 'fa' ? 'EN' : 'فا'}</span>
-              </button>
-
-              {/* 2. Compact Search Toggle */}
+            {/* Mobile actions: guest login; authenticated search, notifications, language and account. */}
+            <div className="flex items-center gap-1.5 shrink-0" dir={isRtl ? 'rtl' : 'ltr'}>
               <button
                 type="button"
                 onClick={() => {
                   setMobileSearchOpen(prev => !prev);
+                  setMobileMenuOpen(false);
                   setAccountDropdownOpen(false);
                   setNotificationsOpen(false);
-                  setCategoriesDropdownOpen(false);
                 }}
-                className={`order-2 p-1.5 rounded-full transition-all duration-200 cursor-pointer flex items-center justify-center h-8 w-8 border border-gray-200/60 dark:border-gray-800/80 active:scale-95 ${
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-all duration-200 cursor-pointer active:scale-95 ${
                   mobileSearchOpen
                     ? 'bg-[#26B6B6] border-[#26B6B6] text-white shadow-[0_8px_20px_rgba(38,182,182,0.25)]'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-[#26B6B6] hover:bg-gray-50 dark:hover:bg-gray-900'
+                    : 'border-gray-200/60 dark:border-gray-800/80 text-gray-500 dark:text-gray-400 hover:text-[#26B6B6] hover:bg-gray-50 dark:hover:bg-gray-900'
                 }`}
                 title={isRtl ? 'جستجو' : 'Search'}
                 aria-expanded={mobileSearchOpen}
@@ -951,207 +1015,275 @@ export const Header: React.FC<HeaderProps> = ({
                 {mobileSearchOpen ? <X className="w-3.5 h-3.5" /> : <Search className="w-3.5 h-3.5" />}
               </button>
 
-              {/* 3. Notifications Bell */}
-              <div className="relative order-3" ref={mobileNotificationsRef}>
-                <button
-                  onClick={() => {
-                    setNotificationsOpen(!notificationsOpen);
-                    setMobileSearchOpen(false);
-                  }}
-                  className={`p-1.5 rounded-full transition-all cursor-pointer flex items-center justify-center h-8 w-8 border border-gray-200/60 dark:border-gray-800/80 ${
-                    notificationsOpen 
-                      ? 'bg-slate-100 dark:bg-gray-900 text-[#26B6B6]' 
-                      : 'text-gray-500 dark:text-gray-400 hover:text-[#26B6B6] hover:bg-gray-50 dark:hover:bg-gray-900'
-                  }`}
-                  title={isRtl ? 'اعلان‌ها' : 'Notifications'}
-                >
-                  <Bell className="w-3.5 h-3.5" />
-                  <span className="absolute top-1 right-1 bg-red-500 text-white font-mono text-[7px] font-bold w-3 h-3 rounded-full flex items-center justify-center leading-none">
-                    2
-                  </span>
-                </button>
+              {currentUser && (
+                <div className="relative" ref={mobileNotificationsRef}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNotificationsOpen(prev => !prev);
+                      setMobileMenuOpen(false);
+                      setAccountDropdownOpen(false);
+                    }}
+                    className={`relative flex h-8 w-8 items-center justify-center rounded-full border transition-colors cursor-pointer ${
+                      notificationsOpen
+                        ? 'bg-[#26B6B6]/10 border-[#26B6B6]/30 text-[#26B6B6]'
+                        : 'border-gray-200/60 dark:border-gray-800/80 text-gray-500 dark:text-gray-400 hover:text-[#26B6B6] hover:bg-gray-50 dark:hover:bg-gray-900'
+                    }`}
+                    aria-label={isRtl ? 'اعلان‌ها' : 'Notifications'}
+                    aria-expanded={notificationsOpen}
+                  >
+                    <Bell className="w-4 h-4" />
+                    <span className="absolute -top-0.5 -end-0.5 min-w-3.5 h-3.5 rounded-full bg-red-500 px-0.5 text-[7px] font-black text-white flex items-center justify-center">2</span>
+                  </button>
 
-                {/* Notifications Dropdown Panel */}
-                {notificationsOpen && (
-                  <div className={`absolute ${isRtl ? 'left-0' : 'right-0'} mt-2 w-72 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 shadow-xl py-3.5 z-50 text-gray-700 dark:text-gray-200 animate-fadeIn`}>
-                    <div className="px-4 pb-2 border-b border-gray-50 dark:border-gray-800 mb-2 font-bold text-xs text-[#26B6B6] flex justify-between items-center">
-                      <span>{isRtl ? 'اعلان‌های سیستم' : 'System Notifications'}</span>
-                      <span className="bg-[#26B6B6]/10 text-[#26B6B6] px-2 py-0.5 rounded-full text-[9px] font-extrabold">۲ جدید</span>
-                    </div>
-                    <div className="max-h-60 overflow-y-auto px-2 space-y-1">
-                      {mockNotifications.map(notif => (
-                        <div 
-                          key={notif.id} 
-                          className={`p-2 rounded-lg transition-colors text-[10px] ${
-                            notif.unread 
-                              ? 'bg-[#26B6B6]/5 dark:bg-[#26B6B6]/10 border-r-2 border-[#26B6B6]' 
-                              : 'hover:bg-gray-50 dark:hover:bg-gray-800'
-                          }`}
-                        >
-                          <p className="font-medium text-gray-800 dark:text-gray-200 leading-normal">
-                            {isRtl ? notif.titleFa : notif.titleEn}
-                          </p>
-                          <span className="text-[8px] text-gray-400 dark:text-gray-500 block mt-1">
-                            {isRtl ? notif.timeFa : notif.timeEn}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-
-
-              {/* 3. Account Dropdown */}
-              <div className="relative order-4" ref={mobileAccountRef}>
-                <button
-                  onClick={() => {
-                    setAccountDropdownOpen(!accountDropdownOpen);
-                    setMobileSearchOpen(false);
-                  }}
-                  className={`p-1.5 rounded-full transition-all cursor-pointer flex items-center justify-center h-8 w-8 border ${
-                    currentUser 
-                      ? 'border-[#26B6B6]/40 dark:border-[#26B6B6]/40 bg-[#26B6B6]/5' 
-                      : 'border-gray-200/60 dark:border-gray-800/80 hover:bg-gray-50 dark:hover:bg-gray-900'
-                  } ${
-                    accountDropdownOpen 
-                      ? 'bg-slate-100 dark:bg-gray-900 text-[#26B6B6]' 
-                      : 'text-gray-500 dark:text-gray-400 hover:text-[#26B6B6]'
-                  }`}
-                  title={isRtl ? 'حساب کاربری' : 'User Account'}
-                >
-                  <User className={`w-3.5 h-3.5 ${currentUser ? 'text-[#26B6B6]' : ''}`} />
-                </button>
-
-                {/* Account Dropdown */}
-                {accountDropdownOpen && (
-                  <div className={`absolute ${isRtl ? 'left-0' : 'right-0'} mt-2 w-64 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 shadow-xl py-2 z-50 animate-fadeIn`}>
-                    {currentUser ? (
-                      <div className="px-4 py-2.5 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 rounded-t-xl mb-1.5">
-                        <p className="font-bold text-xs text-gray-800 dark:text-gray-100">
-                          {currentUser.fullName || currentUser.name}
-                        </p>
-                        <p className="text-[10px] text-gray-400 dark:text-gray-500 font-mono mt-0.5 truncate">
-                          {currentUser.email || currentUser.phone}
-                        </p>
-                        <span className="inline-block mt-1.5 px-2 py-0.5 bg-[#26B6B6]/15 text-[#26B6B6] text-[8px] font-black rounded-full uppercase tracking-wider">
-                          {isRtl 
-                            ? (userRole === 'Manufacturer' ? 'تولیدکننده کاتالوگ' : 'طراح و مدل‌ساز بیم') 
-                            : (userRole === 'Manufacturer' ? 'Manufacturer' : 'BIM Modeler')
-                          }
-                        </span>
+                  {notificationsOpen && (
+                    <div className={`absolute ${isRtl ? 'left-0' : 'right-0'} top-full mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xl p-2 z-[80]`}>
+                      <div className="flex items-center justify-between gap-2 border-b border-gray-100 dark:border-gray-800 px-2 pb-2 mb-1.5">
+                        <span className="text-xs font-black text-[#26B6B6]">{isRtl ? 'اعلان‌ها' : 'Notifications'}</span>
+                        <span className="rounded-full bg-[#26B6B6]/10 px-2 py-0.5 text-[9px] font-black text-[#26B6B6]">2</span>
                       </div>
-                    ) : (
-                      <div className="px-4 py-2.5 border-b border-gray-100 dark:border-gray-800 text-center mb-1.5">
-                        <p className="text-[10px] text-gray-500 dark:text-gray-400 mb-2">
-                          {isRtl ? 'برای دسترسی به امکانات کامل وارد شوید' : 'Sign in to access AEC libraries'}
-                        </p>
-                        <button
-                          onClick={() => {
-                            setAccountDropdownOpen(false);
-                            onOpenAuthModal();
-                          }}
-                          className="w-full py-1.5 bg-[#26B6B6] hover:bg-[#1e9494] text-white rounded-lg text-xs font-black cursor-pointer transition-all active:scale-98 shadow-sm"
-                        >
-                          {isRtl ? 'ورود یا ثبت‌نام همراه' : 'Sign In / Register'}
-                        </button>
-                      </div>
-                    )}
-
-                    <div className="space-y-0.5 px-1.5">
-                      {currentUser && (
-                        <button
-                          onClick={() => handleDashboardNavigate('profile')}
-                          className="w-full flex items-center gap-3 px-3 py-1.5 text-gray-600 dark:text-gray-300 hover:text-[#26B6B6] hover:bg-[#26B6B6]/5 dark:hover:bg-[#26B6B6]/10 rounded-lg text-xs font-bold transition-colors cursor-pointer text-start"
-                        >
-                          <User className="w-3.5 h-3.5 text-gray-400" />
-                          <span>
-                            {userRole === 'Manufacturer' 
-                              ? (isRtl ? 'پروفایل شرکت' : 'Company Profile') 
-                              : (isRtl ? 'پروفایل من' : 'My Profile')
-                            }
-                          </span>
-                        </button>
-                      )}
-
-                      {currentUser && userRole === 'Modeler' && (
-                        <button
-                          onClick={() => handleDashboardNavigate('history')}
-                          className="w-full flex items-center gap-3 px-3 py-1.5 text-gray-600 dark:text-gray-300 hover:text-[#26B6B6] hover:bg-[#26B6B6]/5 dark:hover:bg-[#26B6B6]/10 rounded-lg text-xs font-bold transition-colors cursor-pointer text-start"
-                        >
-                          <Download className="w-3.5 h-3.5 text-gray-400" />
-                          <span>{isRtl ? 'تاریخچه دانلود آبجکت‌ها' : 'Download History'}</span>
-                        </button>
-                      )}
-
-                      {currentUser && (
-                        <button
-                          onClick={() => handleDashboardNavigate('subscription')}
-                          className="w-full flex items-center gap-3 px-3 py-1.5 text-gray-600 dark:text-gray-300 hover:text-[#26B6B6] hover:bg-[#26B6B6]/5 dark:hover:bg-[#26B6B6]/10 rounded-lg text-xs font-bold transition-colors cursor-pointer text-start"
-                        >
-                          <CreditCard className="w-3.5 h-3.5 text-gray-400" />
-                          <span>{isRtl ? 'خرید و مدیریت اشتراک' : 'Subscription & Upgrade'}</span>
-                        </button>
-                      )}
-
-                      {currentUser && (
-                        <button
-                          onClick={() => handleDashboardNavigate('collections')}
-                          className="w-full flex items-center justify-between px-3 py-1.5 text-gray-600 dark:text-gray-300 hover:text-[#26B6B6] hover:bg-[#26B6B6]/5 dark:hover:bg-[#26B6B6]/10 rounded-lg text-xs font-bold transition-colors cursor-pointer text-start"
-                        >
-                          <div className="flex items-center gap-3">
-                            <Heart className="w-3.5 h-3.5 text-gray-400" />
-                            <span>{isRtl ? 'نشان شده‌ها' : 'Saved Collections'}</span>
+                      <div className="max-h-56 overflow-y-auto space-y-1">
+                        {mockNotifications.map(notif => (
+                          <div key={notif.id} className={`rounded-lg p-2.5 text-[10px] ${notif.unread ? 'bg-[#26B6B6]/10 border-s-2 border-[#26B6B6]' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`}>
+                            <p className="font-bold leading-relaxed text-gray-800 dark:text-gray-200">{isRtl ? notif.titleFa : notif.titleEn}</p>
+                            <span className="mt-1 block text-[8px] text-gray-400 dark:text-gray-500">{isRtl ? notif.timeFa : notif.timeEn}</span>
                           </div>
-                          {savedCount > 0 && (
-                            <span className="bg-[#26B6B6] text-white text-[8px] font-sans font-bold px-1.5 py-0.5 rounded-full shrink-0">
-                              {savedCount}
-                            </span>
-                          )}
-                        </button>
-                      )}
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
-                      {/* Theme Toggle (Always present under account dropdown for both mobile and desktop) */}
-                      <button
-                        onClick={onToggleDark}
-                        className="w-full flex items-center gap-3 px-3 py-1.5 text-gray-600 dark:text-gray-300 hover:text-[#26B6B6] hover:bg-[#26B6B6]/5 dark:hover:bg-[#26B6B6]/10 rounded-lg text-xs font-bold transition-colors cursor-pointer text-start"
-                      >
-                        {isDark ? (
-                          <>
-                            <Sun className="w-3.5 h-3.5 text-amber-500" />
-                            <span>{isRtl ? 'حالت روز (تم روشن)' : 'Switch to Light Mode'}</span>
-                          </>
-                        ) : (
-                          <>
-                            <Moon className="w-3.5 h-3.5 text-slate-500" />
-                            <span>{isRtl ? 'حالت شب (تم تاریک)' : 'Switch to Dark Mode'}</span>
-                          </>
-                        )}
-                      </button>
+              {currentUser && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLanguage(language === 'fa' ? 'en' : 'fa');
+                    setNotificationsOpen(false);
+                  }}
+                  className="flex h-8 min-w-9 shrink-0 items-center justify-center gap-1 rounded-full border border-gray-200/60 dark:border-gray-800/80 px-1.5 text-[8px] font-black text-[#26B6B6] hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer"
+                  title={language === 'fa' ? 'Switch to English' : 'تغییر به فارسی'}
+                >
+                  <Globe className="w-3.5 h-3.5" />
+                  <span>{language === 'fa' ? 'EN' : 'فا'}</span>
+                </button>
+              )}
+
+              <div className="relative" ref={mobileAccountRef}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!currentUser) {
+                      onOpenAuthModal();
+                      return;
+                    }
+                    setAccountDropdownOpen(prev => !prev);
+                    setMobileMenuOpen(false);
+                    setMobileSearchOpen(false);
+                    setNotificationsOpen(false);
+                  }}
+                  className={`flex items-center justify-center rounded-full border transition-all cursor-pointer active:scale-95 ${
+                    currentUser
+                      ? 'h-9 w-9 border-[#26B6B6]/40 bg-[#26B6B6]/5 text-[#26B6B6]'
+                      : 'h-8 whitespace-nowrap gap-1.5 border-[#26B6B6]/30 bg-[#26B6B6] px-2.5 text-[10px] font-black text-white hover:bg-[#1e9494]'
+                  }`}
+                  aria-label={currentUser ? (isRtl ? 'حساب کاربری' : 'Account') : (isRtl ? 'ورود / ثبت‌نام' : 'Sign in / Register')}
+                  aria-expanded={currentUser ? accountDropdownOpen : undefined}
+                >
+                  <User className={currentUser ? 'w-5 h-5' : 'w-4 h-4'} />
+                  {!currentUser && <span>{isRtl ? 'ورود / ثبت‌نام' : 'Sign in / Register'}</span>}
+                </button>
+
+                {currentUser && accountDropdownOpen && (
+                  <div className={`absolute ${isRtl ? 'left-0' : 'right-0'} top-full mt-2 w-72 max-w-[calc(100vw-2rem)] max-h-[calc(100svh-5rem)] overflow-y-auto rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-2 shadow-xl z-[80]`}>
+                    <div className="rounded-xl bg-gray-50 dark:bg-gray-950 px-3 py-3 mb-1.5">
+                      <p className="truncate text-sm font-black text-gray-900 dark:text-white">{accountDisplayName}</p>
+                      {accountSubtitle && <p className="mt-1 truncate text-[10px] font-bold text-gray-500 dark:text-gray-400">{accountSubtitle}</p>}
+                      <span className="mt-1.5 inline-flex max-w-full rounded-full bg-[#26B6B6]/10 px-2 py-1 text-[9px] font-black text-[#26B6B6] truncate">{accountRoleLabel}</span>
                     </div>
 
-                    {currentUser && (
-                      <div className="mt-1.5 pt-1.5 border-t border-gray-100 dark:border-gray-800 px-1.5">
-                        <button
-                          onClick={() => {
-                            setAccountDropdownOpen(false);
-                            onLogout();
-                          }}
-                          className="w-full flex items-center gap-3 px-3 py-1.5 text-red-500 hover:bg-red-500/5 rounded-lg text-xs font-black transition-colors cursor-pointer text-start"
-                        >
-                          <LogOut className="w-3.5 h-3.5 text-red-400" />
-                          <span>{isRtl ? 'خروج از حساب کاربری' : 'Sign Out'}</span>
+                    {isManufacturerAccount ? (
+                      <>
+                        <button type="button" onClick={() => handleDashboardNavigate('profile')} className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
+                          <Building2 className="w-4 h-4 text-[#26B6B6]" />
+                          <span>{isRtl ? 'پروفایل برند' : 'Brand Profile'}</span>
                         </button>
-                      </div>
+                        <button type="button" onClick={() => handleDashboardNavigate('catalog')} className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
+                          <Package className="w-4 h-4 text-[#26B6B6]" />
+                          <span>{isRtl ? 'محصولات و کاتالوگ' : 'Products & Catalog'}</span>
+                        </button>
+                        <button type="button" onClick={() => handleMobileMenuNavigate('manufacturers')} className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
+                          <Building2 className="w-4 h-4 text-[#26B6B6]" />
+                          <span>{isRtl ? 'مشاهدهٔ صفحهٔ عمومی برند' : 'View Public Brand Page'}</span>
+                        </button>
+                        <button type="button" onClick={() => handleMobileMenuNavigate('payment')} className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
+                          <CreditCard className="w-4 h-4 text-[#26B6B6]" />
+                          <span>{isRtl ? 'اشتراک‌ها و صورتحساب' : 'Subscriptions & Billing'}</span>
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button type="button" onClick={() => handleDashboardNavigate('profile')} className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
+                          <User className="w-4 h-4 text-[#26B6B6]" />
+                          <span>{isRtl ? 'پروفایل من' : 'My Profile'}</span>
+                        </button>
+                        <button type="button" onClick={() => handleDashboardNavigate('collections')} className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
+                          <Heart className="w-4 h-4 text-[#26B6B6]" />
+                          <span>{isRtl ? 'نشان‌شده‌ها' : 'Saved Items'}</span>
+                        </button>
+                        <button type="button" onClick={() => handleDashboardNavigate('history')} className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
+                          <Clock className="w-4 h-4 text-[#26B6B6]" />
+                          <span>{isRtl ? 'تاریخچهٔ دانلودها' : 'Download History'}</span>
+                        </button>
+                      </>
                     )}
+
+                    <div className="my-1.5 border-t border-gray-100 dark:border-gray-800" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAccountDropdownOpen(false);
+                        onLogout();
+                      }}
+                      className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black text-red-500 hover:bg-red-500/10 cursor-pointer"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>{isRtl ? 'خروج از حساب' : 'Sign Out'}</span>
+                    </button>
                   </div>
                 )}
               </div>
             </div>
           </div>
 
-          {/* ROW 2: Compact Search Panel (opens only when the search icon is tapped) */}
+          {/* Mobile primary menu: normal-flow dropdown from top to bottom, never a side drawer. */}
+          {mobileMenuOpen && (
+            <div
+              id="mobile-primary-menu"
+              ref={mobileMenuRef}
+              dir={isRtl ? 'rtl' : 'ltr'}
+              className={`${isRtl ? 'right-0' : 'left-0'} absolute top-full mt-2 z-[70] w-fit min-w-[250px] max-w-[calc(100vw-2rem)] max-h-[calc(100svh-5rem)] sm:max-h-[calc(100svh-5.5rem)] overflow-y-auto overscroll-contain rounded-2xl border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xl animate-fadeIn`}
+              style={{ WebkitOverflowScrolling: 'touch' }}
+            >
+              <nav className="p-2" aria-label={isRtl ? 'منوی اصلی موبایل' : 'Mobile primary navigation'}>
+                <button
+                  type="button"
+                  onClick={() => handleMobileMenuNavigate('home')}
+                  className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black transition-colors cursor-pointer ${currentView === 'home' ? 'bg-[#26B6B6]/10 text-[#26B6B6]' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                >
+                  <Building2 className="w-4 h-4 shrink-0 text-[#26B6B6]" />
+                  <span>{isRtl ? 'صفحه اصلی ایران‌بیم‌هاب' : 'IranBIMhub Home'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleMobileMenuNavigate('about')}
+                  className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black transition-colors cursor-pointer ${currentView === 'about' ? 'bg-[#26B6B6]/10 text-[#26B6B6]' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                >
+                  <BookOpen className="w-4 h-4 shrink-0 text-[#26B6B6]" />
+                  <span>{isRtl ? 'دربارهٔ ایران‌بیم‌هاب' : 'About IranBIMhub'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleMobileMenuNavigate('for-designers')}
+                  className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                >
+                  <Layers className="w-4 h-4 shrink-0 text-[#26B6B6]" />
+                  <span>{isRtl ? 'برای معماران و بیم مدلرها' : 'For Architects & BIM Modelers'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleMobileMenuNavigate('for-manufacturers')}
+                  className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                >
+                  <Factory className="w-4 h-4 shrink-0 text-[#26B6B6]" />
+                  <span>{isRtl ? 'راهنمای تولیدکنندگان و صاحبان برند' : 'Manufacturer & Brand Owner Guide'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleMobileMenuNavigate('learn')}
+                  className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black transition-colors cursor-pointer ${currentView === 'learn' ? 'bg-[#26B6B6]/10 text-[#26B6B6]' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                >
+                  <BookOpen className="w-4 h-4 shrink-0 text-[#26B6B6]" />
+                  <span>{isRtl ? 'مجلات آموزشی' : 'Educational Magazine'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleMobileMenuNavigate('contact')}
+                  className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black transition-colors cursor-pointer ${currentView === 'contact' ? 'bg-[#26B6B6]/10 text-[#26B6B6]' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                >
+                  <MessageSquare className="w-4 h-4 shrink-0 text-[#26B6B6]" />
+                  <span>{isRtl ? 'تماس با ما' : 'Contact Us'}</span>
+                </button>
+
+                <div className="my-2 border-t border-gray-100 dark:border-gray-800" />
+
+                {!currentUser && (
+                  <>
+                <div ref={mobileNotificationsRef} className="relative">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setNotificationsOpen(prev => !prev);
+                        setMobileSearchOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black transition-colors cursor-pointer ${notificationsOpen ? 'bg-[#26B6B6]/10 text-[#26B6B6]' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                    >
+                      <span className="flex items-center gap-3">
+                        <Bell className="w-4 h-4 text-[#26B6B6]" />
+                        <span>{isRtl ? 'اعلان‌ها' : 'Notifications'}</span>
+                      </span>
+                      <span className="min-w-5 h-5 rounded-full bg-red-500 px-1 text-[9px] text-white flex items-center justify-center font-black">2</span>
+                    </button>
+
+                    {notificationsOpen && (
+                      <div className="mt-1 max-h-52 overflow-y-auto rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 p-1.5">
+                        {mockNotifications.map(notif => (
+                          <div key={notif.id} className={`rounded-lg p-2.5 text-[10px] ${notif.unread ? 'bg-[#26B6B6]/10 border-s-2 border-[#26B6B6]' : 'hover:bg-white dark:hover:bg-gray-900'}`}>
+                            <p className="font-bold leading-relaxed text-gray-800 dark:text-gray-200">{isRtl ? notif.titleFa : notif.titleEn}</p>
+                            <span className="mt-1 block text-[8px] text-gray-400 dark:text-gray-500">{isRtl ? notif.timeFa : notif.timeEn}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLanguage(language === 'fa' ? 'en' : 'fa');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                  >
+                    <span className="flex items-center gap-3">
+                      <Globe className="w-4 h-4 text-[#26B6B6]" />
+                      <span>{isRtl ? 'تغییر زبان' : 'Change Language'}</span>
+                    </span>
+                    <span className="rounded-md bg-gray-100 dark:bg-gray-800 px-2 py-1 text-[9px] font-black text-[#26B6B6]">{language === 'fa' ? 'EN' : 'فا'}</span>
+                  </button>
+                  </>
+                )}
+
+                <button
+                  type="button"
+                  onClick={onToggleDark}
+                  className="w-full flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                >
+                  <span className="flex items-center gap-3">
+                    {isDark ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-slate-500" />}
+                    <span>{isDark ? (isRtl ? 'حالت روز (تم روشن)' : 'Switch to Light Mode') : (isRtl ? 'حالت شب (تم تاریک)' : 'Switch to Dark Mode')}</span>
+                  </span>
+                  <span className={`relative h-5 w-9 rounded-full transition-colors ${isDark ? 'bg-[#26B6B6]' : 'bg-gray-300 dark:bg-gray-700'}`} aria-hidden="true">
+                    <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${isDark ? (isRtl ? 'translate-x-0.5' : 'translate-x-4') : (isRtl ? 'translate-x-4' : 'translate-x-0.5')}`} />
+                  </span>
+                </button>
+              </nav>
+            </div>
+          )}
+
+          </div>
+
           <div
             id="mobile-header-search-panel"
             ref={mobileSearchRef}
@@ -1265,18 +1397,16 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* ROW 2: Secondary Navigation Bar (Always visible beneath Row 1) */}
-        <div className="border-t border-gray-100 dark:border-gray-800 py-2 sm:py-2.5">
-          
-          {/* Desktop/Tablet secondary bar navigation (Hidden below sm, inline menu) */}
-          <div className="hidden sm:flex justify-between items-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 select-none">
-            
+        {/* ROW 2: Desktop secondary navigation bar */}
+        <div className="hidden lg:block border-t border-gray-100 dark:border-gray-800 py-2 sm:py-2.5">
+          <div className="flex justify-between items-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 select-none">
+
             {/* Primary Navigation Menu */}
             <div className="flex items-center gap-5 md:gap-7 text-sm font-extrabold">
-              
+
               {/* Category Dropdown Menu anchor */}
-              <div 
-                className="relative" 
+              <div
+                className="relative"
                 ref={categoriesRef}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
@@ -1295,7 +1425,7 @@ export const Header: React.FC<HeaderProps> = ({
                   }}
                   className={`px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer flex items-center gap-1.5 font-extrabold shadow-2xs hover:shadow-xs hover:scale-102 ${
                     currentView === 'categories' || categoriesDropdownOpen
-                      ? 'text-[#26B6B6] bg-[#26B6B6]/10 border border-[#26B6B6]/20' 
+                      ? 'text-[#26B6B6] bg-[#26B6B6]/10 border border-[#26B6B6]/20'
                       : 'text-gray-650 dark:text-gray-300 hover:text-[#26B6B6] border border-transparent hover:bg-gray-50 dark:hover:bg-gray-800/40'
                   }`}
                 >
@@ -1321,7 +1451,7 @@ export const Header: React.FC<HeaderProps> = ({
                 onClick={() => onNavigate('about')}
                 className={`px-3 py-2 rounded-lg transition-colors cursor-pointer ${
                   currentView === 'about'
-                    ? 'text-[#26B6B6] bg-[#26B6B6]/5 font-black' 
+                    ? 'text-[#26B6B6] bg-[#26B6B6]/5 font-black'
                     : 'text-gray-600 dark:text-gray-400 hover:text-[#26B6B6]'
                 }`}
               >
@@ -1334,7 +1464,7 @@ export const Header: React.FC<HeaderProps> = ({
                 onClick={() => onNavigate('contact')}
                 className={`px-3 py-2 rounded-lg transition-colors cursor-pointer ${
                   currentView === 'contact'
-                    ? 'text-[#26B6B6] bg-[#26B6B6]/5 font-black' 
+                    ? 'text-[#26B6B6] bg-[#26B6B6]/5 font-black'
                     : 'text-gray-650 dark:text-gray-305 hover:text-[#26B6B6]'
                 }`}
               >
@@ -1351,7 +1481,7 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <User className="w-4.5 h-4.5" />
                 <span>
-                  {currentUser 
+                  {currentUser
                     ? (isRtl ? 'پنل کاربری' : 'Go to Dashboard')
                     : (isRtl ? 'ورود/ثبت نام' : 'Join Platform')
                   }
@@ -1359,44 +1489,6 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             </div>
 
-          </div>
-
-          {/* Mobile responsive view: Centered horizontal secondary menu containing navigation links */}
-          <div className="flex sm:hidden items-center justify-center gap-4 px-4 py-1.5 select-none w-full border-t border-gray-150/40 dark:border-gray-800/40" id="mobile-nav-bar-combined">
-            {/* Navigation buttons: About Us, Contact & Join */}
-            <div className="flex items-center justify-center gap-3">
-              <button
-                id="mobile-nav-about"
-                onClick={() => onNavigate('about')}
-                className={`py-1.5 px-2.5 text-xs transition-colors shrink-0 font-extrabold rounded-lg ${
-                  currentView === 'about' ? 'text-[#26B6B6] bg-[#26B6B6]/5 font-black' : 'text-gray-650 dark:text-gray-300 hover:text-[#26B6B6]'
-                }`}
-              >
-                {isRtl ? 'درباره ما' : 'About Us'}
-              </button>
-              <button
-                id="mobile-nav-contact"
-                onClick={() => onNavigate('contact')}
-                className={`py-1.5 px-2.5 text-xs transition-colors shrink-0 font-extrabold rounded-lg ${
-                  currentView === 'contact' ? 'text-[#26B6B6] bg-[#26B6B6]/5 font-black' : 'text-gray-650 dark:text-gray-300 hover:text-[#26B6B6]'
-                }`}
-              >
-                {isRtl ? 'تماس با ما' : 'Contact Us'}
-              </button>
-              <button
-                id="mobile-nav-auth"
-                onClick={currentUser ? () => handleDashboardNavigate('profile') : onOpenAuthModal}
-                className="py-1 px-3 bg-[#26B6B6] hover:bg-[#1e9494] text-white rounded-full text-xs font-black transition-all duration-150 active:scale-95 shrink-0 cursor-pointer shadow-xs flex items-center gap-1.5 hover:scale-102"
-              >
-                <User className="w-3.5 h-3.5" />
-                <span>
-                  {currentUser 
-                    ? (isRtl ? 'پنل کاربری' : 'Dashboard')
-                    : (isRtl ? 'ورود/ثبت نام' : 'Join')
-                  }
-                </span>
-              </button>
-            </div>
           </div>
 
         </div>

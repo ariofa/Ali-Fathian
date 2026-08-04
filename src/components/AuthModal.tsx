@@ -73,6 +73,33 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
     if (requestedRole === 'Manufacturer' || requestedRole === 'Modeler') {
       setRegAccountType(requestedRole);
       setOnboardingStep(1);
+
+      if (requestedRole === 'Manufacturer') {
+        // Restore the relationship selected during an earlier registration/profile flow.
+        try {
+          const savedUser = JSON.parse(localStorage.getItem('iranbimhub_user') || 'null');
+          const savedProfile = JSON.parse(localStorage.getItem('iranbimhub_mfg_profile') || 'null');
+          const savedRelationship = savedUser?.brandOwnershipType
+            || savedUser?.companyType
+            || savedProfile?.brandOwnershipType
+            || savedProfile?.companyType
+            || '';
+          const validRelationships = [
+            'Direct Manufacturer',
+            'Brand Owner',
+            'Official Representative / Importer',
+            'Distributor / Seller',
+            'Other / Needs Review'
+          ];
+
+          if (validRelationships.includes(savedRelationship)) {
+            setRegOrgType(savedRelationship);
+          }
+        } catch {
+          // Keep the initial selection empty if saved profile data is unavailable or malformed.
+          setRegOrgType('');
+        }
+      }
     }
 
     sessionStorage.removeItem('iranbimhub_auth_mode');

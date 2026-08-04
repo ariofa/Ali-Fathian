@@ -54,6 +54,22 @@ const OWNERSHIP_OPTIONS = [
   }
 ];
 
+const getSavedManufacturerRelationship = () => {
+  if (typeof window === 'undefined') return '';
+
+  try {
+    const savedUser = JSON.parse(localStorage.getItem('iranbimhub_user') || 'null');
+    const savedProfile = JSON.parse(localStorage.getItem('iranbimhub_mfg_profile') || 'null');
+    return savedUser?.brandOwnershipType
+      || savedUser?.companyType
+      || savedProfile?.brandOwnershipType
+      || savedProfile?.companyType
+      || '';
+  } catch {
+    return '';
+  }
+};
+
 const getDefaultOfficialDocs = (brandInfo: any) => ({
   officialCompanyName: brandInfo?.officialDocs?.officialCompanyName || brandInfo?.nameFa || brandInfo?.companyName || '',
   nationalId: brandInfo?.officialDocs?.nationalId || '',
@@ -63,7 +79,10 @@ const getDefaultOfficialDocs = (brandInfo: any) => ({
   officialGazetteFileUrl: brandInfo?.officialDocs?.officialGazetteFileUrl || '',
   representativeLetterFile: brandInfo?.officialDocs?.representativeLetterFile || '',
   representativeLetterFileUrl: brandInfo?.officialDocs?.representativeLetterFileUrl || '',
-  ownershipType: brandInfo?.officialDocs?.ownershipType || brandInfo?.brandOwnershipType || brandInfo?.companyType || '',
+  ownershipType: brandInfo?.officialDocs?.ownershipType
+    || brandInfo?.brandOwnershipType
+    || brandInfo?.companyType
+    || getSavedManufacturerRelationship(),
   adminNote: brandInfo?.officialDocs?.adminNote || ''
 });
 
