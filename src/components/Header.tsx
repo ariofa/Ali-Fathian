@@ -1205,7 +1205,7 @@ export const Header: React.FC<HeaderProps> = ({
                   className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black transition-colors cursor-pointer ${currentView === 'learn' ? 'bg-[#26B6B6]/10 text-[#26B6B6]' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
                 >
                   <BookOpen className="w-4 h-4 shrink-0 text-[#26B6B6]" />
-                  <span>{isRtl ? 'مقالات و آموزش ها ' : 'Educational Magazine'}</span>
+                  <span>{isRtl ? 'مقالات و آموزش ها' : 'Educational Magazine'}</span>
                 </button>
                 <button
                   type="button"
@@ -1275,7 +1275,14 @@ export const Header: React.FC<HeaderProps> = ({
                     <span>{isDark ? (isRtl ? 'حالت روز (تم روشن)' : 'Switch to Light Mode') : (isRtl ? 'حالت شب (تم تاریک)' : 'Switch to Dark Mode')}</span>
                   </span>
                   <span className={`relative h-5 w-9 rounded-full transition-colors ${isDark ? 'bg-[#26B6B6]' : 'bg-gray-300 dark:bg-gray-700'}`} aria-hidden="true">
-                    <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${isDark ? (isRtl ? 'translate-x-0.5' : 'translate-x-4') : (isRtl ? 'translate-x-4' : 'translate-x-0.5')}`} />
+                    <span
+                      className="absolute start-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200"
+                      style={{
+                        transform: isDark
+                          ? `translateX(${isRtl ? '-16px' : '16px'})`
+                          : 'translateX(0)'
+                      }}
+                    />
                   </span>
                 </button>
               </nav>
