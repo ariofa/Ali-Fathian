@@ -11,6 +11,7 @@ export interface Manufacturer {
   email: string;
   phone: string;
   verified: boolean;
+  isSample?: boolean;
   tier: 'Free' | 'Premium' | 'VIP';
   addressFa?: string;
   addressEn?: string;

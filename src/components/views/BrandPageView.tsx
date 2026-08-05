@@ -88,6 +88,16 @@ const BRAND_EXTENSIONS: Record<string, {
     coverUrl: string;
   }[];
 }> = {
+  'initial-library': {
+    sloganFa: 'ساخت کتابخانهٔ دادهٔ محصول برای جریان طراحی',
+    sloganEn: 'Building a Product-Data Library for Design Workflows',
+    subTitleFa: 'محصولات و اطلاعات فنی منتخب در حال تکمیل',
+    subTitleEn: 'Selected products and technical information are being completed',
+    bannerUrl: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1400&q=80',
+    longDescriptionFa: 'کتابخانهٔ اولیهٔ ایران‌بیم‌هاب برای نمایش ساختار اطلاعات محصول، دسته‌بندی و تجربهٔ جست‌وجو در حال توسعه است. هر محصول پس از تکمیل منبع، اطلاعات فنی و وضعیت انتشار، به‌صورت مستقل معرفی خواهد شد.',
+    longDescriptionEn: 'The IranBIMhub initial library is being developed to present product-information structures, categories, and the search experience. Each product will be introduced independently after its source, technical information, and publication status are complete.',
+    socials: {}, collections: [], clips: [], bookshelf: []
+  },
   m1: {
     sloganFa: 'نوآوری در سیستم‌های درب، پنجره و کرتین‌وال آلومینیومی',
     sloganEn: 'Innovation in Aluminum Window, Door & Curtain Wall Systems',
@@ -258,7 +268,7 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
 
   const [followersCount, setFollowersCount] = useState(() => {
     // Semi-random deterministic follower count based on stats view count
-    const base = manufacturer.stats ? Math.floor(manufacturer.stats.views / 15) : 180;
+    const base = manufacturer.stats ? Math.floor(manufacturer.stats.views / 15) : 0;
     return isFollowing ? base + 1 : base;
   });
 
@@ -291,7 +301,7 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
     description: ''
   });
 
-  const ext = BRAND_EXTENSIONS[manufacturer.id] || BRAND_EXTENSIONS['m1'];
+  const ext = BRAND_EXTENSIONS[manufacturer.id] || BRAND_EXTENSIONS['initial-library'];
 
   const [savedProfile, setSavedProfile] = useState(() => {
     try {
@@ -310,6 +320,7 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
     } catch (e) {
       console.error(e);
     }
+    if (manufacturer.isSample) return [];
     return [
       { id: 'std-1', name: 'ISO 9001 (Quality Management)', code: 'ISO-9001', country: 'SGS Germany', verified: true, description: 'استاندارد جهانی مدیریت سیستم‌های کیفیت و ارزیابی فرایندها.' },
       { id: 'std-2', name: 'CE Mark (European Conformity)', code: 'CE-AEC', country: 'TUV Nord', verified: true, description: 'نشان انطباق محصول با استانداردهای بهداشت، ایمنی و حفاظت محیط زیست اروپا.' },

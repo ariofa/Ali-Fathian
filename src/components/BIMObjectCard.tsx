@@ -51,6 +51,8 @@ export const BIMObjectCard: React.FC<BIMObjectCardProps> = ({
   };
 
   const manufacturer = getDynamicManufacturer();
+  const isFileAvailable = object.formats.length > 0;
+  const canViewBrand = Boolean(onViewBrand && manufacturer && manufacturer.id !== 'initial-library');
   const mName = manufacturer ? (isRtl ? manufacturer.nameFa : manufacturer.nameEn) : '';
   
   const title = isRtl ? object.titleFa : object.titleEn;
@@ -110,12 +112,12 @@ export const BIMObjectCard: React.FC<BIMObjectCardProps> = ({
           <div className="flex justify-between items-center text-[10px] sm:text-[11px] text-gray-400 font-bold uppercase mb-1">
             <span 
               onClick={(e) => {
-                if (onViewBrand) {
+                if (canViewBrand && onViewBrand) {
                   e.stopPropagation();
                   onViewBrand(object.manufacturerId);
                 }
               }}
-              className={`truncate max-w-[110px] ${onViewBrand ? 'hover:text-[#26B6B6] cursor-pointer transition-colors hover:underline' : ''}`}
+              className={`truncate max-w-[160px] ${canViewBrand ? 'hover:text-[#26B6B6] cursor-pointer transition-colors hover:underline' : ''}`}
             >
               {mName}
             </span>
@@ -160,8 +162,11 @@ export const BIMObjectCard: React.FC<BIMObjectCardProps> = ({
               {priceLabel}
             </span>
             
-            {/* Quick One-Click Download triggers */}
+            {/* Download controls appear only when a publishable file is attached. */}
             <div className="relative">
+              {!isFileAvailable ? (
+                <span className="text-[10px] font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 dark:text-slate-300 px-2 py-1 rounded-md">{isRtl ? 'اطلاعات در حال تکمیل' : 'Information in progress'}</span>
+              ) : (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -174,9 +179,10 @@ export const BIMObjectCard: React.FC<BIMObjectCardProps> = ({
                 <span>{isRtl ? 'دانلود' : 'DL'}</span>
                 <ChevronDown className="w-2.5 h-2.5" />
               </button>
+              )}
 
               {/* Formats Dropdown */}
-              {showFormatsDropdown && (
+              {isFileAvailable && showFormatsDropdown && (
                 <div 
                   className={`absolute bottom-full mb-1 ${isRtl ? 'left-0' : 'right-0'} bg-white border border-gray-100 rounded-lg shadow-lg py-1.5 min-w-[120px] z-20 text-xs`}
                   onClick={(e) => e.stopPropagation()}

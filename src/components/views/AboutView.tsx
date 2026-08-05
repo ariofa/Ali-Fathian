@@ -141,7 +141,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
 
   const handleDownloadResource = (title: string) => {
     alert(isRtl 
-      ? `دانلود موفق سند استاندارد: «${title}». این فایل به عنوان یک قالب معتبر در اختیار شما قرار گرفت.`
+      ? `منبع «${title}» پس از تکمیل و انتشار رسمی در دسترس قرار می‌گیرد.`
       : `Standard Resource "${title}" has been successfully downloaded.`
     );
   };
@@ -157,14 +157,14 @@ export const AboutView: React.FC<AboutViewProps> = ({
           <div className="relative z-10 max-w-3xl space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#26B6B6]/10 border border-[#26B6B6]/20 text-[#26B6B6] rounded-full text-xs font-semibold">
               <Compass className="w-3.5 h-3.5 animate-spin [animation-duration:12s]" />
-              <span>{isRtl ? 'درگاه تعامل فنی و تجاری صنعت ساختمان' : 'AEC Technical & Commercial Integration Gateway'}</span>
+              <span>{isRtl ? 'پلتفرم در حال توسعه برای دادهٔ محصول و BIM' : 'AEC Technical & Commercial Integration Gateway'}</span>
             </div>
             <h1 className="text-2xl sm:text-4xl font-black text-white leading-tight">
               {isRtl ? 'درباره هاب بیم ایران (IranBIMhub)' : 'About IranBIMhub'}
             </h1>
             <p className="text-xs sm:text-sm text-gray-300 font-light leading-relaxed">
               {isRtl 
-                ? 'تلفیق دانش فنی مدل‌سازی اطلاعات ساختمان و توانمندی تولیدکنندگان داخلی جهت کاهش تداخلات، برآورد دقیق مصالح و بومی‌سازی استانداردهای دیجیتال مهندسی در پروژه‌های عمرانی کشور.'
+                ? 'ایران‌بیم‌هاب برای نزدیک‌کردن اطلاعات واقعی محصولات ساختمانی، تولیدکنندگان و جریان طراحی دیجیتال در ایران شکل گرفته است.'
                 : 'Bridging the technical gap between parametric component modeling and real physical procurement for construction optimization, clash reduction, and digital standards implementation.'
               }
             </p>
@@ -179,18 +179,18 @@ export const AboutView: React.FC<AboutViewProps> = ({
               <span>{isRtl ? 'ماموریت کلان ما' : 'Our Overarching Mission'}</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-[#464E56] dark:text-white leading-snug">
-              {isRtl ? 'بومی‌سازی استانداردهای بیم برای ارتقای زنجیره تامین ساختمان' : 'Standardizing Building Information Modeling for Supply Chains'}
+              {isRtl ? 'ساختن مسیر قابل‌اعتماد برای دادهٔ محصول در طراحی ساختمان' : 'Standardizing Building Information Modeling for Supply Chains'}
             </h2>
             <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-light leading-relaxed">
               {isRtl 
-                ? 'ایران‌بیم‌هاب به عنوان مرجع ملی مبادلات دیجیتال کالا و مدل‌های پارامتریک، با هدف پیاده‌سازی کامل سند بیم ملی طراحی شده است. ما به مهندسان مشاور و مجریان ساخت‌وساز کمک می‌کنیم تا کاتالوگ‌های معتبر و استاندارد را به‌صورت زنده از روی سرورهای ابری دانلود کرده و مستقیماً در نرم‌افزارهای Revit ،ArchiCAD و سایر پلتفرم‌های سازگار با استاندارد IFC قرار دهند.'
+                ? 'ایران‌بیم‌هاب یک پلتفرم ایرانی در حال توسعه است که می‌خواهد مسیر ورود اطلاعات محصول، کاتالوگ‌های فنی و آبجکت‌های BIM را به جریان طراحی ساختمان ساده‌تر و قابل‌ارزیابی‌تر کند. تمرکز امروز ما ساخت کتابخانهٔ اولیه و همکاری مرحله‌ای با تولیدکنندگان و متخصصان BIM است.'
                 : 'IranBIMhub serves as the definitive cloud specifier in the region. We support engineering consultancies and general contractors in fetching certified parametric digital representations directly from verified brands, eliminating model discrepancies and optimizing bills of material on standard Revit, ArchiCAD, and IFC open BIM terminals.'
               }
             </p>
 
             <div className="grid grid-cols-3 gap-4 pt-4">
               <div className="bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-3 rounded-2xl text-center space-y-1">
-                <span className="text-base sm:text-lg font-black text-[#26B6B6] block">۹۹.۸٪</span>
+                <span className="text-base sm:text-lg font-black text-[#26B6B6] block">—</span>
                 <span className="text-[9px] text-gray-400 block">{isRtl ? 'صحت هندسی فمیلی‌ها' : 'Parametric Accuracy'}</span>
               </div>
               <div className="bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-3 rounded-2xl text-center space-y-1">
@@ -199,7 +199,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
               </div>
               <div className="bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-3 rounded-2xl text-center space-y-1">
                 <span className="text-base sm:text-lg font-black text-[#26B6B6] block">۳۵,۰۰۰+</span>
-                <span className="text-[9px] text-gray-400 block">{isRtl ? 'دانلود تجاری موفق' : 'Active Specifiers'}</span>
+                <span className="text-[9px] text-gray-400 block">{isRtl ? 'مسیر توسعهٔ کتابخانه' : 'Active Specifiers'}</span>
               </div>
             </div>
           </div>
@@ -241,7 +241,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
               </h3>
               <p className="text-[11px] text-gray-500 dark:text-gray-400 font-light leading-relaxed">
                 {isRtl 
-                  ? 'دسترسی رایگان به صدها مدل هوشمند و معتبر فمیلی محصولات، کاتالوگ ابعاد و پیوست به دفترچه‌های فنی به همراه سازماندهی پروژه‌ها.' 
+                  ? 'دسترسی مرحله‌ای به کتابخانهٔ اولیه، اطلاعات فنی و مسیرهای در حال توسعه برای سازمان‌دهی محصولات.' 
                   : 'Get unlimited access to certified standard-sized family models, complete with thermal and structural spec variables.'
                 }
               </p>
@@ -268,7 +268,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
               </h3>
               <p className="text-[11px] text-gray-500 dark:text-gray-400 font-light leading-relaxed">
                 {isRtl 
-                  ? 'ثبت کاتالوگ و محصولات برای دیده شدن در فاز صفر نقشه‌های ملی، دریافت سرنخ‌های گرم B2B خرید و مشاهده تحلیل‌های آماری پیشرفته.' 
+                  ? 'معرفی برند و محصول، بررسی مسیر آماده‌سازی اطلاعات و ایجاد حضور حرفه‌ای در جریان طراحی.' 
                   : 'Place your catalog into designers specifiers, capture hot procurement leads, and manage analytical performance metrics.'
                 }
               </p>
@@ -321,7 +321,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
               </h3>
               <p>
                 {isRtl 
-                  ? 'مدل‌های بارگذاری‌شده روی پلتفرم ایران‌بیم‌هاب ابتدا توسط مهندسان ارشد ارزیابی شده تا منطبق بر مقررات ملی ساختمان و کدهای فنی حریق و مصرف انرژی باشند.' 
+                  ? 'برای هر دستهٔ محصول، معیارهای بررسی هندسه، اطلاعات فنی و قابلیت استفاده در حال تدوین است. وضعیت بررسی و اطلاعات قابل اتکا، برای هر محصول به‌صورت جداگانه اعلام خواهد شد.' 
                   : 'Every model listed undergoes strict QA reviews. We verify spatial bounds, local building code alignments, energy efficiency parameters, and fire safety ratings.'
                 }
               </p>
@@ -334,7 +334,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
               </h3>
               <p>
                 {isRtl 
-                  ? 'داده‌های پیوست در پایان پروژه ساختمانی مستقیماً جهت نگهداری و بهره‌برداری ساختمان تحویل کارفرما می‌شود، که موجب کاهش ۳۰ درصدی هزینه‌های دوره عمر ساختمان است.' 
+                  ? 'دادهٔ ساخت‌یافتهٔ محصول می‌تواند در مراحل طراحی، مستندسازی و بهره‌برداری ارزش ایجاد کند؛ دامنهٔ اطلاعات هر محصول بر اساس نیاز پروژه و منبع معتبر آن تعیین می‌شود.' 
                   : 'BIM metadata smoothly transitions into Operations and Facility Management (via COBie formats), reducing long-term post-construction maintenance costs by up to 30%.'
                 }
               </p>
@@ -752,14 +752,14 @@ export const AboutView: React.FC<AboutViewProps> = ({
       <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1E2326] via-[#2F3539] to-[#464E56] text-white p-8 md:p-12">
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#26B6B6_1px,transparent_1px)] [background-size:20px_20px]"></div>
         <div className="relative z-10 max-w-2xl space-y-3">
-          <span className="text-[10px] uppercase font-bold text-[#26B6B6] tracking-wider">{isRtl ? 'دایرکتوری رسمی کارخانجات ساختمان ایران' : 'Official Iranian Physical Brands Specifier Directory'}</span>
+          <span className="text-[10px] uppercase font-bold text-[#26B6B6] tracking-wider">{isRtl ? 'دایرکتوری و ساختارهای نمونهٔ برند' : 'Brand Directory & Profile Templates'}</span>
           <h1 className="text-2xl sm:text-4xl font-black text-white leading-tight">
-            {isRtl ? 'تولیدکنندگان معتبر صنعت ساختمان' : 'Verified Industrial Manufacturers'}
+            {isRtl ? 'پروفایل‌های برند در ایران‌بیم‌هاب' : 'Brand Profiles on IranBIMhub'}
           </h1>
           <p className="text-xs sm:text-sm text-gray-300 font-light leading-relaxed">
             {isRtl 
-              ? 'لیست کامل و دسته‌بندی‌شده کارخانجاتی که دارای تاییدیه اصالت هندسی و فنی کاتالوگ مصالح در بستر مدل‌سازی اطلاعات ساختمان (BIM) کشور هستند.'
-              : 'Complete directory of manufacturers whose physical specs and spatial catalog parameters have passed BIM quality-assurance standards.'
+              ? 'برندهایی که پس از تکمیل اطلاعات و فعال‌سازی انتشار عمومی، در کتابخانهٔ ایران‌بیم‌هاب معرفی می‌شوند.'
+              : 'Explore presentation-ready profile structures. Official brand pages are published after completing their information and publication process.'
             }
           </p>
         </div>
@@ -779,8 +779,8 @@ export const AboutView: React.FC<AboutViewProps> = ({
         </div>
         <span className="text-[11px] text-gray-400 font-medium">
           {isRtl 
-            ? `${filteredManufacturers.length} برند فعال یافت شد` 
-            : `${filteredManufacturers.length} active brands found`
+            ? `${filteredManufacturers.length} پروفایل نمونه یافت شد` 
+            : `${filteredManufacturers.length} sample profiles found`
           }
         </span>
       </div>
@@ -828,25 +828,15 @@ export const AboutView: React.FC<AboutViewProps> = ({
                 {isRtl ? mfg.descriptionFa : mfg.descriptionEn}
               </p>
 
-              {/* Stats Strip */}
-              <div className="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-gray-950/40 p-3 rounded-2xl border border-slate-100 dark:border-gray-850/30 text-center text-[11px]">
-                <div>
-                  <span className="text-gray-400 block text-[9px] uppercase">{isRtl ? 'بازدید کاتالوگ' : 'Views'}</span>
-                  <span className="font-bold text-gray-700 dark:text-gray-200 mt-0.5 block">{mfg.stats?.views?.toLocaleString() || '1,200'}</span>
-                </div>
-                <div>
-                  <span className="text-gray-400 block text-[9px] uppercase">{isRtl ? 'دانلود فمیلی' : 'Downloads'}</span>
-                  <span className="font-bold text-gray-700 dark:text-gray-200 mt-0.5 block">{mfg.stats?.downloads?.toLocaleString() || '450'}</span>
-                </div>
-                <div>
-                  <span className="text-gray-400 block text-[9px] uppercase">{isRtl ? 'سرنخ‌های فروش' : 'Leads'}</span>
-                  <span className="font-bold text-[#26B6B6] mt-0.5 block">{mfg.stats?.leads?.toLocaleString() || '24'}</span>
-                </div>
+              {/* Profile state — metrics remain an internal feature until real data exists. */}
+              <div className="flex items-center gap-2 bg-slate-50 dark:bg-gray-950/40 p-3 rounded-2xl border border-slate-100 dark:border-gray-850/30 text-[10px] text-gray-500 dark:text-gray-400">
+                <Layers className="w-4 h-4 text-[#0FB9B1] shrink-0" />
+                <span>{mfg.isSample ? (isRtl ? 'ساختار پیشنهادی برای نمایش پروفایل و اطلاعات محصول برند' : 'Suggested structure for a brand profile and product information') : (isRtl ? 'وضعیت اطلاعات برند در حال تکمیل است.' : 'Brand information is being completed.')}</span>
               </div>
             </div>
 
             <div className="mt-6 pt-4 border-t border-gray-50 dark:border-gray-850 flex items-center justify-between text-xs">
-              <a 
+              {mfg.website ? <a 
                 href={mfg.website} 
                 target="_blank" 
                 rel="noreferrer" 
@@ -854,14 +844,14 @@ export const AboutView: React.FC<AboutViewProps> = ({
               >
                 <span>{mfg.website.replace('https://', '')}</span>
                 <ExternalLink className="w-3 h-3" />
-              </a>
+              </a> : <span className="text-[10px] text-gray-400">{isRtl ? 'ساختار پروفایل قابل شخصی‌سازی' : 'Customizable profile structure'}</span>}
 
               {onViewBrand && (
                 <button
                   onClick={() => onViewBrand(mfg.id)}
                   className="bg-[#26B6B6] hover:bg-[#1e9494] text-white px-4 py-2 rounded-xl text-[11px] font-black cursor-pointer transition-colors shadow-2xs"
                 >
-                  {isRtl ? 'مشاهده کاتالوگ آبجکت‌ها' : 'View Objects Catalog'}
+                  {isRtl ? (mfg.isSample ? 'مشاهدهٔ ساختار پروفایل' : 'مشاهدهٔ کاتالوگ آبجکت‌ها') : (mfg.isSample ? 'View Profile Structure' : 'View Objects Catalog')}
                 </button>
               )}
             </div>

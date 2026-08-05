@@ -96,6 +96,13 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
 }) => {
   const { language, t, isRtl, formatNumber } = useLanguage();
   const [activeTab, setActiveTab] = useState<MFGTab>('overview');
+  const [workspaceMode, setWorkspaceMode] = useState<'simple' | 'professional'>(() => (localStorage.getItem('iranbimhub_mfg_workspace_mode') === 'professional' ? 'professional' : 'simple'));
+  const advancedTabs: MFGTab[] = ['followers', 'subscription', 'analytics', 'approval-chat'];
+
+  useEffect(() => {
+    localStorage.setItem('iranbimhub_mfg_workspace_mode', workspaceMode);
+    if (workspaceMode === 'simple' && advancedTabs.includes(activeTab)) setActiveTab('overview');
+  }, [workspaceMode, activeTab]);
   const [isSidebarOpenMobile, setIsSidebarOpenMobile] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [profileSubTab, setProfileSubTab] = useState<'info' | 'standards' | 'awards' | 'projects' | 'catalogs'>('info');
@@ -1647,6 +1654,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                 isRtl={isRtl}
                 unansweredLeadsCount={unansweredLeadsCount}
                 onLogout={onLogout}
+                workspaceMode={workspaceMode}
               />
             </div>
           </div>
@@ -1705,12 +1713,20 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
             unansweredLeadsCount={unansweredLeadsCount}
             collapsed={isSidebarCollapsed}
             onLogout={onLogout}
+            workspaceMode={workspaceMode}
           />
         </div>
       </div>
 
       {/* Main Content Pane */}
       <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-[#0FB9B1]/20 bg-[#0FB9B1]/5 px-4 py-3">
+          <div><p className="text-xs font-black text-gray-800 dark:text-white">{isRtl ? 'نمایش فضای کاری' : 'Workspace view'}</p><p className="text-[10px] text-gray-500 mt-1">{workspaceMode === 'simple' ? (isRtl ? 'مسیر شروع برند: فقط قدم‌های ضروری را ببینید.' : 'Brand start path: only essential steps are shown.') : (isRtl ? 'ابزارهای حرفه‌ای مدیریت برند فعال هستند.' : 'Professional brand-management tools are enabled.')}</p></div>
+          <div className="inline-flex rounded-xl bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-700 p-1">
+            <button onClick={() => setWorkspaceMode('simple')} className={`px-3 py-1.5 rounded-lg text-[10px] font-black cursor-pointer ${workspaceMode === 'simple' ? 'bg-[#0FB9B1] text-white' : 'text-gray-500'}`}>{isRtl ? 'مسیر شروع برند' : 'Start path'}</button>
+            <button onClick={() => setWorkspaceMode('professional')} className={`px-3 py-1.5 rounded-lg text-[10px] font-black cursor-pointer ${workspaceMode === 'professional' ? 'bg-[#0F3D5E] text-white' : 'text-gray-500'}`}>{isRtl ? 'فضای حرفه‌ای' : 'Professional'}</button>
+          </div>
+        </div>
         
         {/* OVERVIEW HOME TAB */}
         {activeTab === 'overview' && (
@@ -5048,6 +5064,7 @@ interface MfgSidebarNavListProps {
   unansweredLeadsCount: number;
   collapsed?: boolean;
   onLogout: () => void;
+  workspaceMode: 'simple' | 'professional';
 }
 
 const MfgSidebarNavList: React.FC<MfgSidebarNavListProps> = ({
@@ -5056,7 +5073,8 @@ const MfgSidebarNavList: React.FC<MfgSidebarNavListProps> = ({
   isRtl,
   unansweredLeadsCount,
   collapsed = false,
-  onLogout
+  onLogout,
+  workspaceMode
 }) => {
   const items = [
     { id: 'overview' as const, labelFa: 'پیشخوان', labelEn: 'Overview', icon: Grid },
@@ -5071,9 +5089,11 @@ const MfgSidebarNavList: React.FC<MfgSidebarNavListProps> = ({
     { id: 'logout' as const, labelFa: 'خروج از حساب کاربری', labelEn: 'Sign Out', icon: LogOut, isLogout: true }
   ];
 
+  const visibleItems = workspaceMode === 'professional' ? items : items.filter((item) => ['overview', 'profile', 'catalog', 'requests', 'notifications', 'logout'].includes(item.id));
+
   return (
     <ul className="space-y-1 font-medium text-xs leading-none">
-      {items.map(item => {
+      {visibleItems.map(item => {
         const Icon = item.icon;
         const active = activeTab === item.id;
         const label = isRtl ? item.labelFa : item.labelEn;

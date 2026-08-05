@@ -64,6 +64,13 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
 }) => {
   const { language, t, isRtl, formatNumber } = useLanguage();
   const [activeTab, setActiveTab] = useState<DashboardSection>('overview');
+  const [workspaceMode, setWorkspaceMode] = useState<'simple' | 'professional'>(() => (localStorage.getItem('iranbimhub_modeler_workspace_mode') === 'professional' ? 'professional' : 'simple'));
+  const advancedTabs: DashboardSection[] = ['subscription', 'projects', 'collections'];
+
+  useEffect(() => {
+    localStorage.setItem('iranbimhub_modeler_workspace_mode', workspaceMode);
+    if (workspaceMode === 'simple' && advancedTabs.includes(activeTab)) setActiveTab('overview');
+  }, [workspaceMode, activeTab]);
   const [isSidebarOpenMobile, setIsSidebarOpenMobile] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
@@ -580,6 +587,7 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
                 isRtl={isRtl}
                 t={t}
                 isPremium={currentUser.isPremium}
+                workspaceMode={workspaceMode}
               />
 
               <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
@@ -673,6 +681,7 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
             isRtl={isRtl}
             t={t}
             isPremium={currentUser.isPremium}
+            workspaceMode={workspaceMode}
             collapsed={isSidebarCollapsed}
           />
 
@@ -690,6 +699,13 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
 
       {/* Main Content Area */}
       <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-[#0FB9B1]/20 bg-[#0FB9B1]/5 px-4 py-3">
+          <div><p className="text-xs font-black text-gray-800 dark:text-white">{isRtl ? 'نمایش میز کار' : 'Workspace view'}</p><p className="text-[10px] text-gray-500 mt-1">{workspaceMode === 'simple' ? (isRtl ? 'ابزارهای روزمرهٔ طراح در دسترس‌اند.' : 'Everyday designer tools are shown.') : (isRtl ? 'ابزارهای سازمان‌دهی و حرفه‌ای فعال هستند.' : 'Organization and professional tools are enabled.')}</p></div>
+          <div className="inline-flex rounded-xl bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-700 p-1">
+            <button onClick={() => setWorkspaceMode('simple')} className={`px-3 py-1.5 rounded-lg text-[10px] font-black cursor-pointer ${workspaceMode === 'simple' ? 'bg-[#0FB9B1] text-white' : 'text-gray-500'}`}>{isRtl ? 'کار روزمره' : 'Everyday'}</button>
+            <button onClick={() => setWorkspaceMode('professional')} className={`px-3 py-1.5 rounded-lg text-[10px] font-black cursor-pointer ${workspaceMode === 'professional' ? 'bg-[#0F3D5E] text-white' : 'text-gray-500'}`}>{isRtl ? 'فضای حرفه‌ای' : 'Professional'}</button>
+          </div>
+        </div>
         {/* Render different panels based on Active Tab */}
         {activeTab === 'overview' && (
           <div className="space-y-8 animate-fadeIn">
@@ -1761,6 +1777,7 @@ interface ModelerSidebarNavProps {
   t: (key: string) => string;
   isPremium: boolean;
   collapsed?: boolean;
+  workspaceMode: 'simple' | 'professional';
 }
 
 const ModelerSidebarNav: React.FC<ModelerSidebarNavProps> = ({
@@ -1769,7 +1786,8 @@ const ModelerSidebarNav: React.FC<ModelerSidebarNavProps> = ({
   isRtl,
   t,
   isPremium,
-  collapsed = false
+  collapsed = false,
+  workspaceMode
 }) => {
   const items = [
     { id: 'overview' as const, labelFa: 'داشبورد عمومی', labelEn: 'Overview', icon: Clock },
@@ -1782,9 +1800,11 @@ const ModelerSidebarNav: React.FC<ModelerSidebarNavProps> = ({
     { id: 'notifications' as const, labelFa: 'اعلان‌ها و پیام‌ها', labelEn: 'Notifications', icon: Bell }
   ];
 
+  const visibleItems = workspaceMode === 'professional' ? items : items.filter((item) => ['overview', 'profile', 'history', 'roles-topics', 'notifications'].includes(item.id));
+
   return (
     <ul className="space-y-1 font-medium text-xs leading-none">
-      {items.map(item => {
+      {visibleItems.map(item => {
         const IconComponent = item.icon;
         const active = activeTab === item.id;
         const label = isRtl ? item.labelFa : item.labelEn;

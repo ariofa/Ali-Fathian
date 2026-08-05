@@ -45,6 +45,7 @@ import {
   DoorOpen
 } from 'lucide-react';
 import { StayConnectedBlock } from '../SocialLinks';
+import { useSiteConfig } from '../SiteConfigContext';
 
 const toPersianDigits = (num: string | number) => {
   const id = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
@@ -199,6 +200,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onOpenAuthModal
 }) => {
   const { language, t, isRtl, formatNumber } = useLanguage();
+  const { siteConfig } = useSiteConfig();
+  const expertInsights = (siteConfig?.expertInsights || []).filter((item) => item.isPublished);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFormat, setSelectedFormat] = useState('All');
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -1048,12 +1051,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
           
           <div className="max-w-xl mx-auto space-y-1 relative z-10">
             <h2 className="text-lg sm:text-xl md:text-2xl font-black text-gray-900 dark:text-white leading-tight">
-              {isRtl ? 'جستجو در کتابخانه ملی بیم ایران' : 'Search the National BIM Library of Iran'}
+              {isRtl ? 'جستجو در کتابخانهٔ اولیهٔ ایران‌بیم‌هاب' : 'Search the IranBIMhub Initial Library'}
             </h2>
             <p className="text-[11px] sm:text-xs text-gray-400 leading-normal font-light max-w-lg mx-auto">
               {isRtl 
-                ? 'نام کالا، مشخصه فنی یا کدهای کارخانجات ایرانی را جهت دانلود فمیلی معتبر بنویسید.' 
-                : 'Enter model keys, manufacturer names, or standards to search certified Revit/IFC objects.'
+                ? 'نام محصول، دسته‌بندی یا مشخصهٔ فنی موردنظر خود را جست‌وجو کنید.' 
+                : 'Search by product, category, or technical attribute.'
               }
             </p>
           </div>
@@ -1328,15 +1331,15 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="space-y-1.5 text-start flex-1 min-w-0">
             <div className="inline-flex items-center gap-2 bg-[#26B6B6]/5 text-[#26B6B6] px-3 py-1 rounded-full text-[10px] font-black">
               <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-              <span>{isRtl ? 'به‌روزرسانی‌های جدید' : 'New Releases'}</span>
+              <span>{isRtl ? 'کتابخانهٔ اولیه' : 'Initial Library'}</span>
             </div>
             <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 dark:text-white leading-tight">
-              {isRtl ? 'جدیدترین آبجکت‌های منتشر شده' : 'Newest Standardized BIM Objects'}
+              {isRtl ? 'نمونه‌آبجکت‌های اولیهٔ ایران‌بیم‌هاب' : 'IranBIMhub Initial Object Samples'}
             </h2>
             <p className="text-xs sm:text-sm text-gray-400 dark:text-gray-400 leading-relaxed font-light">
               {isRtl
-                ? 'آخرین مدل‌های پارامتریک تأییدشده، فمیلی‌های رویت و جزئیات فنی قطعات که به‌تازگی به دایرکتوری اضافه شده‌اند.'
-                : 'Browse the latest evaluated families, Revit models, and parametric building objects added to the directory.'}
+                ? 'چند نمونه از ساختار آبجکت و اطلاعات فنی که برای کتابخانهٔ محصولات ساختمانی ایران در حال توسعه است.'
+                : 'Explore initial object and technical-information structures being developed for Iran’s construction-product library.'}
             </p>
           </div>
         </div>
@@ -1487,7 +1490,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                             {isRtl ? mfg.nameFa : mfg.nameEn}
                           </span>
                           <span className="text-[8px] text-[#26B6B6] bg-[#26B6B6]/5 px-1 py-0.5 rounded mt-0.5 font-bold">
-                            {mfg.tier}
+                            {mfg.isSample ? (isRtl ? 'پروفایل نمونه' : 'Profile template') : mfg.tier}
                           </span>
                         </div>
                       ))}
@@ -1542,8 +1545,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
               </h4>
               <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed font-normal mt-2">
                 {isRtl 
-                  ? 'هر بازدید، دانلود کاتالوگ یا ثبت درخواست مشخصات فنی، یک سرنخ تجاری ارزشمند برای معرفی و فروش مستقیم محصولات شما ایجاد می‌کند.' 
-                  : 'Every page view, catalog download, or click on technical sheets records a direct sales lead for your products.'
+                  ? 'حضور محصول در مرحلهٔ طراحی، فرصت دیده‌شدن حرفه‌ای برند شما را میان معماران و مهندسان بیشتر می‌کند.' 
+                  : 'Bringing product information into the design stage can increase your brand’s professional visibility among architects and engineers.'
                 }
               </p>
             </div>
@@ -1580,12 +1583,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 </span>
               </div>
               <h4 className="text-sm font-black text-gray-900 dark:text-white leading-snug">
-                {isRtl ? 'ورود به دنیای BIM بدون هزینه' : 'Zero-Cost BIM Onboarding'}
+                {isRtl ? 'شروعی ساده برای ورود به BIM' : 'A Simple Start in BIM'}
               </h4>
               <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed font-normal mt-2">
                 {isRtl 
-                  ? 'بدون نیاز به تعهد مالی، اولین فایل‌های BIM و کاتالوگ‌های محصولات خود را بارگذاری کنید؛ بازخورد بازار را بسنجید و سهم فروش خود را توسعه دهید.' 
-                  : 'Upload your first BIM files and product catalogs without financial commitment; analyze market fit and grow your sales pipeline.'
+                  ? 'معرفی برند و محصولتان را از یک مسیر ساده آغاز کنید. اطلاعات اولیه و کاتالوگ محصول را ارسال کنید؛ مسیر آماده‌سازی، ارزیابی فایل یا انتشار با شما هماهنگ می‌شود.' 
+                  : 'Start with your brand and product information. Share the initial catalog and we will coordinate the appropriate preparation, evaluation, or publication path with you.'
                 }
               </p>
             </div>
@@ -1654,8 +1657,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
               </h2>
               <p className="text-xs sm:text-sm text-gray-300 leading-relaxed">
                 {isRtl 
-                  ? 'مهندسان ایرانی روزانه ساعت‌ها وقت ارزشمند خود را صرف مدلسازی دستی درها، پنجره‌ها و تجهیزات می‌کنند، یا به کاتالوگ‌های خارجی پناه می‌برند که هیچ تطابقی با ابعاد، متریال و زنجیره تامین بازار مصالح کشورمان ندارد. ایران‌بیم‌هاب این خلاء بزرگ را حل کرده است.' 
-                  : 'Iranian AEC professionals waste hours manually modeling doors, windows, and equipment, or rely on foreign catalogs that mismatch local standards, sizes, and active suppliers. IranBIMhub fills this gap.'}
+                  ? 'مهندسان ایرانی روزانه ساعت‌ها وقت ارزشمند خود را صرف مدلسازی دستی درها، پنجره‌ها و تجهیزات می‌کنند، یا به کاتالوگ‌های خارجی پناه می‌برند که هیچ تطابقی با ابعاد، متریال و زنجیره تامین بازار مصالح کشورمان ندارد. ایران‌بیم‌هاب برای پاسخ‌دادن به این خلأ، در حال ساخت مسیری بومی و قابل‌اعتماد است.' 
+                  : 'Iranian AEC professionals waste hours manually modeling doors, windows, and equipment, or rely on foreign catalogs that mismatch local standards, sizes, and active suppliers. IranBIMhub is building a local and reliable path to address this gap.'}
               </p>
               
               <div className="pt-2">
@@ -1688,185 +1691,31 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
       </section>
 
-      {/* 7. TESTIMONIALS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6" id="homepage-testimonials-preview">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-gray-150/50 dark:border-gray-800/60 pb-4">
-          <div className="text-start space-y-1 flex-1">
-            <h2 className="text-base sm:text-lg font-black text-gray-800 dark:text-gray-200 flex items-center gap-2">
-              <MessageSquare className="w-5 h-5 text-[#26B6B6] shrink-0" />
-              <span>{isRtl ? 'بازخوردهای اولیه و گفت‌وگوهای تخصصی' : 'Early Feedback & Expert Conversations'}</span>
-            </h2>
-            <p className="text-[10.5px] sm:text-xs text-gray-400 font-medium">
-              {isRtl
-                ? 'دیدگاه‌ها و گفت‌وگوهای اولیه درباره نیاز بازار BIM ایران'
-                : 'Early conversations about the BIM needs of Iran’s construction market'}
-            </p>
-          </div>
-        </div>
-
-        <div className="relative group/testimonials">
-          {/* Soft edge gradients */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 sm:w-16 bg-gradient-to-r from-white dark:from-gray-950 to-transparent" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 sm:w-16 bg-gradient-to-l from-white dark:from-gray-950 to-transparent" />
-
-          {/* Glass side navigation buttons */}
-          <button
-            type="button"
-            onClick={() => scrollTestimonials('left')}
-            className="absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/75 dark:bg-gray-950/70 backdrop-blur-xl border border-white/70 dark:border-gray-800/80 shadow-lg flex items-center justify-center text-gray-700 dark:text-gray-200 hover:text-[#26B6B6] hover:border-[#26B6B6]/40 hover:bg-white/90 dark:hover:bg-gray-900/90 transition-all active:scale-95 cursor-pointer"
-            aria-label={isRtl ? 'اسکرول به چپ' : 'Scroll left'}
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => scrollTestimonials('right')}
-            className="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/75 dark:bg-gray-950/70 backdrop-blur-xl border border-white/70 dark:border-gray-800/80 shadow-lg flex items-center justify-center text-gray-700 dark:text-gray-200 hover:text-[#26B6B6] hover:border-[#26B6B6]/40 hover:bg-white/90 dark:hover:bg-gray-900/90 transition-all active:scale-95 cursor-pointer"
-            aria-label={isRtl ? 'اسکرول به راست' : 'Scroll right'}
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-
-          <div
-            ref={testimonialScrollRef}
-            dir={isRtl ? 'rtl' : 'ltr'}
-            onMouseEnter={() => setIsTestimonialsHovered(true)}
-            onMouseLeave={() => {
-              setIsTestimonialsHovered(false);
-              handleTestimonialsMouseUpOrLeave();
-            }}
-            onMouseDown={handleTestimonialsMouseDown}
-            onMouseMove={handleTestimonialsMouseMove}
-            onMouseUp={handleTestimonialsMouseUpOrLeave}
-            onTouchStart={handleTestimonialsTouchStart}
-            onTouchMove={handleTestimonialsTouchMove}
-            onTouchEnd={handleTestimonialsTouchEnd}
-            onClickCapture={handleTestimonialsClickCapture}
-            onDragStart={handleTestimonialsDragStart}
-            className="flex overflow-x-auto scrollbar-none overscroll-x-contain [touch-action:pan-x] select-none cursor-grab active:cursor-grabbing"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
-          >
-            <div className="flex gap-4 sm:gap-6 py-2 px-1 sm:px-2 shrink-0">
-              {[1, 2, 3].map((groupIndex) => (
-                <div key={`testimonial-group-${groupIndex}`} className="flex gap-4 sm:gap-6 shrink-0">
-                  {MOCK_REVIEWS.map((rev) => (
-                    <div
-                      key={`testimonial-${groupIndex}-${rev.id}`}
-                      data-testimonial-card
-                      dir={isRtl ? 'rtl' : 'ltr'}
-                      className="flex-shrink-0 w-[280px] sm:w-[340px] md:w-[380px] bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-2xl p-4 sm:p-5 shadow-2xs hover:shadow-xs transition-shadow flex flex-col justify-between text-start relative select-none"
-                    >
-                      <div className="absolute top-4 end-4 text-gray-100 dark:text-gray-800 text-5xl sm:text-6xl font-serif select-none leading-none opacity-50 dark:opacity-30 pointer-events-none">
-                        ”
-                      </div>
-
-                      <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed italic relative z-10 mb-4 line-clamp-4">
-                        "{isRtl ? rev.textFa : rev.textEn}"
-                      </p>
-
-                      <div className="flex items-center gap-3 border-t border-gray-100 dark:border-gray-800/60 pt-3">
-                        <div className="w-9 h-9 bg-[#26B6B6]/10 text-[#26B6B6] rounded-full flex items-center justify-center font-black text-xs shrink-0">
-                          {rev.nameEn.substring(5, 7).trim() || rev.nameEn.substring(0, 2)}
-                        </div>
-
-                        <div className="min-w-0">
-                          <h4 className="text-xs font-black text-gray-800 dark:text-gray-200 truncate">
-                            {isRtl ? rev.nameFa : rev.nameEn}
-                          </h4>
-                          <p className="text-[10px] text-gray-400 dark:text-gray-500 truncate">
-                            {isRtl ? rev.roleFa : rev.roleEn}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ))}
+      {/* 7. EXPERT INSIGHTS — controlled from the admin panel */}
+      {expertInsights.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6" id="homepage-expert-insights">
+          <div className="max-w-2xl text-start space-y-1">
+            <div className="inline-flex items-center gap-2 text-[#26B6B6] text-[10px] font-black">
+              <MessageSquare className="w-4 h-4" />
+              <span>{isRtl ? 'گفت‌وگوی حرفه‌ای' : 'Professional Perspectives'}</span>
             </div>
+            <h2 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white">{isRtl ? 'دیدگاه متخصصان دربارهٔ مسیر ایران‌بیم‌هاب' : 'Specialists on the IranBIMhub Path'}</h2>
+            <p className="text-xs text-gray-400 leading-relaxed">{isRtl ? 'برداشت‌های اولیهٔ متخصصان BIM از مسئلهٔ دادهٔ محصول و فرصت شکل‌گیری یک مسیر بومی در ایران.' : 'Early professional perspectives on product data and a local BIM path in Iran.'}</p>
           </div>
-        </div>
-      </section>
-
-      {/* 8. NEW FEATURED: LEARN / INSIGHTS PREVIEW */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6" id="homepage-learn-hub-preview">
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-gray-100 dark:border-gray-800 pb-4">
-          <div className="text-center sm:text-start">
-            <h2 className="text-xl font-bold text-[#464E56] dark:text-gray-200 flex items-center gap-2 justify-center sm:justify-start">
-              <BookOpen className="w-5 h-5 text-[#26B6B6]" />
-              <span>{isRtl ? 'آخرین مقالات برگزیده' : 'From Our Insights & Learn Hub'}</span>
-            </h2>
-            <p className="text-xs text-gray-400 mt-1">
-              {isRtl ? 'راهنماهای مصور و صریح ۹۰ ثانیه‌ای مخصوص طراحان فاز دو و صاحبان صنایع ساختمانی' : 'Scannable industry analysis, 90-second guidelines, and marketing tactics.'}
-            </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {expertInsights.map((insight) => (
+              <article key={insight.id} className="bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-2xl p-5 text-start shadow-2xs flex flex-col">
+                <MessageSquare className="w-5 h-5 text-[#26B6B6] mb-4" />
+                <p className="text-xs text-gray-600 dark:text-gray-300 leading-7 flex-1">«{isRtl ? insight.quoteFa : insight.quoteEn}»</p>
+                <div className="mt-5 pt-4 border-t border-gray-100 dark:border-gray-800">
+                  <p className="text-xs font-black text-gray-800 dark:text-white">{isRtl ? insight.nameFa : insight.nameEn}</p>
+                  <p className="text-[10px] text-gray-400 mt-1">{isRtl ? insight.roleFa : insight.roleEn}</p>
+                </div>
+              </article>
+            ))}
           </div>
-          
-          <button
-            onClick={() => {
-              onNavigate('learn');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            className="text-xs font-black text-[#26B6B6] hover:text-[#1e9494] transition-colors cursor-pointer"
-          >
-            {isRtl ? 'ورود به بخش مقالات ←' : 'Open Learn Hub →'}
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {ARTICLES.slice(0, 3).map(art => {
-            const title = language === 'fa' ? art.titleFa : art.titleEn;
-            const summary = language === 'fa' ? art.summaryFa : art.summaryEn;
-            return (
-              <div
-                key={art.id}
-                onClick={() => {
-                  localStorage.setItem('selected_learn_article_id', art.id);
-                  onNavigate('learn');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                className="bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-2xl overflow-hidden shadow-2xs hover:shadow-xs hover:-translate-y-0.5 transition-all cursor-pointer flex flex-col justify-between text-start group h-full"
-              >
-                <div>
-                  <div className="relative h-[150px] overflow-hidden bg-gray-150 dark:bg-gray-800">
-                    <img 
-                      src={art.imageUrl} 
-                      alt={title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                  </div>
-                  <div className="p-4 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[9px] font-black text-[#26B6B6] bg-[#26B6B6]/5 px-2 py-0.5 rounded">
-                        {art.category === 'basics' && (isRtl ? 'مبانی بیم' : 'BIM Basics')}
-                        {art.category === 'business' && (isRtl ? 'ارزش تجاری' : 'Business Value')}
-                        {art.category === 'market' && (isRtl ? 'بازار ایران' : 'Iran Market')}
-                        {art.category === 'guides' && (isRtl ? 'راهنما' : 'Guides')}
-                      </span>
-                      <span className="text-[9px] text-gray-400 font-mono">
-                        {language === 'fa' ? art.readTimeFa : art.readTimeEn}
-                      </span>
-                    </div>
-                    <h4 className="text-xs sm:text-sm font-black text-gray-800 dark:text-white line-clamp-2 group-hover:text-[#26B6B6] transition-colors leading-snug">
-                      {title}
-                    </h4>
-                    <p className="text-[11px] text-gray-400 line-clamp-3 leading-relaxed font-light">
-                      {summary}
-                    </p>
-                  </div>
-                </div>
-                <div className="p-4 pt-0 text-[10px] font-bold text-[#26B6B6] border-t border-gray-50 dark:border-gray-800/60 mt-2 flex justify-between items-center">
-                  <span>{isRtl ? 'مطالعه خلاصه ۹۰ ثانیه‌ای ←' : 'Read 90-Sec Summary →'}</span>
-                  <span className="text-gray-300 dark:text-gray-700 font-mono uppercase text-[9px]">
-                    {art.type}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* 8. LANDING FAQ SECTION */}
       <section className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-10 lg:py-12 text-start space-y-8 border-t border-gray-100 dark:border-gray-800/60 mt-8 sm:mt-10 lg:mt-12">
@@ -1893,26 +1742,26 @@ export const HomeView: React.FC<HomeViewProps> = ({
             {
               qFa: 'آیا دانلود آبجکت‌های بیم در این سایت رایگان است؟',
               qEn: 'Is downloading BIM objects free on this platform?',
-              aFa: 'بله، دسترسی به دایرکتوری و دانلود تمام فمیلی‌ها و آبجکت‌های BIM استاندارد موجود در ایران‌بیم‌هاب برای تمامی طراحان، معماران و مهندسان کشور کاملاً رایگان است.',
-              aEn: 'Yes, searching the product directories and downloading all standardized BIM objects and Revit families on IranBIMhub is completely free for all AEC designers, architects, and consulting engineers.'
+              aFa: 'کتابخانهٔ اولیه در حال تکمیل است. با فعال‌شدن حساب‌های کاربری و انتشار فایل‌های مجاز، دسترسی پایه برای طراحان تا پنج دانلود در روز در نظر گرفته می‌شود.',
+              aEn: 'The initial library is being completed. Once accounts and authorized files are available, the base access is planned for up to five downloads per day.'
             },
             {
               qFa: 'چگونه می‌توانم محصولات تولیدی خود را در این سامانه ثبت کنم؟',
               qEn: 'How can I register my manufacturing catalog on this platform?',
-              aFa: 'تولیدکنندگان محترم می‌توانند با کلیک روی گزینه «برای تولیدکنندگان» و انتخاب طرح رایگان یا حرفه‌ای، درخواست خود را برای مدل‌سازی هوشمند کاتالوگ و ثبت برند صنعتی خود ثبت نمایند. کارشناسان ما فرآیند مدل‌سازی و انطباق استاندارد را آغاز خواهند کرد.',
+              aFa: 'تولیدکنندگان می‌توانند از مسیر «برای تولیدکنندگان» اطلاعات اولیهٔ برند و محصول خود را ثبت کنند. پس از بررسی اولیه، مسیر مناسب آماده‌سازی فایل، ارزیابی یا انتشار با آن‌ها هماهنگ می‌شود.',
               aEn: 'Manufacturers can click \'For Manufacturers\' in the top menu, choose either a Free or Professional plan, and submit their catalogs. Our engineering team will handle the standardized 3D BIM modeling and specifications to publish your models on the live directory.'
             },
             {
               qFa: 'آبجکت‌ها با چه سطحی از جزئیات فنی (LOD) ارائه می‌شوند؟',
               qEn: 'With what Level of Detail (LOD) are the objects modeled?',
-              aFa: 'آبجکت‌های بیم موجود در سامانه با رعایت دقیق ابعاد کاتالوگ واقعی و با سطح جزئیات هندسی و اطلاعاتی استاندارد LOD 300 الی LOD 350 طراحی و ارزیابی می‌شوند تا در برآورد مصالح دقیق کارگاهی بالاترین کارایی را داشته باشند.',
-              aEn: 'All BIM families are engineered reflecting precise actual dimensions and embedded parameters according to LOD 300 to LOD 350 industry specifications, optimizing speed for shop drawings and material takeoffs.'
+              aFa: 'کیفیت هندسه، اطلاعات فنی و قابلیت استفادهٔ آبجکت‌ها بر اساس نیاز هر دستهٔ محصول بررسی می‌شود. سطح اطلاعات و فرمت‌های قابل ارائه در صفحهٔ فنی هر محصول اعلام خواهد شد.',
+              aEn: 'Geometry, technical information, and usability are reviewed according to each product category. Available information levels and formats are listed on each product’s technical page.'
             },
             {
               qFa: 'چه فرمت‌هایی برای فایل‌ها در دسترس است؟',
               qEn: 'What file formats are available?',
-              aFa: 'فایل‌ها عمدتاً در فرمت استاندارد Revit (.rfa) و فرمت باز و استاندارد بین‌المللی IFC به همراه جزئیات ۲بعدی اتوکد (CAD) جهت تطابق کامل با انواع نرم‌افزارهای تخصصی ارائه می‌شوند.',
-              aEn: 'The platform delivers files in native Autodesk Revit (.rfa) formats, open BIM IFC templates, and standard 2D CAD details, providing robust compatibility across all architectural workflows.'
+              aFa: 'فرمت‌های قابل ارائه برای هر محصول، با توجه به فایل‌های منبع و مسیر آماده‌سازی آن مشخص می‌شود. اطلاعات فنی و فایل‌های در دسترس در صفحهٔ همان محصول اعلام خواهند شد.',
+              aEn: 'Available formats are determined by each product’s source files and preparation path. Technical information and accessible files are listed on that product’s page.'
             }
           ].map((faq, idx) => {
             const isOpen = openLandingFaq === idx;

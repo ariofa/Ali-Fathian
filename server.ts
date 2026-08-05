@@ -44,58 +44,21 @@ function getAI() {
 const FALLBACK_DATA = {
   news: [
     {
-      titleFa: "انتشار رسمی استاندارد جهانی IFC 4.3 برای پروژه‌های زیرساخت ترابری",
-      titleEn: "Official global release of IFC 4.3 standard for transport infrastructure digitization",
-      summaryFa: "پروتکل جدید تبادل اطلاعات ساختمان با پوشش یکپارچه مسیرهای جاده‌ای، ریلی و پل‌ها ابلاغ شد.",
-      summaryEn: "buildingSMART International officially publishes the final IFC 4.3 technical framework to enable uniform digital modeling for civil, rail, and road systems.",
-      source: "buildingSMART International",
-      url: "https://www.buildingsmart.org"
+      titleFa: 'کتابخانهٔ اولیهٔ ایران‌بیم‌هاب در حال تکمیل است',
+      titleEn: 'The IranBIMhub initial library is being completed',
+      summaryFa: 'مسیر انتشار محصولات بر اساس منبع معتبر، اطلاعات فنی و وضعیت بررسی هر محصول تکمیل می‌شود.',
+      summaryEn: 'The publication path is completed per product based on a reliable source, technical information, and review status.',
+      source: 'ایران‌بیم‌هاب', url: '#'
     },
     {
-      titleFa: "اتودسک از ابزار جدید سنجش ردپای کربن زنده در نسخه جدید رویت رونمایی کرد",
-      titleEn: "Autodesk introduces instant embodied carbon calculator within standard Revit workflows",
-      summaryFa: "مهندسان سازه و معماران هم‌اکنون می‌توانند گازهای گلخانه‌ای مصالح را حین طراحی فمیلی‌ها ارزیابی کنند.",
-      summaryEn: "New embedded tracking engine allows AEC specifiers to simulate architectural lifecycle carbon expenditures directly from parametric component models.",
-      source: "Autodesk AEC News",
-      url: "https://www.autodesk.com"
-    },
-    {
-      titleFa: "پذیرش سراسری دوقلوهای دیجیتال ابری در مدیریت دارایی‌های کلان‌شهری منطقه",
-      titleEn: "Rapid cloud-based digital twin adoption for municipal asset management regional hubs",
-      summaryFa: "یکپارچه‌سازی سیستم‌های حسگرهای زنده شهری با مدل‌های اطلاعات ساختمان جهت پیش‌بینی تعمیرات.",
-      summaryEn: "Metropolitan authorities report massive utility efficiency gains after tying live IoT sensory streams with spatial BIM asset terminals.",
-      source: "AEC Magazine",
-      url: "https://www.aecmag.com"
-    },
-    {
-      titleFa: "تمدید فراخوان ملی عضویت کارخانجات صنعتی در پرتال پارامتریک ایران‌بیم‌هاب",
-      titleEn: "Extended nationwide call for industrial brand houses joining IranBIMhub specs directory",
-      summaryFa: "تولیدکنندگان مصالح ساختمانی می‌توانند با تبدیل کاتالوگ خود به آبجکت رویت، وارد اسناد خرید پروژه‌ها شوند.",
-      summaryEn: "The National BIM committee extends registration deadlines for building material brands transitioning standard specifications into certified RFA catalogs.",
-      source: "IranBIMhub Technical Desk",
-      url: "https://iranbimhub.ir"
+      titleFa: 'راهنمای آغاز مسیر BIM برای تولیدکنندگان',
+      titleEn: 'A BIM starting guide for manufacturers',
+      summaryFa: 'تولیدکنندگان می‌توانند با کاتالوگ و اطلاعات اولیهٔ محصول، مسیر آماده‌سازی مناسب را بررسی کنند.',
+      summaryEn: 'Manufacturers can start by reviewing the right preparation path using their catalog and initial product information.',
+      source: 'ایران‌بیم‌هاب', url: '#'
     }
   ],
-  manufacturers: [
-    {
-      nameFa: "گروه صنعتی شیشه کاوه",
-      nameEn: "Kaveh Glass Industrial Group",
-      highlightFa: "تولیدکننده پیشرو جام‌های شیشه دوجداره آکوستیک مجهز به کاتالوگ رسمی فمیلی‌های رویت",
-      highlightEn: "Leading acoustic and architectural double-glazed panel exporter with certified Revit catalog library"
-    },
-    {
-      nameFa: "صنایع آلومینیوم آکرول",
-      nameEn: "Akroll Aluminum Systems",
-      highlightFa: "توسعه‌دهنده مقاطع و نمای کرتین‌وال با پارامترهای حرارتی منطبق بر مبحث ۱۹ مقررات ساختمان",
-      highlightEn: "Designer of thermal-break aluminum curtain walls and dynamic windows with integrated energy code properties"
-    },
-    {
-      nameFa: "پارس شوفاژ و تاسیسات مکانیکال",
-      nameEn: "Pars Heating & MEP Systems",
-      highlightFa: "ارائه‌دهنده جامع پکیج‌های گرمایشی و شیرآلات پارامتریک با فمیلی‌های هوشمند اتصالات لوله‌کشی",
-      highlightEn: "First domestic manufacturer of intelligent hydronic heating models supporting exact hydraulic BIM flow simulations"
-    }
-  ]
+  manufacturers: []
 };
 
 // API Endpoint for search grounded BIM ticker

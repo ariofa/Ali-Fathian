@@ -482,33 +482,15 @@ export const Header: React.FC<HeaderProps> = ({
     ? (isRtl ? 'تولیدکننده / صاحب برند' : 'Manufacturer / Brand Owner')
     : (currentUser?.selectedRoles?.slice?.(0, 2)?.join(' / ') || (isRtl ? 'مدل‌ساز BIM / معمار / مهندس' : 'BIM Modeler / Architect / Engineer'));
 
-  // Mock Notification List
-  const mockNotifications = [
-    {
-      id: 1,
-      titleFa: 'به ایران‌بیم‌هاب خوش آمدید! فرآیند احراز هویت اولیه شما با موفقیت انجام شد.',
-      titleEn: 'Welcome to IranBIMhub! Your initial security registration is verified.',
-      timeFa: 'هم‌اکنون',
-      timeEn: 'Just now',
-      unread: true
-    },
-    {
-      id: 2,
-      titleFa: 'کاتالوگ مدل‌های هوشمند BIM شرکت آلوپن به‌روزرسانی شد.',
-      titleEn: 'Alupan Co. smart BIM catalog is updated with thermal-break families.',
-      timeFa: '۲ ساعت پیش',
-      timeEn: '2 hours ago',
-      unread: true
-    },
-    {
-      id: 3,
-      titleFa: 'پلاگین رویت ۲۰۲۶ ایران‌بیم‌هاب با پشتیبانی از سیستم تطبیق اتوماتیک منتشر شد.',
-      titleEn: 'IranBIMhub Revit 2026 plugin published with auto-matching parameters.',
-      timeFa: 'دیروز',
-      timeEn: 'Yesterday',
-      unread: false
-    }
-  ];
+  // Until a real notification service exists, this is an informational note — not a user event.
+  const notifications = [{
+    id: 'platform-note',
+    titleFa: 'کتابخانهٔ اولیهٔ ایران‌بیم‌هاب در حال تکمیل است. برای معرفی برند یا محصول، از مسیر تولیدکنندگان شروع کنید.',
+    titleEn: 'The IranBIMhub initial library is being completed. Start from the manufacturer path to introduce a brand or product.',
+    timeFa: 'ایران‌بیم‌هاب',
+    timeEn: 'IranBIMhub',
+    unread: false
+  }];
 
   return (
     <header className={`sticky top-0 z-50 bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-800 shadow-sm transition-colors ${currentView === 'home' ? 'is-landing-page' : ''}`} dir={isRtl ? 'rtl' : 'ltr'}>
@@ -784,10 +766,10 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className={`absolute ${isRtl ? 'left-0 sm:-left-12' : 'right-0 sm:-right-12'} mt-2.5 w-76 sm:w-80 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 shadow-xl py-3 z-50 text-gray-700 dark:text-gray-200 animate-fadeIn`}>
                   <div className="px-4 pb-2 border-b border-gray-50 dark:border-gray-800 mb-2 font-bold text-xs text-[#26B6B6] flex justify-between items-center">
                     <span>{isRtl ? 'اعلان‌های سیستم' : 'System Notifications'}</span>
-                    <span className="bg-[#26B6B6]/10 text-[#26B6B6] px-2 py-0.5 rounded-full text-[9px] font-extrabold">۲ جدید</span>
+                    <span className="bg-[#26B6B6]/10 text-[#26B6B6] px-2 py-0.5 rounded-full text-[9px] font-extrabold">۱ پیام</span>
                   </div>
                   <div className="max-h-72 overflow-y-auto px-2 space-y-1">
-                    {mockNotifications.map(notif => (
+                    {notifications.map(notif => (
                       <div
                         key={notif.id}
                         className={`p-2.5 rounded-lg transition-colors text-[11px] ${
@@ -1033,17 +1015,17 @@ export const Header: React.FC<HeaderProps> = ({
                     aria-expanded={notificationsOpen}
                   >
                     <Bell className="w-4 h-4" />
-                    <span className="absolute -top-0.5 -end-0.5 min-w-3.5 h-3.5 rounded-full bg-red-500 px-0.5 text-[7px] font-black text-white flex items-center justify-center">2</span>
+                    <span className="absolute -top-0.5 -end-0.5 min-w-3.5 h-3.5 rounded-full bg-red-500 px-0.5 text-[7px] font-black text-white flex items-center justify-center">۱</span>
                   </button>
 
                   {notificationsOpen && (
                     <div className={`absolute ${isRtl ? 'left-0' : 'right-0'} top-full mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xl p-2 z-[80]`}>
                       <div className="flex items-center justify-between gap-2 border-b border-gray-100 dark:border-gray-800 px-2 pb-2 mb-1.5">
                         <span className="text-xs font-black text-[#26B6B6]">{isRtl ? 'اعلان‌ها' : 'Notifications'}</span>
-                        <span className="rounded-full bg-[#26B6B6]/10 px-2 py-0.5 text-[9px] font-black text-[#26B6B6]">2</span>
+                        <span className="rounded-full bg-[#26B6B6]/10 px-2 py-0.5 text-[9px] font-black text-[#26B6B6]">۱</span>
                       </div>
                       <div className="max-h-56 overflow-y-auto space-y-1">
-                        {mockNotifications.map(notif => (
+                        {notifications.map(notif => (
                           <div key={notif.id} className={`rounded-lg p-2.5 text-[10px] ${notif.unread ? 'bg-[#26B6B6]/10 border-s-2 border-[#26B6B6]' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`}>
                             <p className="font-bold leading-relaxed text-gray-800 dark:text-gray-200">{isRtl ? notif.titleFa : notif.titleEn}</p>
                             <span className="mt-1 block text-[8px] text-gray-400 dark:text-gray-500">{isRtl ? notif.timeFa : notif.timeEn}</span>
@@ -1233,12 +1215,12 @@ export const Header: React.FC<HeaderProps> = ({
                         <Bell className="w-4 h-4 text-[#26B6B6]" />
                         <span>{isRtl ? 'اعلان‌ها' : 'Notifications'}</span>
                       </span>
-                      <span className="min-w-5 h-5 rounded-full bg-red-500 px-1 text-[9px] text-white flex items-center justify-center font-black">2</span>
+                      <span className="min-w-5 h-5 rounded-full bg-red-500 px-1 text-[9px] text-white flex items-center justify-center font-black">۱</span>
                     </button>
 
                     {notificationsOpen && (
                       <div className="mt-1 max-h-52 overflow-y-auto rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 p-1.5">
-                        {mockNotifications.map(notif => (
+                        {notifications.map(notif => (
                           <div key={notif.id} className={`rounded-lg p-2.5 text-[10px] ${notif.unread ? 'bg-[#26B6B6]/10 border-s-2 border-[#26B6B6]' : 'hover:bg-white dark:hover:bg-gray-900'}`}>
                             <p className="font-bold leading-relaxed text-gray-800 dark:text-gray-200">{isRtl ? notif.titleFa : notif.titleEn}</p>
                             <span className="mt-1 block text-[8px] text-gray-400 dark:text-gray-500">{isRtl ? notif.timeFa : notif.timeEn}</span>

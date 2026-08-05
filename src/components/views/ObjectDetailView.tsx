@@ -152,6 +152,8 @@ export const ObjectDetailView: React.FC<ObjectDetailViewProps> = ({
   const activeMfg = getDynamicManufacturer();
   const mName = activeMfg ? (isRtl ? activeMfg.nameFa : activeMfg.nameEn) : '';
   const mDesc = activeMfg ? (isRtl ? activeMfg.descriptionFa : activeMfg.descriptionEn) : '';
+  const isProfileTemplate = Boolean(activeMfg?.isSample);
+  const hasPublishableFile = object.formats.length > 0;
 
   const title = isRtl ? object.titleFa : object.titleEn;
   const desc = isRtl ? object.descriptionFa : object.descriptionEn;
@@ -545,7 +547,7 @@ export const ObjectDetailView: React.FC<ObjectDetailViewProps> = ({
               </h1>
             </div>
 
-            <div className="space-y-2.5 pt-2">
+            {hasPublishableFile ? <div className="space-y-2.5 pt-2">
               {object.formats.map(format => (
                 <button
                   key={format}
@@ -559,14 +561,14 @@ export const ObjectDetailView: React.FC<ObjectDetailViewProps> = ({
                   <Download className="w-4 h-4 text-gray-300 group-hover:scale-110 transition-transform" />
                 </button>
               ))}
-            </div>
+            </div> : <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-xs leading-6 text-gray-200">{isRtl ? 'فایل قابل انتشار پس از تکمیل منبع محصول، اطلاعات فنی و بررسی اولیه در دسترس قرار می‌گیرد.' : 'A publishable file will be available after the product source, technical information, and initial review are complete.'}</div>}
 
-            <div className="text-[10px] text-gray-400 text-center font-light pt-2">
+            {hasPublishableFile && <div className="text-[10px] text-gray-400 text-center font-light pt-2">
               {isRtl 
                 ? 'دانلود رایگان به عنوان مهندس عضو، یک کلیک دانلود مستقیم' 
                 : '1-click direct download with registered Modeler profile'
               }
-            </div>
+            </div>}
 
             {/* Copyright & Liability Disclaimer banner */}
             <div className="mt-4 p-3 bg-white/5 border border-white/10 rounded-xl space-y-1.5 text-start">
@@ -647,10 +649,10 @@ export const ObjectDetailView: React.FC<ObjectDetailViewProps> = ({
             </button>
           </div>
 
-          {/* Contact Manufacturer / Lead-gen form */}
+          {/* Contact / request path */}
           <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-2xs space-y-4">
             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider block">
-              {t('contactManufacturer')}
+              {isProfileTemplate ? (isRtl ? 'درخواست افزودن محصول' : 'Request a product') : t('contactManufacturer')}
             </h3>
 
             {formSubmitted ? (
@@ -662,7 +664,7 @@ export const ObjectDetailView: React.FC<ObjectDetailViewProps> = ({
               <form onSubmit={handleSubmitInquiry} className="space-y-3.5">
                 
                 <p className="text-[11px] text-gray-500 leading-normal">
-                  {t('contactFormTitle')}
+                  {isProfileTemplate ? (isRtl ? 'اگر این دسته محصول برای پروژه یا برند شما اهمیت دارد، درخواستتان را ثبت کنید.' : 'Tell us if this product category matters to your project or brand.') : t('contactFormTitle')}
                 </p>
 
                 <div className="space-y-2.5">
@@ -691,8 +693,8 @@ export const ObjectDetailView: React.FC<ObjectDetailViewProps> = ({
                     className="w-full text-xs p-2.5 border border-gray-200 rounded-lg focus:ring-1 focus:ring-[#26B6B6] focus:outline-none"
                   />
                   
-                  {/* Boolean Option Checks */}
-                  <div className="space-y-1.5 pt-1">
+                  {/* Product requests are only shown once a real published brand exists. */}
+                  {!isProfileTemplate && <div className="space-y-1.5 pt-1">
                     <label className="flex items-center gap-2 text-xs text-gray-600 select-none cursor-pointer">
                       <input
                         type="checkbox"
@@ -712,7 +714,7 @@ export const ObjectDetailView: React.FC<ObjectDetailViewProps> = ({
                       />
                       <span>{isRtl ? 'درخواست قیمت پروژه و شرایط تحویل' : 'Request quote & construction discount'}</span>
                     </label>
-                  </div>
+                  </div>}
 
                   <textarea
                     required

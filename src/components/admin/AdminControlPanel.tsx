@@ -2564,6 +2564,47 @@ export const AdminControlPanel: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Expert Insights Manager */}
+                <div className="bg-white dark:bg-slate-950 border border-gray-150 dark:border-slate-800 p-6 rounded-3xl lg:col-span-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                    <div>
+                      <h4 className="text-sm font-black text-gray-800 dark:text-white">{isRtl ? 'دیدگاه متخصصان BIM' : 'BIM Expert Insights'}</h4>
+                      <p className="text-[10px] text-gray-500 mt-1">{isRtl ? 'این بخش برای دیدگاه‌های واقعی و تأییدشدهٔ متخصصان است؛ نه رضایت مشتری یا نظر ساختگی.' : 'Use this for real, approved professional perspectives — not fabricated testimonials.'}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setLocalConfig({ ...localConfig, expertInsights: [...(localConfig.expertInsights || []), { id: `insight-${Date.now()}`, nameFa: '', nameEn: '', roleFa: '', roleEn: '', quoteFa: '', quoteEn: '', profileUrl: '', isPublished: false }] })}
+                      className="px-3 py-2 bg-[#26B6B6]/10 text-[#087F7A] dark:text-[#22D3EE] text-xs font-black rounded-xl hover:bg-[#26B6B6]/20 transition-colors cursor-pointer"
+                    >{isRtl ? '+ افزودن دیدگاه' : '+ Add insight'}</button>
+                  </div>
+                  <div className="space-y-4">
+                    {(localConfig.expertInsights || []).map((item: any, index: number) => (
+                      <div key={item.id || index} className="rounded-2xl border border-gray-150 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-4 space-y-3">
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-[10px] font-black text-[#087F7A] dark:text-[#22D3EE]">{isRtl ? `دیدگاه ${index + 1}` : `Insight ${index + 1}`}</span>
+                          <div className="flex items-center gap-3">
+                            <label className="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 cursor-pointer">
+                              <input type="checkbox" checked={Boolean(item.isPublished)} onChange={(e) => { const rows = [...(localConfig.expertInsights || [])]; rows[index] = { ...rows[index], isPublished: e.target.checked }; setLocalConfig({ ...localConfig, expertInsights: rows }); }} className="accent-[#0FB9B1]" />
+                              {isRtl ? 'نمایش عمومی' : 'Publish'}
+                            </label>
+                            <button type="button" onClick={() => { const rows = [...(localConfig.expertInsights || [])]; rows.splice(index, 1); setLocalConfig({ ...localConfig, expertInsights: rows }); }} className="text-[10px] font-bold text-rose-500 hover:text-rose-600 cursor-pointer">{isRtl ? 'حذف' : 'Delete'}</button>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <input value={item.nameFa || ''} onChange={(e) => { const rows = [...(localConfig.expertInsights || [])]; rows[index] = { ...rows[index], nameFa: e.target.value }; setLocalConfig({ ...localConfig, expertInsights: rows }); }} placeholder={isRtl ? 'نام و نام خانوادگی — فارسی' : 'Name — Persian'} className="rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs" />
+                          <input value={item.roleFa || ''} onChange={(e) => { const rows = [...(localConfig.expertInsights || [])]; rows[index] = { ...rows[index], roleFa: e.target.value }; setLocalConfig({ ...localConfig, expertInsights: rows }); }} placeholder={isRtl ? 'نقش حرفه‌ای — فارسی' : 'Role — Persian'} className="rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs" />
+                          <textarea value={item.quoteFa || ''} onChange={(e) => { const rows = [...(localConfig.expertInsights || [])]; rows[index] = { ...rows[index], quoteFa: e.target.value }; setLocalConfig({ ...localConfig, expertInsights: rows }); }} placeholder={isRtl ? 'متن دیدگاه واقعی و تأییدشده — فارسی' : 'Approved perspective — Persian'} rows={3} className="md:col-span-2 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs leading-6" />
+                          <input value={item.nameEn || ''} onChange={(e) => { const rows = [...(localConfig.expertInsights || [])]; rows[index] = { ...rows[index], nameEn: e.target.value }; setLocalConfig({ ...localConfig, expertInsights: rows }); }} placeholder="Name — English" dir="ltr" className="rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs" />
+                          <input value={item.roleEn || ''} onChange={(e) => { const rows = [...(localConfig.expertInsights || [])]; rows[index] = { ...rows[index], roleEn: e.target.value }; setLocalConfig({ ...localConfig, expertInsights: rows }); }} placeholder="Role — English" dir="ltr" className="rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs" />
+                          <textarea value={item.quoteEn || ''} onChange={(e) => { const rows = [...(localConfig.expertInsights || [])]; rows[index] = { ...rows[index], quoteEn: e.target.value }; setLocalConfig({ ...localConfig, expertInsights: rows }); }} placeholder="Approved perspective — English" dir="ltr" rows={3} className="md:col-span-2 rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs leading-6" />
+                        </div>
+                      </div>
+                    ))}
+                    {(localConfig.expertInsights || []).length === 0 && <div className="rounded-xl border border-dashed border-gray-200 dark:border-slate-700 py-7 text-center text-xs text-gray-400">{isRtl ? 'هنوز دیدگاهی ثبت نشده است.' : 'No insights have been added yet.'}</div>}
+                  </div>
+                  <button type="button" onClick={handleSaveThemeConfig} className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#0FB9B1] hover:bg-[#087F7A] px-4 py-2 text-xs font-black text-white cursor-pointer"><CheckCircle className="w-4 h-4" />{isRtl ? 'ذخیره دیدگاه‌ها' : 'Save insights'}</button>
+                </div>
+
                 {/* Footer Settings */}
                 <div className="bg-white dark:bg-slate-950 border border-gray-150 dark:border-slate-800 p-6 rounded-3xl space-y-4">
                   <h4 className="text-sm font-bold text-gray-800 dark:text-white mb-2">

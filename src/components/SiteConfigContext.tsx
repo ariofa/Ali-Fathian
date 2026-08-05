@@ -1,5 +1,17 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
+export interface ExpertInsight {
+  id: string;
+  nameFa: string;
+  nameEn: string;
+  roleFa: string;
+  roleEn: string;
+  quoteFa: string;
+  quoteEn: string;
+  profileUrl?: string;
+  isPublished: boolean;
+}
+
 export interface SiteConfig {
   landingPageOrder: string[];
   manufacturerHeroVideoUrl?: string;
@@ -28,6 +40,7 @@ export interface SiteConfig {
     telegram: string;
     website: string;
   };
+  expertInsights?: ExpertInsight[];
   faq: {
     qFa: string;
     qEn: string;
