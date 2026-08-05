@@ -245,23 +245,8 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
   const [historySearch, setHistorySearch] = useState('');
   const [historyFormat, setHistoryFormat] = useState('all');
 
-  // Platform notifications list
-  const [notifications, setNotifications] = useState([
-    {
-      id: 'n-1',
-      title: isRtl ? 'به‌روزرسانی موفق کاتالوگ آلوپن' : 'Alupan Catalog Updated',
-      body: isRtl ? 'مستندات و فایلهای Revit آبجکت پنجره آلو-۹۰ به نسخه ۲۰۲۶ آپدیت شد.' : 'Revit 2026 family file has been uploaded for Alu-90.',
-      time: isRtl ? '۲ ساعت پیش' : '2 hours ago',
-      read: false
-    },
-    {
-      id: 'n-2',
-      title: isRtl ? 'باقیمانده ترافیک دانلود روزانه' : 'Daily Download Limit Reminder',
-      body: isRtl ? 'شما ۲ دانلود از ۵ دانلود روزانه خود را انجام داده‌اید. هم‌اکنون می‌توانید به VIP ارتقا دهید.' : 'You have completed 2 of your 5 daily downloads. Upgrade to VIP for unlimited access.',
-      time: isRtl ? '۱ روز پیش' : '1 day ago',
-      read: true
-    }
-  ]);
+  // Notification data is supplied by the backend when the service is active.
+  const [notifications, setNotifications] = useState<any[]>([]);
 
   // Profile Form States
   const [profileName, setProfileName] = useState(currentUser?.fullName || currentUser?.name || '');

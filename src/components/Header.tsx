@@ -14,7 +14,6 @@ import {
   ChevronDown,
   ChevronRight,
   LogOut,
-  Bell,
   X,
   CreditCard,
   Download,
@@ -66,7 +65,6 @@ export const Header: React.FC<HeaderProps> = ({
   const [hoveredCategoryId, setHoveredCategoryId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
@@ -199,8 +197,6 @@ export const Header: React.FC<HeaderProps> = ({
   const categoryPanelRef = useRef<HTMLDivElement>(null);
   const desktopAccountRef = useRef<HTMLDivElement>(null);
   const mobileAccountRef = useRef<HTMLDivElement>(null);
-  const desktopNotificationsRef = useRef<HTMLDivElement>(null);
-  const mobileNotificationsRef = useRef<HTMLDivElement>(null);
 
   // Sync searchQuery when search filter updates
   useEffect(() => {
@@ -234,11 +230,6 @@ export const Header: React.FC<HeaderProps> = ({
       const clickedOutsideMobileAccount = !mobileAccountRef.current || !mobileAccountRef.current.contains(target);
       if (clickedOutsideDesktopAccount && clickedOutsideMobileAccount) {
         setAccountDropdownOpen(false);
-      }
-      const clickedOutsideDesktopNotifications = !desktopNotificationsRef.current || !desktopNotificationsRef.current.contains(target);
-      const clickedOutsideMobileNotifications = !mobileNotificationsRef.current || !mobileNotificationsRef.current.contains(target);
-      if (clickedOutsideDesktopNotifications && clickedOutsideMobileNotifications) {
-        setNotificationsOpen(false);
       }
       if (desktopSearchRef.current && !desktopSearchRef.current.contains(target)) {
         setShowAutocomplete(false);
@@ -281,7 +272,6 @@ export const Header: React.FC<HeaderProps> = ({
     if (!mobileSearchOpen) return;
 
     setAccountDropdownOpen(false);
-    setNotificationsOpen(false);
     setCategoriesDropdownOpen(false);
     setIsSearchFocused(true);
 
@@ -456,7 +446,6 @@ export const Header: React.FC<HeaderProps> = ({
   const handleMobileMenuNavigate = (view: string) => {
     setMobileMenuOpen(false);
     setMobileSearchOpen(false);
-    setNotificationsOpen(false);
     setShowAutocomplete(false);
     setIsSearchFocused(false);
     onNavigate(view);
@@ -482,15 +471,6 @@ export const Header: React.FC<HeaderProps> = ({
     ? (isRtl ? 'تولیدکننده / صاحب برند' : 'Manufacturer / Brand Owner')
     : (currentUser?.selectedRoles?.slice?.(0, 2)?.join(' / ') || (isRtl ? 'مدل‌ساز BIM / معمار / مهندس' : 'BIM Modeler / Architect / Engineer'));
 
-  // Until a real notification service exists, this is an informational note — not a user event.
-  const notifications = [{
-    id: 'platform-note',
-    titleFa: 'کتابخانهٔ اولیهٔ ایران‌بیم‌هاب در حال تکمیل است. برای معرفی برند یا محصول، از مسیر تولیدکنندگان شروع کنید.',
-    titleEn: 'The IranBIMhub initial library is being completed. Start from the manufacturer path to introduce a brand or product.',
-    timeFa: 'ایران‌بیم‌هاب',
-    timeEn: 'IranBIMhub',
-    unread: false
-  }];
 
   return (
     <header className={`sticky top-0 z-50 bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-800 shadow-sm transition-colors ${currentView === 'home' ? 'is-landing-page' : ''}`} dir={isRtl ? 'rtl' : 'ltr'}>
@@ -744,53 +724,6 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* Standalone dark mode toggle removed here, it's enough inside the account menu */}
 
-            {/* 2. Interactive Notifications Bell */}
-            <div className="relative" ref={desktopNotificationsRef}>
-              <button
-                onClick={() => setNotificationsOpen(!notificationsOpen)}
-                className={`p-2 rounded-full transition-all cursor-pointer flex items-center justify-center h-9 w-9 border border-gray-200/60 dark:border-gray-800/80 ${
-                  notificationsOpen
-                    ? 'bg-slate-100 dark:bg-gray-900 text-[#26B6B6]'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-[#26B6B6] hover:bg-gray-50 dark:hover:bg-gray-900'
-                }`}
-                title={isRtl ? 'اعلان‌ها' : 'Notifications'}
-              >
-                <Bell className="w-4 h-4" />
-                <span className="absolute top-1.5 right-1.5 bg-red-500 text-white font-mono text-[8px] font-bold w-3.5 h-3.5 rounded-full flex items-center justify-center leading-none">
-                  2
-                </span>
-              </button>
-
-              {/* Notifications Dropdown Panel */}
-              {notificationsOpen && (
-                <div className={`absolute ${isRtl ? 'left-0 sm:-left-12' : 'right-0 sm:-right-12'} mt-2.5 w-76 sm:w-80 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 shadow-xl py-3 z-50 text-gray-700 dark:text-gray-200 animate-fadeIn`}>
-                  <div className="px-4 pb-2 border-b border-gray-50 dark:border-gray-800 mb-2 font-bold text-xs text-[#26B6B6] flex justify-between items-center">
-                    <span>{isRtl ? 'اعلان‌های سیستم' : 'System Notifications'}</span>
-                    <span className="bg-[#26B6B6]/10 text-[#26B6B6] px-2 py-0.5 rounded-full text-[9px] font-extrabold">۱ پیام</span>
-                  </div>
-                  <div className="max-h-72 overflow-y-auto px-2 space-y-1">
-                    {notifications.map(notif => (
-                      <div
-                        key={notif.id}
-                        className={`p-2.5 rounded-lg transition-colors text-[11px] ${
-                          notif.unread
-                            ? 'bg-[#26B6B6]/5 dark:bg-[#26B6B6]/10 border-r-2 border-[#26B6B6]'
-                            : 'hover:bg-gray-50 dark:hover:bg-gray-800'
-                        }`}
-                      >
-                        <p className="font-medium text-gray-800 dark:text-gray-200 leading-normal">
-                          {isRtl ? notif.titleFa : notif.titleEn}
-                        </p>
-                        <span className="text-[9px] text-gray-400 dark:text-gray-500 block mt-1">
-                          {isRtl ? notif.timeFa : notif.timeEn}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
             {/* 3. Account Dropdown (Avatar) */}
             <div className="relative" ref={desktopAccountRef}>
               <button
@@ -949,8 +882,7 @@ export const Header: React.FC<HeaderProps> = ({
                 onClick={() => {
                   setMobileMenuOpen(prev => !prev);
                   setMobileSearchOpen(false);
-                  setNotificationsOpen(false);
-                  setShowAutocomplete(false);
+                              setShowAutocomplete(false);
                   setIsSearchFocused(false);
                 }}
                 className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-all cursor-pointer active:scale-95 ${
@@ -983,8 +915,7 @@ export const Header: React.FC<HeaderProps> = ({
                   setMobileSearchOpen(prev => !prev);
                   setMobileMenuOpen(false);
                   setAccountDropdownOpen(false);
-                  setNotificationsOpen(false);
-                }}
+                            }}
                 className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-all duration-200 cursor-pointer active:scale-95 ${
                   mobileSearchOpen
                     ? 'bg-[#26B6B6] border-[#26B6B6] text-white shadow-[0_8px_20px_rgba(38,182,182,0.25)]'
@@ -998,52 +929,11 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
 
               {currentUser && (
-                <div className="relative" ref={mobileNotificationsRef}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setNotificationsOpen(prev => !prev);
-                      setMobileMenuOpen(false);
-                      setAccountDropdownOpen(false);
-                    }}
-                    className={`relative flex h-8 w-8 items-center justify-center rounded-full border transition-colors cursor-pointer ${
-                      notificationsOpen
-                        ? 'bg-[#26B6B6]/10 border-[#26B6B6]/30 text-[#26B6B6]'
-                        : 'border-gray-200/60 dark:border-gray-800/80 text-gray-500 dark:text-gray-400 hover:text-[#26B6B6] hover:bg-gray-50 dark:hover:bg-gray-900'
-                    }`}
-                    aria-label={isRtl ? 'اعلان‌ها' : 'Notifications'}
-                    aria-expanded={notificationsOpen}
-                  >
-                    <Bell className="w-4 h-4" />
-                    <span className="absolute -top-0.5 -end-0.5 min-w-3.5 h-3.5 rounded-full bg-red-500 px-0.5 text-[7px] font-black text-white flex items-center justify-center">۱</span>
-                  </button>
-
-                  {notificationsOpen && (
-                    <div className={`absolute ${isRtl ? 'left-0' : 'right-0'} top-full mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xl p-2 z-[80]`}>
-                      <div className="flex items-center justify-between gap-2 border-b border-gray-100 dark:border-gray-800 px-2 pb-2 mb-1.5">
-                        <span className="text-xs font-black text-[#26B6B6]">{isRtl ? 'اعلان‌ها' : 'Notifications'}</span>
-                        <span className="rounded-full bg-[#26B6B6]/10 px-2 py-0.5 text-[9px] font-black text-[#26B6B6]">۱</span>
-                      </div>
-                      <div className="max-h-56 overflow-y-auto space-y-1">
-                        {notifications.map(notif => (
-                          <div key={notif.id} className={`rounded-lg p-2.5 text-[10px] ${notif.unread ? 'bg-[#26B6B6]/10 border-s-2 border-[#26B6B6]' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`}>
-                            <p className="font-bold leading-relaxed text-gray-800 dark:text-gray-200">{isRtl ? notif.titleFa : notif.titleEn}</p>
-                            <span className="mt-1 block text-[8px] text-gray-400 dark:text-gray-500">{isRtl ? notif.timeFa : notif.timeEn}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {currentUser && (
                 <button
                   type="button"
                   onClick={() => {
                     setLanguage(language === 'fa' ? 'en' : 'fa');
-                    setNotificationsOpen(false);
-                  }}
+                                }}
                   className="flex h-8 min-w-9 shrink-0 items-center justify-center gap-1 rounded-full border border-gray-200/60 dark:border-gray-800/80 px-1.5 text-[8px] font-black text-[#26B6B6] hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer"
                   title={language === 'fa' ? 'Switch to English' : 'تغییر به فارسی'}
                 >
@@ -1063,8 +953,7 @@ export const Header: React.FC<HeaderProps> = ({
                     setAccountDropdownOpen(prev => !prev);
                     setMobileMenuOpen(false);
                     setMobileSearchOpen(false);
-                    setNotificationsOpen(false);
-                  }}
+                                }}
                   className={`flex items-center justify-center rounded-full border transition-all cursor-pointer active:scale-95 ${
                     currentUser
                       ? 'h-9 w-9 border-[#26B6B6]/40 bg-[#26B6B6]/5 text-[#26B6B6]'
@@ -1202,34 +1091,6 @@ export const Header: React.FC<HeaderProps> = ({
 
                 {!currentUser && (
                   <>
-                <div ref={mobileNotificationsRef} className="relative">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setNotificationsOpen(prev => !prev);
-                        setMobileSearchOpen(false);
-                      }}
-                      className={`w-full flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black transition-colors cursor-pointer ${notificationsOpen ? 'bg-[#26B6B6]/10 text-[#26B6B6]' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
-                    >
-                      <span className="flex items-center gap-3">
-                        <Bell className="w-4 h-4 text-[#26B6B6]" />
-                        <span>{isRtl ? 'اعلان‌ها' : 'Notifications'}</span>
-                      </span>
-                      <span className="min-w-5 h-5 rounded-full bg-red-500 px-1 text-[9px] text-white flex items-center justify-center font-black">۱</span>
-                    </button>
-
-                    {notificationsOpen && (
-                      <div className="mt-1 max-h-52 overflow-y-auto rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 p-1.5">
-                        {notifications.map(notif => (
-                          <div key={notif.id} className={`rounded-lg p-2.5 text-[10px] ${notif.unread ? 'bg-[#26B6B6]/10 border-s-2 border-[#26B6B6]' : 'hover:bg-white dark:hover:bg-gray-900'}`}>
-                            <p className="font-bold leading-relaxed text-gray-800 dark:text-gray-200">{isRtl ? notif.titleFa : notif.titleEn}</p>
-                            <span className="mt-1 block text-[8px] text-gray-400 dark:text-gray-500">{isRtl ? notif.timeFa : notif.timeEn}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
                   <button
                     type="button"
                     onClick={() => {
