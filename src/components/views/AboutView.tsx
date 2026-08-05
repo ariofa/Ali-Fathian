@@ -741,7 +741,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
     const searchString = mfgSearch.toLowerCase();
     const name = (isRtl ? mfg.nameFa : mfg.nameEn).toLowerCase();
     const desc = (isRtl ? mfg.descriptionFa : mfg.descriptionEn).toLowerCase();
-    const addr = (isRtl ? mfg.addressFa : mfg.addressEn).toLowerCase();
+    const addr = ((isRtl ? mfg.addressFa : mfg.addressEn) || '').toLowerCase();
     return name.includes(searchString) || desc.includes(searchString) || addr.includes(searchString);
   });
 
@@ -814,7 +814,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
                       )}
                     </h3>
                     <p className="text-[10px] text-gray-400 mt-0.5">
-                      {isRtl ? mfg.addressFa : mfg.addressEn}
+                      {isRtl ? (mfg.addressFa || 'ساختار نمونهٔ قابل شخصی‌سازی') : (mfg.addressEn || 'Customizable profile template')}
                     </p>
                   </div>
                 </div>

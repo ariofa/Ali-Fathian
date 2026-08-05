@@ -197,18 +197,18 @@ export const SLIDE_CONFIGS = [
   },
   {
     id: 'start',
-    labelFa: 'شروع همکاری',
-    labelEn: 'Start',
+    labelFa: 'شروع مسیر',
+    labelEn: 'Begin',
     numFa: '۰۵',
     numEn: '05',
     bgImage: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=1600&q=80',
     overlay: 'bg-gradient-to-r from-slate-950/95 via-slate-900/90 to-[#1E2326]/85',
-    badgeFa: 'شروع همکاری و عضویت اولیه',
-    badgeEn: 'Start Your Early Access',
-    headingFa: 'از امروز وارد جریان BIM ایران شوید',
-    headingEn: 'Join the BIM Movement in Iran Today',
-    descFa: 'چه طراح باشید، چه تولیدکننده یا متخصص BIM؛ می‌توانید در نسخه اولیه ایران‌بیم‌هاب همراه ما باشید و به شکل‌گیری مسیر قابل اعتماد BIM در صنعت ساختمان ایران کمک کنید.',
-    descEn: 'Whether you are a designer, manufacturer or BIM specialist, you can join IranBIMhub early and help shape a trusted BIM path in Iran’s construction industry.'
+    badgeFa: 'برای معماران، برندها و متخصصان BIM',
+    badgeEn: 'For Architects, Brands & BIM Specialists',
+    headingFa: 'مسیر حرفه‌ای خود را در BIM از همین‌جا آغاز کنید',
+    headingEn: 'Begin Your Professional BIM Path Here',
+    descFa: 'چه طراح باشید، چه تولیدکننده یا متخصص BIM؛ می‌توانید در نسخهٔ اولیهٔ ایران‌بیم‌هاب همراه ما باشید و به شکل‌گیری مسیر قابل‌اعتماد BIM در صنعت ساختمان ایران کمک کنید.',
+    descEn: 'Explore the initial library, introduce your brand or product, and help shape a specialized and trusted path.'
   }
 ];
 

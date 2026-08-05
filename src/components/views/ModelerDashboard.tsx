@@ -64,7 +64,7 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
 }) => {
   const { language, t, isRtl, formatNumber } = useLanguage();
   const [activeTab, setActiveTab] = useState<DashboardSection>('overview');
-  const [workspaceMode, setWorkspaceMode] = useState<'simple' | 'professional'>(() => (localStorage.getItem('iranbimhub_modeler_workspace_mode') === 'professional' ? 'professional' : 'simple'));
+  const [workspaceMode, setWorkspaceMode] = useState<'simple' | 'professional'>(() => (localStorage.getItem('iranbimhub_modeler_workspace_mode') === 'simple' ? 'simple' : 'professional'));
   const advancedTabs: DashboardSection[] = ['subscription', 'projects', 'collections'];
 
   useEffect(() => {

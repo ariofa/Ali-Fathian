@@ -96,7 +96,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
 }) => {
   const { language, t, isRtl, formatNumber } = useLanguage();
   const [activeTab, setActiveTab] = useState<MFGTab>('overview');
-  const [workspaceMode, setWorkspaceMode] = useState<'simple' | 'professional'>(() => (localStorage.getItem('iranbimhub_mfg_workspace_mode') === 'professional' ? 'professional' : 'simple'));
+  const [workspaceMode, setWorkspaceMode] = useState<'simple' | 'professional'>(() => (localStorage.getItem('iranbimhub_mfg_workspace_mode') === 'simple' ? 'simple' : 'professional'));
   const advancedTabs: MFGTab[] = ['followers', 'subscription', 'analytics', 'approval-chat'];
 
   useEffect(() => {

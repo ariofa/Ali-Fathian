@@ -158,9 +158,7 @@ export const BIMObjectCard: React.FC<BIMObjectCardProps> = ({
 
           {/* Quick Download Button Section */}
           <div className="flex items-center justify-between gap-1.5 relative pt-0.5">
-            <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30 dark:text-emerald-400 px-1.5 py-0.5 rounded shrink-0">
-              {priceLabel}
-            </span>
+            {object.priceType !== 'Free' && <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30 dark:text-emerald-400 px-1.5 py-0.5 rounded shrink-0">{priceLabel}</span>}
             
             {/* Download controls appear only when a publishable file is attached. */}
             <div className="relative">
