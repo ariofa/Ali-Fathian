@@ -39,6 +39,7 @@ import {
   Info,
   Play,
   ImageIcon,
+  Factory,
   X
 } from 'lucide-react';
 
@@ -153,199 +154,58 @@ export const AboutView: React.FC<AboutViewProps> = ({
 
   // 1. RENDER ABOUT VIEW (Platform overview)
   if (viewMode === 'about') {
+    const BulletList: React.FC<{ items: string[]; light?: boolean }> = ({ items, light = false }) => (
+      <ul className="space-y-2.5">
+        {items.map((item) => <li key={item} className={`flex items-start gap-2 text-xs leading-6 ${light ? 'text-slate-100' : 'text-gray-600 dark:text-gray-300'}`}><CheckCircle className="w-4 h-4 shrink-0 mt-1 text-[#0FB9B1]" /><span>{item}</span></li>)}
+      </ul>
+    );
+
     return (
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7 sm:py-9 space-y-10 sm:space-y-14" dir={isRtl ? 'rtl' : 'ltr'}>
-        {/* 1. Clear platform definition */}
-        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0F3D5E] via-[#123D5A] to-[#064E4B] text-white px-6 py-10 sm:px-10 sm:py-14">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7 sm:py-9 space-y-11 sm:space-y-16" dir={isRtl ? 'rtl' : 'ltr'}>
+        {/* Hero is the only visual container; the only content cards appear later in the value section. */}
+        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0F3D5E] via-[#123D5A] to-[#064E4B] text-white px-6 py-9 sm:px-10 sm:py-12">
           <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#0FB9B1_1px,transparent_1px)] [background-size:20px_20px]" />
-          <div className="relative grid grid-cols-1 xl:grid-cols-[1.25fr_.75fr] gap-7 xl:gap-10 items-center">
+          <div className="relative grid grid-cols-1 xl:grid-cols-[1.3fr_.7fr] gap-7 xl:gap-10 items-center">
             <div className="text-start">
-            <span className="inline-flex rounded-full border border-[#0FB9B1]/35 bg-[#0FB9B1]/10 px-3 py-1 text-[10px] font-black text-[#22D3EE]">
-              {isRtl ? 'اولین مرجع تخصصی مارکت‌پلیس ملی BIM ایران' : 'Iran’s national BIM marketplace and specialist reference'}
-            </span>
-            <h1 className="mt-5 text-3xl sm:text-5xl font-black leading-tight">
-              {isRtl ? 'جایی که محصول واقعی، وارد مسیر طراحی ساختمان می‌شود' : 'Where real products enter the building-design workflow'}
-            </h1>
-            <p className="mt-5 max-w-2xl text-sm sm:text-base leading-8 text-slate-200">
-              {isRtl
-                ? 'ایران بیم هاب یک پلتفرم ایرانی است که کمک می‌کند اطلاعات فنی و فایل‌های BIM محصولات ساختمانی، به‌شکلی ساخت‌یافته در اختیار معماران، مهندسان و تیم‌های طراحی قرار بگیرد.'
-                : 'IranBIMhub connects building-product manufacturers with architects, engineers, designers, and BIM specialists so real product information can be useful during design, before procurement.'}
-            </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <button type="button" onClick={() => onNavigate?.('for-manufacturers')} className="rounded-xl bg-[#0FB9B1] hover:bg-[#087F7A] px-4 py-3 text-xs font-black text-white transition-colors cursor-pointer">
-                {isRtl ? 'راهنمای تولیدکنندگان و صاحبان برند' : 'For manufacturers and brand owners'}
-              </button>
-              <button type="button" onClick={() => onNavigate?.('for-designers')} className="rounded-xl border border-white/25 bg-white/5 hover:bg-white/10 px-4 py-3 text-xs font-black text-white transition-colors cursor-pointer">
-                {isRtl ? 'راهنمای معماران و مهندسان' : 'Guide for architects and engineers'}
-              </button>
+              <h1 className="text-3xl sm:text-5xl font-black leading-tight">{isRtl ? 'اولین مرجع تخصصی بازار ملی BIM ایران' : 'Iran’s first specialist national BIM marketplace'}</h1>
+              <p className="mt-4 text-lg sm:text-xl font-black text-[#22D3EE]">{isRtl ? 'آیندهٔ طراحی ساختمان از اطلاعات درست آغاز می‌شود.' : 'The future of building design starts with the right information.'}</p>
+              <p className="mt-5 max-w-3xl text-sm sm:text-base leading-8 text-slate-100">{isRtl ? 'ایرانBIMhub پلتفرم تخصصی اتصال تولیدکنندگان صنعت ساختمان به معماران، مهندسان و طراحان بر بستر BIM است. ما به تولیدکنندگان کمک می‌کنیم محصولات خود را به‌صورت آبجکت‌های استاندارد BIM و اطلاعات فنی قابل‌اعتماد در اختیار جامعه مهندسی قرار دهند؛ تا محصولشان در همان مرحلهٔ طراحی پروژه دیده، بررسی و در میان گزینه‌های انتخاب قرار بگیرد.' : 'IranBIMhub connects building-product manufacturers with architects, engineers, and designers through BIM.'}</p>
+              <p className="mt-3 max-w-3xl text-xs sm:text-sm leading-7 text-slate-200">{isRtl ? 'در مقابل، معماران و مهندسان می‌توانند بدون صرف ساعت‌ها زمان برای مدل‌سازی مجدد، به محصولات واقعی و آمادهٔ استفاده دسترسی داشته باشند و تمرکز خود را بر طراحی قرار دهند؛ نه ساختن آبجکت‌ها.' : 'Designers can access real, ready-to-use products instead of repeatedly modelling them from scratch.'}</p>
+              <div className="mt-7 flex flex-wrap gap-3"><button type="button" onClick={() => onNavigate?.('for-manufacturers')} className="rounded-xl bg-[#0FB9B1] hover:bg-[#087F7A] px-4 py-3 text-xs font-black text-white transition-colors cursor-pointer">{isRtl ? 'راهنمای تولیدکنندگان و صاحبان برند' : 'Guide for manufacturers and brand owners'}</button><button type="button" onClick={() => onNavigate?.('for-designers')} className="rounded-xl border border-white/25 bg-white/5 hover:bg-white/10 px-4 py-3 text-xs font-black text-white transition-colors cursor-pointer">{isRtl ? 'راهنمای معماران و مهندسان' : 'Guide for architects and engineers'}</button></div>
             </div>
-            </div>
-            <button type="button" onClick={() => setIsAboutVideoOpen(true)} className="group relative min-h-[245px] overflow-hidden rounded-2xl border border-white/15 bg-[#0B1220] text-center cursor-pointer shadow-2xl">
-              <img src="https://img.youtube.com/vi/NvZN0DUiTKo/maxresdefault.jpg" onError={(event) => { event.currentTarget.src = 'https://img.youtube.com/vi/NvZN0DUiTKo/hqdefault.jpg'; }} alt="" className="absolute inset-0 h-full w-full object-cover opacity-65 transition-transform duration-700 group-hover:scale-105" />
-              <span className="absolute inset-0 bg-gradient-to-t from-[#0B1220]/95 via-[#0B1220]/35 to-[#0B1220]/20" />
-              <span className="relative z-10 flex h-full min-h-[245px] flex-col items-center justify-center gap-4 px-5">
-                <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-[#0F3D5E] shadow-2xl transition-transform duration-300 group-hover:scale-110"><Play className="w-7 h-7 fill-current" /></span>
-                <span><span className="block text-sm font-black leading-tight">{isRtl ? 'ایران بیم هاب در یک دقیقه' : 'IranBIMhub in one minute'}</span><span className="mt-1.5 block text-[11px] font-bold text-white/75">{isRtl ? 'تماشای ویدیوی معرفی پلتفرم' : 'Watch the platform introduction'}</span></span>
-              </span>
-            </button>
+            <button type="button" onClick={() => setIsAboutVideoOpen(true)} className="group relative min-h-[245px] overflow-hidden rounded-2xl border border-white/15 bg-[#0B1220] text-center cursor-pointer shadow-2xl"><img src="https://img.youtube.com/vi/NvZN0DUiTKo/maxresdefault.jpg" onError={(event) => { event.currentTarget.src = 'https://img.youtube.com/vi/NvZN0DUiTKo/hqdefault.jpg'; }} alt="" className="absolute inset-0 h-full w-full object-cover opacity-65 transition-transform duration-700 group-hover:scale-105" /><span className="absolute inset-0 bg-gradient-to-t from-[#0B1220]/95 via-[#0B1220]/35 to-[#0B1220]/20" /><span className="relative z-10 flex h-full min-h-[245px] flex-col items-center justify-center gap-4 px-5"><span className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-[#0F3D5E] shadow-2xl transition-transform duration-300 group-hover:scale-110"><Play className="w-7 h-7 fill-current" /></span><span><span className="block text-sm font-black">{isRtl ? 'ایران بیم هاب در یک دقیقه' : 'IranBIMhub in one minute'}</span><span className="mt-1.5 block text-[11px] font-bold text-white/75">{isRtl ? 'تماشای ویدیوی معرفی پلتفرم' : 'Watch the platform introduction'}</span></span></span></button>
           </div>
         </section>
 
-        {isAboutVideoOpen && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center bg-[#0B1220]/90 backdrop-blur-sm p-3 sm:p-6" role="dialog" aria-modal="true" onMouseDown={() => setIsAboutVideoOpen(false)}>
-            <div className="relative w-full max-w-4xl overflow-hidden rounded-2xl border border-white/15 bg-[#0B1220] shadow-2xl" onMouseDown={(event) => event.stopPropagation()}>
-              <div className="flex items-center justify-between border-b border-white/10 px-4 py-3"><span className="text-sm font-black text-white">{isRtl ? 'ویدیوی معرفی ایران بیم هاب' : 'IranBIMhub introduction'}</span><button type="button" onClick={() => setIsAboutVideoOpen(false)} className="flex h-8 w-8 items-center justify-center rounded-full text-white/75 hover:bg-white/10 hover:text-white cursor-pointer"><X className="w-5 h-5" /></button></div>
-              <div className="aspect-video bg-black"><iframe src="https://www.youtube-nocookie.com/embed/NvZN0DUiTKo?autoplay=1" title={isRtl ? 'ویدیوی معرفی ایران بیم هاب' : 'IranBIMhub introduction video'} className="h-full w-full border-0" allow="autoplay; fullscreen; picture-in-picture" allowFullScreen /></div>
-            </div>
-          </div>
-        )}
+        {isAboutVideoOpen && (<div className="fixed inset-0 z-[200] flex items-center justify-center bg-[#0B1220]/90 backdrop-blur-sm p-3 sm:p-6" role="dialog" aria-modal="true" onMouseDown={() => setIsAboutVideoOpen(false)}><div className="relative w-full max-w-4xl overflow-hidden rounded-2xl border border-white/15 bg-[#0B1220] shadow-2xl" onMouseDown={(event) => event.stopPropagation()}><div className="flex items-center justify-between border-b border-white/10 px-4 py-3"><span className="text-sm font-black text-white">{isRtl ? 'ویدیوی معرفی ایران بیم هاب' : 'IranBIMhub introduction'}</span><button type="button" onClick={() => setIsAboutVideoOpen(false)} className="flex h-8 w-8 items-center justify-center rounded-full text-white/75 hover:bg-white/10 hover:text-white cursor-pointer"><X className="w-5 h-5" /></button></div><div className="aspect-video bg-black"><iframe src="https://www.youtube-nocookie.com/embed/NvZN0DUiTKo?autoplay=1" title={isRtl ? 'ویدیوی معرفی ایران بیم هاب' : 'IranBIMhub introduction video'} className="h-full w-full border-0" allow="autoplay; fullscreen; picture-in-picture" allowFullScreen /></div></div></div>)}
 
-        {/* 2. The market gap, explained without jargon */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center">
-          <div className="text-start space-y-4 order-2 lg:order-1">
-            <span className="text-[11px] font-black text-[#087F7A]">{isRtl ? 'مسئله‌ای که می‌خواهیم حل کنیم' : 'The gap we are addressing'}</span>
-            <h2 className="text-2xl sm:text-3xl font-black text-[#2B2F33] dark:text-white leading-tight">
-              {isRtl ? 'میان محصول واقعی و طراحی پروژه، هنوز فاصله‌ای وجود دارد' : 'There is still a gap between real products and project design'}
-            </h2>
-            <p className="text-sm leading-8 text-gray-600 dark:text-gray-300">
-              {isRtl
-                ? 'در بسیاری از پروژه‌ها، طراحان برای پیدا کردن اطلاعات قابل‌استفاده دربارهٔ محصولات واقعی، میان کاتالوگ‌ها، فایل‌های پراکنده و مدل‌سازی دستی رفت‌وآمد می‌کنند. در سوی دیگر، بسیاری از تولیدکنندگان محصول دارند؛ اما دادهٔ محصولشان هنوز به‌شکلی ساخت‌یافته وارد جریان طراحی دیجیتال نشده است.'
-                : 'In many projects, designers move between catalogs, scattered files, and manual modeling to find usable information about real products. Meanwhile, many manufacturers have capable products, but their product data has not yet entered a structured digital design workflow.'}
-            </p>
-            <p className="text-sm font-bold leading-7 text-[#0F3D5E] dark:text-[#22D3EE]">
-              {isRtl ? 'ایران بیم هاب برای سامان‌دادن این مسیر طراحی شده است: از دریافت اطلاعات محصول تا آماده‌سازی و معرفی آن برای استفاده در طراحی.' : 'IranBIMhub was created to bring these two worlds closer together.'}
-            </p>
-          </div>
-          <div className="order-1 lg:order-2 rounded-3xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 p-6 sm:p-8">
-            <div className="grid grid-cols-3 gap-3 items-center text-center">
-              <div className="rounded-2xl bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-800 p-4"><FileText className="w-7 h-7 mx-auto text-[#0F3D5E]" /><p className="mt-3 text-[11px] font-black text-gray-700 dark:text-gray-200">{isRtl ? 'کاتالوگ و اطلاعات پراکنده' : 'Scattered product information'}</p></div>
-              <div className="flex items-center justify-center"><div className="h-px w-full bg-[#0FB9B1]" /><div className="absolute w-2 h-2 rounded-full bg-[#0FB9B1]" /></div>
-              <div className="rounded-2xl bg-[#0F3D5E] p-4 text-white"><Layers className="w-7 h-7 mx-auto text-[#22D3EE]" /><p className="mt-3 text-[11px] font-black">{isRtl ? 'دادهٔ قابل‌استفاده در طراحی' : 'Design-ready product data'}</p></div>
-            </div>
-            <div className="mt-5 rounded-2xl border border-dashed border-[#0FB9B1]/45 bg-white/70 dark:bg-slate-950/40 px-5 py-4 text-center text-xs leading-6 text-gray-600 dark:text-gray-300">
-              {isRtl ? 'محصول، اطلاعات فنی، هویت برند و مدل اطلاعاتی ساختمان؛ در یک مسیر مشترک.' : 'Product, technical information, brand identity, and the building information model; one connected path.'}
-            </div>
-            <div className="mt-4 min-h-[108px] rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 bg-white/70 dark:bg-slate-950/30 flex flex-col items-center justify-center text-center">
-              <ImageIcon className="w-6 h-6 text-[#0FB9B1]" />
-              <p className="mt-2 text-[11px] font-black text-gray-600 dark:text-gray-300">{isRtl ? 'جای تصویر حرفه‌ای: محصول واقعی در فضای طراحی' : 'Media placeholder: real product in a design context'}</p>
-              <p className="mt-1 text-[10px] text-gray-400">{isRtl ? 'تصویر نهایی پس از انتخاب منبع واقعی جایگزین می‌شود.' : 'The final visual will be added after selecting an approved source.'}</p>
-            </div>
-          </div>
+        <section className="text-start max-w-5xl">
+          <h2 className="text-3xl sm:text-4xl font-black text-[#0F3D5E] dark:text-[#22D3EE]">{isRtl ? 'ایران بیم هاب چیست؟' : 'What is IranBIMhub?'}</h2>
+          <p className="mt-5 text-sm leading-8 text-gray-600 dark:text-gray-300">{isRtl ? 'ایرانBIMhub نخستین پلتفرم تخصصی اطلاعات محصولات ساختمانی و بازار مبتنی بر BIM در ایران است. ما به تولیدکنندگان کمک می‌کنیم محصولات خود را به‌صورت آبجکت‌های استاندارد BIM و اطلاعات فنی قابل‌اعتماد در اختیار جامعه مهندسی قرار دهند؛ تا محصولاتشان در همان مرحلهٔ طراحی پروژه دیده، انتخاب و در نهایت شانس خرید و استفادهٔ آن‌ها در مرحلهٔ اجرا افزایش یابد.' : 'IranBIMhub is Iran’s first specialist building-product information platform and BIM-based marketplace.'}</p>
+          <p className="mt-4 text-sm leading-8 text-gray-600 dark:text-gray-300">{isRtl ? 'در مقابل، معماران و مهندسان نیز می‌توانند بدون صرف ساعت‌ها زمان برای مدل‌سازی مجدد، به محصولات واقعی و آمادهٔ استفاده دسترسی داشته باشند و تمرکز خود را بر طراحی قرار دهند، نه ساختن آبجکت‌ها.' : 'Architects and engineers can access real, ready-to-use products rather than repeatedly model them.'}</p>
+          <p className="mt-4 text-sm font-bold leading-8 text-[#0F3D5E] dark:text-[#22D3EE]">{isRtl ? 'این پلتفرم پلی میان تولیدکنندگان و صاحبان برند، با معماران، مهندسان، طراحان و BIM Modelerها ایجاد می‌کند.' : 'The platform connects manufacturers and brand owners with architects, engineers, designers and BIM modelers.'}</p>
+          <div className="mt-6 flex flex-wrap gap-3"><button onClick={() => onNavigate?.('manufacturers')} className="rounded-xl bg-[#0F3D5E] hover:bg-[#0A2D47] px-4 py-3 text-xs font-black text-white cursor-pointer">{isRtl ? 'مشاهده برندها' : 'View brands'}</button><button onClick={() => onNavigate?.('for-manufacturers')} className="rounded-xl bg-[#0FB9B1] hover:bg-[#087F7A] px-4 py-3 text-xs font-black text-white cursor-pointer">{isRtl ? 'ثبت برند' : 'Register brand'}</button></div>
         </section>
 
-        {/* 3. What the platform brings together */}
-        <section className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-10 text-start">
-          <div className="max-w-3xl">
-            <h2 className="text-2xl sm:text-3xl font-black text-[#2B2F33] dark:text-white">{isRtl ? 'یک محصول برای ورود به طراحی، به چه چیزهایی نیاز دارد؟' : 'What does a product need to enter a design workflow?'}</h2>
-            <p className="mt-4 text-sm leading-8 text-gray-600 dark:text-gray-300">{isRtl ? 'برای استفادهٔ واقعی در پروژه، یک محصول فقط به تصویر یا کاتالوگ نیاز ندارد. مدل سه‌بعدی یا Revit Family، مشخصات فنی، نام و کد محصول، اطلاعات برند و مدارک مرتبط باید در یک ساختار قابل‌استفاده کنار هم قرار بگیرند.' : 'The value of IranBIMhub is not limited to a 3D file. A product gains digital value in design when its information is understandable, reviewable, and connected to its real brand identity.'}</p>
-          </div>
-          <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-3">
-            {[['Package','محصول واقعی','Real product'],['FileText','مشخصات فنی و کاتالوگ','Technical documentation'],['Building2','اطلاعات و هویت برند','Brand information'],['Layers','مدل BIM و فایل‌های قابل‌استفاده','BIM model and usable files']].map(([icon,fa,en]) => (
-              <div key={fa} className="rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 p-4 text-center">
-                <div className="mx-auto w-9 h-9 rounded-xl bg-[#0FB9B1]/10 text-[#087F7A] flex items-center justify-center"><Sparkles className="w-4 h-4" /></div>
-                <p className="mt-3 text-xs font-black text-gray-800 dark:text-white">{isRtl ? fa : en}</p>
-              </div>
-            ))}
-          </div>
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 text-start">
+          <div><h2 className="text-3xl sm:text-4xl font-black text-[#0F3D5E] dark:text-[#22D3EE]">{isRtl ? 'BIM چیست؟ (به زبان ساده)' : 'What is BIM? (Simply explained)'}</h2><p className="mt-5 text-sm leading-8 text-gray-600 dark:text-gray-300">{isRtl ? 'BIM یا مدل‌سازی اطلاعاتی ساختمان بر مبنای اطلاعات واقعی، روشی برای طراحی و مدیریت پروژه‌های ساختمانی است که در آن هر جزء ساختمان علاوه بر مدل سه‌بعدی، اطلاعات واقعی خود را نیز همراه دارد.' : 'BIM is a design and project-management method in which elements carry both geometry and real information.'}</p><p className="mt-4 text-sm leading-8 text-gray-600 dark:text-gray-300">{isRtl ? 'به بیان ساده، در BIM هر در، پنجره، شیرآلات یا محصول ساختمانی فقط یک شکل سه‌بعدی نیست؛ مجموعه‌ای از اطلاعات واقعی مانند ابعاد، مشخصات فنی، استانداردها، عملکرد و اطلاعات تولیدکننده را نیز در خود دارد.' : 'In BIM, each product is more than a 3D shape; it carries dimensions, specifications, standards, performance and manufacturer information.'}</p><button onClick={() => onNavigate?.('learn')} className="mt-6 rounded-xl bg-[#087F7A] hover:bg-[#064E4B] px-4 py-3 text-xs font-black text-white cursor-pointer">{isRtl ? 'آشنایی بیشتر با BIM' : 'Learn more about BIM'}</button></div>
+          <div className="border-t lg:border-t-0 lg:border-s border-slate-200 dark:border-slate-800 pt-8 lg:pt-0 lg:ps-10"><h2 className="text-3xl sm:text-4xl font-black text-[#0F3D5E] dark:text-[#22D3EE]">{isRtl ? 'آبجکت BIM چیست؟' : 'What is a BIM object?'}</h2><p className="mt-5 text-sm leading-8 text-gray-600 dark:text-gray-300">{isRtl ? 'آبجکت BIM نسخهٔ دیجیتال و هوشمند یک محصول ساختمانی است. این آبجکت علاوه بر ظاهر سه‌بعدی، اطلاعات واقعی محصول را نیز در اختیار نرم‌افزارهای BIM قرار می‌دهد و امکان استفادهٔ مستقیم از محصول در فرآیند طراحی را فراهم می‌کند.' : 'A BIM object is the intelligent digital version of a building product.'}</p><p className="mt-4 text-sm leading-8 text-gray-600 dark:text-gray-300">{isRtl ? 'هرچه آبجکت استانداردتر، دقیق‌تر و اطلاعات آن کامل‌تر باشد، کیفیت طراحی و تصمیم‌گیری پروژه نیز افزایش پیدا می‌کند. آبجکت‌های منتشرشده در ایرانBIMhub بر اساس چارچوب‌های تعریف‌شدهٔ پلتفرم بررسی و طبقه‌بندی می‌شوند.' : 'The more standard, accurate and complete an object is, the better the design and decision-making process can be.'}</p><button onClick={() => onNavigate?.('categories')} className="mt-6 rounded-xl bg-[#0F3D5E] hover:bg-[#0A2D47] px-4 py-3 text-xs font-black text-white cursor-pointer">{isRtl ? 'دسته‌بندی آبجکت‌ها' : 'Object categories'}</button></div>
         </section>
 
-        {/* 4. Simple, useful process */}
-        <section className="text-start">
-          <div className="max-w-5xl">
-            <span className="text-[11px] font-black text-[#087F7A]">{isRtl ? 'مسیر همکاری با برندها' : 'The brand collaboration path'}</span>
-            <h2 className="mt-2 text-2xl sm:text-3xl font-black text-[#2B2F33] dark:text-white lg:whitespace-nowrap">{isRtl ? 'یک تولیدکننده چگونه محصول خود را وارد مسیر BIM می‌کند؟' : 'How does a manufacturer bring a product into a BIM workflow?'}</h2>
-          </div>
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-            {[
-              ['۱','معرفی برند و محصول','نام برند، دستهٔ محصول، کاتالوگ و اطلاعات اولیه را معرفی کنید.'],
-              ['۲','بررسی و آماده‌سازی','مسیر مناسب محصول مشخص می‌شود؛ بررسی فایل یا آماده‌سازی اطلاعات در صورت نیاز.'],
-              ['۳','حضور در جریان طراحی','پس از تکمیل اطلاعات و فعال‌شدن انتشار، محصول برای معرفی در کتابخانه آماده می‌شود.']
-            ].map(([n,title,desc]) => <div key={n} className="rounded-2xl border border-slate-200 dark:border-slate-800 p-5 bg-white dark:bg-slate-900"><span className="text-xs font-black text-[#0FB9B1]">{n}</span><h3 className="mt-4 text-base font-black text-[#2B2F33] dark:text-white">{isRtl ? title : title}</h3><p className="mt-2 text-xs leading-6 text-gray-500 dark:text-gray-400">{isRtl ? desc : desc}</p></div>)}
-          </div>
-          <div className="mt-6 grid grid-cols-1 lg:grid-cols-[1.15fr_.85fr] gap-5 rounded-3xl overflow-hidden bg-[#0F3D5E] text-white">
-            <div className="p-6 sm:p-8 text-start">
-              <span className="inline-flex rounded-full bg-[#0FB9B1]/15 px-3 py-1 text-[10px] font-black text-[#22D3EE]">{isRtl ? 'ویدیوی معرفی مسیر تولیدکنندگان' : 'Manufacturer pathway video'}</span>
-              <h3 className="mt-4 text-xl sm:text-2xl font-black">{isRtl ? 'محصول شما چگونه به مرحلهٔ طراحی نزدیک می‌شود؟' : 'How does your product move closer to the design stage?'}</h3>
-              <p className="mt-3 max-w-xl text-xs sm:text-sm leading-7 text-slate-200">{isRtl ? 'جای ویدیوی موشن‌گرافی کوتاه برای توضیح مسیر برندهای دارای فایل BIM و برندهای بدون فایل آماده.' : 'Placeholder for a short motion-graphics explainer covering both onboarding paths.'}</p>
-              <button type="button" className="mt-5 inline-flex items-center gap-2 rounded-xl bg-white text-[#0F3D5E] px-4 py-2.5 text-xs font-black cursor-default"><Play className="w-4 h-4 fill-current" />{isRtl ? 'نمایش ویدیو به‌زودی' : 'Video coming soon'}</button>
-            </div>
-            <div className="min-h-[190px] border-t lg:border-t-0 lg:border-s border-white/10 bg-[radial-gradient(#22D3EE_1px,transparent_1px)] [background-size:18px_18px] flex items-center justify-center p-6">
-              <div className="w-20 h-20 rounded-full border border-[#22D3EE]/40 bg-[#22D3EE]/10 flex items-center justify-center"><Play className="w-8 h-8 text-[#22D3EE] fill-current" /></div>
-            </div>
-          </div>
+        <section className="text-start"><h2 className="text-3xl sm:text-4xl font-black text-[#0F3D5E] dark:text-[#22D3EE]">{isRtl ? 'چرا ایران بیم هاب شکل گرفت؟' : 'Why was IranBIMhub created?'}</h2><div className="mt-7 grid grid-cols-1 md:grid-cols-3 gap-6">{[['محصولات در مرحلهٔ طراحی دیده نمی‌شوند.','در حالی که تصمیم اصلی دربارهٔ انتخاب بسیاری از محصولات، ماه‌ها قبل از اجرا و در مرحلهٔ طراحی پروژه گرفته می‌شود، اکثر محصولات ساختمانی ایران هنوز حضور مؤثری در این مرحله ندارند.'],['اطلاعات محصولات پراکنده است.','معماران، مهندسان و BIM Modelerها برای پیدا کردن اطلاعات معتبر هر محصول باید میان وب‌سایت‌ها، فایل‌های PDF، کاتالوگ‌ها و منابع مختلف جست‌وجو کنند.'],['نبود آبجکت‌های BIM استاندارد','بسیاری از طراحان ساعت‌ها و گاهی روزها زمان صرف مدل‌سازی محصولاتی می‌کنند که می‌توانستند به‌صورت آماده، استاندارد و رایگان در اختیار جامعهٔ مهندسی قرار گیرند.']].map(([title,desc],i)=><div key={title} className="border-s-2 border-[#0FB9B1] ps-4"><span className="text-[#0FB9B1] font-black">۰{i+1}</span><h3 className="mt-2 text-lg font-black text-[#2B2F33] dark:text-white leading-8">{title}</h3><p className="mt-3 text-xs leading-7 text-gray-500 dark:text-gray-400">{desc}</p></div>)}</div><p className="mt-8 text-sm font-bold text-[#0F3D5E] dark:text-[#22D3EE]">{isRtl ? 'ایرانBIMhub برای رفع همین فاصله میان صنعت ساختمان و فرآیند طراحی ایجاد شده است.' : 'IranBIMhub was created to address this gap.'}</p></section>
 
-          <div className="mt-5 flex items-start gap-3 rounded-2xl bg-[#0FB9B1]/7 border border-[#0FB9B1]/20 p-4">
-            <Info className="w-5 h-5 text-[#087F7A] shrink-0 mt-0.5" />
-            <p className="text-xs leading-7 text-gray-600 dark:text-gray-300">{isRtl ? 'تولیدکننده لازم نیست از روز اول متخصص BIM باشد؛ مسیر ورود هر برند متناسب با وضعیت واقعی محصول و فایل‌های موجود آن تعیین می‌شود.' : 'Manufacturers do not need to be BIM experts on day one; each brand’s path is determined by the actual state of its product information and available files.'}</p>
-          </div>
-        </section>
+        {/* The only two content cards: designers on the right and manufacturers on the left in RTL. */}
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-5 text-start"><article className="rounded-3xl bg-gradient-to-br from-[#0F3D5E] to-[#064E4B] p-7 sm:p-9 text-white"><p className="text-sm font-black text-[#22D3EE]">{isRtl ? 'ارزش افزوده برای معماران و مهندسان' : 'Value for architects and engineers'}</p><div className="mt-6"><BulletList light items={['دانلود سریع آبجکت‌های استاندارد','دسترسی به اطلاعات فنی معتبر','کاهش زمان مدل‌سازی','افزایش کیفیت طراحی','انتخاب بهتر محصولات']} /></div></article><article className="rounded-3xl border border-[#D6A01D]/35 bg-gradient-to-br from-[#FFF8E8] to-white dark:from-[#352907] dark:to-slate-900 p-7 sm:p-9"><p className="text-sm font-black text-[#B9820D]">{isRtl ? 'ارزش افزوده برای تولیدکنندگان' : 'Value for manufacturers'}</p><div className="mt-6"><BulletList items={['حضور محصول در مرحلهٔ طراحی','افزایش دیده‌شدن برند','ساخت آبجکت BIM','معرفی حرفه‌ای محصولات','ارتباط با جامعهٔ مهندسی','آمادگی برای بازار دیجیتال ساختمان']} /></div></article></section>
 
-        {/* 5. Audience paths */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {[
-            ['برای معماران، مهندسان و BIM Modelerها','مدل و اطلاعات محصول را در یک ساختار قابل‌استفاده بررسی کنید','برای کاربر حرفه‌ای، مسیر کتابخانه شامل آبجکت BIM، Revit Family، فایل IFC، مشخصات فنی، پارامترها و وضعیت انتشار محصول است؛ هر محصول بر اساس فایل و اطلاعات واقعی همان برند معرفی می‌شود.','for-designers','مسیر طراحان'],
-            ['برای تولیدکنندگان و صاحبان برند','محصولتان را به مرحلهٔ طراحی نزدیک کنید','اطلاعات محصول و برندتان را در جایی معرفی کنید که معماران و مهندسان، گزینه‌های پروژه‌های آینده را بررسی می‌کنند.','for-manufacturers','مسیر تولیدکنندگان'],
-            ['برای متخصصان BIM','در ساخت کتابخانهٔ BIM ایران نقش داشته باشید','اگر در مدل‌سازی، ساخت Family، استانداردسازی داده یا کنترل کیفیت فایل تجربه دارید، مسیر همکاری حرفه‌ای شما باز است.','for-bim-modelers','همکاری حرفه‌ای']
-          ].map(([eyebrow,title,desc,view,cta], index) => {
-            const tones = [
-              'border-[#0FB9B1]/35 bg-gradient-to-br from-[#ECFDFC] to-white dark:from-[#063B3A] dark:to-slate-900',
-              'border-[#0F3D5E]/35 bg-gradient-to-br from-[#EAF2F7] to-white dark:from-[#102D43] dark:to-slate-900',
-              'border-[#D6A01D]/35 bg-gradient-to-br from-[#FFF9EA] to-white dark:from-[#362A0A] dark:to-slate-900'
-            ];
-            const buttonTones = ['bg-[#087F7A] hover:bg-[#064E4B]', 'bg-[#0F3D5E] hover:bg-[#0A2D47]', 'bg-[#D6A01D] hover:bg-[#B9820D] text-[#2B2F33]'];
-            return <article key={view} className={`rounded-3xl border p-6 sm:p-7 flex flex-col text-start shadow-[0_12px_30px_rgba(15,61,94,0.06)] ${tones[index]}`}><p className="text-xs sm:text-sm font-black text-[#087F7A]">{isRtl ? eyebrow : eyebrow}</p><h2 className="mt-5 text-2xl font-black text-[#2B2F33] dark:text-white leading-9">{isRtl ? title : title}</h2><p className="mt-4 text-xs leading-7 text-gray-600 dark:text-gray-300 flex-1">{isRtl ? desc : desc}</p><button type="button" onClick={() => onNavigate?.(view)} className={`mt-7 self-start rounded-xl px-4 py-3 text-xs font-black text-white transition-colors cursor-pointer ${buttonTones[index]}`}>{isRtl ? `${cta} ←` : `${cta} →`}</button></article>;
-          })}
-        </section>
+        <section className="text-start"><h2 className="text-3xl sm:text-4xl font-black text-[#0F3D5E] dark:text-[#22D3EE]">{isRtl ? 'کنترل کیفیت و بررسی فنی' : 'Quality control and technical review'}</h2><p className="mt-5 max-w-5xl text-sm leading-8 text-gray-600 dark:text-gray-300">{isRtl ? 'ایرانBIMhub تنها یک محل دانلود فایل نیست. فایل‌های تولیدشده و فایل‌های بارگذاری‌شده، در مسیر ارزیابی و کنترل کیفیت تخصصی از نظر استانداردهای BIM، کیفیت مدل‌سازی، ساختار اطلاعات و قابلیت استفاده بررسی می‌شوند. هدف ما ایجاد یک مرجع قابل‌اعتماد برای اطلاعات محصولات ساختمانی ایران است.' : 'IranBIMhub is more than a file-download location. Files follow a specialist review and quality-control path.'}</p></section>
 
-        {/* 6. Trust */}
-        <section className="rounded-3xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 p-5 sm:p-7 text-start">
-          <div className="max-w-3xl">
-            <h2 className="text-2xl sm:text-3xl font-black text-[#2B2F33] dark:text-white">{isRtl ? 'پیش از انتشار هر محصول، چه چیزهایی بررسی می‌شود؟' : 'What is checked before a product is published?'}</h2>
-            <p className="mt-4 text-sm leading-8 text-gray-600 dark:text-gray-300">{isRtl ? 'هر محصول پیش از معرفی عمومی، باید به برند یا نمایندهٔ مشخص، اطلاعات محصول قابل‌بررسی، فایل‌ها و وضعیت انتشار روشن متصل باشد. این بررسی‌ها کمک می‌کند کتابخانه به‌تدریج با محتوای قابل‌اعتماد رشد کند.' : 'Our goal is not to build the largest library in the shortest time. It is to build a trustworthy library. Brand identity, product information, files, and publication status are handled step by step.'}</p>
-          </div>
-          <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-2">
-            {['هویت برند','اطلاعات محصول','بررسی فنی','انتشار مسئولانه'].map((x,i)=><div key={x} className="rounded-xl bg-white dark:bg-slate-950 p-3 border border-slate-100 dark:border-slate-800"><span className="text-[#0FB9B1] font-black">۰{i+1}</span><p className="mt-3 text-xs font-black text-gray-800 dark:text-white">{isRtl ? x : x}</p></div>)}
-          </div>
-        </section>
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 text-start"><div><h2 className="text-3xl sm:text-4xl font-black text-[#0F3D5E] dark:text-[#22D3EE]">{isRtl ? 'مسیر استفاده از کتابخانه' : 'Library use path'}</h2><p className="mt-3 text-sm font-black text-[#087F7A]">{isRtl ? 'اگر معمار یا BIM Modeler هستید' : 'If you are an architect or BIM modeler'}</p><ol className="mt-5 space-y-4">{['محصول موردنیاز خود را جست‌وجو کنید.','اطلاعات فنی و آبجکت BIM را مشاهده کنید.','فایل را دانلود و مستقیماً در پروژه استفاده کنید.','در صورت نیاز با تولیدکننده ارتباط بگیرید.'].map((x,i)=><li key={x} className="flex gap-3 text-xs leading-7 text-gray-600 dark:text-gray-300"><span className="w-6 h-6 rounded-full bg-[#0F3D5E] text-white shrink-0 flex items-center justify-center font-black">{i+1}</span>{x}</li>)}</ol><button onClick={() => onNavigate?.('categories')} className="mt-7 rounded-xl bg-[#0F3D5E] hover:bg-[#0A2D47] px-4 py-3 text-xs font-black text-white cursor-pointer">{isRtl ? 'مشاهده محصولات' : 'View products'}</button></div><div className="border-t lg:border-t-0 lg:border-s border-slate-200 dark:border-slate-800 pt-8 lg:pt-0 lg:ps-10"><h2 className="text-3xl sm:text-4xl font-black text-[#0F3D5E] dark:text-[#22D3EE]">{isRtl ? 'مسیر ثبت برند و معرفی محصول' : 'Brand registration and product introduction path'}</h2><p className="mt-3 text-sm font-black text-[#087F7A]">{isRtl ? 'اگر تولیدکننده هستید' : 'If you are a manufacturer'}</p><ol className="mt-5 space-y-4">{['برند خود را ثبت کنید.','محصولات را معرفی کنید.','اگر آبجکت BIM ندارید، تیم ایرانBIMhub مسیر تولید آن را برای شما هماهنگ می‌کند.','محصولات شما در مرحلهٔ طراحی در معرض دید جامعهٔ مهندسی قرار می‌گیرند.','اطلاعات محصولات را همیشه به‌روز نگه دارید.'].map((x,i)=><li key={x} className="flex gap-3 text-xs leading-7 text-gray-600 dark:text-gray-300"><span className="w-6 h-6 rounded-full bg-[#0FB9B1] text-[#0B1220] shrink-0 flex items-center justify-center font-black">{i+1}</span>{x}</li>)}</ol><button onClick={() => onNavigate?.('for-manufacturers')} className="mt-7 rounded-xl bg-[#087F7A] hover:bg-[#064E4B] px-4 py-3 text-xs font-black text-white cursor-pointer">{isRtl ? 'ثبت برند' : 'Register brand'}</button></div></section>
 
-        {/* 7. Mission and roadmap */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-start text-start">
-          <div>
-            <h2 className="text-3xl sm:text-4xl font-black text-[#0F3D5E] dark:text-[#22D3EE]">{isRtl ? 'رسالت ما' : 'Our mission'}</h2>
-            <h3 className="mt-3 text-xl sm:text-2xl font-black text-[#2B2F33] dark:text-white leading-tight">{isRtl ? 'نزدیک‌کردن صنعت ساختمان ایران به طراحی مبتنی بر داده' : 'Moving Iran’s construction industry closer to data-driven design'}</h3>
-            <p className="mt-4 text-sm leading-8 text-gray-600 dark:text-gray-300">{isRtl ? 'ایران بیم هاب می‌خواهد زبانی مشترک میان تولیدکننده، معمار، مهندس و متخصص BIM بسازد؛ زبانی که در آن محصول فقط یک تصویر یا کاتالوگ نیست، بلکه بخشی از اطلاعات قابل‌استفاده در پروژه است.' : 'IranBIMhub aims to create a shared language for manufacturers, architects, engineers, and BIM specialists—where a product is more than an image or catalog and becomes usable project information.'}</p>
-            <p className="mt-5 text-sm font-bold leading-7 text-[#0F3D5E] dark:text-[#22D3EE]">{isRtl ? 'ما می‌خواهیم محصول واقعی، پیش از رسیدن به کارگاه، در مدل و گفت‌وگوی طراحی حضور داشته باشد.' : 'We want real products to be present in the model and design conversation before they reach the construction site.'}</p>
-          </div>
-          <div className="rounded-3xl border border-slate-200 dark:border-slate-800 p-6 bg-white dark:bg-slate-900">
-            <h2 className="text-3xl sm:text-4xl font-black text-[#0F3D5E] dark:text-[#22D3EE]">{isRtl ? 'چشم‌انداز ما' : 'Our vision'}</h2>
-            <h3 className="mt-3 text-xl font-black text-[#2B2F33] dark:text-white">{isRtl ? 'یک نقشهٔ راه هفت‌مرحله‌ای، با تمرکز بر ساختن پایه‌های درست' : 'A seven-stage roadmap focused on building the right foundations'}</h3>
-            <p className="mt-3 text-xs leading-7 text-gray-500 dark:text-gray-400">{isRtl ? 'امروز در مرحلهٔ پایه‌گذاری کتابخانهٔ اولیه و مسیر همکاری هستیم. هر مرحله پس از تثبیت مرحلهٔ قبل و بر اساس نیاز واقعی بازار توسعه پیدا می‌کند.' : 'Today we are building the initial library and collaboration path. Each stage follows only after the previous one is stable and market needs validate the next step.'}</p>
-            <div className="mt-6 flex items-center justify-between gap-1" dir="ltr">{Array.from({length:7}).map((_,i)=><div key={i} className="flex items-center flex-1 last:flex-none"><span className={`w-6 h-6 rounded-full text-[9px] font-black flex items-center justify-center ${i===0 ? 'bg-[#0F3D5E] text-white ring-4 ring-[#0FB9B1]/15' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>{i+1}</span>{i<6&&<span className="h-px flex-1 bg-slate-200 dark:bg-slate-700"/>}</div>)}</div>
-            <p className="mt-4 text-[11px] font-black text-[#087F7A]">{isRtl ? 'فاز اول: کتابخانهٔ اولیه و مسیر همکاری' : 'Phase one: Initial library and collaboration path'}</p>
-            <div className="mt-5 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950/50 py-5 text-center"><ImageIcon className="mx-auto w-5 h-5 text-[#0FB9B1]" /><p className="mt-2 text-[10px] font-bold text-gray-500">{isRtl ? 'جای اسلاید یا تصویر آیندهٔ نقشهٔ راه' : 'Roadmap visual placeholder'}</p></div>
-          </div>
-        </section>
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-10 text-start"><div><h2 className="text-3xl sm:text-4xl font-black text-[#0F3D5E] dark:text-[#22D3EE]">{isRtl ? 'رسالت ما' : 'Our mission'}</h2><p className="mt-5 text-sm leading-8 text-gray-600 dark:text-gray-300">{isRtl ? 'رسالت ایرانBIMhub توسعهٔ فرهنگ BIM و ارتقای کیفیت اطلاعات محصولات ساختمانی در ایران است. ما باور داریم تصمیم‌های بهتر، از اطلاعات بهتر آغاز می‌شوند. با استانداردسازی اطلاعات محصولات، گسترش استفاده از BIM و ایجاد ارتباط مؤثر میان تولیدکنندگان و جامعه مهندسی، می‌توان کیفیت طراحی، هماهنگی پروژه‌ها، کاهش دوباره‌کاری و بهره‌وری صنعت ساختمان کشور را بهبود بخشید.' : 'Our mission is to develop BIM culture and improve building-product information in Iran.'}</p></div><div><h2 className="text-3xl sm:text-4xl font-black text-[#0F3D5E] dark:text-[#22D3EE]">{isRtl ? 'چشم‌انداز ما' : 'Our vision'}</h2><p className="mt-5 text-sm leading-8 text-gray-600 dark:text-gray-300">{isRtl ? 'چشم‌انداز ایرانBIMhub تبدیل‌شدن به مرجع ملی اطلاعات محصولات ساختمانی و زیرساخت دیجیتال BIM ایران است. ما آینده‌ای را تصور می‌کنیم که هر محصول ساختمانی ایرانی دارای یک هویت دیجیتال استاندارد باشد و معماران، مهندسان و شرکت‌های ساختمانی بتوانند با اطمینان آن را در پروژه‌های خود به کار بگیرند.' : 'Our vision is to become a national reference for building-product information and BIM digital infrastructure in Iran.'}</p><p className="mt-4 text-xs leading-7 text-gray-500 dark:text-gray-400">{isRtl ? 'برای تحقق این هدف، نقشهٔ راه بلندمدت ایرانBIMhub در ۷ فاز توسعه برنامه‌ریزی شده است. امروز در ابتدای مسیر و در حال راه‌اندازی بخش نخست از فاز اول هستیم؛ اما چشم‌انداز ما فراتر از یک وب‌سایت دانلود آبجکت است.' : 'Our long-term roadmap has seven development phases. Today we are launching the first part of phase one.'}</p></div></section>
 
-        {/* Contact path retained on the platform introduction page */}
-        <section className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 py-7 sm:px-8 text-start flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-          <div>
-            <h2 className="text-xl font-black text-[#2B2F33] dark:text-white">{isRtl ? 'برای شروع یک گفت‌وگوی تخصصی، با ما در ارتباط باشید' : 'Start a focused conversation with IranBIMhub'}</h2>
-            <p className="mt-2 text-xs leading-7 text-gray-500 dark:text-gray-400">{isRtl ? 'برای معرفی محصول، بررسی مسیر ورود به BIM یا همکاری حرفه‌ای، می‌توانید از مسیر ارتباط با ما شروع کنید.' : 'For product introduction, a BIM entry-path review, or professional collaboration, start through our contact channel.'}</p>
-            <div className="mt-4"><SocialIconsRow className="flex gap-2" iconClassName="w-4.5 h-4.5" /></div>
-          </div>
-          <button type="button" onClick={() => onNavigate?.('contact')} className="shrink-0 self-start lg:self-auto rounded-xl border border-[#0FB9B1]/35 bg-[#0FB9B1]/10 hover:bg-[#0FB9B1] hover:text-white px-4 py-3 text-xs font-black text-[#087F7A] transition-colors cursor-pointer">{isRtl ? 'تماس با ایران بیم هاب' : 'Contact IranBIMhub'}</button>
-        </section>
+        <section className="border-y border-slate-200 dark:border-slate-800 py-9 text-center"><h2 className="text-3xl sm:text-4xl font-black text-[#0F3D5E] dark:text-[#22D3EE]">{isRtl ? 'با ما در ارتباط باشید' : 'Contact us'}</h2><p className="max-w-2xl mx-auto mt-4 text-sm leading-8 text-gray-600 dark:text-gray-300">{isRtl ? 'اگر دربارهٔ BIM، تولید آبجکت، معرفی محصولات یا همکاری با ایرانBIMhub پرسشی دارید، خوشحال می‌شویم در کنار شما باشیم.' : 'If you have questions about BIM, object creation, product introduction, or collaboration, we are happy to help.'}</p><div className="mt-5 flex justify-center"><SocialIconsRow className="flex gap-3" iconClassName="w-5 h-5" /></div><div className="mt-6 flex flex-wrap justify-center gap-3"><button onClick={() => onNavigate?.('contact')} className="rounded-xl bg-[#0F3D5E] hover:bg-[#0A2D47] px-4 py-3 text-xs font-black text-white cursor-pointer">{isRtl ? 'دریافت مشاوره' : 'Request consultation'}</button><button onClick={() => onNavigate?.('for-manufacturers')} className="rounded-xl bg-[#0FB9B1] hover:bg-[#087F7A] px-4 py-3 text-xs font-black text-white cursor-pointer">{isRtl ? 'مشاوره برای تولیدکنندگان' : 'Manufacturer consultation'}</button></div></section>
 
-        {/* 8. Final action */}
-        <section className="rounded-3xl border border-[#0FB9B1]/25 bg-[#0FB9B1]/5 p-7 sm:p-10 text-center">
-          <h2 className="text-2xl sm:text-3xl font-black text-[#2B2F33] dark:text-white">{isRtl ? 'ایران بیم هاب را از مسیر مناسب خودتان شروع کنید' : 'Start IranBIMhub from the path that fits you'}</h2>
-          <p className="max-w-2xl mx-auto mt-4 text-sm leading-8 text-gray-600 dark:text-gray-300">{isRtl ? 'امروز اطلاعات محصولتان را معرفی کنید؛ برای تصمیم‌های طراحی فردا آماده باشید.' : 'Introduce your product information today and be ready for tomorrow’s design decisions.'}</p>
-          <div className="mt-7 flex flex-wrap justify-center gap-3">
-            <button onClick={() => onNavigate?.('for-manufacturers')} className="rounded-xl bg-[#0F3D5E] hover:bg-[#0A2D47] px-4 py-3 text-xs font-black text-white cursor-pointer">{isRtl ? 'معرفی برند و محصول' : 'Introduce a brand and product'}</button>
-            <button onClick={() => onNavigate?.('for-designers')} className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-4 py-3 text-xs font-black text-[#087F7A] cursor-pointer">{isRtl ? 'کاوش کتابخانهٔ اولیه' : 'Explore the initial library'}</button>
-            <button onClick={() => onNavigate?.('for-bim-modelers')} className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-4 py-3 text-xs font-black text-[#087F7A] cursor-pointer">{isRtl ? 'همکاری به‌عنوان متخصص BIM' : 'Collaborate as a BIM specialist'}</button>
-          </div>
-        </section>
+        <section className="text-center pb-2"><h2 className="text-3xl sm:text-4xl font-black text-[#0F3D5E] dark:text-[#22D3EE]">{isRtl ? 'به جامعه ایرانBIMhub بپیوندید' : 'Join the IranBIMhub community'}</h2><p className="max-w-2xl mx-auto mt-4 text-sm leading-8 text-gray-600 dark:text-gray-300">{isRtl ? 'چه معمار باشید، چه BIM Modeler، چه تولیدکننده یا صاحب برند، ایرانBIMhub جایی است که طراحی، اطلاعات و محصولات ساختمانی به هم متصل می‌شوند. از شما دعوت می‌کنیم بخشی از جامعه‌ای باشید که آیندهٔ دیجیتال صنعت ساختمان ایران را شکل می‌دهد.' : 'Whether you are an architect, BIM modeler, manufacturer, or brand owner, IranBIMhub connects design, information and building products.'}</p><div className="mt-7 flex flex-wrap justify-center gap-3"><button onClick={() => onNavigate?.('for-designers')} className="rounded-xl bg-[#0F3D5E] hover:bg-[#0A2D47] px-4 py-3 text-xs font-black text-white cursor-pointer">{isRtl ? 'ایجاد حساب کاربری به‌عنوان معمار' : 'Create an architect account'}</button><button onClick={() => onNavigate?.('for-manufacturers')} className="rounded-xl bg-[#0FB9B1] hover:bg-[#087F7A] px-4 py-3 text-xs font-black text-white cursor-pointer">{isRtl ? 'ثبت برند' : 'Register brand'}</button></div></section>
       </main>
     );
   }
