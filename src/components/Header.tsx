@@ -1046,51 +1046,43 @@ export const Header: React.FC<HeaderProps> = ({
               <nav className="p-2" aria-label={isRtl ? 'منوی اصلی موبایل' : 'Mobile primary navigation'}>
                 <button
                   type="button"
-                  onClick={() => handleMobileMenuNavigate('home')}
-                  className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black transition-colors cursor-pointer ${currentView === 'home' ? 'bg-[#26B6B6]/10 text-[#26B6B6]' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
-                >
-                  <Building2 className="w-4 h-4 shrink-0 text-[#26B6B6]" />
-                  <span>{isRtl ? 'صفحه اصلی ' : 'IranBIMhub Home'}</span>
-                </button>
-                <button
-                  type="button"
                   onClick={() => handleMobileMenuNavigate('about')}
-                  className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black transition-colors cursor-pointer ${currentView === 'about' ? 'bg-[#26B6B6]/10 text-[#26B6B6]' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                  className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black transition-colors cursor-pointer ${currentView === 'about' ? 'bg-[#0FB9B1]/10 text-[#087F7A]' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
                 >
-                  <BookOpen className="w-4 h-4 shrink-0 text-[#26B6B6]" />
-                  <span>{isRtl ? 'ایران بیم هاب؛ درباره و مسیرها' : 'IranBIMhub: overview and paths'}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleMobileMenuNavigate('for-designers')}
-                  className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
-                >
-                  <Layers className="w-4 h-4 shrink-0 text-[#26B6B6]" />
-                  <span>{isRtl ? 'برای معماران و بیم مدلرها' : 'For Architects & BIM Modelers'}</span>
+                  <BookOpen className="w-4 h-4 text-[#0FB9B1]" />
+                  <span>{isRtl ? 'ایران بیم هاب چیست؟' : 'What is IranBIMhub?'}</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => handleMobileMenuNavigate('for-manufacturers')}
-                  className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                  className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black transition-colors cursor-pointer ${currentView === 'for-manufacturers' ? 'bg-[#0FB9B1]/10 text-[#087F7A]' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
                 >
-                  <Factory className="w-4 h-4 shrink-0 text-[#26B6B6]" />
-                  <span>{isRtl ? 'راهنمای تولیدکنندگان و صاحبان برند' : 'Manufacturer & Brand Owner Guide'}</span>
+                  <Factory className="w-4 h-4 text-[#0FB9B1]" />
+                  <span>{isRtl ? 'راهنمای تولیدکنندگان و صاحبان برند' : 'Guide for manufacturers and brand owners'}</span>
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleMobileMenuNavigate('learn')}
-                  className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black transition-colors cursor-pointer ${currentView === 'learn' ? 'bg-[#26B6B6]/10 text-[#26B6B6]' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                  onClick={() => handleMobileMenuNavigate('for-designers')}
+                  className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black transition-colors cursor-pointer ${currentView === 'for-designers' ? 'bg-[#0FB9B1]/10 text-[#087F7A]' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
                 >
-                  <BookOpen className="w-4 h-4 shrink-0 text-[#26B6B6]" />
-                  <span>{isRtl ? 'مقالات و آموزش ها' : 'Educational Magazine'}</span>
+                  <Layers className="w-4 h-4 text-[#0FB9B1]" />
+                  <span>{isRtl ? 'راهنمای معماران و مهندسان' : 'Guide for architects and engineers'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleMobileMenuNavigate('for-bim-modelers')}
+                  className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black transition-colors cursor-pointer ${currentView === 'for-bim-modelers' ? 'bg-[#0FB9B1]/10 text-[#087F7A]' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                >
+                  <FileCheck className="w-4 h-4 text-[#0FB9B1]" />
+                  <span>{isRtl ? 'همکاری با ما' : 'Collaborate with us'}</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => handleMobileMenuNavigate('contact')}
-                  className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black transition-colors cursor-pointer ${currentView === 'contact' ? 'bg-[#26B6B6]/10 text-[#26B6B6]' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                  className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black transition-colors cursor-pointer ${currentView === 'contact' ? 'bg-[#0FB9B1]/10 text-[#087F7A]' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
                 >
-                  <MessageSquare className="w-4 h-4 shrink-0 text-[#26B6B6]" />
-                  <span>{isRtl ? 'تماس با ما' : 'Contact Us'}</span>
+                  <MessageSquare className="w-4 h-4 shrink-0 text-[#0FB9B1]" />
+                  <span>{isRtl ? 'تماس با ما' : 'Contact us'}</span>
                 </button>
 
                 <div className="my-2 border-t border-gray-100 dark:border-gray-800" />
@@ -1260,45 +1252,32 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Primary Navigation Menu */}
             <div className="flex items-center gap-5 md:gap-7 text-sm font-extrabold">
 
-              {/* Category Dropdown Menu anchor */}
-              <div
-                className="relative"
-                ref={categoriesRef}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-              >
+              {/* Two-level product-category navigation — temporary taxonomy, both levels navigate. */}
+              <div className="relative" ref={categoriesRef} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 <button
                   id="nav-categories"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (hoverTimeoutRef.current) {
-                      clearTimeout(hoverTimeoutRef.current);
-                      hoverTimeoutRef.current = null;
-                    }
-                    setCategoriesDropdownOpen(false);
-                    onNavigate('categories');
-                  }}
-                  className={`px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer flex items-center gap-1.5 font-extrabold shadow-2xs hover:shadow-xs hover:scale-102 ${
-                    currentView === 'categories' || categoriesDropdownOpen
-                      ? 'text-[#26B6B6] bg-[#26B6B6]/10 border border-[#26B6B6]/20'
-                      : 'text-gray-650 dark:text-gray-300 hover:text-[#26B6B6] border border-transparent hover:bg-gray-50 dark:hover:bg-gray-800/40'
-                  }`}
+                  type="button"
+                  onClick={() => setCategoriesDropdownOpen((open) => !open)}
+                  className={`px-3 py-2 rounded-lg transition-colors cursor-pointer inline-flex items-center gap-1.5 ${categoriesDropdownOpen || currentView === 'categories' ? 'text-[#087F7A] bg-[#0FB9B1]/10 font-black' : 'text-gray-600 dark:text-gray-400 hover:text-[#087F7A] hover:bg-gray-50 dark:hover:bg-gray-800/40'}`}
+                  aria-expanded={categoriesDropdownOpen}
                 >
-                  <span>{isRtl ? 'دسته‌بندی‌ها' : 'Categories'}</span>
-                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${categoriesDropdownOpen ? 'rotate-180 text-[#26B6B6]' : 'text-gray-400'}`} />
+                  <span>{isRtl ? 'دسته‌بندی محصولات' : 'Product categories'}</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${categoriesDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
-
-                <div ref={categoryPanelRef}>
-                  <SplitPaneNavMenu
-                    isOpen={categoriesDropdownOpen}
-                    onClose={() => setCategoriesDropdownOpen(false)}
-                    onMouseEnter={handleMouseEnter}
-                    onMouseLeave={handleMouseLeave}
-                    onSelect={(catId, subId, format) => handleCategorySelect(catId, subId || null, format || null)}
-                    onNavigate={onNavigate}
-                  />
-                </div>
+                {categoriesDropdownOpen && (
+                  <div ref={categoryPanelRef} className={`absolute ${isRtl ? 'right-0' : 'left-0'} top-full mt-2 z-[80] grid grid-cols-[175px_240px] overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xl animate-fadeIn`}>
+                    <div className="border-e border-gray-100 dark:border-gray-800 bg-slate-50/70 dark:bg-slate-950/30 p-2">
+                      {CATEGORIES.map((category) => (
+                        <button key={category.id} type="button" onMouseEnter={() => setHoveredCategoryId(category.id)} onClick={() => handleCategorySelect(category.id)} className={`w-full rounded-xl px-3 py-2.5 text-start text-xs font-black transition-colors cursor-pointer ${hoveredCategoryId === category.id ? 'bg-[#0FB9B1]/12 text-[#087F7A]' : 'text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800'}`}>
+                          {isRtl ? category.nameFa : category.nameEn}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="p-3">
+                      {(() => { const active = CATEGORIES.find((category) => category.id === hoveredCategoryId) || CATEGORIES[0]; return active ? <><button type="button" onClick={() => handleCategorySelect(active.id)} className="w-full text-start rounded-xl border border-[#0FB9B1]/20 bg-[#0FB9B1]/5 px-3 py-2 text-xs font-black text-[#087F7A] hover:bg-[#0FB9B1]/10 cursor-pointer">{isRtl ? `همهٔ محصولات ${active.nameFa} ←` : `All ${active.nameEn} →`}</button><div className="mt-2 grid grid-cols-1 gap-1">{active.subcategories.map((sub) => <button key={sub.id} type="button" onClick={() => handleCategorySelect(active.id, sub.id)} className="rounded-lg px-3 py-2 text-start text-[11px] text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-[#087F7A] cursor-pointer">{isRtl ? sub.nameFa : sub.nameEn}</button>)}</div></> : null; })()}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* IranBIMhub section menu */}
@@ -1323,7 +1302,7 @@ export const Header: React.FC<HeaderProps> = ({
                     <button type="button" role="menuitem" onClick={() => { setPlatformMenuOpen(false); onNavigate('about'); }} className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black text-gray-700 dark:text-gray-200 hover:bg-[#0FB9B1]/10 hover:text-[#087F7A] transition-colors cursor-pointer"><BookOpen className="w-4 h-4 shrink-0 text-[#0FB9B1]" /><span>{isRtl ? 'دربارهٔ ایران بیم هاب' : 'About IranBIMhub'}</span></button>
                     <button type="button" role="menuitem" onClick={() => { setPlatformMenuOpen(false); onNavigate('for-manufacturers'); }} className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black text-gray-700 dark:text-gray-200 hover:bg-[#0FB9B1]/10 hover:text-[#087F7A] transition-colors cursor-pointer"><Factory className="w-4 h-4 shrink-0 text-[#0FB9B1]" /><span>{isRtl ? 'برای تولیدکنندگان' : 'For manufacturers'}</span></button>
                     <button type="button" role="menuitem" onClick={() => { setPlatformMenuOpen(false); onNavigate('for-designers'); }} className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black text-gray-700 dark:text-gray-200 hover:bg-[#0FB9B1]/10 hover:text-[#087F7A] transition-colors cursor-pointer"><Layers className="w-4 h-4 shrink-0 text-[#0FB9B1]" /><span>{isRtl ? 'برای معماران و متخصصان BIM' : 'For architects and BIM specialists'}</span></button>
-                    <button type="button" role="menuitem" onClick={() => { setPlatformMenuOpen(false); onNavigate('for-bim-modelers'); }} className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black text-gray-700 dark:text-gray-200 hover:bg-[#0FB9B1]/10 hover:text-[#087F7A] transition-colors cursor-pointer"><FileCheck className="w-4 h-4 shrink-0 text-[#0FB9B1]" /><span>{isRtl ? 'همکاری با ما ' : 'Collaborate as a BIM specialist'}</span></button>
+                    <button type="button" role="menuitem" onClick={() => { setPlatformMenuOpen(false); onNavigate('for-bim-modelers'); }} className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black text-gray-700 dark:text-gray-200 hover:bg-[#0FB9B1]/10 hover:text-[#087F7A] transition-colors cursor-pointer"><FileCheck className="w-4 h-4 shrink-0 text-[#0FB9B1]" /><span>{isRtl ? 'همکاری با متخصصان BIM' : 'Collaborate as a BIM specialist'}</span></button>
                   </div>
                 )}
               </div>

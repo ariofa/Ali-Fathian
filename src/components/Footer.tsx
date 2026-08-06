@@ -41,14 +41,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           {/* Useful Quick Links */}
           <div className="pt-8 sm:pt-0 sm:ps-8 lg:ps-10 border-t sm:border-t-0 sm:border-s border-gray-200 dark:border-gray-800 pb-8 sm:pb-0">
             <h4 className="text-sm font-bold text-gray-800 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-800 pb-2">
-              {isRtl ? 'بخش‌های اصلی هاب' : 'Primary Channels'}
+              {isRtl ? 'ایران بیم هاب' : 'IranBIMhub'}
             </h4>
             <ul className="space-y-2.5 text-xs">
-              <li>
-                <button id="footer-link-categories" onClick={() => onNavigate('categories')} className="hover:text-[#26B6B6] dark:hover:text-[#26B6B6] transition-colors cursor-pointer text-start block w-full font-bold">
-                  {isRtl ? 'دسته‌بندی محصولات' : 'Product Categories'}
-                </button>
-              </li>
               <li>
                 <button id="footer-link-about" onClick={() => onNavigate('about')} className="hover:text-[#26B6B6] dark:hover:text-[#26B6B6] transition-colors cursor-pointer text-start block w-full font-bold">
                   {isRtl ? 'درباره ایران‌بیم‌هاب' : 'About IranBIMhub'}
@@ -56,12 +51,17 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </li>
               <li>
                 <button id="footer-link-designers" onClick={() => onNavigate('for-designers')} className="hover:text-[#26B6B6] dark:hover:text-[#26B6B6] transition-colors cursor-pointer text-start block w-full font-bold">
-                  {isRtl ? 'برای طراحان و مهندسان' : 'For BIM Designers'}
+                  {isRtl ? 'برای معماران و متخصصان BIM' : 'For architects and BIM specialists'}
                 </button>
               </li>
               <li>
                 <button id="footer-link-manufacturers" onClick={() => onNavigate('for-manufacturers')} className="hover:text-[#26B6B6] dark:hover:text-[#26B6B6] transition-colors cursor-pointer text-start block w-full font-bold">
-                  {isRtl ? 'برای تولیدکنندگان مصالح' : 'For Manufacturers'}
+                  {isRtl ? 'برای تولیدکنندگان' : 'For manufacturers'}
+                </button>
+              </li>
+              <li>
+                <button id="footer-link-collaboration" onClick={() => onNavigate('for-bim-modelers')} className="hover:text-[#087F7A] dark:hover:text-[#22D3EE] transition-colors cursor-pointer text-start block w-full font-bold">
+                  {isRtl ? 'همکاری با ما' : 'Collaborate with us'}
                 </button>
               </li>
               <li>
@@ -97,11 +97,6 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 <button id="footer-link-privacy" onClick={() => onNavigate('privacy')} className="hover:text-[#26B6B6] dark:hover:text-[#26B6B6] transition-colors cursor-pointer text-start block w-full">
                   {isRtl ? 'سیاست حفظ حریم خصوصی' : 'Privacy Policy'}
                 </button>
-              </li>
-              <li>
-                <span className="text-gray-400 dark:text-gray-500 block mt-2 text-start">
-                  {isRtl ? 'پشتیبانی فنی: ۲۴ ساعته' : 'Support: 24/7 Technical Desk'}
-                </span>
               </li>
             </ul>
           </div>
