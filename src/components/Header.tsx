@@ -27,7 +27,8 @@ import {
   BookOpen,
   Layers,
   Factory,
-  MessageSquare
+  MessageSquare,
+  FileCheck
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -65,6 +66,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [hoveredCategoryId, setHoveredCategoryId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
+  const [platformMenuOpen, setPlatformMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
@@ -197,6 +199,7 @@ export const Header: React.FC<HeaderProps> = ({
   const categoryPanelRef = useRef<HTMLDivElement>(null);
   const desktopAccountRef = useRef<HTMLDivElement>(null);
   const mobileAccountRef = useRef<HTMLDivElement>(null);
+  const platformMenuRef = useRef<HTMLDivElement>(null);
 
   // Sync searchQuery when search filter updates
   useEffect(() => {
@@ -230,6 +233,9 @@ export const Header: React.FC<HeaderProps> = ({
       const clickedOutsideMobileAccount = !mobileAccountRef.current || !mobileAccountRef.current.contains(target);
       if (clickedOutsideDesktopAccount && clickedOutsideMobileAccount) {
         setAccountDropdownOpen(false);
+      }
+      if (platformMenuRef.current && !platformMenuRef.current.contains(target)) {
+        setPlatformMenuOpen(false);
       }
       if (desktopSearchRef.current && !desktopSearchRef.current.contains(target)) {
         setShowAutocomplete(false);
@@ -1052,7 +1058,7 @@ export const Header: React.FC<HeaderProps> = ({
                   className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black transition-colors cursor-pointer ${currentView === 'about' ? 'bg-[#26B6B6]/10 text-[#26B6B6]' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
                 >
                   <BookOpen className="w-4 h-4 shrink-0 text-[#26B6B6]" />
-                  <span>{isRtl ? 'دربارهٔ ایران‌بیم‌هاب' : 'About IranBIMhub'}</span>
+                  <span>{isRtl ? 'ایران بیم هاب؛ درباره و مسیرها' : 'IranBIMhub: overview and paths'}</span>
                 </button>
                 <button
                   type="button"
@@ -1295,18 +1301,32 @@ export const Header: React.FC<HeaderProps> = ({
                 </div>
               </div>
 
-              {/* درباره ایران‌بیم‌هاب (About) */}
-              <button
-                id="nav-about"
-                onClick={() => onNavigate('about')}
-                className={`px-3 py-2 rounded-lg transition-colors cursor-pointer ${
-                  currentView === 'about'
-                    ? 'text-[#26B6B6] bg-[#26B6B6]/5 font-black'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-[#26B6B6]'
-                }`}
-              >
-                {isRtl ? 'درباره ایران‌بیم‌هاب' : 'About IranBIMhub'}
-              </button>
+              {/* IranBIMhub section menu */}
+              <div className="relative" ref={platformMenuRef}>
+                <button
+                  id="nav-iranbimhub"
+                  type="button"
+                  onClick={() => setPlatformMenuOpen((open) => !open)}
+                  className={`px-3 py-2 rounded-lg transition-colors cursor-pointer inline-flex items-center gap-1.5 ${
+                    platformMenuOpen || ['about', 'for-manufacturers', 'for-designers', 'for-bim-modelers'].includes(currentView)
+                      ? 'text-[#087F7A] bg-[#0FB9B1]/10 font-black'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-[#087F7A] hover:bg-gray-50 dark:hover:bg-gray-800/40'
+                  }`}
+                  aria-expanded={platformMenuOpen}
+                  aria-haspopup="menu"
+                >
+                  <span>{isRtl ? 'ایران بیم هاب' : 'IranBIMhub'}</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${platformMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {platformMenuOpen && (
+                  <div role="menu" className={`absolute ${isRtl ? 'right-0' : 'left-0'} top-full mt-2 z-[80] min-w-[235px] rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-2 shadow-xl animate-fadeIn`}>
+                    <button type="button" role="menuitem" onClick={() => { setPlatformMenuOpen(false); onNavigate('about'); }} className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black text-gray-700 dark:text-gray-200 hover:bg-[#0FB9B1]/10 hover:text-[#087F7A] transition-colors cursor-pointer"><BookOpen className="w-4 h-4 shrink-0 text-[#0FB9B1]" /><span>{isRtl ? 'دربارهٔ ایران بیم هاب' : 'About IranBIMhub'}</span></button>
+                    <button type="button" role="menuitem" onClick={() => { setPlatformMenuOpen(false); onNavigate('for-manufacturers'); }} className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black text-gray-700 dark:text-gray-200 hover:bg-[#0FB9B1]/10 hover:text-[#087F7A] transition-colors cursor-pointer"><Factory className="w-4 h-4 shrink-0 text-[#0FB9B1]" /><span>{isRtl ? 'برای تولیدکنندگان' : 'For manufacturers'}</span></button>
+                    <button type="button" role="menuitem" onClick={() => { setPlatformMenuOpen(false); onNavigate('for-designers'); }} className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black text-gray-700 dark:text-gray-200 hover:bg-[#0FB9B1]/10 hover:text-[#087F7A] transition-colors cursor-pointer"><Layers className="w-4 h-4 shrink-0 text-[#0FB9B1]" /><span>{isRtl ? 'برای معماران و متخصصان BIM' : 'For architects and BIM specialists'}</span></button>
+                    <button type="button" role="menuitem" onClick={() => { setPlatformMenuOpen(false); onNavigate('for-bim-modelers'); }} className="w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black text-gray-700 dark:text-gray-200 hover:bg-[#0FB9B1]/10 hover:text-[#087F7A] transition-colors cursor-pointer"><FileCheck className="w-4 h-4 shrink-0 text-[#0FB9B1]" /><span>{isRtl ? 'همکاری با ما ' : 'Collaborate as a BIM specialist'}</span></button>
+                  </div>
+                )}
+              </div>
 
               {/* تماس با ما (Contact Us) */}
               <button
