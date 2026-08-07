@@ -14,6 +14,7 @@ import {
   HelpCircle,
   ChevronDown,
   Loader2,
+  Layers,
   Mail,
   MapPin,
   MessageCircle,
@@ -228,24 +229,24 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
   const benefits = [
     {
       icon: <Building2 className="w-5 h-5" />,
-      titleFa: 'ورود به مرحله طراحی',
-      titleEn: 'Enter the Design Stage',
-      descFa: 'محصول شما فقط در کاتالوگ دیده نمی‌شود؛ بلکه وارد مدل، نقشه و تصمیم‌گیری پروژه می‌شود.',
-      descEn: 'Your product is not only seen in a catalog; it enters models, drawings and project decisions.'
-    },
-    {
-      icon: <ShieldCheck className="w-5 h-5" />,
-      titleFa: 'انتشار کنترل‌شده و معتبر',
-      titleEn: 'Controlled and Trusted Publishing',
-      descFa: 'هیچ فایل BIM بدون بررسی فنی منتشر نمی‌شود؛ این موضوع از اعتبار برند شما و کیفیت پلتفرم محافظت می‌کند.',
-      descEn: 'No BIM file is published without technical review, protecting both your brand and platform quality.'
+      titleFa: 'حضور در مرحلهٔ طراحی',
+      titleEn: 'Presence in the Design Stage',
+      descFa: 'محصول شما در جایی دیده می‌شود که گزینه‌های پروژه بررسی می‌شوند.',
+      descEn: 'Your product is visible where project options are reviewed.'
     },
     {
       icon: <Package className="w-5 h-5" />,
-      titleFa: 'خدمات کامل دیجیتال‌سازی محصول',
-      titleEn: 'Complete Product Digitization Service',
-      descFa: 'اگر فایل ندارید، ایران‌بیم‌هاب می‌تواند مسیر تولید آبجکت BIM استاندارد را برای محصولات شما تعریف کند.',
-      descEn: 'If you do not have files, IranBIMhub can define the standard BIM creation path for your products.'
+      titleFa: 'معرفی حرفه‌ای محصول',
+      titleEn: 'Professional Product Introduction',
+      descFa: 'کاتالوگ، اطلاعات فنی و مسیر BIM محصول در یک معرفی منظم کنار هم قرار می‌گیرند.',
+      descEn: 'Catalogs, technical information, and the BIM path are presented in one structured introduction.'
+    },
+    {
+      icon: <ShieldCheck className="w-5 h-5" />,
+      titleFa: 'مسیر روشن برای BIM',
+      titleEn: 'A Clear BIM Path',
+      descFa: 'چه فایل آماده داشته باشید و چه نداشته باشید، قدم بعدی برای محصول شما مشخص می‌شود.',
+      descEn: 'Whether you have ready files or not, the next step for your product becomes clear.'
     }
   ];
 
@@ -358,12 +359,15 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
             <div className="rounded-3xl border border-white/12 bg-white/7 p-6 sm:p-7 backdrop-blur-sm shadow-2xl">
               <div className="flex items-center gap-3">
                 <div className="w-11 h-11 rounded-2xl bg-[#26B6B6]/15 text-[#26B6B6] flex items-center justify-center border border-[#26B6B6]/20"><Factory className="w-5 h-5" /></div>
-                <div><h2 className="text-base font-black text-white">{isRtl ? 'از محصول واقعی تا انتخاب در طراحی' : 'From real product to design selection'}</h2><p className="mt-1 text-xs text-gray-400">{isRtl ? 'دو نقطهٔ شروع، متناسب با وضعیت برند شما' : 'Two starting points for your brand'}</p></div>
+                <div><h2 className="text-base font-black text-white">{isRtl ? 'از محصول واقعی تا انتخاب در طراحی' : 'From real product to design selection'}</h2><p className="mt-1 text-xs text-gray-400">{isRtl ? 'محصول، اطلاعات فنی و BIM در یک مسیر قابل‌فهم' : 'Product, technical information, and BIM on one clear path'}</p></div>
               </div>
-              <div className="mt-6 space-y-3">
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><p className="text-sm font-black text-white">{isRtl ? 'فایل BIM ندارید؟' : 'No BIM files yet?'}</p><p className="mt-2 text-xs leading-6 text-gray-300">{isRtl ? 'با کاتالوگ، دیتاشیت یا اطلاعات واقعی محصول شروع کنید.' : 'Start with your catalog, datasheet, or real product information.'}</p></div>
-                <div className="rounded-2xl border border-[#26B6B6]/20 bg-[#26B6B6]/8 p-4"><p className="text-sm font-black text-white">{isRtl ? 'فایل BIM آماده دارید؟' : 'Ready BIM files?'}</p><p className="mt-2 text-xs leading-6 text-gray-200">{isRtl ? 'فایل را برای بررسی فنی و مسیر انتشار معرفی کنید.' : 'Introduce the file for technical review and the publication path.'}</p></div>
+              <div className="mt-7 grid grid-cols-3 items-center gap-2 text-center">
+                <div className="rounded-2xl bg-white/5 border border-white/10 p-3"><FileText className="w-5 h-5 mx-auto text-[#26B6B6]" /><p className="mt-2 text-[11px] font-bold text-gray-200">{isRtl ? 'کاتالوگ محصول' : 'Product catalog'}</p></div>
+                <div className="text-[#26B6B6] text-xl">←</div>
+                <div className="rounded-2xl bg-[#26B6B6]/10 border border-[#26B6B6]/20 p-3"><Layers className="w-5 h-5 mx-auto text-[#26B6B6]" /><p className="mt-2 text-[11px] font-bold text-gray-200">{isRtl ? 'آبجکت BIM' : 'BIM object'}</p></div>
               </div>
+              <div className="mt-3 flex items-center gap-2"><div className="h-px flex-1 bg-white/15" /><span className="text-[#26B6B6] text-xl">↓</span><div className="h-px flex-1 bg-white/15" /></div>
+              <div className="mt-3 rounded-2xl bg-white/5 border border-white/10 p-3 text-center"><Building2 className="w-5 h-5 mx-auto text-[#26B6B6]" /><p className="mt-2 text-[11px] font-bold text-gray-200">{isRtl ? 'مرحلهٔ طراحی پروژه' : 'Project design stage'}</p></div>
             </div>
           </div>
         </div>
@@ -452,80 +456,72 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
         </div>
       </section>
 
-      {/* BENEFITS + PROCESS */}
+      {/* BRAND VALUE + OPTIONAL PROCESS */}
       <section className="bg-white dark:bg-gray-900 border-y border-gray-100 dark:border-gray-800 py-12 sm:py-16 text-start">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {benefits.map(benefit => (
               <div key={benefit.titleEn} className="bg-[#FBFBFC] dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-3xl p-5">
-                <div className="w-11 h-11 rounded-2xl bg-[#26B6B6]/10 text-[#26B6B6] flex items-center justify-center mb-4">
-                  {benefit.icon}
-                </div>
-                <h3 className="text-sm font-black text-gray-900 dark:text-white mb-2">{isRtl ? benefit.titleFa : benefit.titleEn}</h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">{isRtl ? benefit.descFa : benefit.descEn}</p>
+                <div className="w-11 h-11 rounded-2xl bg-[#26B6B6]/10 text-[#26B6B6] flex items-center justify-center mb-4">{benefit.icon}</div>
+                <h3 className="text-base font-black text-gray-900 dark:text-white mb-2">{isRtl ? benefit.titleFa : benefit.titleEn}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 leading-7">{isRtl ? benefit.descFa : benefit.descEn}</p>
               </div>
             ))}
           </div>
 
-          <div className="space-y-6" id="manufacturer-process">
-            <div className="max-w-3xl space-y-3">
-              <span className="text-[11px] font-black text-[#26B6B6] uppercase tracking-wider">
-                {isRtl ? 'فرآیند پیشنهادی' : 'Recommended Process'}
+          <div id="manufacturer-process" className="border-t border-gray-100 dark:border-gray-800 pt-8">
+            <div className="max-w-3xl">
+              <span className="block text-xs font-black text-[#26B6B6]">
+                {isRtl ? 'فرآیند خدمات برند' : 'Brand service process'}
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white">
-                {isRtl ? 'از بررسی اولیه تا مسیر انتشار' : 'From Initial Review to Publication Path'}
+              <h2 className="mt-2 text-2xl sm:text-3xl font-black text-gray-900 dark:text-white">
+                {isRtl ? 'مسیر همکاری را مرحله‌به‌مرحله ببینید' : 'See the collaboration path step by step'}
               </h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {processSteps.map((step, index) => (
-                <div key={step.titleEn} className="relative bg-[#FBFBFC] dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-3xl p-5">
-                  <div className="w-9 h-9 rounded-2xl bg-[#26B6B6] text-white flex items-center justify-center text-sm font-black mb-4">
-                    {isRtl ? ['۱', '۲', '۳', '۴'][index] : index + 1}
+
+            <div className="mt-7 space-y-7">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {processSteps.map((step, index) => (
+                  <div
+                    key={step.titleEn}
+                    className="relative bg-[#FBFBFC] dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-3xl p-5"
+                  >
+                    <div className="w-9 h-9 rounded-2xl bg-[#26B6B6] text-white flex items-center justify-center text-sm font-black mb-4">
+                      {isRtl ? ['۱', '۲', '۳', '۴'][index] : index + 1}
+                    </div>
+                    <h3 className="text-sm font-black text-gray-900 dark:text-white mb-2">
+                      {isRtl ? step.titleFa : step.titleEn}
+                    </h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                      {isRtl ? step.descFa : step.descEn}
+                    </p>
                   </div>
-                  <h3 className="text-sm font-black text-gray-900 dark:text-white mb-2">{isRtl ? step.titleFa : step.titleEn}</h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">{isRtl ? step.descFa : step.descEn}</p>
+                ))}
+              </div>
+
+              <div className="border-s-4 border-[#087F7A] bg-[#087F7A]/8 dark:bg-[#087F7A]/12 rounded-2xl p-5">
+                <div className="flex items-start gap-3">
+                  <ClipboardCheck className="w-5 h-5 text-[#087F7A] dark:text-[#26B6B6] shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="text-base font-black text-gray-900 dark:text-white">
+                      {isRtl
+                        ? 'فایل BIM آماده چگونه بررسی می‌شود؟'
+                        : 'How is a ready BIM file reviewed?'}
+                    </h3>
+                    <p className="mt-2 text-sm leading-7 text-gray-600 dark:text-gray-300">
+                      {isRtl
+                        ? 'پس از تعیین دامنهٔ کار، مسیر ارزیابی فنی، گزارش اصلاحات و شرایط انتشار متناسب با وضعیت فایل و محصول مشخص می‌شود.'
+                        : 'After scope is defined, the technical review path, correction report, and publication conditions are set according to the file and product status.'}
+                    </p>
+                  </div>
                 </div>
-              ))}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* AUDIT NOTICE */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 text-start">
-        <div className="bg-slate-900 text-white rounded-[2rem] p-6 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center overflow-hidden relative">
-          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#26B6B6_1.5px,transparent_1.5px)] [background-size:22px_22px]" />
-          <div className="relative z-10 lg:col-span-8 space-y-3">
-            <div className="inline-flex items-center gap-2 text-[#26B6B6] text-[11px] font-black">
-              <ClipboardCheck className="w-4 h-4" />
-              <span>{isRtl ? 'ارزیابی فنی فایل BIM آماده' : 'Technical Audit for Ready BIM Files'}</span>
-            </div>
-            <h2 className="text-2xl font-black">
-              {isRtl ? 'آپلود رسمی فایل‌های آماده فقط در پنل برند انجام می‌شود' : 'Official Upload of Ready Files Happens Only in the Brand Panel'}
-            </h2>
-            <p className="text-sm text-gray-300 leading-relaxed">
-              {isRtl
-                ? 'بررسی اولیه برای شناخت محصول و انتخاب مسیر انجام می‌شود. خدمات تخصصی مانند مدل‌سازی، اصلاح یا ارزیابی فنی فایل پس از مشخص‌شدن دامنهٔ کار، خروجی موردنیاز و زمان‌بندی، به‌صورت شفاف برآورد می‌شوند.'
-                : 'Initial review is used to understand the product and select the right path. Specialist services such as modeling, correction, or technical file audit are estimated transparently after scope, deliverables, and timing are defined.'
-              }
-            </p>
-          </div>
-          <div className="relative z-10 lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3">
-            <button
-              type="button"
-              onClick={openManufacturerRegistration}
-              className="px-5 py-3 bg-[#26B6B6] hover:bg-[#1e9494] rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center gap-2"
-            >
-              <Factory className="w-4 h-4" />
-              <span>{isRtl ? 'ساخت پروفایل برند' : 'Create Brand Profile'}</span>
-            </button>
-            <a href="#manufacturer-lead-form" className="px-5 py-3 bg-white/10 hover:bg-white/15 border border-white/10 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-2">
-              <FileText className="w-4 h-4" />
-              <span>{isRtl ? 'درخواست بررسی اولیه' : 'Request Initial Review'}</span>
-            </a>
-          </div>
-        </div>
-      </section>
+
 
       {/* FOUNDING BRANDS: a restrained opportunity message after service scope clarification, before the decision form. */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-12 text-start">
