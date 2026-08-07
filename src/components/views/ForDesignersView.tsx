@@ -178,30 +178,30 @@ export const ForDesignersView: React.FC<ForDesignersViewProps> = ({
             <div className="absolute -inset-1.5 bg-[#26B6B6]/15 rounded-3xl blur-2xl" />
             <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-white dark:bg-gray-900 shadow-2xl text-gray-800 dark:text-gray-100 p-4 sm:p-5">
               <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
-                <span className="text-[11px] font-black text-[#138F8F] dark:text-[#26B6B6]">BIM WORKFLOW</span>
-                <span className="text-[10px] font-bold text-gray-400">PRODUCT → BIM → DESIGN</span>
+                <span className="text-xs sm:text-[11px] font-black text-[#138F8F] dark:text-[#26B6B6]">BIM WORKFLOW</span>
+                <span className="text-[11px] sm:text-[10px] font-bold text-gray-400">PRODUCT → BIM → DESIGN</span>
               </div>
 
               <div className="mt-5 grid grid-cols-1 sm:grid-cols-[.8fr_auto_1.25fr_auto_.8fr] gap-3 items-stretch" dir={isRtl ? 'rtl' : 'ltr'}>
                 <div className="rounded-2xl bg-gray-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 overflow-hidden text-center">
-                  <div className="h-24 overflow-hidden bg-white dark:bg-gray-900">
-                    <img src="/hero/bim-window.webp" alt="Generic window product" className="w-full h-full object-cover" />
+                  <div className="h-44 sm:h-24 overflow-hidden bg-white dark:bg-gray-900">
+                    <img src="/hero/bim-window.webp" alt="Generic window product" className="w-full h-full object-contain p-2" />
                   </div>
                   <div className="p-3">
-                    <p className="text-[10px] font-black text-[#464E56] dark:text-gray-200">PRODUCT</p>
-                    <p className="mt-1 text-[10px] text-gray-400">Real product information</p>
+                    <p className="text-xs sm:text-[10px] font-black text-[#464E56] dark:text-gray-200">PRODUCT</p>
+                    <p className="mt-1 text-[11px] sm:text-[10px] text-gray-400">Real product information</p>
                   </div>
                 </div>
 
                 <div className="hidden sm:flex items-center justify-center text-lg font-black text-[#26B6B6]">←</div>
 
-                <div className="relative overflow-hidden rounded-2xl bg-[#0F3D5E] min-h-[195px] text-white p-4">
+                <div className="relative overflow-hidden rounded-2xl bg-[#0F3D5E] min-h-[215px] sm:min-h-[195px] text-white p-4">
                   <img src="/hero/bim-window.webp" alt="BIM object example" className="absolute inset-0 w-full h-full object-cover opacity-25 grayscale" />
                   <div className="absolute inset-0 bg-[linear-gradient(rgba(34,211,238,.12)_1px,transparent_1px),linear-gradient(90deg,rgba(34,211,238,.12)_1px,transparent_1px)] bg-[size:18px_18px]" />
                   <div className="relative h-full flex flex-col justify-between">
-                    <div className="flex items-center justify-between"><span className="text-[11px] font-black text-[#22D3EE]">BIM OBJECT</span><Layers className="w-4 h-4 text-[#22D3EE]" /></div>
-                    <div className="grid grid-cols-2 gap-1.5 text-[9px] font-bold text-slate-100">
-                      {['Dimensions', 'Material', 'Manufacturer', 'Performance', 'BIM Parameters', 'File Format'].map((label) => <span key={label} className="rounded-md border border-[#22D3EE]/25 bg-[#0B1220]/45 px-1.5 py-1 text-center">{label}</span>)}
+                    <div className="flex items-center justify-between"><span className="text-xs sm:text-[11px] font-black text-[#22D3EE]">BIM OBJECT</span><Layers className="w-4 h-4 text-[#22D3EE]" /></div>
+                    <div className="grid grid-cols-2 gap-2 text-[11px] sm:text-[9px] font-bold text-slate-100">
+                      {['Dimensions', 'Material', 'Manufacturer', 'Performance', 'BIM Parameters', 'File Format'].map((label) => <span key={label} className="rounded-md border border-[#22D3EE]/25 bg-[#0B1220]/45 px-2 py-1.5 sm:px-1.5 sm:py-1 text-center">{label}</span>)}
                     </div>
                   </div>
                 </div>
@@ -211,11 +211,11 @@ export const ForDesignersView: React.FC<ForDesignersViewProps> = ({
                 <div className="relative rounded-2xl bg-gray-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 p-3 text-center overflow-hidden">
                   <div className="absolute inset-0 opacity-[0.09] bg-[radial-gradient(#26B6B6_1px,transparent_1px)] [background-size:10px_10px]" />
                   <div className="relative h-24 flex items-center justify-center"><Building2 className="w-14 h-14 text-[#464E56] dark:text-gray-300" /><span className="absolute w-4 h-7 border-2 border-[#26B6B6] bg-[#26B6B6]/15 rounded-sm" /></div>
-                  <div className="relative"><p className="text-[10px] font-black text-[#464E56] dark:text-gray-200">PROJECT MODEL</p><p className="mt-1 text-[10px] text-gray-400">Use in design workflow</p></div>
+                  <div className="relative"><p className="text-xs sm:text-[10px] font-black text-[#464E56] dark:text-gray-200">PROJECT MODEL</p><p className="mt-1 text-[11px] sm:text-[10px] text-gray-400">Use in design workflow</p></div>
                 </div>
               </div>
 
-              <p className="mt-4 border-t border-gray-100 dark:border-gray-800 pt-3 text-[10px] leading-6 text-gray-500 dark:text-gray-400 text-start">
+              <p className="mt-4 border-t border-gray-100 dark:border-gray-800 pt-3 text-xs sm:text-[10px] leading-6 text-gray-500 dark:text-gray-400 text-start">
                 {isRtl ? 'نمونهٔ ساختاری مسیر محصول؛ فیلدها و وضعیت قابل‌نمایش هر محصول بر اساس اطلاعات واقعی همان برند مشخص می‌شود.' : 'A structural product-path example; visible fields and publication status are determined from each brand’s real information.'}
               </p>
             </div>
