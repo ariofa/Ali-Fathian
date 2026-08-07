@@ -18,10 +18,8 @@ import {
   Mail,
   MapPin,
   MessageCircle,
-  Package,
   Phone,
   Send,
-  ShieldCheck,
   Sparkles,
   UploadCloud,
   Wand2
@@ -226,29 +224,7 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
     }
   ];
 
-  const benefits = [
-    {
-      icon: <Building2 className="w-5 h-5" />,
-      titleFa: 'حضور در مرحلهٔ طراحی',
-      titleEn: 'Presence in the Design Stage',
-      descFa: 'محصول شما در جایی دیده می‌شود که گزینه‌های پروژه بررسی می‌شوند.',
-      descEn: 'Your product is visible where project options are reviewed.'
-    },
-    {
-      icon: <Package className="w-5 h-5" />,
-      titleFa: 'معرفی حرفه‌ای محصول',
-      titleEn: 'Professional Product Introduction',
-      descFa: 'کاتالوگ، اطلاعات فنی و مسیر BIM محصول در یک معرفی منظم کنار هم قرار می‌گیرند.',
-      descEn: 'Catalogs, technical information, and the BIM path are presented in one structured introduction.'
-    },
-    {
-      icon: <ShieldCheck className="w-5 h-5" />,
-      titleFa: 'مسیر روشن برای BIM',
-      titleEn: 'A Clear BIM Path',
-      descFa: 'چه فایل آماده داشته باشید و چه نداشته باشید، قدم بعدی برای محصول شما مشخص می‌شود.',
-      descEn: 'Whether you have ready files or not, the next step for your product becomes clear.'
-    }
-  ];
+
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
@@ -373,6 +349,87 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
         </div>
       </section>
 
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-14 text-start">
+        <div className="border-s-4 border-[#26B6B6] ps-5 sm:ps-7">
+          <h2 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white">
+            {isRtl
+              ? 'محصولتان را وارد فرآیند تصمیم‌گیری پروژه کنید'
+              : 'Bring your product into the project decision-making process'}
+          </h2>
+
+          <p className="mt-5 text-sm sm:text-base leading-8 text-gray-600 dark:text-gray-300">
+            {isRtl
+              ? 'معماران، مهندسان و مشاوران، پیش از آغاز اجرا، محصولات ساختمانی را در مرحلهٔ طراحی بررسی و انتخاب می‌کنند. اگر محصول شما در این مرحله حضور نداشته باشد، فرصت دیده‌شدن و انتخاب‌شدن را از دست می‌دهد.'
+              : 'Architects, engineers, and consultants review and select building products during design, before construction begins. If your product is absent at this stage, it loses an opportunity to be seen and considered.'}
+          </p>
+
+          <p className="mt-4 text-sm sm:text-base leading-8 text-gray-600 dark:text-gray-300">
+            {isRtl
+              ? 'ایران بیم هاب محصولات شما را با مدل‌های BIM، اطلاعات فنی و مستندات مهندسی در اختیار جامعهٔ معماری و مهندسی قرار می‌دهد تا دقیقاً در زمانی که تصمیم‌های پروژه گرفته می‌شوند، دیده شوید.'
+              : 'IranBIMhub makes your products available to the architecture and engineering community through BIM models, technical information, and engineering documentation—at the time project decisions are being made.'}
+          </p>
+
+          <p className="mt-5 text-base font-black leading-7 text-[#0F3D5E] dark:text-[#22D3EE]">
+            {isRtl
+              ? 'حضور در طراحی، اولین قدم برای حضور در پروژه است.'
+              : 'Presence in design is the first step toward presence in the project.'}
+          </p>
+        </div>
+      </section>
+
+      {/* PRODUCT-TO-DESIGN EXAMPLE: a simple generic visual, intentionally not tied to any real brand. */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 text-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[.8fr_1.2fr] gap-8 lg:gap-12 items-center">
+          <div>
+            <span className="text-xs font-black text-[#26B6B6]">
+              {isRtl ? 'یک مثال ساده از مسیر محصول' : 'A simple product-path example'}
+            </span>
+            <h2 className="mt-3 text-2xl sm:text-3xl font-black text-gray-900 dark:text-white">
+              {isRtl ? 'از کاتالوگ پنجره تا استفاده در طراحی پروژه' : 'From a window catalog to use in project design'}
+            </h2>
+            <p className="mt-4 text-sm leading-8 text-gray-600 dark:text-gray-300">
+              {isRtl
+                ? 'این مثال فقط مسیر تبدیل اطلاعات محصول را نشان می‌دهد. در نسخهٔ واقعی، محصول، مشخصات فنی و فایل BIM هر برند بر اساس اطلاعات واقعی همان برند معرفی می‌شود.'
+                : 'This example only illustrates the product-information path. In the live platform, each product, technical specification, and BIM file is introduced from the real information of that brand.'}
+            </p>
+          </div>
+
+          <div className="rounded-3xl border border-[#26B6B6]/20 bg-[#26B6B6]/5 p-5 sm:p-7">
+            <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr_auto_1fr] gap-4 items-center" dir={isRtl ? 'rtl' : 'ltr'}>
+              <div className="rounded-2xl bg-white dark:bg-gray-950 border border-gray-100 dark:border-gray-800 p-5 text-center">
+                <FileText className="w-8 h-8 mx-auto text-[#464E56] dark:text-gray-300" />
+                <h3 className="mt-3 text-sm font-black text-gray-900 dark:text-white">{isRtl ? 'کاتالوگ و اطلاعات محصول' : 'Catalog and product information'}</h3>
+                <p className="mt-2 text-xs leading-6 text-gray-500 dark:text-gray-400">{isRtl ? 'ابعاد، مشخصات فنی و کد محصول' : 'Dimensions, technical specifications, and product code'}</p>
+              </div>
+
+              <div className="hidden sm:flex items-center justify-center text-2xl font-black text-[#26B6B6]">←</div>
+
+              <div className="rounded-2xl bg-[#0F3D5E] border border-[#0F3D5E] p-5 text-center text-white">
+                <Layers className="w-8 h-8 mx-auto text-[#22D3EE]" />
+                <h3 className="mt-3 text-sm font-black">{isRtl ? 'آبجکت BIM پنجره' : 'Window BIM object'}</h3>
+                <p className="mt-2 text-xs leading-6 text-slate-200">{isRtl ? 'مدل سه‌بعدی همراه با اطلاعات محصول' : '3D model with product information'}</p>
+              </div>
+
+              <div className="hidden sm:flex items-center justify-center text-2xl font-black text-[#26B6B6]">←</div>
+
+              <div className="rounded-2xl bg-white dark:bg-gray-950 border border-gray-100 dark:border-gray-800 p-5 text-center">
+                <Building2 className="w-8 h-8 mx-auto text-[#087F7A]" />
+                <h3 className="mt-3 text-sm font-black text-gray-900 dark:text-white">{isRtl ? 'طراحی پروژه' : 'Project design'}</h3>
+                <p className="mt-2 text-xs leading-6 text-gray-500 dark:text-gray-400">{isRtl ? 'بررسی محصول در مدل ساختمان' : 'Product review inside the building model'}</p>
+              </div>
+            </div>
+
+            <div className="mt-5 flex items-center justify-center gap-2 text-xs font-black text-[#087F7A] dark:text-[#22D3EE]">
+              <span>{isRtl ? 'اطلاعات محصول' : 'Product information'}</span>
+              <span>←</span>
+              <span>{isRtl ? 'آبجکت BIM' : 'BIM object'}</span>
+              <span>←</span>
+              <span>{isRtl ? 'مرحلهٔ طراحی' : 'Design stage'}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* TWO PATHS */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-8 text-start">
         <div className="max-w-3xl space-y-3">
@@ -459,14 +516,18 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
       {/* BRAND VALUE + OPTIONAL PROCESS */}
       <section className="bg-white dark:bg-gray-900 border-y border-gray-100 dark:border-gray-800 py-12 sm:py-16 text-start">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {benefits.map(benefit => (
-              <div key={benefit.titleEn} className="bg-[#FBFBFC] dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-3xl p-5">
-                <div className="w-11 h-11 rounded-2xl bg-[#26B6B6]/10 text-[#26B6B6] flex items-center justify-center mb-4">{benefit.icon}</div>
-                <h3 className="text-base font-black text-gray-900 dark:text-white mb-2">{isRtl ? benefit.titleFa : benefit.titleEn}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 leading-7">{isRtl ? benefit.descFa : benefit.descEn}</p>
-              </div>
-            ))}
+          <div className="max-w-5xl text-start">
+            <span className="text-xs font-black text-[#26B6B6]">
+              {isRtl ? 'چرا این مسیر برای برند شما مهم است؟' : 'Why does this path matter for your brand?'}
+            </span>
+            <h2 className="mt-3 text-2xl sm:text-3xl font-black text-gray-900 dark:text-white">
+              {isRtl ? 'محصولتان را در جایی معرفی کنید که گزینه‌های پروژه بررسی می‌شوند' : 'Introduce your product where project options are reviewed'}
+            </h2>
+            <p className="mt-4 text-sm leading-8 text-gray-600 dark:text-gray-300">
+              {isRtl
+                ? 'وقتی کاتالوگ، اطلاعات فنی و مسیر BIM محصول در یک معرفی منظم کنار هم قرار بگیرند، محصول شما فقط در میان فایل‌های پراکنده باقی نمی‌ماند. معماران و مهندسان می‌توانند آن را در مرحلهٔ طراحی بررسی کنند؛ شما نیز بدون نیاز به متخصص BIM از روز اول، مسیر مناسب آماده‌سازی محصول را پیدا می‌کنید.'
+                : 'When catalogs, technical information, and the BIM path are brought together in one structured introduction, your product no longer remains among scattered files. Architects and engineers can review it during design, while you can identify the right preparation path without needing BIM expertise from day one.'}
+            </p>
           </div>
 
           <div id="manufacturer-process" className="border-t border-gray-100 dark:border-gray-800 pt-8">
