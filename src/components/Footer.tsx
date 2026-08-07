@@ -20,12 +20,12 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
     : (siteConfig?.footer?.addressEn || 'Suite 402, Shokoufaei Bldg, Pardis Technology Park, Tehran, Iran');
 
   return (
-    <footer className="bg-slate-50 dark:bg-gray-950 text-gray-600 dark:text-gray-300 mt-16 border-t border-gray-200 dark:border-gray-800 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <footer className="bg-slate-50 dark:bg-gray-950 text-gray-600 dark:text-gray-300 mt-10 sm:mt-16 border-t border-gray-200 dark:border-gray-800 transition-colors">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           
           {/* Logo & Intro column */}
-          <div className="pb-8 sm:pb-0 sm:pe-8 lg:pe-10 space-y-5">
+          <div className="pb-6 sm:pb-0 sm:pe-8 lg:pe-10 space-y-5">
             <div className="flex items-center">
               <Logo className="h-12" />
             </div>
@@ -39,11 +39,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           </div>
 
           {/* Useful Quick Links */}
-          <div className="pt-8 sm:pt-0 sm:ps-8 lg:ps-10 border-t sm:border-t-0 sm:border-s border-gray-200 dark:border-gray-800 pb-8 sm:pb-0">
-            <h4 className="text-sm font-bold text-gray-800 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-800 pb-2">
+          <div className="pt-6 sm:pt-0 sm:ps-8 lg:ps-10 border-t sm:border-t-0 sm:border-s border-gray-200 dark:border-gray-800 pb-6 sm:pb-0">
+            <h4 className="text-sm font-bold text-gray-800 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-800 pb-2">
               {isRtl ? 'ایران بیم هاب' : 'IranBIMhub'}
             </h4>
-            <ul className="space-y-2.5 text-xs">
+            <ul className="space-y-2 text-xs">
               <li>
                 <button id="footer-link-about" onClick={() => onNavigate('about')} className="hover:text-[#26B6B6] dark:hover:text-[#26B6B6] transition-colors cursor-pointer text-start block w-full font-bold">
                   {isRtl ? 'درباره ایران‌بیم‌هاب' : 'About IranBIMhub'}
@@ -73,11 +73,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           </div>
 
           {/* Legal / Informational */}
-          <div className="pt-8 sm:pt-8 lg:pt-0 sm:pe-8 lg:pe-0 border-t sm:border-t lg:border-t-0 lg:border-s border-gray-200 dark:border-gray-800 pb-8 sm:pb-0">
-            <h4 className="text-sm font-bold text-gray-800 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-800 pb-2">
+          <div className="pt-6 sm:pt-8 lg:pt-0 sm:pe-8 lg:pe-0 border-t sm:border-t lg:border-t-0 lg:border-s border-gray-200 dark:border-gray-800 pb-6 sm:pb-0">
+            <h4 className="text-sm font-bold text-gray-800 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-800 pb-2">
               {isRtl ? 'پایگاه دانش و آیین‌نامه‌ها' : 'Knowledge Base & Legal'}
             </h4>
-            <ul className="space-y-2.5 text-xs">
+            <ul className="space-y-2 text-xs">
               <li>
                 <button id="footer-link-mfg-directory" onClick={() => onNavigate('manufacturers')} className="hover:text-[#26B6B6] dark:hover:text-[#26B6B6] transition-colors cursor-pointer text-start block w-full">
                   {isRtl ? 'دایرکتوری برندهای ساختمان' : 'Physical Brands Directory'}
@@ -102,8 +102,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           </div>
 
           {/* Contact Details */}
-          <div className="pt-8 sm:pt-8 lg:pt-0 sm:ps-8 lg:ps-10 border-t sm:border-t lg:border-t-0 sm:border-s lg:border-s border-gray-200 dark:border-gray-800 space-y-3 text-xs">
-            <h4 className="text-sm font-bold text-gray-800 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-800 pb-2">
+          <div className="pt-6 sm:pt-8 lg:pt-0 sm:ps-8 lg:ps-10 border-t sm:border-t lg:border-t-0 sm:border-s lg:border-s border-gray-200 dark:border-gray-800 space-y-3 text-xs">
+            <h4 className="text-sm font-bold text-gray-800 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-800 pb-2">
               {t('contact')}
             </h4>
             <div className="flex items-center gap-2 text-start">
@@ -129,7 +129,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         </div>
 
         {/* Outer credit line */}
-        <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-400 dark:text-gray-500 gap-4">
+        <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-400 dark:text-gray-500 gap-4">
           <div className="text-gray-500 dark:text-gray-400">
             &copy; 2026 {isRtl ? 'ایران‌بیم‌هاب. تمامی حقوق مادی و معنوی محفوظ است.' : 'IranBIMhub. All Rights Reserved.'}
           </div>

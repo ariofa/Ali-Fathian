@@ -60,7 +60,6 @@ export const AboutView: React.FC<AboutViewProps> = ({
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '', department: 'general' });
   const [mfgSearch, setMfgSearch] = useState('');
   const [isAboutVideoOpen, setIsAboutVideoOpen] = useState(false);
-  const [activeWorkflow, setActiveWorkflow] = useState<'library' | 'brand'>('library');
 
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,18 +85,18 @@ export const AboutView: React.FC<AboutViewProps> = ({
     );
 
     return (
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7 sm:py-9 space-y-11 sm:space-y-16" dir={isRtl ? 'rtl' : 'ltr'}>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-9 space-y-8 sm:space-y-14" dir={isRtl ? 'rtl' : 'ltr'}>
         {/* Hero is the only visual container; the only content cards appear later in the value section. */}
-        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0F3D5E] via-[#123D5A] to-[#064E4B] text-white px-6 py-9 sm:px-10 sm:py-12">
+        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0F3D5E] via-[#123D5A] to-[#064E4B] text-white px-5 py-7 sm:px-10 sm:py-12">
           <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#0FB9B1_1px,transparent_1px)] [background-size:20px_20px]" />
           <div className="relative grid grid-cols-1 xl:grid-cols-[1.3fr_.7fr] gap-7 xl:gap-10 items-center">
             <div className="text-start">
               <p className="text-xs sm:text-sm font-black text-[#22D3EE]">{isRtl ? 'اولین مرجع تخصصی بازار ملی BIM ایران' : 'Iran’s first specialist national BIM marketplace'}</p>
-              <h1 className="mt-4 text-3xl sm:text-5xl font-black leading-tight">{isRtl ? 'محصولات ساختمانی، پیش از خرید در مسیر طراحی دیده می‌شوند.' : 'Building products become visible in design before procurement.'}</h1>
-              <p className="mt-5 max-w-3xl text-sm sm:text-base leading-8 text-slate-100">{isRtl ? 'ایران بیم هاب محصولات واقعی را با آبجکت BIM و اطلاعات فنی، در اختیار معماران و مهندسان قرار می‌دهد؛ تا طراحان سریع‌تر انتخاب کنند و تولیدکنندگان زودتر دیده شوند.' : 'IranBIMhub makes real products, BIM objects and technical information available to architects and engineers.'}</p>
-              <div className="mt-7 flex flex-wrap gap-3"><button type="button" onClick={() => onNavigate?.('for-manufacturers')} className="rounded-xl bg-[#0FB9B1] hover:bg-[#087F7A] px-4 py-3 text-xs font-black text-white transition-colors cursor-pointer">{isRtl ? 'ثبت برند / معرفی محصول' : 'Register a brand / introduce a product'}</button><button type="button" onClick={() => onNavigate?.('categories')} className="rounded-xl border border-white/25 bg-white/5 hover:bg-white/10 px-4 py-3 text-xs font-black text-white transition-colors cursor-pointer">{isRtl ? 'مشاهده محصولات' : 'View products'}</button></div>
+              <h1 className="mt-4 text-2xl sm:text-5xl font-black leading-tight">{isRtl ? 'محصولات ساختمانی، پیش از خرید در مسیر طراحی دیده می‌شوند.' : 'Building products become visible in design before procurement.'}</h1>
+              <p className="mt-5 max-w-3xl text-sm sm:text-base leading-7 sm:leading-8 text-slate-100">{isRtl ? 'ایران بیم هاب محصولات واقعی را با آبجکت BIM و اطلاعات فنی، در اختیار معماران و مهندسان قرار می‌دهد؛ تا طراحان سریع‌تر انتخاب کنند و تولیدکنندگان زودتر دیده شوند.' : 'IranBIMhub makes real products, BIM objects and technical information available to architects and engineers.'}</p>
+              <div className="mt-6 flex flex-col sm:flex-row gap-3"><button type="button" onClick={() => onNavigate?.('for-manufacturers')} className="w-full sm:w-auto rounded-xl bg-[#0FB9B1] hover:bg-[#087F7A] px-4 py-3 text-xs font-black text-white transition-colors cursor-pointer">{isRtl ? 'ثبت برند / معرفی محصول' : 'Register a brand / introduce a product'}</button><button type="button" onClick={() => onNavigate?.('categories')} className="w-full sm:w-auto rounded-xl border border-white/25 bg-white/5 hover:bg-white/10 px-4 py-3 text-xs font-black text-white transition-colors cursor-pointer">{isRtl ? 'مشاهده محصولات' : 'View products'}</button></div>
             </div>
-            <button type="button" onClick={() => setIsAboutVideoOpen(true)} className="group relative min-h-[245px] overflow-hidden rounded-2xl border border-white/15 bg-[#0B1220] text-center cursor-pointer shadow-2xl"><img src="https://img.youtube.com/vi/NvZN0DUiTKo/maxresdefault.jpg" onError={(event) => { event.currentTarget.src = 'https://img.youtube.com/vi/NvZN0DUiTKo/hqdefault.jpg'; }} alt="" className="absolute inset-0 h-full w-full object-cover opacity-65 transition-transform duration-700 group-hover:scale-105" /><span className="absolute inset-0 bg-gradient-to-t from-[#0B1220]/95 via-[#0B1220]/35 to-[#0B1220]/20" /><span className="relative z-10 flex h-full min-h-[245px] flex-col items-center justify-center gap-4 px-5"><span className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-[#0F3D5E] shadow-2xl transition-transform duration-300 group-hover:scale-110"><Play className="w-7 h-7 fill-current" /></span><span><span className="block text-sm font-black">{isRtl ? 'ایران بیم هاب در یک دقیقه' : 'IranBIMhub in one minute'}</span><span className="mt-1.5 block text-[11px] font-bold text-white/75">{isRtl ? 'تماشای ویدیوی معرفی پلتفرم' : 'Watch the platform introduction'}</span></span></span></button>
+            <button type="button" onClick={() => setIsAboutVideoOpen(true)} className="group relative min-h-[185px] sm:min-h-[245px] overflow-hidden rounded-2xl border border-white/15 bg-[#0B1220] text-center cursor-pointer shadow-2xl"><img src="https://img.youtube.com/vi/NvZN0DUiTKo/maxresdefault.jpg" onError={(event) => { event.currentTarget.src = 'https://img.youtube.com/vi/NvZN0DUiTKo/hqdefault.jpg'; }} alt="" className="absolute inset-0 h-full w-full object-cover opacity-65 transition-transform duration-700 group-hover:scale-105" /><span className="absolute inset-0 bg-gradient-to-t from-[#0B1220]/95 via-[#0B1220]/35 to-[#0B1220]/20" /><span className="relative z-10 flex h-full min-h-[185px] sm:min-h-[245px] flex-col items-center justify-center gap-4 px-5"><span className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-[#0F3D5E] shadow-2xl transition-transform duration-300 group-hover:scale-110"><Play className="w-7 h-7 fill-current" /></span><span><span className="block text-sm font-black">{isRtl ? 'ایران بیم هاب در یک دقیقه' : 'IranBIMhub in one minute'}</span><span className="mt-1.5 block text-[11px] font-bold text-white/75">{isRtl ? 'تماشای ویدیوی معرفی پلتفرم' : 'Watch the platform introduction'}</span></span></span></button>
           </div>
         </section>
 
@@ -149,27 +148,34 @@ export const AboutView: React.FC<AboutViewProps> = ({
           </p>
         </section>
 
-        <section className="text-start">
-          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
-            <div><h2 className="text-3xl sm:text-4xl font-black text-[#0F3D5E] dark:text-[#22D3EE]">{activeWorkflow === 'library' ? (isRtl ? 'مسیر استفاده از کتابخانه' : 'Library use path') : (isRtl ? 'مسیر ثبت برند و معرفی محصول' : 'Brand registration and product introduction path')}</h2><p className="mt-3 text-sm text-gray-500 dark:text-gray-400">{activeWorkflow === 'library' ? (isRtl ? 'اگر معمار، مهندس یا BIM Modeler هستید' : 'For architects, engineers and BIM modelers') : (isRtl ? 'اگر تولیدکننده یا صاحب برند هستید' : 'For manufacturers and brand owners')}</p></div>
-            <div className="inline-flex w-full lg:w-auto rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-1.5">
-              <button type="button" onClick={() => setActiveWorkflow('library')} className={`flex-1 lg:flex-none rounded-xl px-4 py-3 text-xs font-black transition-colors cursor-pointer ${activeWorkflow === 'library' ? 'bg-[#0F3D5E] text-white shadow-sm' : 'text-gray-500 dark:text-gray-300 hover:text-[#0F3D5E]'}`}>{isRtl ? 'مسیر معماران و مهندسان' : 'Designer path'}</button>
-              <button type="button" onClick={() => setActiveWorkflow('brand')} className={`flex-1 lg:flex-none rounded-xl px-4 py-3 text-xs font-black transition-colors cursor-pointer ${activeWorkflow === 'brand' ? 'bg-[#087F7A] text-white shadow-sm' : 'text-gray-500 dark:text-gray-300 hover:text-[#087F7A]'}`}>{isRtl ? 'مسیر تولیدکنندگان' : 'Manufacturer path'}</button>
-            </div>
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 text-start">
+          <div>
+            <h2 className="text-2xl sm:text-4xl font-black text-[#0F3D5E] dark:text-[#22D3EE]">{isRtl ? 'مسیر استفاده از کتابخانه' : 'Library use path'}</h2>
+            <p className="mt-3 text-sm font-black text-[#087F7A]">{isRtl ? 'برای معماران، مهندسان و BIM Modelerها' : 'For architects, engineers and BIM modelers'}</p>
+            <ol className="mt-6 border-s border-slate-200 dark:border-slate-700 space-y-6">
+              {[
+                ['۱','جست‌وجو','محصول یا دستهٔ موردنیاز خود را پیدا کنید.'],
+                ['۲','بررسی','اطلاعات فنی و آبجکت BIM را مشاهده کنید.'],
+                ['۳','استفاده','فایل منتشرشده را دانلود و در پروژه استفاده کنید.'],
+                ['۴','ارتباط','در صورت نیاز با تولیدکننده ارتباط بگیرید.']
+              ].map(([n,title,desc]) => <li key={n} className="relative ps-8"><span className="absolute -start-3 top-0 flex h-6 w-6 items-center justify-center rounded-full bg-[#0F3D5E] text-[10px] font-black text-white">{n}</span><h3 className="text-base sm:text-lg font-black text-[#2B2F33] dark:text-white">{title}</h3><p className="mt-1 text-sm leading-6 text-gray-500 dark:text-gray-400">{desc}</p></li>)}
+            </ol>
+            <button onClick={() => onNavigate?.('categories')} className="mt-7 w-full sm:w-auto rounded-xl bg-[#0F3D5E] hover:bg-[#0A2D47] px-4 py-3 text-xs font-black text-white cursor-pointer">{isRtl ? 'مشاهده محصولات' : 'View products'}</button>
           </div>
-          <div className="mt-8 relative">
-            <div className="hidden md:block absolute top-8 right-[8%] left-[8%] h-px bg-slate-200 dark:bg-slate-700" />
-            {activeWorkflow === 'library' ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 relative">
-                {[['۱','جست‌وجو','محصول یا دستهٔ موردنیاز خود را پیدا کنید.'],['۲','بررسی','اطلاعات فنی و آبجکت BIM را مشاهده کنید.'],['۳','استفاده','فایل منتشرشده را دانلود و در پروژه استفاده کنید.'],['۴','ارتباط','در صورت نیاز با تولیدکننده ارتباط بگیرید.']].map(([n,t,d]) => <div key={n} className="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5"><span className="flex w-9 h-9 items-center justify-center rounded-full bg-[#0F3D5E] text-white font-black text-sm">{n}</span><h3 className="mt-4 text-lg font-black text-[#2B2F33] dark:text-white">{t}</h3><p className="mt-2 text-xs leading-6 text-gray-500 dark:text-gray-400">{d}</p></div>)}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 relative">
-                {[['۱','ثبت برند','برند خود را ثبت کنید.'],['۲','معرفی محصول','محصولات و کاتالوگ را معرفی کنید.'],['۳','فایل یا تولید BIM','فایل آماده بررسی می‌شود یا مسیر تولید هماهنگ می‌گردد.'],['۴','بررسی و انتشار','اطلاعات و فایل‌ها وارد مسیر بررسی می‌شوند.'],['۵','به‌روزرسانی','اطلاعات محصولات را به‌روز نگه دارید.']].map(([n,t,d]) => <div key={n} className="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5"><span className="flex w-9 h-9 items-center justify-center rounded-full bg-[#0FB9B1] text-[#0B1220] font-black text-sm">{n}</span><h3 className="mt-4 text-lg font-black text-[#2B2F33] dark:text-white">{t}</h3><p className="mt-2 text-xs leading-6 text-gray-500 dark:text-gray-400">{d}</p></div>)}
-              </div>
-            )}
+          <div className="border-t lg:border-t-0 lg:border-s border-slate-200 dark:border-slate-800 pt-8 lg:pt-0 lg:ps-10">
+            <h2 className="text-2xl sm:text-4xl font-black text-[#0F3D5E] dark:text-[#22D3EE]">{isRtl ? 'مسیر ثبت برند و معرفی محصول' : 'Brand registration and product introduction path'}</h2>
+            <p className="mt-3 text-sm font-black text-[#087F7A]">{isRtl ? 'برای تولیدکنندگان و صاحبان برند' : 'For manufacturers and brand owners'}</p>
+            <ol className="mt-6 border-s border-slate-200 dark:border-slate-700 space-y-6">
+              {[
+                ['۱','ثبت برند','برند خود را ثبت کنید.'],
+                ['۲','معرفی محصول','محصولات و کاتالوگ را معرفی کنید.'],
+                ['۳','فایل یا تولید BIM','فایل آماده بررسی می‌شود یا مسیر تولید هماهنگ می‌گردد.'],
+                ['۴','بررسی و انتشار','اطلاعات و فایل‌ها وارد مسیر بررسی می‌شوند.'],
+                ['۵','به‌روزرسانی','اطلاعات محصولات را به‌روز نگه دارید.']
+              ].map(([n,title,desc]) => <li key={n} className="relative ps-8"><span className="absolute -start-3 top-0 flex h-6 w-6 items-center justify-center rounded-full bg-[#0FB9B1] text-[10px] font-black text-[#0B1220]">{n}</span><h3 className="text-base sm:text-lg font-black text-[#2B2F33] dark:text-white">{title}</h3><p className="mt-1 text-sm leading-6 text-gray-500 dark:text-gray-400">{desc}</p></li>)}
+            </ol>
+            <button onClick={() => onNavigate?.('for-manufacturers')} className="mt-7 w-full sm:w-auto rounded-xl bg-[#087F7A] hover:bg-[#064E4B] px-4 py-3 text-xs font-black text-white cursor-pointer">{isRtl ? 'ثبت برند / معرفی محصول' : 'Register a brand / introduce a product'}</button>
           </div>
-          <div className="mt-7">{activeWorkflow === 'library' ? <button onClick={() => onNavigate?.('categories')} className="rounded-xl bg-[#0F3D5E] hover:bg-[#0A2D47] px-4 py-3 text-xs font-black text-white cursor-pointer">{isRtl ? 'مشاهده محصولات' : 'View products'}</button> : <button onClick={() => onNavigate?.('for-manufacturers')} className="rounded-xl bg-[#087F7A] hover:bg-[#064E4B] px-4 py-3 text-xs font-black text-white cursor-pointer">{isRtl ? 'ثبت برند' : 'Register brand'}</button>}</div>
         </section>
 
         <section className="text-start space-y-12 sm:space-y-14">
@@ -180,7 +186,7 @@ export const AboutView: React.FC<AboutViewProps> = ({
         <section className="border-y border-slate-200 dark:border-slate-800 py-9 text-center">
           <div className="mx-auto max-w-4xl space-y-3 text-start">
             <h2 className="text-3xl sm:text-4xl font-black text-[#0F3D5E] dark:text-[#22D3EE] text-right">{isRtl ? 'پرسش‌های پرتکرار' : 'Frequently asked questions'}</h2>
-            {FAQ_ITEMS.map((faq, index) => <div key={faq.qFa} className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900"><button type="button" onClick={() => setOpenFaq(openFaq === String(index) ? null : String(index))} className="w-full flex items-center justify-between gap-4 px-5 py-4 text-start text-sm font-black text-[#2B2F33] dark:text-white cursor-pointer"><span>{isRtl ? faq.qFa : faq.qEn}</span><ChevronDown className={`w-4 h-4 shrink-0 text-[#26B6B6] transition-transform ${openFaq === String(index) ? 'rotate-180' : ''}`} /></button>{openFaq === String(index) && <div className="border-t border-slate-100 dark:border-slate-800 px-5 py-4 text-sm leading-7 text-gray-600 dark:text-gray-300">{isRtl ? faq.aFa : faq.aEn}</div>}</div>)}
+            {FAQ_ITEMS.map((faq, index) => <div key={faq.qFa} className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900"><button type="button" onClick={() => setOpenFaq(openFaq === String(index) ? null : String(index))} className="w-full flex items-center justify-between gap-4 min-h-[56px] px-5 py-4 text-start text-sm font-black text-[#2B2F33] dark:text-white cursor-pointer"><span>{isRtl ? faq.qFa : faq.qEn}</span><ChevronDown className={`w-4 h-4 shrink-0 text-[#26B6B6] transition-transform ${openFaq === String(index) ? 'rotate-180' : ''}`} /></button>{openFaq === String(index) && <div className="border-t border-slate-100 dark:border-slate-800 px-5 py-4 text-sm leading-7 text-gray-600 dark:text-gray-300">{isRtl ? faq.aFa : faq.aEn}</div>}</div>)}
           </div>
           <div className="mt-12 max-w-5xl mx-auto text-right">
             <h2 className="text-3xl sm:text-4xl font-black text-[#0F3D5E] dark:text-[#22D3EE]">{isRtl ? 'با ما همراه باشید' : 'Stay connected with us'}</h2>
