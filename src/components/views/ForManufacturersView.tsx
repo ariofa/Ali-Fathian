@@ -155,10 +155,10 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
       icon: <FileCheck2 className="w-6 h-6" />,
       titleFa: 'فایل BIM آماده دارید؟',
       titleEn: 'Already have BIM files?',
-      descFa: 'اگر فایل Revit، IFC، ArchiCAD یا سایر فایل‌های BIM آماده دارید، مسیر رسمی شما ساخت پروفایل برند و معرفی فایل برای بررسی فنی است. پس از تعیین دامنهٔ کار، ارزیابی تخصصی و مسیر انتشار به‌صورت شفاف با شما هماهنگ می‌شود.',
-      descEn: 'If you already have Revit, IFC, ArchiCAD or other BIM files, the official path is to create a brand profile and introduce files for technical review. After scope is defined, specialist review and the publication path are coordinated transparently.',
-      bulletsFa: ['معرفی رسمی فایل در پنل برند', 'تعیین دامنهٔ بررسی فنی', 'گزارش مسیر اصلاح در صورت نیاز', 'انتشار پس از تکمیل شرایط مربوطه'],
-      bulletsEn: ['Official file introduction in the brand panel', 'Technical review scope definition', 'Correction path report if needed', 'Publication after relevant conditions are met'],
+      descFa: 'اگر فایل Revit، IFC، ArchiCAD یا سایر فایل‌های BIM آماده دارید، مسیر رسمی شما ساخت پروفایل برند و معرفی فایل برای بررسی فنی است. پس از تعیین دامنهٔ کار، ارزیابی تخصصی، گزارش اصلاحات و مسیر انتشار به‌صورت شفاف با شما هماهنگ می‌شود.',
+      descEn: 'If you already have Revit, IFC, ArchiCAD or other BIM files, the official path is to create a brand profile and introduce files for technical review. After scope is defined, specialist review, a correction report, and the publication path are coordinated transparently.',
+      bulletsFa: ['معرفی رسمی فایل در پنل برند', 'تعیین دامنهٔ بررسی فنی', 'گزارش اصلاحات و مسیر بازبینی متناسب با فایل', 'انتشار پس از تکمیل شرایط مربوطه'], 
+      bulletsEn: ['Official file introduction in the brand panel', 'Technical review scope definition', 'Correction report and review path suited to the file', 'Publication after relevant conditions are met'], 
       ctaFa: 'ساخت پروفایل برند و آپلود فایل',
       ctaEn: 'Create Brand Profile & Upload Files',
       mode: 'profile'
@@ -208,8 +208,8 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
     {
       qFa: 'اگر فایل BIM آماده داشته باشیم، چه اتفاقی می‌افتد؟',
       qEn: 'What happens if we already have BIM files?',
-      aFa: 'پس از ایجاد یا تکمیل پروفایل برند، فایل برای تعیین دامنه بررسی فنی معرفی می‌شود. در صورت نیاز، مسیر اصلاح، ارزیابی تخصصی و شرایط انتشار با شما هماهنگ خواهد شد.',
-      aEn: 'After creating or completing the brand profile, the file is introduced to define the technical review scope. If needed, correction, specialist review, and publication conditions are coordinated with you.'
+      aFa: 'پس از ایجاد یا تکمیل پروفایل برند، فایل برای تعیین دامنه بررسی فنی معرفی می‌شود. در صورت نیاز، گزارش اصلاحات و مسیر بازبینی متناسب با وضعیت فایل، نوع محصول و خروجی موردنیاز با شما هماهنگ خواهد شد.',
+      aEn: 'After creating or completing the brand profile, the file is introduced to define the technical review scope. If needed, a correction report and review path suited to file status, product type, and required deliverables are coordinated with you.'
     },
     {
       qFa: 'هزینه خدمات چگونه مشخص می‌شود؟',
@@ -721,6 +721,20 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
                     <p className="mt-1 text-sm leading-7 text-gray-600 dark:text-gray-400">{isRtl ? 'می‌توانید فرم را بدون ارسال کاتالوگ ثبت کنید. تلگرام و واتساپ فقط برای ارسال اطلاعات اولیه هستند، نه آپلود رسمی فایل BIM برای انتشار.' : 'You may submit the form without sharing a catalog. Telegram and WhatsApp are only for initial information, not official BIM file upload for publication.'}</p>
                   </div>
                 </div>
+                <label className="block space-y-2">
+                  <span className="text-sm font-black text-gray-700 dark:text-gray-300">
+                    {isRtl ? 'لینک کاتالوگ / دیتاشیت / صفحه محصول (اختیاری)' : 'Catalog / Datasheet / Product Link (optional)'}
+                  </span>
+                  <input
+                    name="catalogUrl"
+                    value={formData.catalogUrl}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 text-sm outline-none focus:border-[#26B6B6]"
+                    placeholder="https://..."
+                    dir="ltr"
+                  />
+                </label>
+
                 <div className="flex flex-col sm:flex-row gap-2">
                   <a href={telegramUrl} className="px-4 py-3 rounded-xl bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-extrabold transition-all flex items-center justify-center gap-2"><Send className="w-4 h-4" />{isRtl ? 'ارسال اطلاعات در تلگرام' : 'Send information via Telegram'}</a>
                   <a href={whatsappUrl} target="_blank" rel="noreferrer" className="px-4 py-3 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366]/15 text-[#128C7E] border border-[#25D366]/20 text-xs font-extrabold transition-all flex items-center justify-center gap-2"><MessageCircle className="w-4 h-4" />{isRtl ? 'ارسال اطلاعات در واتساپ' : 'Send information via WhatsApp'}</a>
@@ -750,17 +764,9 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
                       <label className="space-y-2"><span className="text-sm font-black text-gray-700 dark:text-gray-300">{isRtl ? 'ایمیل' : 'Email'}</span><input type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-sm outline-none focus:border-[#26B6B6]" placeholder="name@company.com" dir="ltr" /></label>
                       <label className="space-y-2"><span className="text-sm font-black text-gray-700 dark:text-gray-300">{isRtl ? 'وب‌سایت یا شبکه اجتماعی برند' : 'Website or Social Page'}</span><input name="websiteOrSocial" value={formData.websiteOrSocial} onChange={handleInputChange} className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-sm outline-none focus:border-[#26B6B6]" placeholder="https://example.com" dir="ltr" /></label>
                       <label className="space-y-2"><span className="text-sm font-black text-gray-700 dark:text-gray-300">{isRtl ? 'تعداد تقریبی محصولات' : 'Approximate Product Count'}</span><input name="productCount" value={formData.productCount} onChange={handleInputChange} className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-sm outline-none focus:border-[#26B6B6]" placeholder={isRtl ? 'مثلاً: ۱۰ محصول یا ۳ سری محصول' : 'e.g. 10 products or 3 product series'} /></label>
-                      <label className="space-y-2"><span className="text-sm font-black text-gray-700 dark:text-gray-300">{isRtl ? 'لینک کاتالوگ / دیتاشیت / صفحه محصول' : 'Catalog / Datasheet / Product Link'}</span><input name="catalogUrl" value={formData.catalogUrl} onChange={handleInputChange} className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-sm outline-none focus:border-[#26B6B6]" placeholder="https://..." dir="ltr" /></label>
-                    </div>
-
-                    <div className="rounded-2xl bg-white dark:bg-gray-900 border border-[#26B6B6]/15 p-4 space-y-3">
-                      <div><h3 className="text-sm font-black text-gray-800 dark:text-white">{isRtl ? 'روش ارسال کاتالوگ یا اطلاعات اولیه (اختیاری)' : 'How you may share a catalog or initial information (optional)'}</h3><p className="mt-1 text-sm leading-7 text-gray-500 dark:text-gray-400">{isRtl ? 'تلگرام و واتساپ فقط برای ارسال کاتالوگ، دیتاشیت، تصویر محصول یا اطلاعات اولیه هستند؛ نه آپلود رسمی فایل BIM برای انتشار.' : 'Telegram and WhatsApp are for catalogs, datasheets, product images, or initial information—not official BIM file upload for publication.'}</p></div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <label className="flex items-center gap-2 text-sm font-bold text-gray-700 dark:text-gray-300 cursor-pointer border border-gray-100 dark:border-gray-800 rounded-2xl p-3"><input type="checkbox" name="filesSentByTelegram" checked={formData.filesSentByTelegram} onChange={handleCheckboxChange} className="w-4 h-4 accent-[#26B6B6]" />{isRtl ? 'اطلاعات اولیه را در تلگرام ارسال می‌کنم' : 'I will share initial information via Telegram'}</label>
-                        <label className="flex items-center gap-2 text-sm font-bold text-gray-700 dark:text-gray-300 cursor-pointer border border-gray-100 dark:border-gray-800 rounded-2xl p-3"><input type="checkbox" name="filesSentByWhatsApp" checked={formData.filesSentByWhatsApp} onChange={handleCheckboxChange} className="w-4 h-4 accent-[#26B6B6]" />{isRtl ? 'اطلاعات اولیه را در واتساپ ارسال می‌کنم' : 'I will share initial information via WhatsApp'}</label>
-                      </div>
 
                     </div>
+
                   </div>
                 )}
               </div>
