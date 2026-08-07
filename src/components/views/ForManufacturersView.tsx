@@ -146,18 +146,18 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
       titleEn: 'Do not have BIM files yet?',
       descFa: 'اگر فقط کاتالوگ، دیتاشیت، نقشه یا عکس محصول دارید، نیازی به ثبت‌نام فوری نیست. اطلاعات اولیه را ارسال کنید تا وضعیت محصول و مسیر مناسب همکاری بررسی شود.',
       descEn: 'If you only have catalogs, datasheets, drawings or product photos, you do not need to register immediately. Send initial information so the product status and suitable collaboration path can be reviewed.',
-      bulletsFa: ['ارسال کاتالوگ یا اطلاعات اولیه محصول', 'بررسی وضعیت محصول و فایل‌های موجود', 'تعیین مسیر آماده‌سازی یا تولید BIM', 'اعلام قدم بعدی همکاری'],
-      bulletsEn: ['Send an initial catalog or product information', 'Review product status and available files', 'Determine the BIM preparation or creation path', 'Receive the next collaboration step'],
-      ctaFa: 'درخواست بررسی اولیه',
-      ctaEn: 'Request Initial Review',
+      bulletsFa: ['مشاورهٔ اولیه و تعیین مسیر بدون هزینه', 'ارسال کاتالوگ یا اطلاعات اولیه محصول', 'تعیین مسیر آماده‌سازی یا تولید BIM', 'برآورد شفاف و صدور پیش‌فاکتور پیش از شروع کار'],
+      bulletsEn: ['Free initial consultation and path definition', 'Send an initial catalog or product information', 'Determine the BIM preparation or creation path', 'Transparent estimate and proforma before work begins'],
+      ctaFa: 'درخواست مشاورهٔ اولیهٔ رایگان',
+      ctaEn: 'Request Free Initial Consultation',
       mode: 'consultation'
     },
     {
       icon: <FileCheck2 className="w-6 h-6" />,
       titleFa: 'فایل BIM آماده دارید؟',
       titleEn: 'Already have BIM files?',
-      descFa: 'اگر فایل Revit، IFC، ArchiCAD یا سایر فایل‌های BIM آماده دارید، مسیر رسمی شما ساخت پروفایل برند و معرفی فایل برای بررسی فنی است. پس از تعیین دامنهٔ کار، ارزیابی تخصصی و مسیر انتشار به‌صورت شفاف با شما هماهنگ می‌شود.',
-      descEn: 'If you already have Revit, IFC, ArchiCAD or other BIM files, the official path is to create a brand profile and introduce files for technical review. After scope is defined, specialist review and the publication path are coordinated transparently.',
+      descFa: 'اگر فایل Revit، IFC، ArchiCAD یا سایر فایل‌های BIM آماده دارید، مسیر رسمی شما ساخت پروفایل برند و معرفی فایل برای بررسی فنی است. ارزیابی و کنترل کیفیت تخصصی فایل (بدون اصلاح مدل) جزو خدمات تخصصی ماست که بر اساس مدل و شرایط به‌صورت شفاف برآورد می‌شود؛ برای برندهای آغازگر این ارزیابی رایگان انجام می‌شود.',
+      descEn: 'If you already have Revit, IFC, ArchiCAD or other BIM files, the official path is to create a brand profile and introduce files for technical review. Specialist file evaluation and QC (excluding model correction) is a specialist service estimated transparently per model and conditions — provided free for founding brands.',
       bulletsFa: ['معرفی رسمی فایل در پنل برند', 'تعیین دامنهٔ بررسی فنی', 'گزارش مسیر اصلاح در صورت نیاز', 'انتشار پس از تکمیل شرایط مربوطه'],
       bulletsEn: ['Official file introduction in the brand panel', 'Technical review scope definition', 'Correction path report if needed', 'Publication after relevant conditions are met'],
       ctaFa: 'ساخت پروفایل برند و آپلود فایل',
@@ -182,8 +182,8 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
     {
       titleFa: 'خدمات تخصصی محصول',
       titleEn: 'Specialist Product Services',
-      descFa: 'خدماتی مانند ارزیابی فنی فایل، اصلاح Family، تولید آبجکت BIM یا آماده‌سازی اطلاعات محصول متناسب با دامنهٔ کار برآورد می‌شوند.',
-      descEn: 'Services such as technical file audit, Family correction, BIM object creation, or product-information preparation are estimated according to scope.'
+      descFa: 'ارزیابی و کنترل کیفیت فایل (بدون اصلاح مدل) بر اساس مدل و شرایط برآورد می‌شود. برای تولید یا طراحی آبجکت BIM نیز پس از برآورد اولیه، صدور پیش‌فاکتور و واریز هزینه، تولید بر اساس استانداردهای BIM انجام می‌شود.',
+      descEn: 'File evaluation and QC (excluding model correction) is estimated per model and conditions. BIM object design and production starts after an initial estimate, proforma invoice, and payment, following BIM standards.'
     },
     {
       titleFa: 'تأیید و انتشار',
@@ -215,8 +215,8 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
     {
       qFa: 'هزینه خدمات چگونه مشخص می‌شود؟',
       qEn: 'How are service costs determined?',
-      aFa: 'خدمات تخصصی مانند مدل‌سازی، اصلاح Family یا ارزیابی فنی پس از مشخص‌شدن نوع محصول، وضعیت فایل، خروجی موردنیاز و دامنه کار، به‌صورت شفاف برآورد می‌شوند.',
-      aEn: 'Specialist services such as modeling, Family correction, or technical audit are estimated transparently after product type, file status, deliverables, and scope are defined.'
+      aFa: 'مشاورهٔ اولیه و تعیین مسیر همکاری رایگان است. ارزیابی و کنترل کیفیت تخصصی فایل‌های BIM (بدون اصلاح مدل) جزو خدمات تخصصی ماست و بر اساس مدل و شرایط هر محصول برآورد می‌شود؛ برای برندهای آغازگر این ارزیابی به‌صورت رایگان انجام می‌شود. در صورت درخواست تولید یا طراحی آبجکت BIM، پس از برآورد اولیه پیش‌فاکتور صادر می‌شود و پس از واریز هزینه، طراحی و تولید آبجکت بر اساس استانداردهای BIM آغاز می‌گردد.',
+      aEn: 'Initial consultation and path definition are free. Specialist BIM file evaluation and QC (excluding model correction) is a specialist service estimated per model and product conditions — provided free for founding brands. For BIM object design and production, a proforma invoice is issued after an initial estimate, and standards-based production begins after payment.'
     },
     {
       qFa: 'برای شروع چه اطلاعاتی باید ارسال کنیم؟',
@@ -245,8 +245,8 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
       icon: <Package className="w-5 h-5" />,
       titleFa: 'خدمات کامل دیجیتال‌سازی محصول',
       titleEn: 'Complete Product Digitization Service',
-      descFa: 'اگر فایل ندارید، ایران‌بیم‌هاب می‌تواند مسیر تولید آبجکت BIM استاندارد را برای محصولات شما تعریف کند.',
-      descEn: 'If you do not have files, IranBIMhub can define the standard BIM creation path for your products.'
+      descFa: 'اگر فایل ندارید، ایران‌بیم‌هاب پس از برآورد اولیه و صدور پیش‌فاکتور شفاف، آبجکت BIM محصولات شما را بر اساس استانداردهای BIM طراحی و تولید می‌کند.',
+      descEn: 'If you do not have files, IranBIMhub designs and produces standard-compliant BIM objects for your products after an initial estimate and transparent proforma invoice.'
     }
   ];
 
@@ -349,7 +349,7 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
                 onClick={scrollToConsultation}
                 className="px-7 py-3.5 bg-[#26B6B6] hover:bg-[#1e9494] text-white rounded-xl text-xs sm:text-sm font-extrabold transition-all active:scale-98 shadow-md shadow-[#26B6B6]/20 text-center cursor-pointer flex items-center justify-center gap-2"
               >
-                <span>{isRtl ? 'درخواست مشاوره اولیه' : 'Request Initial Consultation'}</span>
+                <span>{isRtl ? 'درخواست مشاورهٔ اولیه (رایگان)' : 'Request Free Initial Consultation'}</span>
                 {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
               </button>
               <button
@@ -361,6 +361,11 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
                 <span>{isRtl ? 'فایل BIM آماده دارید؟' : 'Already have BIM files?'}</span>
               </button>
             </div>
+
+            <p className="text-[11px] sm:text-xs text-gray-300 flex items-center gap-2 pt-1">
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#26B6B6] shrink-0" />
+              <span>{isRtl ? 'مشاورهٔ اولیه و تعیین مسیر همکاری در ایران‌بیم‌هاب رایگان است.' : 'Initial consultation and collaboration-path definition are free at IranBIMhub.'}</span>
+            </p>
           </div>
 
           <div className="lg:col-span-5">
@@ -514,8 +519,8 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
             </h2>
             <p className="text-sm text-gray-300 leading-relaxed">
               {isRtl
-                ? 'بررسی اولیه برای شناخت محصول و انتخاب مسیر انجام می‌شود. خدمات تخصصی مانند مدل‌سازی، اصلاح یا ارزیابی فنی فایل پس از مشخص‌شدن دامنهٔ کار، خروجی موردنیاز و زمان‌بندی، به‌صورت شفاف برآورد می‌شوند.'
-                : 'Initial review is used to understand the product and select the right path. Specialist services such as modeling, correction, or technical file audit are estimated transparently after scope, deliverables, and timing are defined.'
+                ? 'مشاوره و بررسی اولیهٔ محصول رایگان است و برای شناخت محصول و انتخاب مسیر انجام می‌شود. ارزیابی و کنترل کیفیت تخصصی فایل (بدون اصلاح مدل) جزو خدمات تخصصی ماست و بر اساس مدل و شرایط به‌صورت شفاف برآورد می‌شود. خدمات تولید و طراحی آبجکت BIM نیز پس از برآورد اولیه و صدور پیش‌فاکتور انجام می‌گیرد.'
+                : 'Initial product consultation and review are free, used to understand the product and select the right path. Specialist file evaluation and QC (excluding model correction) is a specialist service estimated transparently per model and conditions. BIM object design and production services follow an initial estimate and proforma invoice.'
               }
             </p>
           </div>
@@ -552,13 +557,13 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
               </h2>
               <p className="mt-3 text-sm leading-7 text-gray-600 dark:text-gray-300">
                 {isRtl
-                  ? 'برای ظرفیت محدودی از برندهایی که در مرحلهٔ آغاز با ایران بیم هاب وارد مسیر می‌شوند، بررسی اولیهٔ محصول و تعیین مسیر ورود به BIM با شرایط ویژه انجام می‌شود.'
-                  : 'For a limited number of brands entering the IranBIMhub path at this early stage, initial product review and BIM entry-path definition are offered under special conditions.'}
+                  ? 'برای ظرفیت محدودی از برندهایی که در مرحلهٔ آغاز با ایران بیم هاب وارد مسیر می‌شوند، مشاورهٔ اولیه، بررسی وضعیت محصول و ارزیابی و کنترل کیفیت فایل‌های BIM به‌صورت رایگان انجام می‌شود.'
+                  : 'For a limited number of brands entering the IranBIMhub path at this early stage, initial consultation, product status review, and BIM file evaluation & QC are provided free of charge.'}
               </p>
               <p className="mt-2 text-xs leading-6 text-gray-500 dark:text-gray-400">
                 {isRtl
-                  ? 'خدمات تخصصی مانند تولید، اصلاح یا ارزیابی فنی فایل پس از تعیین دامنهٔ کار، به‌صورت جداگانه و شفاف برآورد می‌شوند.'
-                  : 'Specialist services such as modeling, correction, or technical file review are estimated separately and transparently after scope is defined.'}
+                  ? 'خدمات تولید و طراحی آبجکت BIM پس از تعیین دامنهٔ کار، برآورد اولیه و صدور پیش‌فاکتور، به‌صورت جداگانه و شفاف محاسبه می‌شود.'
+                  : 'BIM object design and production services are calculated separately and transparently after scope definition, initial estimate, and proforma invoice.'}
               </p>
             </div>
           </div>
@@ -671,8 +676,8 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
 
               <div className="rounded-2xl bg-[#26B6B6]/5 border border-[#26B6B6]/15 p-4 text-sm leading-7 text-gray-600 dark:text-gray-300">
                 {isRtl
-                  ? 'برای شروع، فقط اطلاعات پایهٔ برند و محصولتان را ثبت کنید. لازم نیست فایل BIM یا همهٔ اطلاعات فنی محصول را همین حالا آماده داشته باشید.'
-                  : 'To begin, submit only your brand and product basics. You do not need to have BIM files or all technical information ready now.'}
+                  ? 'برای شروع، فقط اطلاعات پایهٔ برند و محصولتان را ثبت کنید. ثبت این فرم و مشاورهٔ اولیه کاملاً رایگان است و لازم نیست فایل BIM یا همهٔ اطلاعات فنی محصول را همین حالا آماده داشته باشید.'
+                  : 'To begin, submit only your brand and product basics. Submitting this form and the initial consultation are completely free, and you do not need BIM files or all technical information ready now.'}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

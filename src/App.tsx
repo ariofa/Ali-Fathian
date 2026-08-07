@@ -162,6 +162,16 @@ const MainAppContent: React.FC = () => {
     return local ? JSON.parse(local) : null;
   });
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  // Where was the user when the auth gate opened? After login/registration they
+  // land back on exactly that page (e.g. the object page they tried to download from).
+  const [authReturnView, setAuthReturnView] = useState<string | null>(null);
+  const [authIntent, setAuthIntent] = useState<'download' | 'save' | 'generic'>('generic');
+
+  const openAuthModal = (intent: 'download' | 'save' | 'generic' = 'generic') => {
+    setAuthReturnView(currentView);
+    setAuthIntent(intent);
+    setIsAuthModalOpen(true);
+  };
 
   // Dark Mode State
   const [isDark, setIsDark] = useState(() => {
@@ -354,7 +364,7 @@ const MainAppContent: React.FC = () => {
 
   const handleToggleSave = (id: string) => {
     if (!currentUser) {
-      setIsAuthModalOpen(true);
+      openAuthModal('save');
       toast(isRtl ? 'جهت ذخیره فایل‌ها در لیست علاقمندی‌ها، ابتدا باید وارد حساب کاربری خود شوید.' : 'Please register or log in to save objects to your favorites.');
       return;
     }
@@ -393,7 +403,7 @@ const MainAppContent: React.FC = () => {
 
   const handleQuickDownload = (obj: BIMObject, format: string) => {
     if (!currentUser) {
-      setIsAuthModalOpen(true);
+      openAuthModal('download');
       toast(isRtl 
         ? 'طبق ضوابط، دانلود فایل کاتالوگ یا آبجکت BIM منوط به ثبت‌نام و ورود است! لطفا وارد شوید.' 
         : 'All file downloads require registration and logging in first.'
@@ -482,7 +492,7 @@ const MainAppContent: React.FC = () => {
             onQuickDownload={handleQuickDownload}
             onViewBrand={handleViewBrand}
             currentUser={currentUser}
-            onOpenAuthModal={() => setIsAuthModalOpen(true)}
+            onOpenAuthModal={() => openAuthModal()}
           />
         );
       
@@ -546,7 +556,7 @@ const MainAppContent: React.FC = () => {
         return (
           <ForDesignersView
             onNavigate={navigateTo}
-            onOpenAuthModal={() => setIsAuthModalOpen(true)}
+            onOpenAuthModal={() => openAuthModal()}
             savedObjects={savedObjects}
             onToggleSave={handleToggleSave}
             onQuickDownload={handleQuickDownload}
@@ -559,7 +569,7 @@ const MainAppContent: React.FC = () => {
         return (
           <ForManufacturersView
             onNavigate={navigateTo}
-            onOpenAuthModal={() => setIsAuthModalOpen(true)}
+            onOpenAuthModal={() => openAuthModal()}
             currentUser={currentUser}
           />
         );
@@ -732,7 +742,7 @@ const MainAppContent: React.FC = () => {
             setCurrentView('home');
           }, isRtl ? 'در حال خروج از سیستم...' : 'Signing out...', 'Signing out...', 600);
         }}
-        onOpenAuthModal={() => setIsAuthModalOpen(true)}
+        onOpenAuthModal={() => openAuthModal()}
         isDark={isDark}
         onToggleDark={() => setIsDark(!isDark)}
         onHeaderSearch={handleHeaderSearch}
@@ -808,7 +818,7 @@ const MainAppContent: React.FC = () => {
 
             {/* 4. Login / Sign Up - ورود / ثبت‌نام */}
             <button
-              onClick={() => setIsAuthModalOpen(true)}
+              onClick={() => openAuthModal()}
               className="flex flex-col items-center justify-center flex-1 h-full py-1 rounded-xl transition-all cursor-pointer text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
               style={{ flexBasis: '25%' }}
             >
@@ -957,16 +967,23 @@ const MainAppContent: React.FC = () => {
           triggerTransition(() => {
             setCurrentUser(user);
             localStorage.setItem('iranbimhub_user_session', JSON.stringify(user));
+            // Return the user to EXACTLY the page where the auth gate opened
+            // (e.g. the product page they tried to download from). Brand accounts
+            // still enter their panel unless they came from an actual brand context.
+            const returnView = authReturnView;
+            setAuthReturnView(null);
+            setAuthIntent('generic');
             if (user?.role === 'Manufacturer') {
               setUserRole('Manufacturer');
-              setCurrentView('manufacturer-dashboard');
+              setCurrentView(returnView && returnView.startsWith('manufacturer') ? returnView : 'manufacturer-dashboard');
             } else {
               setUserRole('Modeler');
-              setCurrentView('modeler-dashboard');
+              setCurrentView(returnView && returnView !== 'admin-panel' ? returnView : 'modeler-dashboard');
             }
           }, isRtl ? 'در حال ورود و دریافت فمیلی‌های اختصاصی شما...' : 'Logging in and preparing your custom workspace...', 'Logging in and preparing your custom workspace...', 800);
         }}
         onNavigate={navigateTo}
+        authIntent={authIntent}
       />
 
       {/* Floating Go to Top Button */}

@@ -458,6 +458,12 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   const isManufacturerAccount = Boolean(currentUser && (currentUser.role === 'Manufacturer' || userRole === 'Manufacturer'));
+
+  // Views where the logged-in user is already inside their own panel/dashboard.
+  // In these views the "پنل کاربری" shortcut button is redundant and stays hidden;
+  // everywhere else it acts as a quick shortcut back to the user's panel.
+  const USER_PANEL_VIEWS = ['modeler-dashboard', 'manufacturer-dashboard', 'admin-panel'];
+  const isInUserPanel = USER_PANEL_VIEWS.includes(currentView);
   const savedManufacturerProfile = (() => {
     if (!isManufacturerAccount) return null;
     try {
@@ -1322,20 +1328,22 @@ export const Header: React.FC<HeaderProps> = ({
 
             </div>
 
-            {/* Desktop Join Platform CTA Button */}
+            {/* Desktop Join Platform CTA Button — hidden while the user is already inside their own panel */}
             <div className="flex items-center">
-              <button
-                onClick={currentUser ? () => handleDashboardNavigate('profile') : onOpenAuthModal}
-                className="relative group overflow-hidden px-5.5 py-2 bg-[#26B6B6] hover:bg-[#1e9494] text-white dark:text-gray-950 dark:bg-[#26B6B6] dark:hover:bg-[#1e9494] rounded-full text-sm font-black shadow-xs hover:shadow-md transition-all duration-300 active:scale-97 cursor-pointer flex items-center gap-2 hover:scale-102"
-              >
-                <User className="w-4.5 h-4.5" />
-                <span>
-                  {currentUser
-                    ? (isRtl ? 'پنل کاربری' : 'Go to Dashboard')
-                    : (isRtl ? 'ورود/ثبت نام' : 'Join Platform')
-                  }
-                </span>
-              </button>
+              {(!currentUser || !isInUserPanel) && (
+                <button
+                  onClick={currentUser ? () => handleDashboardNavigate('profile') : onOpenAuthModal}
+                  className="relative group overflow-hidden px-5.5 py-2 bg-[#26B6B6] hover:bg-[#1e9494] text-white dark:text-gray-950 dark:bg-[#26B6B6] dark:hover:bg-[#1e9494] rounded-full text-sm font-black shadow-xs hover:shadow-md transition-all duration-300 active:scale-97 cursor-pointer flex items-center gap-2 hover:scale-102"
+                >
+                  <User className="w-4.5 h-4.5" />
+                  <span>
+                    {currentUser
+                      ? (isRtl ? 'پنل کاربری' : 'Go to Dashboard')
+                      : (isRtl ? 'ورود/ثبت نام' : 'Join Platform')
+                    }
+                  </span>
+                </button>
+              )}
             </div>
 
           </div>

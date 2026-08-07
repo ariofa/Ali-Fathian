@@ -25,9 +25,12 @@ interface AuthModalProps {
   onClose: () => void;
   onLoginSuccess: (user: any) => void;
   onNavigate?: (view: string) => void;
+  // Why was auth requested? Lets the post-registration welcome screen point
+  // the user back to their original task (e.g. continuing a download).
+  authIntent?: 'download' | 'save' | 'generic';
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess, onNavigate }) => {
+export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess, onNavigate, authIntent = 'generic' }) => {
   const { t, isRtl, language, setLanguage } = useLanguage();
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
 
@@ -54,6 +57,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
   const [regOtpCode, setRegOtpCode] = useState('');
   const [regOtpSent, setRegOtpSent] = useState(false);
   const [regOtpVerified, setRegOtpVerified] = useState(false);
+
+  // Post-registration WELCOME screen: shows the new user by name and hands
+  // them back to the page they came from (instead of an abrupt modal close).
+  const [welcomeUser, setWelcomeUser] = useState<any | null>(null);
 
   // Login Fields
   const [loginPhone, setLoginPhone] = useState('');
@@ -287,18 +294,30 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
       localStorage.setItem('iranbimhub_mfg_profile', JSON.stringify(mfgProfile));
     }
 
-    onLoginSuccess(newUser);
-    onClose();
-
-    toast(regAccountType === 'Manufacturer'
-      ? (isRtl
-          ? `ثبت‌نام اولیه برند با موفقیت انجام شد. صفحه برند شما تا زمان تأیید مدارک رسمی توسط واحد ارزیابی به‌صورت عمومی منتشر نمی‌شود.`
-          : `Brand account created. Your public brand page remains private until official documents are approved by the evaluation team.`)
-      : (isRtl
-          ? `ثبت‌نام شما با موفقیت به پایان رسید! خوش آمدید ${regName}`
-          : `Registration completed successfully! Welcome ${regName}`)
-    );
+    // Instead of closing the modal abruptly, show the personalized welcome
+    // screen (name + account details). The actual login hand-off happens on
+    // «ادامه», and App navigates the user back to the page they came from.
+    setWelcomeUser(newUser);
   };
+
+  // Complete the flow from the welcome screen (the modal ✕ does the same so a
+  // freshly-registered user is never stranded in a logged-out limbo).
+  const handleWelcomeContinue = () => {
+    if (!welcomeUser) return;
+    onLoginSuccess(welcomeUser);
+    setWelcomeUser(null);
+    onClose();
+  };
+
+  // Welcome-screen CTA label: brand accounts enter the brand panel; everyone
+  // else returns to their original context (e.g. the download they attempted).
+  const welcomeCtaLabel = welcomeUser?.role === 'Manufacturer'
+    ? (isRtl ? 'ورود به پنل برند تولیدکننده' : 'Enter the Manufacturer Brand Panel')
+    : authIntent === 'download'
+      ? (isRtl ? 'بازگشت به صفحهٔ محصول و ادامهٔ دانلود' : 'Back to the Product Page & Continue Downloading')
+      : authIntent === 'save'
+        ? (isRtl ? 'بازگشت و تکمیل علاقه‌مندی‌ها' : 'Back & Complete Your Favorites')
+        : (isRtl ? 'ورود به ایران‌بیم‌هاب و ادامهٔ مسیر' : 'Enter IranBIMhub & Continue');
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -426,9 +445,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
         onClick={(e) => e.stopPropagation()}
         id="auth-modal-container"
       >
-        {/* Close Button */}
+        {/* Close Button — on the welcome screen it completes the login, not abandon it */}
         <button
-          onClick={onClose}
+          onClick={() => (welcomeUser ? handleWelcomeContinue() : onClose())}
           className="absolute top-5 end-5 p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer z-10"
           id="btn-close-auth-modal"
         >
@@ -446,7 +465,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
           </p>
         </div>
 
-        {/* Tab Selection */}
+        {/* Tab Selection — hidden while the post-registration welcome screen is shown */}
+        {!welcomeUser && (
         <div className="flex border-b border-gray-100 dark:border-gray-800 px-6">
           <button
             onClick={() => {
@@ -474,10 +494,78 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
             {isRtl ? 'ایجاد حساب کاربری جدید' : 'Create Account'}
           </button>
         </div>
+        )}
 
         {/* Main Content Area */}
         <div className="p-6 overflow-y-auto flex-1 space-y-6">
-          {activeTab === 'login' ? (
+          {welcomeUser ? (
+            /* ================= POST-REGISTRATION WELCOME ================= */
+            <div className="space-y-6 text-center animate-fadeIn pt-2" id="wizard-welcome-screen">
+
+              <div className="relative mx-auto w-20 h-20">
+                <div className="absolute inset-0 rounded-full bg-emerald-400/25 animate-ping" />
+                <div className="relative w-20 h-20 bg-emerald-100 dark:bg-emerald-950/40 text-emerald-500 rounded-full flex items-center justify-center shadow-inner">
+                  <Check className="w-10 h-10 stroke-[3]" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-[11px] font-black text-[#26B6B6]">
+                  {isRtl ? 'ثبت‌نام شما با موفقیت انجام شد' : 'Your registration was completed successfully'}
+                </p>
+                <h3 className="text-xl sm:text-2xl font-black text-gray-800 dark:text-white leading-snug px-2">
+                  {isRtl
+                    ? `${welcomeUser.name || ''} عزیز، به ایران‌بیم‌هاب خوش آمدید`
+                    : `Welcome to IranBIMhub${welcomeUser.name ? `, ${welcomeUser.name}` : ''}`}
+                </h3>
+                <p className="text-[11px] text-gray-400 leading-relaxed max-w-xs mx-auto">
+                  {welcomeUser.role === 'Manufacturer'
+                    ? (isRtl
+                        ? 'حساب برند شما ساخته شد. برای انتشار عمومی صفحه برند، مدارک رسمی را در پنل برند تکمیل کنید.'
+                        : 'Your brand account was created. Complete the official documents in the brand panel to publish your brand page.')
+                    : (isRtl
+                        ? 'حساب کاربری شما آماده است؛ می‌توانید مسیر خود را دقیقاً از همان‌جایی که بودید ادامه دهید.'
+                        : 'Your account is ready; you can continue exactly from where you left off.')}
+                </p>
+              </div>
+
+              {/* Identity recap chips */}
+              <div className="bg-slate-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-2xl px-4 py-3.5 flex flex-wrap items-center justify-center gap-2 text-[10px] font-bold">
+                <span className="bg-[#26B6B6]/10 text-[#087F7A] dark:text-[#22D3EE] px-2.5 py-1 rounded-lg">
+                  {welcomeUser.role === 'Manufacturer'
+                    ? (isRtl ? 'حساب تولیدکننده / برند' : 'Manufacturer / Brand Account')
+                    : (isRtl ? 'کاربر حرفه‌ای BIM' : 'BIM Professional')}
+                </span>
+                {welcomeUser.phone && (
+                  <span className="bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 text-gray-600 dark:text-gray-300 px-2.5 py-1 rounded-lg font-mono" dir="ltr">
+                    {welcomeUser.phone}
+                  </span>
+                )}
+                {welcomeUser.email && (
+                  <span className="bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 text-gray-600 dark:text-gray-300 px-2.5 py-1 rounded-lg" dir="ltr">
+                    {welcomeUser.email}
+                  </span>
+                )}
+              </div>
+
+              {welcomeUser.role !== 'Manufacturer' && authIntent === 'download' && (
+                <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/25 border border-emerald-100 dark:border-emerald-900/40 rounded-xl px-4 py-2.5 leading-relaxed">
+                  {isRtl
+                    ? 'می‌توانید دانلود فایل موردنظر را از همان صفحهٔ محصول ادامه دهید.'
+                    : 'You can continue downloading the file right from the same product page.'}
+                </p>
+              )}
+
+              <button
+                onClick={handleWelcomeContinue}
+                className="w-full bg-[#26B6B6] hover:bg-[#1e9494] text-white py-3.5 rounded-2xl text-xs font-black transition-all hover:shadow-lg cursor-pointer flex items-center justify-center gap-2"
+                id="btn-welcome-continue"
+              >
+                <span>{welcomeCtaLabel}</span>
+                {isRtl ? <ArrowLeft className="w-4 h-4 stroke-[2]" /> : <ArrowRight className="w-4 h-4 stroke-[2]" />}
+              </button>
+            </div>
+          ) : activeTab === 'login' ? (
             /* ================= LOGIN FORM ================= */
             <form onSubmit={handleLogin} className="space-y-4" id="form-login">
               <div className="space-y-1">

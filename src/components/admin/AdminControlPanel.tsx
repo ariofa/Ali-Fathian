@@ -2654,6 +2654,7 @@ export const AdminControlPanel: React.FC = () => {
                     <div>
                       <h4 className="text-sm font-black text-gray-800 dark:text-white">{isRtl ? 'دیدگاه متخصصان BIM' : 'BIM Expert Insights'}</h4>
                       <p className="text-[10px] text-gray-500 mt-1">{isRtl ? 'این بخش برای دیدگاه‌های واقعی و تأییدشدهٔ متخصصان است؛ نه رضایت مشتری یا نظر ساختگی.' : 'Use this for real, approved professional perspectives — not fabricated testimonials.'}</p>
+                      <p className="text-[10px] text-[#087F7A] dark:text-[#22D3EE] mt-1 font-bold">{isRtl ? 'دیدگاه‌های «منتشرشده» به‌صورت خودکار در سه صفحهٔ «صفحهٔ اصلی»، «برای معماران» و «همکاری مدل‌سازان BIM» نمایش داده می‌شوند.' : 'Published insights automatically appear on the Homepage, For-Designers, and BIM Modeler Collaboration pages.'}</p>
                     </div>
                     <button
                       type="button"
