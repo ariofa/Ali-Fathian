@@ -172,51 +172,53 @@ export const ForDesignersView: React.FC<ForDesignersViewProps> = ({
             </div>
           </div>
           
-          <div className="lg:col-span-5 relative hidden lg:block">
-            <div className="absolute -inset-1.5 bg-[#26B6B6]/15 rounded-3xl blur-2xl"></div>
-            <div className="relative bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 p-6 rounded-3xl shadow-2xl text-gray-800 dark:text-gray-100 space-y-4">
-              <div className="flex items-center justify-between border-b border-gray-50 dark:border-gray-800 pb-3">
-                <span className="text-[10px] bg-emerald-500/15 text-emerald-500 px-2 py-0.5 rounded-full font-black">
-                  LIVE DEMO
-                </span>
-                <span className="text-[11px] text-gray-400 font-mono">rfa / gsm / ifc</span>
-              </div>
-              
-              <div className="bg-gray-50 dark:bg-gray-950 p-4 rounded-2xl flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-200 shrink-0">
-                  <img src={sampleBimObject.imageUrl} alt="Demo" className="w-full h-full object-cover" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold truncate text-start">
-                    {isRtl ? sampleBimObject.titleFa : sampleBimObject.titleEn}
+          <div className="lg:col-span-5 relative">
+            <div className="absolute -inset-1.5 bg-[#26B6B6]/15 rounded-3xl blur-2xl" />
+            <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-white dark:bg-gray-900 shadow-2xl text-gray-800 dark:text-gray-100">
+              <div className="relative h-40 sm:h-52 overflow-hidden bg-[#0B1220]">
+                <img
+                  src="/hero/bim-window.webp"
+                  alt={isRtl ? 'نمونهٔ ساختاری از محصول پنجره در مسیر BIM' : 'A structural window product example in the BIM path'}
+                  className="w-full h-full object-cover opacity-85"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0B1220]/90 via-[#0B1220]/20 to-transparent" />
+                <div className="absolute bottom-4 start-4 end-4 text-white text-start">
+                  <p className="text-xs font-black text-[#22D3EE]">
+                    {isRtl ? 'نمونهٔ ساختار محصول' : 'Product structure example'}
                   </p>
-                  <p className="text-[10px] text-gray-400 font-medium text-start mt-0.5">
-                    {isRtl ? 'شرکت آلوپن' : 'Alupan Co.'}
+                  <p className="mt-1 text-sm sm:text-base font-black">
+                    {isRtl ? 'پنجرهٔ ساختمانی؛ از اطلاعات محصول تا طراحی' : 'A building window: from product information to design'}
                   </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 text-[11px]">
-                <div className="bg-slate-50 dark:bg-gray-950/40 p-2.5 rounded-xl border border-slate-100 dark:border-gray-850 text-start">
-                  <p className="text-gray-400">{isRtl ? 'عایق حریق' : 'Fire Rated'}</p>
-                  <p className="font-bold text-gray-700 dark:text-gray-200 mt-0.5">{isRtl ? 'بله (تاییدیه فنی)' : 'Yes (Approved)'}</p>
+              <div className="p-5 sm:p-6">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-5 text-start" dir={isRtl ? 'rtl' : 'ltr'}>
+                  {[
+                    ['۱', 'اطلاعات محصول', 'Product information'],
+                    ['۲', 'آبجکت BIM', 'BIM object'],
+                    ['۳', 'بررسی فنی', 'Technical review'],
+                    ['۴', 'استفاده در طراحی', 'Use in design']
+                  ].map(([number, fa, en]) => (
+                    <div key={number} className="flex items-center gap-3">
+                      <span className="w-8 h-8 rounded-xl bg-[#26B6B6]/10 text-[#138F8F] dark:text-[#26B6B6] flex items-center justify-center text-xs font-black shrink-0">
+                        {isRtl ? ['۱', '۲', '۳', '۴'][Number(number) - 1] : number}
+                      </span>
+                      <span className="text-xs font-black text-gray-700 dark:text-gray-200">
+                        {isRtl ? fa : en}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-                <div className="bg-slate-50 dark:bg-gray-950/40 p-2.5 rounded-xl border border-slate-100 dark:border-gray-850 text-start">
-                  <p className="text-gray-400">{isRtl ? 'مبحث ۱۹ مقررات' : 'Section 19 Code'}</p>
-                  <p className="font-bold text-gray-700 dark:text-gray-200 mt-0.5">{isRtl ? 'مطابقت کامل' : 'Full Match'}</p>
-                </div>
-              </div>
 
-              <button
-                onClick={handleStartFree}
-                className="w-full py-2.5 bg-[#26B6B6] text-white rounded-xl text-xs font-black hover:bg-[#1e9494] transition-colors cursor-pointer flex items-center justify-center gap-1.5"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>{isRtl ? 'دانلود رایگان آبجکت BIM' : 'Free Download BIM Object'}</span>
-              </button>
+                <p className="mt-6 border-t border-gray-100 dark:border-gray-800 pt-4 text-xs leading-6 text-gray-500 dark:text-gray-400 text-start">
+                  {isRtl
+                    ? 'این تصویر فقط مسیر ساختاری معرفی محصول را نشان می‌دهد؛ وضعیت فایل، اطلاعات فنی و انتشار هر محصول بر اساس اطلاعات واقعی همان برند مشخص می‌شود.'
+                    : 'This visual only shows the structural product path. File availability, technical information, and publication status are determined from each brand’s real information.'}
+                </p>
+              </div>
             </div>
           </div>
-          
         </div>
       </section>
 
