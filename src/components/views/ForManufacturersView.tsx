@@ -713,9 +713,35 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
                 </div>
               )}
 
+              <div className="rounded-2xl bg-[#26B6B6]/5 border border-[#26B6B6]/15 p-4 space-y-3">
+                <div className="flex items-start gap-3">
+                  <UploadCloud className="w-5 h-5 text-[#26B6B6] shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="text-sm font-black text-gray-800 dark:text-white">{isRtl ? 'ارسال کاتالوگ یا اطلاعات اولیه محصول (اختیاری)' : 'Share a catalog or initial product information (optional)'}</h3>
+                    <p className="mt-1 text-sm leading-7 text-gray-600 dark:text-gray-400">{isRtl ? 'می‌توانید فرم را بدون ارسال کاتالوگ ثبت کنید. تلگرام و واتساپ فقط برای ارسال اطلاعات اولیه هستند، نه آپلود رسمی فایل BIM برای انتشار.' : 'You may submit the form without sharing a catalog. Telegram and WhatsApp are only for initial information, not official BIM file upload for publication.'}</p>
+                  </div>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <a href={telegramUrl} className="px-4 py-3 rounded-xl bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-extrabold transition-all flex items-center justify-center gap-2"><Send className="w-4 h-4" />{isRtl ? 'ارسال اطلاعات در تلگرام' : 'Send information via Telegram'}</a>
+                  <a href={whatsappUrl} target="_blank" rel="noreferrer" className="px-4 py-3 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366]/15 text-[#128C7E] border border-[#25D366]/20 text-xs font-extrabold transition-all flex items-center justify-center gap-2"><MessageCircle className="w-4 h-4" />{isRtl ? 'ارسال اطلاعات در واتساپ' : 'Send information via WhatsApp'}</a>
+                </div>
+              </div>
+
               <div className="border-t border-gray-100 dark:border-gray-800 pt-5">
-                <button type="button" onClick={() => setShowOptionalDetails(!showOptionalDetails)} className="text-sm font-black text-[#087F7A] hover:text-[#064E4B] cursor-pointer">
-                  {showOptionalDetails ? (isRtl ? 'بستن اطلاعات تکمیلی' : 'Hide optional details') : (isRtl ? 'افزودن اطلاعات تکمیلی محصول (اختیاری)' : 'Add optional product details')}
+                <button
+                  type="button"
+                  onClick={() => setShowOptionalDetails(!showOptionalDetails)}
+                  aria-expanded={showOptionalDetails}
+                  className="w-full flex items-center justify-between gap-4 rounded-2xl border border-[#087F7A]/30 bg-white dark:bg-gray-950 px-5 py-4 text-start transition-colors hover:bg-[#26B6B6]/5 dark:hover:bg-[#26B6B6]/10 cursor-pointer"
+                >
+                  <span className="flex items-center gap-3">
+                    <FileText className="w-5 h-5 text-[#087F7A] dark:text-[#26B6B6] shrink-0" />
+                    <span>
+                      <span className="block text-sm font-black text-[#087F7A] dark:text-[#26B6B6]">{showOptionalDetails ? (isRtl ? 'بستن اطلاعات تکمیلی محصول' : 'Hide optional product details') : (isRtl ? 'افزودن اطلاعات تکمیلی محصول' : 'Add optional product details')}</span>
+                      <span className="mt-1 block text-xs font-medium text-gray-500 dark:text-gray-400">{isRtl ? 'اختیاری؛ شامل لینک کاتالوگ، وب‌سایت و جزئیات بیشتر محصول' : 'Optional: catalog link, website, and additional product details'}</span>
+                    </span>
+                  </span>
+                  <ChevronDown className={`w-5 h-5 shrink-0 text-[#087F7A] dark:text-[#26B6B6] transition-transform ${showOptionalDetails ? 'rotate-180' : ''}`} />
                 </button>
 
                 {showOptionalDetails && (
@@ -733,7 +759,7 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
                         <label className="flex items-center gap-2 text-sm font-bold text-gray-700 dark:text-gray-300 cursor-pointer border border-gray-100 dark:border-gray-800 rounded-2xl p-3"><input type="checkbox" name="filesSentByTelegram" checked={formData.filesSentByTelegram} onChange={handleCheckboxChange} className="w-4 h-4 accent-[#26B6B6]" />{isRtl ? 'اطلاعات اولیه را در تلگرام ارسال می‌کنم' : 'I will share initial information via Telegram'}</label>
                         <label className="flex items-center gap-2 text-sm font-bold text-gray-700 dark:text-gray-300 cursor-pointer border border-gray-100 dark:border-gray-800 rounded-2xl p-3"><input type="checkbox" name="filesSentByWhatsApp" checked={formData.filesSentByWhatsApp} onChange={handleCheckboxChange} className="w-4 h-4 accent-[#26B6B6]" />{isRtl ? 'اطلاعات اولیه را در واتساپ ارسال می‌کنم' : 'I will share initial information via WhatsApp'}</label>
                       </div>
-                      <div className="flex flex-col sm:flex-row gap-2"><a href={telegramUrl} className="px-4 py-2.5 rounded-xl bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-extrabold transition-all flex items-center justify-center gap-2"><Send className="w-4 h-4" />{isRtl ? 'ارسال در تلگرام' : 'Send via Telegram'}</a><a href={whatsappUrl} target="_blank" rel="noreferrer" className="px-4 py-2.5 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366]/15 text-[#128C7E] border border-[#25D366]/20 text-xs font-extrabold transition-all flex items-center justify-center gap-2"><MessageCircle className="w-4 h-4" />{isRtl ? 'ارسال در واتساپ' : 'Send via WhatsApp'}</a></div>
+
                     </div>
                   </div>
                 )}
