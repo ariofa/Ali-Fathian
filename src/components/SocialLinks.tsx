@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSiteConfig } from './SiteConfigContext';
 
 // Platform interfaces
 export interface SocialPlatform {
@@ -139,9 +140,24 @@ export const SocialIconsRow: React.FC<SocialIconsRowProps> = ({
   iconClassName = 'w-5 h-5',
   isDarkBg = false,
 }) => {
+  // URLs come ONLY from the admin-editable site config (footer section).
+  // Per product decision: a channel icon is rendered only when the admin has
+  // actually written its URL — empty links are hidden, never shown broken.
+  const { siteConfig } = useSiteConfig();
+  const footerCfg = siteConfig?.footer;
+  const urlFor = (p: SocialPlatform): string => {
+    const cfgValue = (footerCfg as any)?.[p.id];
+    return (typeof cfgValue === 'string' && cfgValue.trim()) ? cfgValue.trim() : '';
+  };
+  const visiblePlatforms = PRIMARY_SOCIALS
+    .map((p) => ({ p, url: urlFor(p) }))
+    .filter(({ url }) => url.length > 0);
+
+  if (visiblePlatforms.length === 0) return null;
+
   return (
     <div className={className} dir="ltr">
-      {PRIMARY_SOCIALS.map((p) => {
+      {visiblePlatforms.map(({ p, url }) => {
         // Aesthetic color palette matching branding
         let colorClasses = '';
         if (isDarkBg) {
@@ -160,7 +176,7 @@ export const SocialIconsRow: React.FC<SocialIconsRowProps> = ({
         return (
           <a
             key={p.id}
-            href={p.url}
+            href={url}
             target="_blank"
             rel="noopener noreferrer"
             title={p.nameFa}

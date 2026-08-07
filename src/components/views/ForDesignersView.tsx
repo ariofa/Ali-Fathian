@@ -20,6 +20,8 @@ import {
 } from 'lucide-react';
 import { CATEGORIES, BIM_OBJECTS } from '../../data';
 import { BIMObjectCard } from '../BIMObjectCard';
+import { ExpertInsightsSection } from '../ExpertInsightsSection';
+import { Breadcrumb } from '../Breadcrumb';
 
 interface ForDesignersViewProps {
   onNavigate: (view: string, customTextFa?: string, customTextEn?: string, param?: string) => void;
@@ -27,6 +29,8 @@ interface ForDesignersViewProps {
   savedObjects: string[];
   onToggleSave: (id: string) => void;
   onQuickDownload: (obj: any, format: string) => void;
+  /** Opens the object detail page (cards are now real links) */
+  onSelectObject?: (obj: any) => void;
   currentUser: any;
 }
 
@@ -34,6 +38,7 @@ export const ForDesignersView: React.FC<ForDesignersViewProps> = ({
   onNavigate,
   onOpenAuthModal,
   savedObjects,
+  onSelectObject,
   onToggleSave,
   onQuickDownload,
   currentUser
@@ -53,19 +58,6 @@ export const ForDesignersView: React.FC<ForDesignersViewProps> = ({
     }
   };
 
-  // Sample object for concrete visual preview
-  const sampleBimObject = BIM_OBJECTS[0] || {
-    id: 'obj1',
-    titleFa: 'پنجره دو‌جداره آلومینیومی آلوپن سری Alu-90',
-    titleEn: 'Alupan Double-Glazed Aluminum Window Series Alu-90',
-    category: 'doors_windows',
-    subcategory: 'windows',
-    formats: ['rfa', 'ifc', 'dwg'],
-    fileSize: '4.2 MB',
-    manufacturerId: 'm1',
-    imageUrl: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=400&q=80',
-    specs: { model: 'Alu-90', frame: 'Thermal Break' }
-  };
 
   // Filter sample categories for preview
   const sampleCategories = CATEGORIES.slice(0, 4);
@@ -81,56 +73,39 @@ export const ForDesignersView: React.FC<ForDesignersViewProps> = ({
     {
       qFa: 'چه فرمت‌هایی از نرم‌افزارهای BIM پشتیبانی می‌شود؟',
       qEn: 'What BIM software formats are supported?',
-      aFa: 'تمامی آبجکت‌ها حداقل در سه فرمت Revit (RFA) ،ArchiCAD (GSM) و فرمت تبادل استاندارد بین‌المللی باز (IFC) برای هماهنگی کامل با تمام ابزارهای AEC ارائه می‌شوند.',
-      aEn: 'All objects are available in Revit (RFA), ArchiCAD (GSM), and open-source Industry Foundation Classes (IFC) standard formats to guarantee compatibility with popular AEC software.'
+      aFa: 'فرمت‌های هر آبجکت بر اساس نوع محصول و فایل منبع، در صفحهٔ همان محصول اعلام می‌شود؛ هدف ایران‌بیم‌هاب پوشش فرمت‌های رایج Revit (RFA) ، IFC و نسخه‌های دوبعدی CAD است.',
+      aEn: 'Formats are listed per product based on its type and source files. IranBIMhub aims to cover common formats (Revit RFA, IFC, and 2D CAD) rather than promising one fixed set for all products.'
     },
     {
       qFa: 'آیا تاریخچه دانلود و اطلاعات پروژه‌های من خصوصی است؟',
       qEn: 'Is my download history and project data private?',
-      aFa: 'صد درصد. ایران‌بیم‌هاب منطبق بر بالاترین سطوح امنیتی و حریم خصوصی کار طراحان طراحی شده است. تاریخچه کارپوشه شما فقط برای خودتان قابل مشاهده است.',
+      aFa: 'حریم خصوصی شما برای ما مهم است: تاریخچهٔ دانلود و پوشه‌های شخصی فقط برای حساب خودتان قابل مشاهده است و جزئیات بیشتر در صفحهٔ سیاست حریم خصوصی آمده است.',
       aEn: 'Absolutely. IranBIMhub is built with robust security standards. Your download history and custom collection folders are private and strictly accessible only to your account.'
     },
     {
       qFa: 'آیا آبجکت‌ها منطبق با استانداردهای ملی و اجرایی ایران هستند؟',
       qEn: 'Are objects compliant with Iranian building standards?',
-      aFa: 'بله. کاتالوگ‌های دیجیتال برندها قبل از انتشار عمومی توسط تیم ارزیابی فنی ما ارزیابی می‌شوند تا با پارامترهای مقررات ملی ساختمان (مانند عایق‌بندی حرارتی مبحث ۱۹ و کدهای حریق) مطابقت کامل داشته باشند.',
-      aEn: 'Yes. Digital catalogs undergo rigorous QA checks by our engineering team to ensure alignment with national building codes (e.g., thermal performance Section 19 and safety standards).'
+      aFa: 'هدف ما انتشار کاتالوگ‌هایی است که با مقررات ملی ساختمان (مانند مبحث ۱۹ و کدهای ایمنی) سازگار باشند؛ وضعیت انطباق هر محصول پس از ارزیابی فنی، در صفحهٔ همان محصول درج می‌شود.',
+      aEn: 'Our goal is to publish catalogs aligned with national building codes (e.g., thermal Section 19 and safety codes). Each product compliance status is listed on its page after technical evaluation.'
     }
   ];
 
-  // Testimonials
-  const testimonials = [
-    {
-      nameFa: 'مهندس بردیا صدر',
-      nameEn: 'Bardia Sadr, AIA',
-      roleFa: 'معمار ارشد و مدیر پروژه',
-      roleEn: 'Senior Architect & Project Manager',
-      firmFa: 'مهندسین مشاور نقش‌جهان',
-      firmEn: 'Naqsh-e-Jahan Consulting',
-      commentFa: 'ایران‌بیم‌هاب دغدغه قدیمی ما در شبیه‌سازی دقیق و تحویل برآورد مصالح را حل کرده است. دیگر مدل‌های خارجی بدون بازار و غیرقابل تامین را وارد نقشه‌ها نمی‌کنیم.',
-      commentEn: 'IranBIMhub has resolved our long-standing issue with material estimation. We no longer design with foreign catalogs that aren\'t available in the local market.',
-      rating: 5
-    },
-    {
-      nameFa: 'دکتر مریم سهرابی',
-      nameEn: 'Dr. Maryam Sohrabi',
-      roleFa: 'مدیر دپارتمان مدل‌سازی اطلاعات ساختمان (BIM)',
-      roleEn: 'Director of BIM Implementation',
-      firmFa: 'شرکت مهندسی کیسون',
-      firmEn: 'Kayson Engineering Co.',
-      commentFa: 'مدل‌های پارامتریک و منطبق بر استاندارد ملی در این هاب، بهره‌وری کار تیمی ما را بیش از ۴۰ درصد ارتقا داده است. سرعت کار به طرز محسوسی بالا رفته است.',
-      commentEn: 'Parametric and standardized models provided here have increased our team\'s productivity by over 40%. The speedup in model coordination is exceptional.',
-      rating: 5
-    }
-  ];
-
+  // Real concerns raised in early community conversations (anonymous, no fabricated endorsements)
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
   };
 
   return (
     <div className="min-h-screen bg-[#FBFBFC] dark:bg-gray-950 transition-colors" dir={isRtl ? 'rtl' : 'ltr'}>
-      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <Breadcrumb
+          items={[
+            { label: isRtl ? 'صفحه اصلی' : 'Home', onClick: () => onNavigate('home') },
+            { label: isRtl ? 'برای معماران و متخصصان BIM' : 'For Architects & BIM Specialists' }
+          ]}
+        />
+      </div>
+
       {/* 1. HERO SECTION */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[#1E2326] via-[#2F3539] to-[#464E56] text-white py-16 sm:py-24 px-4 sm:px-6 lg:px-8 text-start">
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#26B6B6_1.5px,transparent_1.5px)] [background-size:24px_24px]"></div>
@@ -274,7 +249,7 @@ export const ForDesignersView: React.FC<ForDesignersViewProps> = ({
                 <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   type="text"
-                  placeholder={isRtl ? 'تست کنید: درب، پنجره، بوتان...' : 'Search demo: boiler, valve, door...'}
+                  placeholder={isRtl ? 'تست کنید: درب، پنجره، پکیج...' : 'Search demo: boiler, valve, door...'}
                   value={previewSearch}
                   onChange={(e) => setPreviewSearch(e.target.value)}
                   className="w-full text-xs p-2.5 pr-10 border border-gray-200 dark:border-gray-800 rounded-xl bg-white dark:bg-gray-900 focus:outline-none focus:ring-1 focus:ring-[#26B6B6]"
@@ -321,17 +296,24 @@ export const ForDesignersView: React.FC<ForDesignersViewProps> = ({
                 .map(obj => (
                   <div 
                     key={obj.id} 
-                    className="bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-2xl overflow-hidden hover:shadow-md transition-all flex flex-col justify-between p-4"
+                    onClick={() => onSelectObject?.(obj)}
+                    role={onSelectObject ? 'button' : undefined}
+                    tabIndex={onSelectObject ? 0 : undefined}
+                    onKeyDown={(e) => { if (onSelectObject && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); onSelectObject(obj); } }}
+                    className="bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-2xl overflow-hidden hover:shadow-md hover:border-[#26B6B6]/40 transition-all flex flex-col justify-between p-4 cursor-pointer group"
                   >
                     <div className="space-y-3">
                       <div className="aspect-video w-full rounded-lg overflow-hidden bg-gray-50 relative">
-                        <img src={obj.imageUrl} alt={obj.titleEn} className="w-full h-full object-cover" />
+                        <img src={obj.imageUrl} alt={obj.titleEn} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                         <span className="absolute bottom-2 left-2 bg-[#464E56]/90 text-white font-mono text-[9px] px-1.5 py-0.5 rounded">
                           {obj.fileSize}
                         </span>
+                        <span className="absolute top-2 right-2 bg-white/95 dark:bg-gray-900/95 text-[#087F7A] dark:text-[#22D3EE] text-[9px] font-bold px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity shadow-xs pointer-events-none">
+                          {isRtl ? 'مشاهده صفحه فنی محصول ←' : 'View technical page →'}
+                        </span>
                       </div>
                       <div className="space-y-1 text-start">
-                        <h4 className="text-xs font-bold text-gray-800 dark:text-gray-100 line-clamp-2 min-h-[32px]">
+                        <h4 className="text-xs font-bold text-gray-800 dark:text-gray-100 line-clamp-2 min-h-[32px] group-hover:text-[#26B6B6] transition-colors">
                           {isRtl ? obj.titleFa : obj.titleEn}
                         </h4>
                         <p className="text-[10px] text-gray-400">
@@ -340,7 +322,7 @@ export const ForDesignersView: React.FC<ForDesignersViewProps> = ({
                       </div>
                     </div>
 
-                    <div className="mt-4 pt-3 border-t border-gray-50 dark:border-gray-800 flex items-center justify-between">
+                    <div className="mt-4 pt-3 border-t border-gray-50 dark:border-gray-800 flex items-center justify-between" onClick={(e) => e.stopPropagation()}>
                       <button
                         onClick={() => onToggleSave(obj.id)}
                         className={`p-1.5 rounded-lg border cursor-pointer ${
@@ -525,55 +507,10 @@ export const ForDesignersView: React.FC<ForDesignersViewProps> = ({
         </div>
       </section>
 
-      {/* 5. SOCIAL PROOF (Testimonials with named architects/companies) */}
-      <section className="bg-slate-100/50 dark:bg-gray-900/30 border-y border-gray-200/50 dark:border-gray-850 py-16 px-4 sm:px-6 lg:px-8 text-start">
-        <div className="max-w-7xl mx-auto space-y-10">
-          
-          <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="text-xs font-black text-[#26B6B6] uppercase tracking-wider">
-              {isRtl ? 'گفت‌وگو با فعالان طراحی و BIM' : 'Conversations with Design & BIM Professionals'}
-            </span>
-            <h2 className="text-xl sm:text-2xl font-black text-gray-800 dark:text-white">
-              {isRtl ? 'نیازهای واقعی طراحان را جدی می‌گیریم' : 'We listen to real designer needs'}
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {testimonials.map((test, index) => (
-              <div 
-                key={index} 
-                className="bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 p-6 rounded-2xl shadow-2xs space-y-4 flex flex-col justify-between"
-              >
-                <div className="space-y-3">
-                  <div className="flex gap-0.5 text-amber-500">
-                    {[...Array(test.rating)].map((_, i) => (
-                      <Star key={i} className="w-3.5 h-3.5 fill-current" />
-                    ))}
-                  </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 font-light leading-relaxed italic">
-                    «{isRtl ? test.commentFa : test.commentEn}»
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-3 pt-3 border-t border-gray-50 dark:border-gray-800">
-                  <div className="w-9 h-9 rounded-full bg-[#26B6B6]/10 text-[#26B6B6] font-black text-xs flex items-center justify-center shrink-0">
-                    {test.nameEn.split(' ')[0][0]}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs font-black text-gray-800 dark:text-gray-100">
-                      {isRtl ? test.nameFa : test.nameEn}
-                    </p>
-                    <p className="text-[10px] text-gray-400 truncate">
-                      {isRtl ? `${test.roleFa} • ${test.firmFa}` : `${test.roleEn} at ${test.firmEn}`}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-        </div>
-      </section>
+      {/* 5. SOCIAL PROOF — shared unified section (identical code as the
+             homepage); real named testimonials are managed in the admin panel
+             (expertInsights) and appear on both pages simultaneously. */}
+      <ExpertInsightsSection />
 
       {/* 6. FAQ */}
       <section className="max-w-3xl mx-auto px-4 sm:px-6 py-16 text-start space-y-8">

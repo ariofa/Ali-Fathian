@@ -898,7 +898,7 @@ export const BIM3DViewer: React.FC<BIM3DViewerProps> = ({ object }) => {
           <div className="p-2.5 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/15 rounded-xl space-y-1">
             <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
               <Sparkles className="w-3 h-3 shrink-0" />
-              <span className="text-[9px] font-black uppercase tracking-wider">{isRtl ? 'انطباق ۱۰۰٪ پارامتریک' : '100% CAD Compliant'}</span>
+              <span className="text-[9px] font-black uppercase tracking-wider">{isRtl ? 'پیش‌نمایش پارامتریک' : 'Parametric Preview'}</span>
             </div>
             <p className="text-[9px] text-gray-500 dark:text-gray-400 leading-relaxed font-light">
               {isRtl 

@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Breadcrumb } from '../Breadcrumb';
+import { toast } from '../ui/toast';
+import { EmptyState } from '../ui/EmptyState';
 import { useLanguage } from '../LanguageContext';
 import { Manufacturer, BIMObject } from '../../types';
 import { BIM_OBJECTS } from '../../data';
@@ -47,6 +50,8 @@ interface BrandPageViewProps {
   onToggleSave: (id: string) => void;
   savedObjects: string[];
   onQuickDownload: (obj: BIMObject, format: string) => void;
+  /** Optional global navigation (used by the page breadcrumb 'Home' item) */
+  onNavigate?: (view: string) => void;
 }
 
 // Rich mock data for each manufacturer to support premium branding, collections, clips, and bookshelf catalogs
@@ -98,153 +103,35 @@ const BRAND_EXTENSIONS: Record<string, {
     longDescriptionEn: 'The IranBIMhub initial library is being developed to present product-information structures, categories, and the search experience. Each product will be introduced independently after its source, technical information, and publication status are complete.',
     socials: {}, collections: [], clips: [], bookshelf: []
   },
-  m1: {
-    sloganFa: 'نوآوری در سیستم‌های درب، پنجره و کرتین‌وال آلومینیومی',
-    sloganEn: 'Innovation in Aluminum Window, Door & Curtain Wall Systems',
-    subTitleFa: '۴۰ سال پیشتازی در مهندسی نما و پنجره ساختمان',
-    subTitleEn: '40 Years of Pioneering in Building Facades & Window Engineering',
-    bannerUrl: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=80',
-    longDescriptionFa: 'شرکت آلوپن از سال ۱۳۵۳ با هدف تولید پروفیل‌های آلومینیومی اختصاصی ساختمانی تاسیس گردید. امروز ما با بهره‌گیری از تکنولوژی‌های روز اروپا، مدرن‌ترین سیستم‌های در و پنجره دوجداره ترمال‌بریک و کرتین‌وال را در کشور طراحی و تولید می‌کنیم. مدل‌های هوشمند BIM ما با دقت بسیار بالایی برای طراحان توسعه داده شده‌اند.',
-    longDescriptionEn: 'Alupan Co. was established in 1974 with the aim of producing proprietary structural aluminum profiles. Today, utilizing European advanced technologies, we design and manufacture the most modern thermal-break double-glazed window/door systems and curtain walls in the country. Our smart BIM families are highly detailed for professional architects.',
-    socials: {
-      instagram: 'https://instagram.com/alupan',
-      linkedin: 'https://linkedin.com/company/alupan',
-      pinterest: 'https://pinterest.com/alupan',
-      youtube: 'https://youtube.com/alupan'
-    },
-    collections: [
-      { id: 'c1_1', titleFa: 'سیستم‌های پنجره ترمال‌بریک', titleEn: 'Thermal-Break Systems', imageUrl: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=400&q=80' },
-      { id: 'c1_2', titleFa: 'نماهای شیشه‌ای کرتین‌وال', titleEn: 'Curtain Wall Facades', imageUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80' },
-      { id: 'c1_3', titleFa: 'پنجره‌های کشویی فوق‌باریک', titleEn: 'Slimline Sliding Windows', imageUrl: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=400&q=80' }
-    ],
-    clips: [
-      { id: 'clip1_1', titleFa: 'تیزر معرفی پنجره کشویی ترمال‌بریک سری الیت آلوپن', titleEn: 'Introduction to Alupan Elite Slim Thermal-Break Sliding Windows', videoUrl: '', thumbnailUrl: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=800&q=80', duration: '2:15', aparatId: 'a1' },
-      { id: 'clip1_2', titleFa: 'تست مقاومت باد و نفوذ آب سیستم‌های کرتین‌وال آلوپن', titleEn: 'Wind Resistance & Water Infiltration Test of Alupan Curtain Walls', videoUrl: '', thumbnailUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80', duration: '4:32', aparatId: 'a2' }
-    ],
-    bookshelf: [
-      { id: 'b1_1', title: 'Alupan_Thermal_Break_Windows_Catalog_2025.pdf', fileSize: '8.4 MB', coverUrl: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?auto=format&fit=crop&w=300&q=80' },
-      { id: 'b1_2', title: 'Curtain_Wall_Structural_Details_Design_Guide.pdf', fileSize: '14.2 MB', coverUrl: 'https://images.unsplash.com/photo-1507537297725-24a1c029d3ca?auto=format&fit=crop&w=300&q=80' }
-    ]
+  'sample-facade': {
+    sloganFa: 'پروفایل نمونهٔ سیستم‌های در، پنجره و نما',
+    sloganEn: 'Sample Profile — Door, Window & Facade Systems',
+    subTitleFa: 'این صفحه، ساختار صفحهٔ برند پس از احراز رسمی را نمایش می‌دهد',
+    subTitleEn: 'This page demonstrates the verified brand-page structure',
+    bannerUrl: '/objects/facade-panel.jpg',
+    longDescriptionFa: 'این یک پروفایل نمونه برای نمایش ساختار اطلاعات برند است. پس از تکمیل احراز رسمی برند و ارزیابی فنی، اطلاعات واقعی تولیدکننده در چنین صفحه‌ای منتشر می‌شود.',
+    longDescriptionEn: 'This sample profile demonstrates the brand information structure. After official brand verification and technical evaluation, real manufacturer data will appear on such a page.',
+    socials: {}, collections: [], clips: [], bookshelf: []
   },
-  m2: {
-    sloganFa: 'گروه صنعتی بوتان، انتخابی مطمئن برای گرمایش نسل‌ها',
-    sloganEn: 'Butane Group, A Reliable Choice for Generations of Warmth',
-    subTitleFa: 'بزرگترین تولیدکننده پکیج و رادیاتور در خاورمیانه',
-    subTitleEn: 'The Largest Heating Boiler & Radiator Manufacturer in the ME',
-    bannerUrl: 'https://images.unsplash.com/photo-1585128792020-803d29415281?auto=format&fit=crop&w=1400&q=80',
-    longDescriptionFa: 'گروه صنعتی بوتان در سال ۱۳۳۲ تأسیس گردید و با بیش از ۷ دهه تجربه، پیشگام صنعت گرمایشی ایران است. پکیج‌های دیواری هوشمند و رادیاتورهای پره‌ای آلومینیومی ما به دست بهترین مهندسین این مرز و بوم طراحی شده و اکنون فایل‌های مدل‌سازی پارامتریک رویت آن‌ها با رعایت کامل کدهای محاسباتی در اختیار جامعه مهندسی کشور قرار دارد.',
-    longDescriptionEn: 'Butane Industrial Group was founded in 1953 and stands as a 70-year pioneer in Iran heating industry. Our smart wall boilers and aluminum radiators are engineered by domestic talents, and their parametric Revit families are fully detailed to respect local codes and load calculations.',
-    socials: {
-      instagram: 'https://instagram.com/butane',
-      linkedin: 'https://linkedin.com/company/butane',
-      telegram: 'https://t.me/butane'
-    },
-    collections: [
-      { id: 'c2_1', titleFa: 'پکیج‌های دیواری هوشمند چگالشی', titleEn: 'Smart Condensing Boilers', imageUrl: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=400&q=80' },
-      { id: 'c2_2', titleFa: 'رادیاتورهای آلومینیومی پره‌ای دکوراتیو', titleEn: 'Decorative Aluminum Radiators', imageUrl: 'https://images.unsplash.com/photo-1527018601619-a508a2be00cd?auto=format&fit=crop&w=400&q=80' }
-    ],
-    clips: [
-      { id: 'clip2_1', titleFa: 'فیلم راهنمای جانمایی و اتصال لوله‌های پکیج بوتان در رویت', titleEn: 'Revit Placement and Pipe Connection Guide for Butane Boilers', videoUrl: '', thumbnailUrl: 'https://images.unsplash.com/photo-1581094288338-2314dddb7eed?auto=format&fit=crop&w=800&q=80', duration: '5:40', aparatId: 'b1' },
-      { id: 'clip2_2', titleFa: 'تیزر تکنولوژی رادیاتورهای دکوراتیو نسل جدید پرلاپرو', titleEn: 'New Generation PerlaPro Decorative Radiators Commercial', videoUrl: '', thumbnailUrl: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80', duration: '1:50', aparatId: 'b2' }
-    ],
-    bookshelf: [
-      { id: 'b2_1', title: 'Butane_Smart_Boilers_Technical_Datasheet_2026.pdf', fileSize: '6.1 MB', coverUrl: 'https://images.unsplash.com/photo-1586075010923-2dd4570fb338?auto=format&fit=crop&w=300&q=80' }
-    ]
+  'sample-mechanical': {
+    sloganFa: 'پروفایل نمونهٔ تجهیزات و تاسیسات ساختمان',
+    sloganEn: 'Sample Profile — Building Services & Equipment',
+    subTitleFa: 'این صفحه، ساختار صفحهٔ برند پس از احراز رسمی را نمایش می‌دهد',
+    subTitleEn: 'This page demonstrates the verified brand-page structure',
+    bannerUrl: '/hero/bim-wall-hung-toilet.webp',
+    longDescriptionFa: 'این یک پروفایل نمونه برای نمایش ساختار اطلاعات برند است. پس از تکمیل احراز رسمی برند و ارزیابی فنی، اطلاعات واقعی تولیدکننده در چنین صفحه‌ای منتشر می‌شود.',
+    longDescriptionEn: 'This sample profile demonstrates the brand information structure. After official brand verification and technical evaluation, real manufacturer data will appear on such a page.',
+    socials: {}, collections: [], clips: [], bookshelf: []
   },
-  m3: {
-    sloganFa: 'شفافیت و پایداری در معماری مدرن با شیشه کاوه',
-    sloganEn: 'Transparency & Sustainability in Architecture with Kaveh Glass',
-    subTitleFa: 'پیشرفته‌ترین خط تولید شیشه‌های هوشمند کم‌گسیل و دوجداره',
-    subTitleEn: 'Advanced Production of Smart Low-E & Laminated Glazing',
-    bannerUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1400&q=80',
-    longDescriptionFa: 'گروه صنعتی شیشه کاوه بزرگترین تولیدکننده تخصصی شیشه در منطقه است. ما شیشه‌های پیشرفته لمینت ضدسرقت، شیشه‌های ایمنی سکوریت و شیشه‌های هوشمند کنترل‌کننده انرژی (Low-E) را تولید می‌کنیم که مستقیماً در کاهش مصرف انرژی ساختمان‌های سبز نقش حیاتی دارند.',
-    longDescriptionEn: 'Kaveh Glass Industrial Group is the largest specialized glass manufacturer in the region. We produce advanced burglar-proof laminated glass, tempered safety glass, and energy-controlling smart Low-E glass that plays a critical role in reducing energy consumption in green buildings.',
-    socials: {
-      instagram: 'https://instagram.com/kavehglass',
-      linkedin: 'https://linkedin.com/company/kavehglass'
-    },
-    collections: [
-      { id: 'c3_1', titleFa: 'شیشه‌های کنترل‌کننده انرژی Low-E', titleEn: 'Smart Low-E Energy Glass', imageUrl: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=400&q=80' },
-      { id: 'c3_2', titleFa: 'شیشه‌های لمینت ایمنی و آکوستیک', titleEn: 'Acoustic & Laminated Safety Glass', imageUrl: 'https://images.unsplash.com/photo-1548345680-f5475ea5df84?auto=format&fit=crop&w=400&q=80' }
-    ],
-    clips: [
-      { id: 'clip3_1', titleFa: 'شبیه سازی راندمان حرارتی شیشه دوجداره Low-E کاوه', titleEn: 'Thermal Performance Simulation of Kaveh Low-E Double Glazing', videoUrl: '', thumbnailUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80', duration: '3:05', aparatId: 'g1' }
-    ],
-    bookshelf: [
-      { id: 'b3_1', title: 'Kaveh_Glass_Acoustic_Performance_Chart.pdf', fileSize: '4.5 MB', coverUrl: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=300&q=80' }
-    ]
-  },
-  m4: {
-    sloganFa: 'وین‌تک، پنجره‌ای رو به آرامش و بهینه‌سازی فردا',
-    sloganEn: 'WinTech, A Window to Comfort & Efficiency of Tomorrow',
-    subTitleFa: 'تولیدکننده تراز اول پروفیل‌های مدرن درب و پنجره UPVC',
-    subTitleEn: 'Top-tier Manufacturer of Modern UPVC Window & Door Profiles',
-    bannerUrl: 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1400&q=80',
-    longDescriptionFa: 'گروه صنعتی وین‌تک با استقرار خطوط تولید اتوماتیک مدرن در ایران، باکیفیت‌ترین پروفیل‌های در و پنجره دوجداره UPVC را ارائه می‌دهد. محصولات ما کاملاً در برابر نفوذ صدا، گرد و خاک و اتلاف حرارتی عایق هستند. کتابخانه فایل‌های رویت ما منطبق بر استانداردهای جهانی BIM به طراحان در برآورد دقیق متره کمک می‌کند.',
-    longDescriptionEn: 'WinTech Industrial Group, with automated state-of-the-art factories in Iran, provides the highest quality double-glazed UPVC door and window profiles. Our profiles are completely insulated against noise, dust, and thermal leakage. Our Revit database helps modelers generate precise bills of quantities (BoQ).',
-    socials: {
-      instagram: 'https://instagram.com/wintech',
-      linkedin: 'https://linkedin.com/company/wintech',
-      telegram: 'https://t.me/wintech_fa'
-    },
-    collections: [
-      { id: 'c4_1', titleFa: 'پروفیل‌های ۵ کاناله سری W700', titleEn: 'W700 Series 5-Chamber Profiles', imageUrl: 'https://images.unsplash.com/photo-1615529182904-14819c35db37?auto=format&fit=crop&w=400&q=80' },
-      { id: 'c4_2', titleFa: 'سیستم‌های توری پلیسه و کشویی ریلی', titleEn: 'Sliding & Pleated Screen Systems', imageUrl: 'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=400&q=80' }
-    ],
-    clips: [
-      { id: 'clip4_1', titleFa: 'تست‌های دوام و ضربه پروفیل وین‌تک در شرایط آب و هوایی سخت', titleEn: 'Durability and Impact Tests of WinTech Profiles in Hard Climate', videoUrl: '', thumbnailUrl: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=80', duration: '3:50', aparatId: 'w1' }
-    ],
-    bookshelf: [
-      { id: 'b4_1', title: 'WinTech_UPVC_Profiles_Technical_Detail_Book_2025.pdf', fileSize: '18.7 MB', coverUrl: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=300&q=80' }
-    ]
-  },
-  m5: {
-    sloganFa: 'بهسرام، جلوه لوکس پرسلان در ابعاد بزرگ برای فضاهای خاص',
-    sloganEn: 'Behceram, The Luxury Glance of Porcelain for Unique Spaces',
-    subTitleFa: 'اولین تولیدکننده اسلب‌های پرسلانی سوپر پولیش ساخت ایران',
-    subTitleEn: 'First Manufacturer of Super-Polished Porcelain Slabs in Iran',
-    bannerUrl: 'https://images.unsplash.com/photo-1618219908412-a29a1bb7b86e?auto=format&fit=crop&w=1400&q=80',
-    longDescriptionFa: 'صنایع کاشی و سرامیک پرسلانی بهسرام با بهره‌گیری از تجهیزات پیشرفته ساخت ایتالیا، تولیدکننده برتر اسلب‌های لوکس با طرح‌های طبیعی سنگ مرمر و تراورتن است. اسلب‌های ما با جذب آب نزدیک به صفر، برای نماهای خشک ساختمانی، کف لابی‌های مجلل و کانترهای کابینت آشپزخانه کاربرد دارند.',
-    longDescriptionEn: 'Behceram Porcelain Slabs and Tiles Co. utilizes state-of-the-art Italian machinery to produce premium-grade luxury slabs resembling natural marbles and travertines. With zero water absorption, our slabs are ideal for ventilated facades, lobby floorings, and modern countertops.',
-    socials: {
-      instagram: 'https://instagram.com/behceram',
-      linkedin: 'https://linkedin.com/company/behceram',
-      pinterest: 'https://pinterest.com/behceram'
-    },
-    collections: [
-      { id: 'c5_1', titleFa: 'اسلب‌های پرسلانی طرح مرمر کلکته', titleEn: 'Calacatta Marble Slabs', imageUrl: 'https://images.unsplash.com/photo-1600566752355-35792bedcfea?auto=format&fit=crop&w=400&q=80' },
-      { id: 'c5_2', titleFa: 'کاشی‌های پرسلانی دکوراتیو مات زبر', titleEn: 'Matte Textured Exterior Slabs', imageUrl: 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=400&q=80' }
-    ],
-    clips: [
-      { id: 'clip5_1', titleFa: 'تیزر فرآیند پخت و خط پولیش مجهز بهسرام در اصفهان', titleEn: 'Behceram Modern Slabs Production & Polishing Line in Isfahan', videoUrl: '', thumbnailUrl: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=80', duration: '2:40', aparatId: 'bc1' }
-    ],
-    bookshelf: [
-      { id: 'b5_1', title: 'Behceram_Porcelain_Slabs_Architectural_Collection.pdf', fileSize: '11.5 MB', coverUrl: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=300&q=80' }
-    ]
-  },
-  m6: {
-    sloganFa: 'مازی‌نور، پیشرو در مهندسی روشنایی و طراحی معماری نور',
-    sloganEn: 'Mazinoor, Pioneer in Lighting Engineering & Architectural Lighting',
-    subTitleFa: 'مدرن‌ترین چراغ‌های اداری، تجاری و صنعتی ساخت ایران',
-    subTitleEn: 'Advanced Commercial, Office & Industrial Luminaires',
-    bannerUrl: 'https://images.unsplash.com/photo-1565538810844-16ba89417953?auto=format&fit=crop&w=1400&q=80',
-    longDescriptionFa: 'صنایع روشنایی مازی‌نور به عنوان پیشتاز طراحی چراغ‌های مدرن در کشور، مجهزترین آزمایشگاه‌های فوتومتری و تست‌های عایق آب و گرد و خاک (IP) را داراست. چراغ‌های اداری خطی توکار و روکار ما با بازده فوق‌العاده بالا و فاقد چشمک‌زن (Flicker-Free) برای پروژه‌های کلاس A ایران مدل‌سازی شده‌اند.',
-    longDescriptionEn: 'Mazinoor Lighting Industries is the pioneer of modern luminaire design in Iran, equipped with the most advanced photometric and IP laboratories. Our architectural linear recessed/surface LED fixtures are flicker-free and offer exceptional efficacy for Class A domestic projects.',
-    socials: {
-      instagram: 'https://instagram.com/mazinoor',
-      linkedin: 'https://linkedin.com/company/mazinoor',
-      youtube: 'https://youtube.com/mazinoor'
-    },
-    collections: [
-      { id: 'c6_1', titleFa: 'چراغ‌های خطی توکار و روکار سری لدی‌لوکس', titleEn: 'Ledilux High-End Linear Luminaires', imageUrl: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=400&q=80' },
-      { id: 'c6_2', titleFa: 'نورافکن‌ها و پروژکتورهای صنعتی ضدآب IP66', titleEn: 'Heavy Industrial IP66 Floodlights', imageUrl: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?auto=format&fit=crop&w=400&q=80' }
-    ],
-    clips: [
-      { id: 'clip6_1', titleFa: 'فیلم تست آزمایشگاهی گونیوفوتومتر چراغ‌های خطی مازی‌نور', titleEn: 'Photometric Goniophotometer Test of Mazinoor Linear Lights', videoUrl: '', thumbnailUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80', duration: '4:12', aparatId: 'm1_1' }
-    ],
-    bookshelf: [
-      { id: 'b6_1', title: 'Mazinoor_Interior_Architectural_Lighting_Catalog.pdf', fileSize: '9.8 MB', coverUrl: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=300&q=80' }
-    ]
+  'sample-finishes': {
+    sloganFa: 'پروفایل نمونهٔ مصالح، پوشش‌ها و تکمیل ساختمان',
+    sloganEn: 'Sample Profile — Materials, Finishes & Completion Products',
+    subTitleFa: 'این صفحه، ساختار صفحهٔ برند پس از احراز رسمی را نمایش می‌دهد',
+    subTitleEn: 'This page demonstrates the verified brand-page structure',
+    bannerUrl: '/objects/facade-panel.jpg',
+    longDescriptionFa: 'این یک پروفایل نمونه برای نمایش ساختار اطلاعات برند است. پس از تکمیل احراز رسمی برند و ارزیابی فنی، اطلاعات واقعی تولیدکننده در چنین صفحه‌ای منتشر می‌شود.',
+    longDescriptionEn: 'This sample profile demonstrates the brand information structure. After official brand verification and technical evaluation, real manufacturer data will appear on such a page.',
+    socials: {}, collections: [], clips: [], bookshelf: []
   }
 };
 
@@ -254,7 +141,8 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
   onSelectObject,
   onToggleSave,
   savedObjects,
-  onQuickDownload
+  onQuickDownload,
+  onNavigate
 }) => {
   const { language, t, isRtl } = useLanguage();
   const [isFollowing, setIsFollowing] = useState(() => {
@@ -321,114 +209,37 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
       console.error(e);
     }
     if (manufacturer.isSample) return [];
-    return [
-      { id: 'std-1', name: 'ISO 9001 (Quality Management)', code: 'ISO-9001', country: 'SGS Germany', verified: true, description: 'استاندارد جهانی مدیریت سیستم‌های کیفیت و ارزیابی فرایندها.' },
-      { id: 'std-2', name: 'CE Mark (European Conformity)', code: 'CE-AEC', country: 'TUV Nord', verified: true, description: 'نشان انطباق محصول با استانداردهای بهداشت، ایمنی و حفاظت محیط زیست اروپا.' },
-      { id: 'std-3', name: 'نشان استاندارد ملی ایران (INSO)', code: 'INSO-7090', country: 'ISIRI', verified: true, description: 'نشان استاندارد ملی اجباری برای در و پنجره‌های آلومینیومی ساختمان.' }
-    ];
+    return [];
   });
 
-  const [brandAwards, setBrandAwards] = useState(() => {
+  const [brandAwards, setBrandAwards] = useState<any[]>(() => {
     try {
       const saved = localStorage.getItem('iranbimhub_mfg_awards');
       if (saved) return JSON.parse(saved);
     } catch (e) {
       console.error(e);
     }
-    return [
-      { 
-        id: 'p-1', 
-        titleFa: 'رتبه نخست مسابقه ملی طراحی و نمای آلومینیوم ایران', 
-        titleEn: '1st Place in Iranian Aluminum Facade Design Award', 
-        architect: 'دفتر معماری دلیری / همکاران', 
-        location: 'تهران، الهیه', 
-        year: '۱۴۰۳',
-        description: 'کسب عنوان برترین نماساز با محصول سری آلو-۹۰ در مسابقات سالانه.'
-      },
-      { 
-        id: 'p-2', 
-        titleFa: 'تندیس زرین برند محبوب سال در صنعت در و پنجره', 
-        titleEn: 'Golden Statue of Popular Brand of the Year', 
-        architect: 'صنایع ساختمانی ایران', 
-        location: 'تهران، مرکز همایش‌ها', 
-        year: '۱۴۰۴',
-        description: 'انتخاب مردمی و مهندسی برند برتر تولیدکننده پروفیل اختصاصی.'
-      }
-    ];
+    return [];
   });
 
-  const [brandProjects, setBrandProjects] = useState(() => {
+  const [brandProjects, setBrandProjects] = useState<any[]>(() => {
     try {
       const saved = localStorage.getItem('iranbimhub_mfg_projects');
       if (saved) return JSON.parse(saved);
     } catch (e) {
       console.error(e);
     }
-    return [
-      { 
-        id: 'proj-1', 
-        titleFa: 'مجتمع تجاری اداری روشا تهران', 
-        titleEn: 'Rosha Department Store Tehran', 
-        architect: 'مهندس محمدرضا نیکبخت', 
-        location: 'تهران، نیاوران', 
-        year: '۱۴۰۲',
-        description: 'اجرای نمای شیشه‌ای و کرتین‌وال آلومینیومی با مقاطع اختصاصی آلوپن.',
-        fileName: 'Rosha_Project_Brief.pdf',
-        fileUrl: '#'
-      },
-      { 
-        id: 'proj-2', 
-        titleFa: 'برج آرمیتاژ گلشن مشهد', 
-        titleEn: 'Armitage Golshan Tower Mashhad', 
-        architect: 'دفتر فنی آرمیتاژ', 
-        location: 'مشهد، هفت تیر', 
-        year: '۱۴۰۳',
-        description: 'پوشش کامل پنجره‌های ترمال‌بریک کشویی و لولایی با ضریب عایق بسیار بالا.',
-        fileName: 'Armitage_Tower_Specs.pdf',
-        fileUrl: '#'
-      }
-    ];
+    return [];
   });
 
-  const [brandCatalogs, setBrandCatalogs] = useState(() => {
+  const [brandCatalogs, setBrandCatalogs] = useState<any[]>(() => {
     try {
       const saved = localStorage.getItem('iranbimhub_mfg_catalogs');
       if (saved) return JSON.parse(saved);
     } catch (e) {
       console.error(e);
     }
-    return [
-      {
-        id: 'cat-1',
-        titleFa: 'دفترچه راهنمای فنی و جزئیات اجرایی پروفیل‌های آلوپن',
-        titleEn: 'Alupan Technical Handbook & Execution Details',
-        category: 'راهنمای فنی / Technical Handbook',
-        fileSize: '14.8 MB',
-        description: 'کاتالوگ جامع مقاطع پروفیل‌های ترمال‌بریک، جزئیات آب‌بندی، هواپذیری و ضرایب انتقال حرارت U-Value.',
-        fileName: 'Alupan_Technical_Handbook_2026.pdf',
-        fileUrl: '#'
-      },
-      {
-        id: 'cat-2',
-        titleFa: 'کاتالوگ جامع سیستم‌های در و پنجره دوجداره آلومینیومی',
-        titleEn: 'Comprehensive Aluminum Doors & Windows Catalog',
-        category: 'کاتالوگ محصولات / Product Catalog',
-        fileSize: '8.2 MB',
-        description: 'کاتالوگ اصلی معرفی ابعاد استاندارد، تنوع رنگ آنادایز و پودری و یراق‌آلات سازگار.',
-        fileName: 'Alupan_Window_Catalog.pdf',
-        fileUrl: '#'
-      },
-      {
-        id: 'cat-3',
-        titleFa: 'جدول محاسبات بار باد و ضرایب حرارتی فریم‌های نما',
-        titleEn: 'Wind Load & Thermal Resistance Calculation Tables',
-        category: 'جدول محاسباتی / Calculation Sheets',
-        fileSize: '4.5 MB',
-        description: 'دستورالعمل‌ها و جداول فنی محاسبه ممان اینرسی و مقاومت فریم در برابر بارهای سازه‌ای.',
-        fileName: 'Wind_Load_Tables.pdf',
-        fileUrl: '#'
-      }
-    ];
+    return [];
   });
 
   const [customObjectsVersion, setCustomObjectsVersion] = useState(0);
@@ -481,9 +292,9 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
     logoUrl: savedProfile?.logoUrl || manufacturer.logo,
     coverUrl: savedProfile?.coverUrl || ext.bannerUrl,
     country: savedProfile?.country || 'IR',
-    promoVideoUrl: savedProfile?.promoVideoUrl !== undefined ? savedProfile.promoVideoUrl : 'https://www.aparat.com/v/a1',
-    portfolioPdfName: savedProfile?.portfolioPdfName !== undefined ? savedProfile.portfolioPdfName : 'Alupan_Corporate_Catalog_2026.pdf',
-    portfolioPdfUrl: savedProfile?.portfolioPdfUrl !== undefined ? savedProfile.portfolioPdfUrl : 'https://alupan.com/catalog.pdf',
+    promoVideoUrl: savedProfile?.promoVideoUrl !== undefined ? savedProfile.promoVideoUrl : '',
+    portfolioPdfName: savedProfile?.portfolioPdfName !== undefined ? savedProfile.portfolioPdfName : '',
+    portfolioPdfUrl: savedProfile?.portfolioPdfUrl !== undefined ? savedProfile.portfolioPdfUrl : '',
   };
 
   const getActiveSocials = () => {
@@ -885,7 +696,16 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
 
   return (
     <div className="bg-white dark:bg-gray-950 text-gray-800 dark:text-gray-100 transition-colors" dir={isRtl ? 'rtl' : 'ltr'}>
-      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+        <Breadcrumb
+          items={[
+            { label: isRtl ? 'صفحه اصلی' : 'Home', onClick: () => onNavigate ? onNavigate('home') : onBack() },
+            { label: isRtl ? 'تولیدکنندگان و برندها' : 'Manufacturers & Brands', onClick: onBack },
+            { label: isRtl ? activeMfg.nameFa : activeMfg.nameEn }
+          ]}
+        />
+      </div>
+
       {/* 1. Header Banner Image & Overlay navigation */}
       <div className="relative w-full h-56 sm:h-72 md:h-80 overflow-hidden bg-gray-100">
         <img 
@@ -1224,22 +1044,19 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
             ))}
           </div>
         ) : (
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-2xl p-12 text-center border border-dashed border-gray-200 dark:border-gray-800 text-gray-400">
-            <Layers className="w-10 h-10 mx-auto text-gray-300 dark:text-gray-700 mb-3" />
-            <p className="text-xs font-bold mb-2">
-              {isRtl ? 'هیچ آبجکت بیم فعالی یافت نشد' : 'No active BIM families matching search options'}
-            </p>
-            <button
-              onClick={() => {
-                setCatalogSearchQuery('');
-                setSelectedSubcategory('all');
-                setSelectedFormat('all');
-              }}
-              className="text-xs text-[#26B6B6] font-bold hover:underline cursor-pointer"
-            >
-              {isRtl ? 'حذف تمام فیلترها' : 'Reset All Filters'}
-            </button>
-          </div>
+          <EmptyState
+            icon={Layers}
+            title={isRtl ? 'هیچ آبجکت بیم فعالی یافت نشد' : 'No active BIM families matching search options'}
+            description={isRtl
+              ? 'موردی با فیلترهای فعلی پیدا نشد؛ فیلترها را بازنشانی کنید یا کلمات عام‌تری جستجو نمایید.'
+              : 'Nothing matched the active filters. Reset filters or try broader keywords.'}
+            actionLabel={isRtl ? 'حذف تمام فیلترها' : 'Reset All Filters'}
+            onAction={() => {
+              setCatalogSearchQuery('');
+              setSelectedSubcategory('all');
+              setSelectedFormat('all');
+            }}
+          />
         )}
       </div>
 
@@ -1697,7 +1514,7 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
                   ) : (
                     <button
                       onClick={() => {
-                        alert(isRtl ? `در حال آماده‌سازی و دانلود کاتالوگ: ${cat.titleFa || cat.titleEn}` : `Preparing download for catalog: ${cat.titleEn || cat.titleFa}`);
+                        toast(isRtl ? `در حال آماده‌سازی و دانلود کاتالوگ: ${cat.titleFa || cat.titleEn}` : `Preparing download for catalog: ${cat.titleEn || cat.titleFa}`);
                       }}
                       className="flex items-center gap-1 text-[10px] text-[#26B6B6] font-black hover:underline cursor-pointer w-fit pt-1"
                     >

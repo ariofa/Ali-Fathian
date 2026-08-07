@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { Breadcrumb } from '../Breadcrumb';
+import { toast } from '../ui/toast';
+import { EmptyState } from '../ui/EmptyState';
 import { useLanguage } from '../LanguageContext';
 import { TelegramIcon, WhatsAppIcon, LinkedInIcon } from '../SocialLinks';
 import { 
@@ -94,7 +97,7 @@ export const ARTICLES: Article[] = [
       {
         heading: 'چرا باید به عنوان تولیدکننده یا طراح اهمیت بدهیم؟',
         paragraphs: [
-          'برای طراحان: دسترسی به آبجکت‌های آماده با ابعاد دقیق کارخانجات ایرانی، سرعت طراحی را تا ۴۰٪ افزایش داده و احتمال خطاهای اجرایی (برخورد لوله‌ها با تیرها) را به صفر نزدیک می‌کند.',
+          'برای طراحان: دسترسی به آبجکت‌های آماده با ابعاد دقیق کارخانه‌های ایرانی می‌تواند سرعت طراحی را به‌طور چشمگیری افزایش دهد و از خطاهای اجرایی رایج (مانند تداخل لوله‌ها با تیرها) بکاهد.',
           'برای تولیدکنندگان: وقتی مهندسان معمار فایل آماده آبجکت شما را در نقشه‌های فاز دو رویت بگذارند، محصول شما مستقیماً وارد لیست خرید پروژه (LOM/BOQ) می‌شود و کارفرما عملاً مجبور به خرید از شماست.'
         ],
         quote: 'بیم زبان مشترک مهندسی مدرن است. هر محصول بدون شناسه بیم، به مرور از بازار ساخت‌وسازهای بزرگ حذف خواهد شد.'
@@ -116,7 +119,7 @@ export const ARTICLES: Article[] = [
       {
         heading: 'Why This Matters to Designers and Suppliers',
         paragraphs: [
-          'For Designers: Instant access to pre-built, dimensionally accurate manufacturer assets increases speed by up to 40% and reduces on-site interference errors to nearly zero.',
+          'For Designers: Instant access to pre-built, dimensionally accurate manufacturer assets can significantly increase design speed and reduce common on-site interference errors.',
           'For Manufacturers: When an architect places your exact BIM object inside their Revit project, your product is automatically specified into the Bill of Quantities (BOQ). The owner has to source it from you.'
         ],
         quote: 'BIM is the global language of modern engineering. Products without structured BIM families will gradually be locked out of major development projects.'
@@ -131,8 +134,8 @@ export const ARTICLES: Article[] = [
     readTimeEn: '4 min read',
     titleFa: 'چگونه ثبت در کاتالوگ BIM تصمیمات خرید کارفرمایان را هدایت می‌کند؟',
     titleEn: 'How BIM Specification Drives Procurement Decisions',
-    summaryFa: 'تحلیل دقیق مسیر تصمیم‌گیری در ساخت‌وسازهای مدرن نشان می‌دهد که ۸۲٪ از مدیران خرید پروژه‌ها، مصالحی را تهیه می‌کنند که از فاز طراحی اولیه به عنوان آبجکت استاندارد بیم وارد مدل شده‌اند.',
-    summaryEn: 'Analysis of modern construction procurement reveals that 82% of project purchasing managers procure materials that were integrated into the 3D model as standard BIM families during the initial design phases.',
+    summaryFa: 'تجربهٔ صنعت ساختمان نشان می‌دهد بسیاری از مدیران خرید، مصالحی را ترجیح می‌دهند که از فاز طراحی با مشخصات دقیق وارد مدل شده باشند؛ ورود زودهنگام محصول به فرایند طراحی، شانس انتخاب آن در مرحلهٔ خرید را به‌طور جدی افزایش می‌دهد.',
+    summaryEn: 'Industry experience shows purchasing managers favor materials whose accurate data enters the design model early; early specification meaningfully increases the chance of being selected at procurement.',
     imageUrl: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=80',
     ctaFa: 'ثبت برند و کاتالوگ محصولات',
     ctaEn: 'Register Brand & Catalog',
@@ -441,7 +444,13 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigate }) => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12" id="insights-education-hub">
-      
+      <Breadcrumb
+        items={[
+          { label: isRtl ? 'صفحه اصلی' : 'Home', onClick: () => onNavigate('home') },
+          { label: isRtl ? 'مرکز آموزش و راهنما' : 'Learning Center' }
+        ]}
+      />
+
       {/* 1. ARTICLE DETAIL VIEW */}
       {activeArticle ? (
         <div className="space-y-8 animate-fadeIn">
@@ -560,7 +569,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigate }) => {
                         </div>
                         <button
                           type="button"
-                          onClick={() => alert(isRtl ? 'سیستم شبیه‌ساز رسانه فعال شد. ویدیو/اینفوگرافیک به زودی آپلود می‌شود.' : 'Media simulation initialized. Content will load shortly.')}
+                          onClick={() => toast(isRtl ? 'سیستم شبیه‌ساز رسانه فعال شد. ویدیو/اینفوگرافیک به زودی آپلود می‌شود.' : 'Media simulation initialized. Content will load shortly.')}
                           className="bg-white dark:bg-gray-800 hover:bg-[#26B6B6]/10 hover:text-[#26B6B6] text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 font-bold text-[10px] px-3.5 py-2 rounded-lg transition-all cursor-pointer whitespace-nowrap"
                         >
                           {section.mediaPlaceholder.type === 'video' ? (isRtl ? 'پخش ویدیو' : 'Play Clip') : (isRtl ? 'دیدن نمودار' : 'View Graph')}
@@ -658,7 +667,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigate }) => {
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(window.location.href);
-                      alert(isRtl ? 'لینک مقاله با موفقیت در کلیپ‌بورد کپی شد.' : 'Article link copied to clipboard!');
+                      toast(isRtl ? 'لینک مقاله با موفقیت در کلیپ‌بورد کپی شد.' : 'Article link copied to clipboard!');
                     }}
                     className="w-full bg-slate-50 dark:bg-gray-800 hover:bg-[#26B6B6]/5 hover:text-[#26B6B6] text-gray-600 dark:text-gray-300 text-[10px] font-bold py-2 px-3 rounded-xl border border-gray-200/50 dark:border-gray-700 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                   >
@@ -932,24 +941,19 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigate }) => {
                 })}
               </div>
             ) : (
-              <div className="bg-gray-50 dark:bg-gray-900 border border-gray-150 dark:border-gray-800 p-12 text-center rounded-2xl">
-                <p className="text-xs text-gray-400 font-medium">
-                  {isRtl 
-                    ? 'هیچ مقاله یا راهنمایی منطبق با کلمات جستجو شده یافت نشد.' 
-                    : 'No educational guides match your specific filter queries.'
-                  }
-                </p>
-                <button
-                  onClick={() => {
-                    setSearchQuery('');
-                    setSelectedCategory('all');
-                    setSelectedType('all');
-                  }}
-                  className="mt-3 text-xs text-[#26B6B6] hover:underline font-bold"
-                >
-                  {isRtl ? 'پاک کردن کل فیلترها' : 'Clear All Filters'}
-                </button>
-              </div>
+              <EmptyState
+                icon={BookOpen}
+                title={isRtl ? 'موردی مطابق جستجوی شما یافت نشد' : 'No matching guides found'}
+                description={isRtl
+                  ? 'هیچ مقاله یا راهنمایی منطبق با کلمات جستجو‌شده در این بخش وجود ندارد؛ کلمات عام‌تری را امتحان کنید.'
+                  : 'No educational guides match your specific filter queries. Try broader keywords.'}
+                actionLabel={isRtl ? 'پاک کردن کل فیلترها' : 'Clear All Filters'}
+                onAction={() => {
+                  setSearchQuery('');
+                  setSelectedCategory('all');
+                  setSelectedType('all');
+                }}
+              />
             )}
           </div>
 
@@ -965,8 +969,8 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigate }) => {
               </h2>
               <p className="text-xs text-gray-300 leading-relaxed font-light">
                 {isRtl 
-                  ? 'برندهای طراز اول صنعت با ارائه آبجکت‌های BIM استاندارد خود در ایران‌بیم‌هاب، سهم بازارهای سنتی خود را تا ۲ برابر ارتقا داده‌اند. همین امروز بدون هزینه ثبت‌نام کنید.' 
-                  : 'Join premium manufacturing giants listing their Revit files today. Empower draftsmen to write your catalog codes into active blueprints.'
+                  ? 'با ارائه آبجکت‌های BIM استاندارد محصولات خود در ایران‌بیم‌هاب، برند شما دقیقاً در مرحله‌ای دیده می‌شود که تصمیم انتخاب مصالح گرفته می‌شود؛ روی میز طراحی مهندسان. ثبت‌نام اولیه رایگان است.' 
+                  : 'Listing your standard BIM objects on IranBIMhub puts your brand in front of designers at the exact moment material decisions are made — on the drafting desk. Initial registration is free.'
                 }
               </p>
               <div className="flex flex-wrap gap-3 justify-center pt-2">

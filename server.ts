@@ -22,15 +22,23 @@ const DEFAULT_SITE_CONFIG = {
   landingPageOrder: ["hero", "stats", "categories", "video_introduction", "bookshelf", "latest_arrivals", "trusted_brands", "faq"],
   manufacturerHeroVideoUrl: "",
   footer: {
-    phone: "+98 (21) 8877-4433",
+    phone: "021-88887767",
     email: "info@iranbimhub.ir",
-    addressFa: "تهران، خیابان ولیعصر، برج آفتاب، طبقه ۱۲",
-    addressEn: "12th Flr, Aftab Tower, Vali-e-Asr Ave, Tehran",
+    addressFa: "",
+    addressEn: "",
     instagram: "https://instagram.com/iranbimhub",
     linkedin: "https://linkedin.com/company/iranbimhub",
     telegram: "https://t.me/iranbimhub",
+    whatsapp: "https://wa.me/982188887767",
+    aparat: "https://aparat.com/iranbimhub",
+    bale: "https://ble.ir/iranbimhub",
+    youtube: "https://youtube.com/@iranbimhub",
+    x: "https://x.com/iranbimhub",
     website: "https://iranbimhub.ir"
   },
+  manufacturerHeroVideoTitleFa: "",
+  manufacturerHeroVideoTitleEn: "",
+  manufacturerHeroVideoThumbnail: "",
   faq: [
     {
       qFa: "آبجکتهای بیم موجود در سامانه با چه مشخصات فنی مدلسازی میشوند؟",
@@ -47,12 +55,24 @@ const DEFAULT_SITE_CONFIG = {
   ]
 };
 
-// API Endpoint to fetch site CMS configurations
+// API Endpoint to fetch site CMS configurations.
+// Stored config is merged ONTO the defaults so older installs automatically
+// gain newly introduced fields (social URLs, hero video title/thumbnail, ...).
+function mergeWithDefaults(stored: any) {
+  if (!stored || typeof stored !== "object") return DEFAULT_SITE_CONFIG;
+  return {
+    ...DEFAULT_SITE_CONFIG,
+    ...stored,
+    footer: { ...DEFAULT_SITE_CONFIG.footer, ...(stored.footer || {}) },
+  };
+}
+
 app.get("/api/site-config", (req, res) => {
   try {
     if (fs.existsSync(CONFIG_FILE_PATH)) {
       const data = fs.readFileSync(CONFIG_FILE_PATH, "utf-8");
-      return res.json(JSON.parse(data));
+      const merged = mergeWithDefaults(JSON.parse(data));
+      return res.json(merged);
     } else {
       fs.writeFileSync(CONFIG_FILE_PATH, JSON.stringify(DEFAULT_SITE_CONFIG, null, 2), "utf-8");
       return res.json(DEFAULT_SITE_CONFIG);
@@ -492,12 +512,170 @@ app.patch("/api/admin/manufacturer-leads/:id", async (req, res) => {
   }
 });
 
+// -----------------------------------------------------------------------------
+// Support tickets (Contact Us desk) — file-based JSON store.
+// Public: POST /api/tickets (submit). Admin: GET/PATCH (manage in admin panel).
+// Statuses: new → in_review → answered → closed
+// -----------------------------------------------------------------------------
+const TICKETS_FILE = path.join(process.cwd(), "data", "support-tickets.json");
+
+async function readSupportTickets(): Promise<any[]> {
+  try {
+    const raw = await fs.promises.readFile(TICKETS_FILE, "utf8");
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error: any) {
+    if (error?.code === "ENOENT") return [];
+    throw error;
+  }
+}
+
+async function writeSupportTickets(tickets: any[]) {
+  await fs.promises.mkdir(path.dirname(TICKETS_FILE), { recursive: true });
+  await fs.promises.writeFile(TICKETS_FILE, JSON.stringify(tickets, null, 2), "utf8");
+}
+
+app.post("/api/tickets", async (req, res) => {
+  try {
+    const body = req.body || {};
+
+    // Honeypot protection
+    if (sanitizeString(body.website, 200)) {
+      return res.status(400).json({ success: false, message: "Invalid submission." });
+    }
+
+    const name = sanitizeString(body.name, 120);
+    const email = sanitizeString(body.email, 160);
+    const subject = sanitizeString(body.subject, 200);
+    const department = sanitizeString(body.department, 60);
+    const message = sanitizeString(body.message, 2000);
+
+    if (!name || !email || !message) {
+      return res.status(400).json({
+        success: false,
+        messageFa: "لطفاً نام، ایمیل و متن پیام را تکمیل کنید.",
+        messageEn: "Please complete name, email and message fields."
+      });
+    }
+
+    const allowedDepartments = new Set(["tech", "general"]);
+    if (!allowedDepartments.has(department)) {
+      return res.status(400).json({
+        success: false,
+        messageFa: "بخش انتخاب‌شده معتبر نیست.",
+        messageEn: "Invalid support department."
+      });
+    }
+
+    const now = new Date().toISOString();
+    const tickets = await readSupportTickets();
+    // Sequential human-friendly reference: IBH-YYYY-NNN
+    const refNumber = `IBH-${new Date().getFullYear()}-${String(tickets.length + 1).padStart(3, "0")}`;
+
+    const ticket = {
+      id: randomUUID(),
+      refNumber,
+      name,
+      email,
+      subject,
+      department,
+      message,
+      status: "new",
+      adminNotes: "",
+      createdAt: now,
+      updatedAt: now
+    };
+
+    tickets.unshift(ticket);
+    await writeSupportTickets(tickets);
+
+    return res.status(201).json({
+      success: true,
+      id: ticket.id,
+      refNumber,
+      messageFa: "تیکت شما با موفقیت ثبت شد.",
+      messageEn: "Your ticket has been submitted successfully."
+    });
+  } catch (error) {
+    console.error("Failed to save support ticket:", error);
+    return res.status(500).json({
+      success: false,
+      messageFa: "ثبت تیکت با خطا مواجه شد. لطفاً کمی بعد دوباره تلاش کنید.",
+      messageEn: "Ticket submission failed. Please try again later."
+    });
+  }
+});
+
+app.get("/api/admin/tickets", async (_req, res) => {
+  try {
+    const tickets = await readSupportTickets();
+    return res.json({ success: true, tickets, total: tickets.length });
+  } catch (error) {
+    console.error("Failed to read support tickets:", error);
+    return res.status(500).json({
+      success: false,
+      messageFa: "خطا در دریافت تیکت‌های پشتیبانی.",
+      messageEn: "Failed to load support tickets."
+    });
+  }
+});
+
+app.patch("/api/admin/tickets/:id", async (req, res) => {
+  try {
+    const allowedStatuses = new Set(["new", "in_review", "answered", "closed"]);
+    const ticketId = sanitizeString(req.params.id, 120);
+    const nextStatus = sanitizeString(req.body?.status, 60);
+    const adminNotes = sanitizeString(req.body?.adminNotes, 1800);
+
+    if (!allowedStatuses.has(nextStatus)) {
+      return res.status(400).json({
+        success: false,
+        messageFa: "وضعیت تیکت معتبر نیست.",
+        messageEn: "Invalid ticket status."
+      });
+    }
+
+    const tickets = await readSupportTickets();
+    const idx = tickets.findIndex(t => t.id === ticketId);
+    if (idx === -1) {
+      return res.status(404).json({
+        success: false,
+        messageFa: "تیکت مورد نظر پیدا نشد.",
+        messageEn: "Ticket not found."
+      });
+    }
+
+    tickets[idx] = { ...tickets[idx], status: nextStatus, adminNotes, updatedAt: new Date().toISOString() };
+    await writeSupportTickets(tickets);
+
+    return res.json({
+      success: true,
+      ticket: tickets[idx],
+      messageFa: "وضعیت تیکت بروزرسانی شد.",
+      messageEn: "Ticket status updated."
+    });
+  } catch (error) {
+    console.error("Failed to update support ticket:", error);
+    return res.status(500).json({
+      success: false,
+      messageFa: "خطا در بروزرسانی تیکت.",
+      messageEn: "Failed to update support ticket."
+    });
+  }
+});
+
 // Vite middleware and asset serving
 async function startServer() {
   try {
     if (process.env.NODE_ENV !== "production") {
       const vite = await createViteServer({
-        server: { middlewareMode: true },
+        server: {
+          middlewareMode: true,
+          // File-based JSON stores (data/**) change on every POST; without this,
+          // Vite full-reloads the page after each form submission and React loses state.
+          // config.json (admin site settings saves) gets the same treatment.
+          watch: { ignored: ["**/data/**", "**/config.json", "**/server.ts", "**/dist/**", "**/releases/**"] },
+        },
         appType: "spa",
       });
       app.use(vite.middlewares);

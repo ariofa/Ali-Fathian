@@ -15,6 +15,9 @@ export interface ExpertInsight {
 export interface SiteConfig {
   landingPageOrder: string[];
   manufacturerHeroVideoUrl?: string;
+  manufacturerHeroVideoTitleFa?: string;
+  manufacturerHeroVideoTitleEn?: string;
+  manufacturerHeroVideoThumbnail?: string;
   heroBanners: {
     id: string;
     labelFa: string;
@@ -38,6 +41,11 @@ export interface SiteConfig {
     instagram: string;
     linkedin: string;
     telegram: string;
+    whatsapp?: string;
+    aparat?: string;
+    bale?: string;
+    youtube?: string;
+    x?: string;
     website: string;
   };
   expertInsights?: ExpertInsight[];

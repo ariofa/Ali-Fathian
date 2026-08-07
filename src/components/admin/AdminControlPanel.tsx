@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from '../ui/toast';
 import { 
   Factory,
   Shield, 
@@ -106,9 +107,9 @@ export const AdminControlPanel: React.FC = () => {
           'سند تنظیمات config.json',
           'تغییر چیدمان سکشن‌ها یا بروزرسانی فوتر و سوالات متداول توسط مدیر ارشد'
         );
-        alert(isRtl ? 'تغییرات چیدمان و پوسته پلتفرم با موفقیت ثبت شد!' : 'Theme builder changes saved successfully!');
+        toast(isRtl ? 'تغییرات چیدمان و پوسته پلتفرم با موفقیت ثبت شد!' : 'Theme builder changes saved successfully!');
       } else {
-        alert(isRtl ? 'خطا در ذخیره تغییرات.' : 'Error saving theme changes.');
+        toast(isRtl ? 'خطا در ذخیره تغییرات.' : 'Error saving theme changes.');
       }
     }, isRtl ? 'در حال ثبت تغییرات پوسته در سرور...' : 'Saving page layout adjustments...', 'Saving page layout adjustments...', 600);
   };
@@ -242,7 +243,7 @@ export const AdminControlPanel: React.FC = () => {
     localStorage.setItem('iranbimhub_mfg_profile', JSON.stringify(updatedProfile));
     localStorage.setItem('iranbimhub_mfg_profile_m1', JSON.stringify(updatedProfile));
     window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
-    alert(isRtl ? 'وضعیت مدرک با موفقیت تغییر یافت و پیام ادمین ثبت گردید.' : 'Document status updated and comment saved.');
+    toast(isRtl ? 'وضعیت مدرک با موفقیت تغییر یافت و پیام ادمین ثبت گردید.' : 'Document status updated and comment saved.');
   };
 
   const handleAdminSendDocComment = (docId: string, commentText: string) => {
@@ -291,6 +292,51 @@ export const AdminControlPanel: React.FC = () => {
   useEffect(() => {
     localStorage.setItem('admin_tickets', JSON.stringify(tickets));
   }, [tickets]);
+
+  /* ----------------------------------------------------------------------
+   * REAL website tickets sync (Contact-Us form -> POST /api/tickets -> here)
+   * Server tickets are adapted into the SupportTicket shape and prepended.
+   * -------------------------------------------------------------------- */
+  const mapServerStatusToLocal = (s: string): SupportTicket['status'] =>
+    s === 'in_review' ? 'In Progress' : (s === 'answered' || s === 'closed') ? 'Resolved' : 'Open';
+
+  const syncSupportTickets = async () => {
+    try {
+      const res = await fetch('/api/admin/tickets');
+      const data = await res.json();
+      if (!data?.success) return;
+      const adapted: SupportTicket[] = (data.tickets || []).map((t: any) => ({
+        id: `srv-${t.id}`,
+        refNumber: t.refNumber,
+        department: t.department,
+        userEmail: t.email,
+        userRole: 'Modeler' as const,
+        subject: t.subject || '(بدون موضوع)',
+        message: t.message,
+        category: (t.department === 'tech' ? 'Technical Support' : 'General') as SupportTicket['category'],
+        status: mapServerStatusToLocal(t.status),
+        dateCreated: new Date(t.createdAt).toLocaleDateString('fa-IR'),
+        messages: [{ sender: 'user' as const, text: t.message, timestamp: new Date(t.createdAt).toLocaleDateString('fa-IR') }],
+      }));
+      setTickets(prev => [...adapted, ...prev.filter(t => !t.id.startsWith('srv-'))]);
+    } catch {
+      /* backend offline (dev) — keep local session tickets */
+    }
+  };
+
+  // Mirror status changes of WEBSITE tickets back to the server store
+  const patchServerTicket = async (localId: string, status: 'in_review' | 'answered', adminNotes: string) => {
+    if (!localId.startsWith('srv-')) return;
+    try {
+      await fetch(`/api/admin/tickets/${localId.slice(4)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status, adminNotes }),
+      });
+    } catch { /* offline dev */ }
+  };
+
+  useEffect(() => { syncSupportTickets(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
 
   useEffect(() => {
     localStorage.setItem('admin_invoices', JSON.stringify(invoices));
@@ -432,7 +478,7 @@ export const AdminControlPanel: React.FC = () => {
     if (!adminAccount) return;
 
     if (adminAccount.id === currentAdmin.id) {
-      alert(isRtl ? 'شما نمی‌توانید حساب کاربری خودتان را غیرفعال کنید!' : 'You cannot deactivate your own account!');
+      toast(isRtl ? 'شما نمی‌توانید حساب کاربری خودتان را غیرفعال کنید!' : 'You cannot deactivate your own account!');
       return;
     }
 
@@ -499,7 +545,7 @@ export const AdminControlPanel: React.FC = () => {
   const handleVerifyManufacturer = (id: string, approve: boolean, reason: string) => {
     if (currentAdmin?.role !== 'Manufacturer Verification Admin' && currentAdmin?.role !== 'Super Admin') return;
     if (!reason.trim()) {
-      alert(isRtl ? 'لطفاً علت تصمیم تایید یا رد را وارد نمایید.' : 'Please provide a verification reason.');
+      toast(isRtl ? 'لطفاً علت تصمیم تایید یا رد را وارد نمایید.' : 'Please provide a verification reason.');
       return;
     }
 
@@ -551,7 +597,7 @@ export const AdminControlPanel: React.FC = () => {
   const handleOverrideReviewDecision = (objectId: string, reverseToApprove: boolean, reason: string) => {
     if (currentAdmin?.role !== 'Review Team Manager' && currentAdmin?.role !== 'Super Admin') return;
     if (!reason.trim()) {
-      alert(isRtl ? 'وارد کردن علت همپوشانی و لغو تصمیم ارزیاب الزامی است!' : 'Providing override reason is mandatory!');
+      toast(isRtl ? 'وارد کردن علت همپوشانی و لغو تصمیم ارزیاب الزامی است!' : 'Providing override reason is mandatory!');
       return;
     }
 
@@ -588,14 +634,14 @@ export const AdminControlPanel: React.FC = () => {
       'سند استاندارد ارزیابی',
       'تغییر معیارهای تایید ابعاد فنی و پارامتری خانواده‌های بیم'
     );
-    alert(isRtl ? 'دستورالعمل‌های ارزیابی با موفقیت بروزرسانی شد.' : 'Review guidelines updated successfully.');
+    toast(isRtl ? 'دستورالعمل‌های ارزیابی با موفقیت بروزرسانی شد.' : 'Review guidelines updated successfully.');
   };
 
   // Role 4 action: Approve/Reject BIM Object
   const handleReviewDecision = (objectId: string, approve: boolean, reasonCode: string, reasonDetail: string) => {
     if (currentAdmin?.role !== 'Reviewer' && currentAdmin?.role !== 'Super Admin') return;
     if (!approve && !reasonDetail.trim()) {
-      alert(isRtl ? 'برای رد صلاحیت آبجکت، ثبت علت رد الزامی است.' : 'Rejection requires a mandatory reason detail.');
+      toast(isRtl ? 'برای رد صلاحیت آبجکت، ثبت علت رد الزامی است.' : 'Rejection requires a mandatory reason detail.');
       return;
     }
 
@@ -654,6 +700,7 @@ export const AdminControlPanel: React.FC = () => {
           `تیکت #${t.id}`,
           `پاسخ به کاربر: ${t.userEmail}`
         );
+        patchServerTicket(t.id, 'in_review', chatInput);
         return { ...t, status: 'In Progress' as const, messages: updatedMessages };
       }
       return t;
@@ -686,19 +733,20 @@ export const AdminControlPanel: React.FC = () => {
           `ارجاع داده شده توسط پشتیبان (${currentAdmin.name})`
         );
 
+        patchServerTicket(t.id, 'in_review', note);
         return { ...t, status: 'Escalated' as const, escalatedTo: escalTarget };
       }
       return t;
     }));
 
-    alert(isRtl ? 'تیکت همراه با سوابق کامل مکاتبه به دپارتمان تخصصی ارجاع داده شد.' : 'Ticket escalated successfully with full contact logs.');
+    toast(isRtl ? 'تیکت همراه با سوابق کامل مکاتبه به دپارتمان تخصصی ارجاع داده شد.' : 'Ticket escalated successfully with full contact logs.');
   };
 
   // Role 6 action: Approve/Reject Billing refund
   const handleProcessRefund = (id: string, approve: boolean, reason: string) => {
     if (currentAdmin?.role !== 'Finance & Subscription' && currentAdmin?.role !== 'Super Admin') return;
     if (!reason.trim()) {
-      alert(isRtl ? 'لطفاً دلیل موافقت یا مخالفت با بازپرداخت مالی را بنویسید.' : 'Refund decision reason is required.');
+      toast(isRtl ? 'لطفاً دلیل موافقت یا مخالفت با بازپرداخت مالی را بنویسید.' : 'Refund decision reason is required.');
       return;
     }
 
@@ -1308,7 +1356,7 @@ export const AdminControlPanel: React.FC = () => {
                               'Subscription Pricing Structure',
                               'تعدیل قیمت طرح‌های درآمدی به منظور متناسب‌سازی با نرخ تورم سالانه'
                             );
-                            alert(isRtl ? 'ساختار قیمت‌گذاری با موفقیت در لایه مانیتورینگ ادمین ذخیره و اعمال شد.' : 'Subscription pricing tier configuration updated.');
+                            toast(isRtl ? 'ساختار قیمت‌گذاری با موفقیت در لایه مانیتورینگ ادمین ذخیره و اعمال شد.' : 'Subscription pricing tier configuration updated.');
                           }}
                           className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-bold rounded-lg cursor-pointer"
                         >
@@ -1586,7 +1634,7 @@ export const AdminControlPanel: React.FC = () => {
                           reason,
                           `ارجاع داده شده توسط بازرس انطباق (${currentAdmin.name})`
                         );
-                        alert(isRtl ? 'گزارش نظارتی به منظور بررسی نظارتی به مدیر تیم ارزیابی ارجاع داده شد.' : 'Escalation log dispatched to Review Manager.');
+                        toast(isRtl ? 'گزارش نظارتی به منظور بررسی نظارتی به مدیر تیم ارزیابی ارجاع داده شد.' : 'Escalation log dispatched to Review Manager.');
                       }
                     }}
                     className="px-3 py-2 border border-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/20 text-amber-700 dark:text-amber-400 text-[10px] font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1.5"
@@ -1851,7 +1899,7 @@ export const AdminControlPanel: React.FC = () => {
                         <div className="flex items-center gap-2 py-1.5 px-3 bg-white dark:bg-slate-950 border border-gray-100 dark:border-slate-850 rounded-xl max-w-max">
                           <span className="text-[10px] text-gray-400 font-bold">{isRtl ? 'دریافت فایل جهت بازبینی فنی:' : 'Download for local inspection:'}</span>
                           <button
-                            onClick={() => alert(isRtl ? `دریافت فایل خانواده رویت برای مدل «${obj.titleFa}» جهت آنالیز LOD 400.` : `Downloading Revit Family file...`)}
+                            onClick={() => toast(isRtl ? `دریافت فایل خانواده رویت برای مدل «${obj.titleFa}» جهت آنالیز LOD 400.` : `Downloading Revit Family file...`)}
                             className="inline-flex items-center gap-1 text-[10px] text-cyan-600 dark:text-cyan-400 font-bold underline cursor-pointer"
                           >
                             <FileText className="w-3.5 h-3.5" />
@@ -1973,7 +2021,7 @@ export const AdminControlPanel: React.FC = () => {
                         }`}
                       >
                         <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-[10px] font-bold text-gray-400 font-mono">#{tkt.id}</span>
+                          <span className="text-[10px] font-bold text-gray-400 font-mono">{tkt.refNumber ? tkt.refNumber : `#${tkt.id}`}{tkt.refNumber ? (isRtl ? ' • وب‌سایت' : ' • Website') : ''}</span>
                           <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase ${
                             tkt.status === 'Open'
                               ? 'bg-red-50 dark:bg-red-950/30 text-red-500'
@@ -2454,6 +2502,42 @@ export const AdminControlPanel: React.FC = () => {
                       </div>
                     </div>
 
+                    {/* Video card title + thumbnail (also shown site-wide on hero slide 3) */}
+                    <div className="mt-4 pt-4 border-t border-[#26B6B6]/15 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1.5">{isRtl ? 'عنوان کارت ویدیو (فارسی)' : 'Video Card Title (FA)'}</label>
+                        <input
+                          type="text"
+                          value={localConfig.manufacturerHeroVideoTitleFa || ''}
+                          onChange={(e) => setLocalConfig({ ...localConfig, manufacturerHeroVideoTitleFa: e.target.value })}
+                          placeholder={isRtl ? 'پیش‌فرض: چطور محصول شما وارد مسیر طراحی می‌شود؟' : 'Default title applies if empty'}
+                          className="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs outline-none focus:border-[#26B6B6]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1.5">{isRtl ? 'عنوان کارت ویدیو (انگلیسی)' : 'Video Card Title (EN)'}</label>
+                        <input
+                          type="text"
+                          dir="ltr"
+                          value={localConfig.manufacturerHeroVideoTitleEn || ''}
+                          onChange={(e) => setLocalConfig({ ...localConfig, manufacturerHeroVideoTitleEn: e.target.value })}
+                          placeholder="Default: How does your product enter the design process?"
+                          className="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-left outline-none focus:border-[#26B6B6]"
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className="block text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1.5">{isRtl ? 'تصویر بندانگشتی ویدیو (Thumbnail URL — اختیاری)' : 'Video Thumbnail URL (optional)'}</label>
+                        <input
+                          type="text"
+                          dir="ltr"
+                          value={localConfig.manufacturerHeroVideoThumbnail || ''}
+                          onChange={(e) => setLocalConfig({ ...localConfig, manufacturerHeroVideoThumbnail: e.target.value })}
+                          placeholder="/hero/video-thumbnail.jpg — خالی = تصویر پس‌زمینهٔ اسلاید"
+                          className="w-full rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-[11px] font-mono text-left outline-none focus:border-[#26B6B6]"
+                        />
+                      </div>
+                    </div>
+
                     <p className="mt-2 text-[10px] leading-relaxed text-gray-500 dark:text-gray-400">
                       {isRtl
                         ? 'لینک صفحه یا لینک embed آپارات را وارد کنید. ویدیو فقط پس از کلیک کاربر در پنجرهٔ ویدیو بارگذاری می‌شود.'
@@ -2649,6 +2733,35 @@ export const AdminControlPanel: React.FC = () => {
                         dir="ltr"
                         rows={2}
                       />
+                    </div>
+
+                    {/* Social / channel URLs — unified across the whole site (footer, contact page, stay-connected blocks) */}
+                    <div className="pt-2 border-t border-gray-100 dark:border-slate-800">
+                      <span className="block text-[10px] font-bold text-gray-400 mb-2">{isRtl ? 'آدرس شبکه‌های اجتماعی و کانال‌ها (نمایش در کل سایت)' : 'Social & Channel URLs (shown site-wide)'}</span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {([
+                          ['website', 'وب‌سایت', 'Website'],
+                          ['telegram', 'تلگرام', 'Telegram'],
+                          ['instagram', 'اینستاگرام', 'Instagram'],
+                          ['linkedin', 'لینکدین', 'LinkedIn'],
+                          ['whatsapp', 'واتساپ', 'WhatsApp'],
+                          ['aparat', 'آپارات', 'Aparat'],
+                          ['bale', 'بله', 'Bale'],
+                          ['youtube', 'یوتیوب', 'YouTube'],
+                          ['x', 'ایکس (توییتر)', 'X (Twitter)'],
+                        ] as const).map(([key, fa, en]) => (
+                          <div key={key}>
+                            <label className="block text-[10px] font-bold text-gray-400 mb-1.5">{isRtl ? fa : en}</label>
+                            <input
+                              type="text"
+                              dir="ltr"
+                              value={(localConfig.footer as any)[key] || ''}
+                              onChange={(e) => setLocalConfig({...localConfig, footer: {...localConfig.footer, [key]: e.target.value}})}
+                              className="w-full py-2 px-3 bg-slate-50 dark:bg-slate-900 border border-gray-150 dark:border-slate-800 rounded-lg text-[11px] font-mono text-left"
+                            />
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Breadcrumb } from '../Breadcrumb';
 import { useLanguage } from '../LanguageContext';
 import { StayConnectedBlock } from '../SocialLinks';
 import { 
@@ -25,7 +26,13 @@ export const IntroductionView: React.FC<IntroductionViewProps> = ({ onNavigate }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-16">
-      
+      <Breadcrumb
+        items={[
+          { label: isRtl ? 'صفحه اصلی' : 'Home', onClick: () => onNavigate('home') },
+          { label: isRtl ? 'معرفی ایران‌بیم‌هاب' : 'Introducing IranBIMhub' }
+        ]}
+      />
+
       {/* 1. HERO HEADER BANNER WITH TECHNICAL GRID */}
       <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#464E56] via-[#353B41] to-[#1E2326] text-white p-8 md:p-12 text-start shadow-md">
         {/* Subtle coordinate grid overlay */}
@@ -99,7 +106,7 @@ export const IntroductionView: React.FC<IntroductionViewProps> = ({ onNavigate }
                 <Wrench className="w-4 h-4" />
               </span>
               <div>
-                <h4 className="font-extrabold text-xs text-gray-800 dark:text-gray-200">{isRtl ? 'کاهش ۴۰ درصدی خطای تداخلات' : '40% Crash Collision Mitigation'}</h4>
+                <h4 className="font-extrabold text-xs text-gray-800 dark:text-gray-200">{isRtl ? 'کاهش چشمگیر خطاهای تداخلات' : 'Major Clash Collision Mitigation'}</h4>
                 <p className="text-[10px] text-gray-400 font-light mt-0.5">{isRtl ? 'شناسایی و رفع زنده تداخل کانال‌ها و تیرها پیش از بتن‌ریزی' : 'Live conflict checking between structural and MEP elements before pouring'}</p>
               </div>
             </div>
@@ -373,26 +380,26 @@ export const IntroductionView: React.FC<IntroductionViewProps> = ({ onNavigate }
       {/* 5. NUMERICAL EVIDENCE SUMMARY ROW */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-6 text-start">
         <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-6 rounded-2xl space-y-1 hover:shadow-xs transition-shadow">
-          <span className="text-3xl font-black text-[#26B6B6] block">۴۰٪</span>
-          <span className="font-bold text-xs text-[#464E56] dark:text-gray-200 block">{isRtl ? 'کاهش خطاهای کارگاهی' : 'Reduction in Clashes'}</span>
+          <span className="text-3xl font-black text-[#26B6B6] block">تا ۴۰٪</span>
+          <span className="font-bold text-xs text-[#464E56] dark:text-gray-200 block">{isRtl ? 'پتانسیل کاهش خطاهای کارگاهی' : 'Potential Reduction in Clashes'}</span>
           <p className="text-[10px] text-gray-400 font-light leading-normal">{isRtl ? 'با شبیه‌سازی تداخل لوله‌کشی و داکت پیش از ساخت' : 'Avoid physical re-routing of pipes and beams'}</p>
         </div>
 
         <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-6 rounded-2xl space-y-1 hover:shadow-xs transition-shadow">
-          <span className="text-3xl font-black text-[#26B6B6] block">۳۰٪</span>
-          <span className="font-bold text-xs text-[#464E56] dark:text-gray-200 block">{isRtl ? 'کاهش زباله و اتلاف متریال' : 'Material Waste Mitigation'}</span>
+          <span className="text-3xl font-black text-[#26B6B6] block">تا ۳۰٪</span>
+          <span className="font-bold text-xs text-[#464E56] dark:text-gray-200 block">{isRtl ? 'پتانسیل کاهش زبالهٔ متریال' : 'Potential Waste Mitigation'}</span>
           <p className="text-[10px] text-gray-400 font-light leading-normal">{isRtl ? 'با سفارش دقیق ابعاد و متراژهای تولید کالا' : 'Highly accurate measurements and quantity sheets'}</p>
         </div>
 
         <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-6 rounded-2xl space-y-1 hover:shadow-xs transition-shadow">
-          <span className="text-3xl font-black text-[#26B6B6] block">۲.۵ برابر</span>
-          <span className="font-bold text-xs text-[#464E56] dark:text-gray-200 block">{isRtl ? 'سرعت در طراحی اسناد' : 'Design Spec Speed'}</span>
+          <span className="text-3xl font-black text-[#26B6B6] block">تا ۲.۵ برابر</span>
+          <span className="font-bold text-xs text-[#464E56] dark:text-gray-200 block">{isRtl ? 'پتانسیل افزایش سرعت طراحی' : 'Potential Design Speed'}</span>
           <p className="text-[10px] text-gray-400 font-light leading-normal">{isRtl ? 'بدون اتلاف وقت برای مدلسازی آبجکت‌های سفارشی' : 'Insert pre-modeled components with single-click ease'}</p>
         </div>
 
         <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-6 rounded-2xl space-y-1 hover:shadow-xs transition-shadow">
-          <span className="text-3xl font-black text-[#26B6B6] block">۳۵,۰۰۰+</span>
-          <span className="font-bold text-xs text-[#464E56] dark:text-gray-200 block">{isRtl ? 'بارگیری موفق کاتالوگ' : 'Standard Downloads'}</span>
+          <span className="text-3xl font-black text-[#26B6B6] block">LOD ۳۰۰–۳۵۰</span>
+          <span className="font-bold text-xs text-[#464E56] dark:text-gray-200 block">{isRtl ? 'سطح توسعهٔ هدف آبجکت‌ها' : 'Target Object LOD'}</span>
           <p className="text-[10px] text-gray-400 font-light leading-normal">{isRtl ? 'توسط دفاتر فنی معماران برتر کشور' : 'Verified specs downloaded by national AEC design experts'}</p>
         </div>
       </section>

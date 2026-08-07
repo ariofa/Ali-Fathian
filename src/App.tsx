@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast, ToastProvider } from './components/ui/toast';
 import { motion, AnimatePresence } from 'motion/react';
 import { LanguageProvider, useLanguage } from './components/LanguageContext';
 import { LoadingProvider, useLoading } from './components/LoadingContext';
@@ -8,6 +9,7 @@ import { Footer } from './components/Footer';
 import { BIMObject, FilterState } from './types';
 import { BIM_OBJECTS, MANUFACTURERS } from './data';
 import { AuthModal } from './components/AuthModal';
+import { appendDownloadEntry, getTodayDownloadCount, DAILY_FREE_LIMIT } from './lib/downloadHistory';
 import { Home, Layers, Building, Heart, User, ArrowUp, Folder, Package, MessageSquare } from 'lucide-react';
 
 // Import Views
@@ -69,7 +71,7 @@ const MainAppContent: React.FC = () => {
         setCurrentView('for-manufacturers');
         return;
       }
-      if (viewFromUrl && (viewFromUrl === 'home' || viewFromUrl === 'admin-panel' || ['about','contact','categories','detail','brand','manufacturers','manufacturers','for-designers','for-manufacturers','manufacturer-dashboard','modeler-dashboard','learn','introduction','for-bim-modelers','privacy','terms','payment'].includes(viewFromUrl))) {
+      if (viewFromUrl && (viewFromUrl === 'home' || viewFromUrl === 'admin-panel' || ['about','contact','categories','detail','brand','manufacturers','for-designers','for-manufacturers','manufacturer-dashboard','modeler-dashboard','learn','introduction','for-bim-modelers','privacy','terms','payment'].includes(viewFromUrl))) {
         setCurrentView(viewFromUrl);
         if (viewFromUrl === 'brand' && paramFromUrl) {
           setActiveManufacturerId(paramFromUrl);
@@ -353,7 +355,7 @@ const MainAppContent: React.FC = () => {
   const handleToggleSave = (id: string) => {
     if (!currentUser) {
       setIsAuthModalOpen(true);
-      alert(isRtl ? 'جهت ذخیره فایل‌ها در لیست علاقمندی‌ها، ابتدا باید وارد حساب کاربری خود شوید.' : 'Please register or log in to save objects to your favorites.');
+      toast(isRtl ? 'جهت ذخیره فایل‌ها در لیست علاقمندی‌ها، ابتدا باید وارد حساب کاربری خود شوید.' : 'Please register or log in to save objects to your favorites.');
       return;
     }
     setSavedObjects(prev => 
@@ -373,7 +375,7 @@ const MainAppContent: React.FC = () => {
         if (prev.length > 0) {
           const firstObj = allObjs.find(o => o.id === prev[0]);
           if (firstObj && (firstObj.category !== targetObj.category || firstObj.subcategory !== targetObj.subcategory)) {
-            alert(isRtl 
+            toast(isRtl 
               ? 'طبق قوانین ایران‌بیم‌هاب، مقایسه فقط بین آبجکت‌های با دسته‌بندی و زیردسته‌بندی کاملاً یکسان مجاز است!' 
               : 'By policy, comparison is only permitted between objects of the exact same category and subcategory!'
             );
@@ -381,7 +383,7 @@ const MainAppContent: React.FC = () => {
           }
         }
         if (prev.length >= 4) {
-          alert(isRtl ? 'حداکثر می‌توانید ۴ محصول را همزمان مقایسه کنید.' : 'You can compare up to 4 products at a time.');
+          toast(isRtl ? 'حداکثر می‌توانید ۴ محصول را همزمان مقایسه کنید.' : 'You can compare up to 4 products at a time.');
           return prev;
         }
         return [...prev, id];
@@ -392,21 +394,17 @@ const MainAppContent: React.FC = () => {
   const handleQuickDownload = (obj: BIMObject, format: string) => {
     if (!currentUser) {
       setIsAuthModalOpen(true);
-      alert(isRtl 
+      toast(isRtl 
         ? 'طبق ضوابط، دانلود فایل کاتالوگ یا آبجکت BIM منوط به ثبت‌نام و ورود است! لطفا وارد شوید.' 
         : 'All file downloads require registration and logging in first.'
       );
       return;
     }
 
-    // Check download limit for regular (free) users
+    // Check download limit for regular (free) users — REAL counting from unified history
     if (!currentUser.isPremium) {
-      const history = JSON.parse(localStorage.getItem('iranbimhub_dl_history') || '[]');
-      const todayString = new Date().toLocaleDateString('fa-IR');
-      const todayDownloads = history.filter((dl: any) => dl.date === todayString);
-      
-      if (todayDownloads.length >= 5) {
-        alert(isRtl 
+      if (getTodayDownloadCount() >= DAILY_FREE_LIMIT) {
+        toast(isRtl 
           ? 'خطا: شما به سقف دانلود روزانه ۵ فایل رایگان رسیده‌اید! لطفاً فردا مجدداً تلاش نمایید یا حساب خود را ارتقا دهید.' 
           : 'Limit exceeded: You have reached your limit of 5 free downloads per day!'
         );
@@ -415,29 +413,23 @@ const MainAppContent: React.FC = () => {
     }
 
     triggerTransition(() => {
-      // 1. Add to local storage history
-      const history = JSON.parse(localStorage.getItem('iranbimhub_dl_history') || '[]');
-      const isAlreadyInHistory = history.some((dl: any) => dl.objectId === obj.id && dl.format === format);
+      // 1. Append to the unified, real download history (shared with the user dashboard)
+      const mfgName = MANUFACTURERS.find(m => m.id === obj.manufacturerId);
+      appendDownloadEntry({
+        objectId: obj.id,
+        titleFa: obj.titleFa,
+        titleEn: obj.titleEn,
+        format,
+        fileSize: obj.fileSize,
+        manufacturerName: mfgName ? (isRtl ? mfgName.nameFa : mfgName.nameEn) : undefined,
+      });
       
-      if (!isAlreadyInHistory) {
-        const entry = {
-          id: `dl-${Math.random().toString().substring(2,6)}`,
-          objectId: obj.id,
-          titleFa: obj.titleFa,
-          titleEn: obj.titleEn,
-          format,
-          fileSize: obj.fileSize,
-          date: new Date().toLocaleDateString('fa-IR')
-        };
-        localStorage.setItem('iranbimhub_dl_history', JSON.stringify([entry, ...history]));
-      }
-
       // 2. Trigger browser download effect
       const anchor = document.createElement('a');
       anchor.href = '#';
       anchor.click();
       
-      alert(isRtl 
+      toast(isRtl 
         ? `دانلود موفق فایل فمیلی بیم محصول «${obj.titleFa}» با فرمت ${format}.`
         : `BIM family object downloaded successfully: ${obj.titleEn} (${format}).`
       );
@@ -453,7 +445,7 @@ const MainAppContent: React.FC = () => {
   };
 
   const handlePublishNewObject = (newObj: BIMObject) => {
-    alert(isRtl 
+    toast(isRtl 
       ? `محصول جدید «${newObj.titleFa}» با موفقیت در بازار منتشر شد!` 
       : `Successfully published ${newObj.titleEn} in the directory!`
     );
@@ -545,6 +537,7 @@ const MainAppContent: React.FC = () => {
             onToggleSave={handleToggleSave}
             savedObjects={savedObjects}
             onQuickDownload={handleQuickDownload}
+            onNavigate={navigateTo}
           />
         );
       }
@@ -557,6 +550,7 @@ const MainAppContent: React.FC = () => {
             savedObjects={savedObjects}
             onToggleSave={handleToggleSave}
             onQuickDownload={handleQuickDownload}
+            onSelectObject={handleSelectObject}
             currentUser={currentUser}
           />
         );
@@ -994,9 +988,11 @@ export default function App() {
   return (
     <SiteConfigProvider>
       <LanguageProvider>
-        <LoadingProvider>
-          <MainAppContent />
-        </LoadingProvider>
+        <ToastProvider>
+          <LoadingProvider>
+            <MainAppContent />
+          </LoadingProvider>
+        </ToastProvider>
       </LanguageProvider>
     </SiteConfigProvider>
   );

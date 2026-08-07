@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { EmptyState } from '../ui/EmptyState';
+import { toast } from '../ui/toast';
 import { useLanguage } from '../LanguageContext';
 import { CATEGORIES, MANUFACTURERS, BIM_OBJECTS } from '../../data';
 import { BIMObject } from '../../types';
@@ -141,43 +143,29 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
       if (saved) {
         const parsed = JSON.parse(saved);
         return {
-          nameFa: parsed.nameFa || companyProfile?.companyName || 'شرکت صنایع آلومینیوم آلوپن',
-          nameEn: parsed.nameEn || 'Alupan Aluminum Systems',
-          descFa: parsed.descFa || companyProfile?.desc || 'تولیدکننده انواع در، پنجره و نماهای مدرن آلومینیومی ترمال‌بریک تحت استانداردهای نوین ساختمانی در ایران.',
-          descEn: parsed.descEn || 'Pioneering thermal-break aluminum windows, doors and bespoke structural facade units compliant with international BIM standards.',
-          logoUrl: parsed.logoUrl || 'https://images.unsplash.com/photo-1516876437184-593fda40c7cf?auto=format&fit=crop&w=150&q=80',
-          coverUrl: parsed.coverUrl || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1000&q=80',
-          website: parsed.website || companyProfile?.website || 'https://alupan.com',
-          email: parsed.email || companyProfile?.email || 'info@alupan.com',
-          phone: parsed.phone || companyProfile?.phone || '+98 (21) 8877-4433',
+          nameFa: parsed.nameFa || companyProfile?.companyName || 'پروفایل برند شما',
+          nameEn: parsed.nameEn || 'Your Brand Profile',
+          descFa: parsed.descFa || companyProfile?.desc || 'توضیح کوتاه برند شما این‌جا نمایش داده می‌شود؛ از بخش ویرایش پروفایل، آن را تکمیل کنید.',
+          descEn: parsed.descEn || 'Your short brand introduction appears here. Complete it from the profile editor.',
+          logoUrl: parsed.logoUrl || '',
+          coverUrl: parsed.coverUrl || '',
+          website: parsed.website || companyProfile?.website || '',
+          email: parsed.email || companyProfile?.email || '',
+          phone: parsed.phone || companyProfile?.phone || '',
           country: parsed.country || 'IR',
-          addressFa: parsed.addressFa || 'تهران، خیابان ولیعصر، برج آفتاب، طبقه ۱۲',
-          addressEn: parsed.addressEn || '12th Flr, Aftab Tower, Vali-e-Asr Ave, Tehran',
-          twitter: parsed.twitter || 'https://twitter.com/alupan',
-          linkedin: parsed.linkedin || 'https://linkedin.com/company/alupan',
-          instagram: parsed.instagram || 'https://instagram.com/alupan',
-          youtube: parsed.youtube || 'https://youtube.com/alupan',
-          pinterest: parsed.pinterest || 'https://pinterest.com/alupan',
-          telegram: parsed.telegram || 'https://t.me/alupan',
-          socialLinks: parsed.socialLinks || [
-            { id: 'soc-1', platform: 'instagram', url: parsed.instagram || 'https://instagram.com/alupan' },
-            { id: 'soc-2', platform: 'linkedin', url: parsed.linkedin || 'https://linkedin.com/company/alupan' },
-            { id: 'soc-3', platform: 'youtube', url: parsed.youtube || 'https://youtube.com/alupan' },
-            { id: 'soc-4', platform: 'telegram', url: parsed.telegram || 'https://t.me/alupan' }
-          ],
-          promoVideoUrl: parsed.promoVideoUrl || 'https://www.aparat.com/v/a1',
-          promoVideos: parsed.promoVideos || [
-            { 
-              id: 'vid-1', 
-              titleFa: 'ویدیو معرفی خط تولید و کارخانه آلوپن', 
-              titleEn: 'Alupan Automated Factory & Production Line', 
-              url: parsed.promoVideoUrl || 'https://www.aparat.com/v/a1', 
-              embedUrl: parseVideoEmbedUrl(parsed.promoVideoUrl || 'https://www.aparat.com/v/a1').embedUrl, 
-              type: 'aparat' as const 
-            }
-          ],
-          portfolioPdfName: parsed.portfolioPdfName || 'Alupan_Corporate_Catalog_2026.pdf',
-          portfolioPdfUrl: parsed.portfolioPdfUrl || 'https://alupan.com/catalog.pdf',
+          addressFa: parsed.addressFa || '',
+          addressEn: parsed.addressEn || '',
+          twitter: parsed.twitter || '',
+          linkedin: parsed.linkedin || '',
+          instagram: parsed.instagram || '',
+          youtube: parsed.youtube || '',
+          pinterest: parsed.pinterest || '',
+          telegram: parsed.telegram || '',
+          socialLinks: parsed.socialLinks || [],
+          promoVideoUrl: parsed.promoVideoUrl || '',
+          promoVideos: parsed.promoVideos || [],
+          portfolioPdfName: parsed.portfolioPdfName || '',
+          portfolioPdfUrl: parsed.portfolioPdfUrl || '',
           tier: currentTier,
           brandOwnershipType: parsed.brandOwnershipType || parsed.companyType || '',
           brandVerificationStatus: parsed.brandVerificationStatus || 'not_started',
@@ -192,7 +180,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
               nameEn: 'Official Gazette (Registration or Amendments Notice)', 
               type: 'PDF', 
               status: 'Pending', 
-              date: '۱۴۰۵/۰۴/۰۱',
+              date: '',
               isGazette: true,
               description: '',
               url: 'https://rrk.ir',
@@ -204,38 +192,36 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
               nameFa: 'پروانه بهره‌برداری وزارت صمت', 
               nameEn: 'Industrial Operating License', 
               type: 'PDF', 
-              status: 'Verified', 
-              date: '۱۴۰۴/۰۲/۱۵',
-              description: 'پروانه بهره‌برداری صنایع نوین ساختمانی صادر شده توسط صمت البرز.',
+              status: 'Pending', 
+              date: '',
+              description: '',
               url: 'https://mimt.gov.ir',
-              fileUrl: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=400&q=80',
-              fileName: 'MIMT_Industrial_License.pdf'
+              fileUrl: '',
+              fileName: ''
             },
             { 
               id: 'doc-2', 
               nameFa: 'گواهینامه تایید صلاحیت فنی مرکز تحقیقات مسکن', 
               nameEn: 'BHRC Quality Certification', 
               type: 'PDF', 
-              status: 'Verified', 
-              date: '۱۴۰۴/۰۶/۱۰',
-              description: 'تاییدیه فنی سیستم‌های آلومینیومی دوجداره هافمن آلو-۹۰.',
+              status: 'Pending', 
+              date: '',
+              description: '',
               url: 'https://bhrc.ac.ir',
-              fileUrl: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=400&q=80',
-              fileName: 'BHRC_Technical_Certificate.pdf'
+              fileUrl: '',
+              fileName: ''
             },
             { 
               id: 'doc-3', 
               nameFa: 'گواهینامه مالیات بر ارزش افزوده‌ سال جاری', 
               nameEn: 'VAT Registration Certificate', 
               type: 'PDF', 
-              status: 'Rejected', 
-              date: '۱۴۰۵/۰۲/۲۸',
-              description: 'گواهی ثبت‌نام موقت مالیاتی دوره‌ای.',
+              status: 'Pending', 
+              date: '',
+              description: '',
               url: 'https://intamedia.ir',
-              fileUrl: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=400&q=80',
-               fileName: 'VAT_Certificate_1404.pdf',
-               rejectionReasonFa: 'اعتبار گواهی ارزش افزوده بارگذاری شده منقضی شده است. لطفا آخرین تمدیدیه را تمدید و ارسال کنید.',
-               rejectionReasonEn: 'The uploaded VAT certificate has expired. Please upload the latest renewal.'
+              fileUrl: '',
+               fileName: '',
              }
            ]
         };
@@ -245,43 +231,29 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
     }
 
     return {
-      nameFa: companyProfile?.companyName || 'شرکت صنایع آلومینیوم آلوپن',
-      nameEn: 'Alupan Aluminum Systems',
-      descFa: companyProfile?.desc || 'تولیدکننده انواع در، پنجره و نماهای مدرن آلومینیومی ترمال‌بریک تحت استانداردهای نوین ساختمانی در ایران.',
-      descEn: 'Pioneering thermal-break aluminum windows, doors and bespoke structural facade units compliant with international BIM standards.',
-      logoUrl: 'https://images.unsplash.com/photo-1516876437184-593fda40c7cf?auto=format&fit=crop&w=150&q=80',
-      coverUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1000&q=80',
-      website: companyProfile?.website || 'https://alupan.com',
-      email: companyProfile?.email || 'info@alupan.com',
-      phone: companyProfile?.phone || '+98 (21) 8877-4433',
+      nameFa: companyProfile?.companyName || 'پروفایل برند شما',
+      nameEn: 'Your Brand Profile',
+      descFa: companyProfile?.desc || 'توضیح کوتاه برند شما این‌جا نمایش داده می‌شود؛ از بخش ویرایش پروفایل، آن را تکمیل کنید.',
+      descEn: 'Your short brand introduction appears here. Complete it from the profile editor.',
+      logoUrl: '',
+      coverUrl: '',
+      website: companyProfile?.website || '',
+      email: companyProfile?.email || '',
+      phone: companyProfile?.phone || '',
       country: 'IR',
-      addressFa: 'تهران، خیابان ولیعصر، برج آفتاب، طبقه ۱۲',
-      addressEn: '12th Flr, Aftab Tower, Vali-e-Asr Ave, Tehran',
-      twitter: 'https://twitter.com/alupan',
-      linkedin: 'https://linkedin.com/company/alupan',
-      instagram: 'https://instagram.com/alupan',
-      youtube: 'https://youtube.com/alupan',
-      pinterest: 'https://pinterest.com/alupan',
-      telegram: 'https://t.me/alupan',
-      socialLinks: [
-        { id: 'soc-1', platform: 'instagram', url: 'https://instagram.com/alupan' },
-        { id: 'soc-2', platform: 'linkedin', url: 'https://linkedin.com/company/alupan' },
-        { id: 'soc-3', platform: 'youtube', url: 'https://youtube.com/alupan' },
-        { id: 'soc-4', platform: 'telegram', url: 'https://t.me/alupan' }
-      ],
-      promoVideoUrl: 'https://www.aparat.com/v/a1',
-      promoVideos: [
-        { 
-          id: 'vid-1', 
-          titleFa: 'ویدیو معرفی خط تولید و کارخانه آلوپن', 
-          titleEn: 'Alupan Automated Factory & Production Line', 
-          url: 'https://www.aparat.com/v/a1', 
-          embedUrl: parseVideoEmbedUrl('https://www.aparat.com/v/a1').embedUrl, 
-          type: 'aparat' as const 
-        }
-      ],
-      portfolioPdfName: 'Alupan_Corporate_Catalog_2026.pdf',
-      portfolioPdfUrl: 'https://alupan.com/catalog.pdf',
+      addressFa: '',
+      addressEn: '',
+      twitter: '',
+      linkedin: '',
+      instagram: '',
+      youtube: '',
+      pinterest: '',
+      telegram: '',
+      socialLinks: [],
+      promoVideoUrl: '',
+      promoVideos: [],
+      portfolioPdfName: '',
+      portfolioPdfUrl: '',
       tier: currentTier,
       brandOwnershipType: (companyProfile as any)?.companyType || '',
       brandVerificationStatus: (companyProfile as any)?.brandVerificationStatus || 'not_started',
@@ -296,7 +268,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
           nameEn: 'Official Gazette (Registration or Amendments Notice)', 
           type: 'PDF', 
           status: 'Pending', 
-          date: '۱۴۰۵/۰۴/۰۱',
+          date: '',
           isGazette: true,
           description: '',
           url: 'https://rrk.ir',
@@ -308,38 +280,36 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
           nameFa: 'پروانه بهره‌برداری وزارت صمت', 
           nameEn: 'Industrial Operating License', 
           type: 'PDF', 
-          status: 'Verified', 
-          date: '۱۴۰۴/۰۲/۱۵',
-          description: 'پروانه بهره‌برداری صنایع نوین ساختمانی صادر شده توسط صمت البرز.',
+          status: 'Pending', 
+          date: '',
+          description: '',
           url: 'https://mimt.gov.ir',
-          fileUrl: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=400&q=80',
-          fileName: 'MIMT_Industrial_License.pdf'
+          fileUrl: '',
+          fileName: ''
         },
         { 
           id: 'doc-2', 
           nameFa: 'گواهینامه تایید صلاحیت فنی مرکز تحقیقات مسکن', 
           nameEn: 'BHRC Quality Certification', 
           type: 'PDF', 
-          status: 'Verified', 
-          date: '۱۴۰۴/۰۶/۱۰',
-          description: 'تاییدیه فنی سیستم‌های آلومینیومی دوجداره هافمن آلو-۹۰.',
+          status: 'Pending', 
+          date: '',
+          description: '',
           url: 'https://bhrc.ac.ir',
-          fileUrl: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=400&q=80',
-          fileName: 'BHRC_Technical_Certificate.pdf'
+          fileUrl: '',
+          fileName: ''
         },
         { 
           id: 'doc-3', 
           nameFa: 'گواهینامه مالیات بر ارزش افزوده سال جاری', 
           nameEn: 'VAT Registration Certificate', 
           type: 'PDF', 
-          status: 'Rejected', 
-          date: '۱۴۰۵/۰۲/۲۸',
-          description: 'گواهی ثبت‌نام موقت مالیاتی دوره‌ای.',
+          status: 'Pending', 
+          date: '',
+          description: '',
           url: 'https://intamedia.ir',
-          fileUrl: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=400&q=80',
-          fileName: 'VAT_Certificate_1404.pdf',
-          rejectionReasonFa: 'اعتبار گواهی ارزش افزوده بارگذاری شده منقضی شده است. لطفا آخرین تمدیدیه را تمدید و ارسال کنید.',
-          rejectionReasonEn: 'The uploaded VAT certificate has expired. Please upload the latest renewal.'
+          fileUrl: '',
+          fileName: '',
         }
       ]
     };
@@ -416,8 +386,8 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
       status: (obj as any).status || ((obj.id === 'obj1' || obj.id === 'obj2') ? 'Published' : 'Awaiting Evaluation Payment'),
       isPublic: (obj as any).isPublic !== undefined ? (obj as any).isPublic : (obj.id === 'obj1' || obj.id === 'obj2'),
       evaluationStatus: (obj as any).evaluationStatus || ((obj.id === 'obj1' || obj.id === 'obj2') ? 'approved' : 'waiting_payment'),
-      views: (obj as any).views ?? (obj.id === 'obj1' ? 1420 : (obj.id === 'obj2' ? 940 : 12)),
-      downloads: (obj as any).downloads ?? (obj.id === 'obj1' ? 420 : (obj.id === 'obj2' ? 240 : 1))
+      views: (obj as any).views ?? 0,
+      downloads: (obj as any).downloads ?? 0
     })) as any[];
   });
 
@@ -438,32 +408,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
   // Interactive CRM messages (leads)
   const [leads, setLeads] = useState(() => {
     const saved = localStorage.getItem('iranbimhub_mfg_leads');
-    return saved ? JSON.parse(saved) : [
-      {
-        id: 'lead-1',
-        senderName: isRtl ? 'مهندس سهراب احمدی (شرکت آرک‌تک)' : 'Eng. Sohrab Ahmadi (ArchTech Studio)',
-        email: 'ahmadi@archtech.ir',
-        phone: '+98 912 345 6789',
-        message: isRtl ? 'با سلام، ما در حال کار روی مدل فاز دو پروژه مجتمع تجاری اطلس هستیم. کاتالوگ دقیق و کات‌شیت فیزیکی متریال نما را نیاز داریم. امکان ارسال نمونه سمپل فیزیکی وجود دارد؟' : 'We are modeling the Atlas Plaza commercial phase 2 facades. We need printed cutsheets and architectural frame finishes samples.',
-        productName: isRtl ? 'پنجره آلومینیومی آلو-۹۰' : 'Thermal Window Alu-90',
-        date: '۱۴۰۵/۰۴/۰۹',
-        tag: 'Sample Request',
-        read: false,
-        replies: []
-      },
-      {
-        id: 'lead-2',
-        senderName: isRtl ? 'مهندس آرش علوی (سازه پایدار)' : 'Eng. Arash Alavi (Sazeh Paydar)',
-        email: 'alavi@sazehpaydar.ir',
-        phone: '+98 935 999 8811',
-        message: isRtl ? 'آیا کانکتورهای تاسیساتی پکیج دیجیتال پارما با استانداردهای لوله‌کشی رویت ۲۰۲۵ همخوانی کامل دارد؟' : 'Are Parma 24 condensing boiler MEP connectors certified for parametric automatic sizing in Revit 2025?',
-        productName: isRtl ? 'پکیج دیواری چگالشی دیجیتال پارما ۲۴' : 'Condensing Boiler Parma 24',
-        date: '۱۴۰۵/۰۴/۰۲',
-        tag: 'Technical Quote',
-        read: true,
-        replies: [{ sender: 'mfg', text: isRtl ? 'بله، مهندس گرامی. کاملاً با پایپینگ استاندارد مپ شده است.' : 'Yes, Arash. Connectors are fully mapped to native piping tables.' }]
-      }
-    ];
+    return saved ? JSON.parse(saved) : [];
   });
 
   useEffect(() => {
@@ -473,38 +418,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
   const [objectRequests, setObjectRequests] = useState(() => {
     const saved = localStorage.getItem('iranbimhub_object_requests');
     if (saved) return JSON.parse(saved);
-    const defaultSeed = [
-      {
-        id: 'req-seed-1',
-        manufacturerId: 'm1',
-        senderName: isRtl ? 'مهندس الناز کریمی (مهندسین مشاور اثر)' : 'Eng. Elnaz Karimi (Asar Consultants)',
-        email: 'karimi@asar.ir',
-        phone: '+98 912 111 2233',
-        objectName: isRtl ? 'پنجره دو جداره کشویی لیفت‌انداسلاید سری ۱۲۰' : 'Lift-and-Slide Sliding Window 120 Series',
-        category: 'doors_windows',
-        format: 'Revit',
-        priority: 'High',
-        description: isRtl ? 'با سلام، ما در حال تکمیل نقشه فاز دو پروژه هتل شیراز هستیم و به فمیلی پارامتریک پنجره‌های کشویی بزرگ لیفت اند اسلاید با مقادیر هیت‌ران ترنسفر دقیق نیاز داریم.' : 'We are developing Shiraz Hotel phase 2 and urgently need large lift-and-slide sliding windows with verified thermal transmission coefficients.',
-        date: '۱۴۰۵/۰۴/۱۵',
-        status: 'Pending'
-      },
-      {
-        id: 'req-seed-2',
-        manufacturerId: 'm1',
-        senderName: isRtl ? 'مهندس رادین کیان (معماری موج)' : 'Eng. Radin Kian (Wave Architecture)',
-        email: 'kian@wavearc.com',
-        phone: '+98 930 444 5566',
-        objectName: isRtl ? 'لوورهای آلومینیومی کنترل نور خورشید سری شیدر متحرک' : 'Dynamic Sun-Control Aluminum Louvre Shader',
-        category: 'facade_structures',
-        format: 'IFC',
-        priority: 'Medium',
-        description: isRtl ? 'فمیلی لوورهای دوار با قابلیت کنترل زوایه سایه‌بان به صورت پارامتریک در محیط رویت.' : 'Parametric rotating louvre shader with adaptive angle controls for daylighting calculations.',
-        date: '۱۴۰۵/۰۴/۱۰',
-        status: 'In Progress'
-      }
-    ];
-    localStorage.setItem('iranbimhub_object_requests', JSON.stringify(defaultSeed));
-    return defaultSeed;
+    return [];
   });
 
   useEffect(() => {
@@ -555,54 +469,14 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
   const [newSupportMsg, setNewSupportMsg] = useState('');
 
   // Brand standards Checklist with detailed properties
-  const [standards, setStandards] = useState(() => {
+  const [standards, setStandards] = useState<any[]>(() => {
     try {
       const saved = localStorage.getItem('iranbimhub_mfg_standards');
       if (saved) return JSON.parse(saved);
     } catch (e) {
       console.error(e);
     }
-    return [
-      { 
-        id: 'std-1', 
-        name: 'ISO 9001 (Quality Management)', 
-        code: 'ISO-9001', 
-        country: 'International', 
-        verified: true,
-        description: 'استاندارد جهانی مدیریت سیستم‌های کیفیت و ارزیابی فرایندها.',
-        issueDate: '۱۴۰۲/۰۶/۱۵',
-        validityDate: '۱۴۰۵/۰۶/۱۵',
-        verificationUrl: 'https://www.iso.org',
-        fileName: 'ISO9001_Alupan.pdf',
-        fileUrl: '#'
-      },
-      { 
-        id: 'std-2', 
-        name: 'CE Mark (European Conformity)', 
-        code: 'CE-AEC', 
-        country: 'Europe', 
-        verified: true,
-        description: 'نشان انطباق محصول با استانداردهای بهداشت، ایمنی و حفاظت محیط زیست اروپا.',
-        issueDate: '۱۴۰۳/۰۴/۱۰',
-        validityDate: '۱۴۰۶/۰۴/۱۰',
-        verificationUrl: 'https://ec.europa.eu',
-        fileName: 'CE_Alupan_Facade.pdf',
-        fileUrl: '#'
-      },
-      { 
-        id: 'std-3', 
-        name: 'نشان استاندارد ملی ایران (INSO)', 
-        code: 'INSO-7090', 
-        country: 'Iran', 
-        verified: true,
-        description: 'نشان استاندارد ملی اجباری برای در و پنجره‌های آلومینیومی ساختمان.',
-        issueDate: '۱۴۰۱/۰۹/۲۰',
-        validityDate: '۱۴۰۴/۰۹/۲۰',
-        verificationUrl: 'https://isiri.gov.ir',
-        fileName: 'INSO_7090_License.pdf',
-        fileUrl: '#'
-      }
-    ];
+    return [];
   });
 
   useEffect(() => {
@@ -610,37 +484,14 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
   }, [standards]);
 
   // Brand Portfolio & Awards Case Studies with full details
-  const [portfolioProjects, setPortfolioProjects] = useState(() => {
+  const [portfolioProjects, setPortfolioProjects] = useState<any[]>(() => {
     try {
       const saved = localStorage.getItem('iranbimhub_mfg_awards');
       if (saved) return JSON.parse(saved);
     } catch (e) {
       console.error(e);
     }
-    return [
-      { 
-        id: 'p-1', 
-        titleFa: 'رتبه نخست مسابقه ملی طراحی و نمای آلومینیوم ایران', 
-        titleEn: '1st Place in Iranian Aluminum Facade Design Award', 
-        architect: 'دفتر معماری دلیری / همکاران', 
-        location: 'تهران، الهیه', 
-        year: '۱۴۰۳',
-        description: 'کسب عنوان برترین نماساز با محصول سری آلو-۹۰ در مسابقات سالانه.',
-        fileName: 'Facade_Award_Certificate_1403.pdf',
-        fileUrl: '#'
-      },
-      { 
-        id: 'p-2', 
-        titleFa: 'تندیس زرین برند محبوب سال در صنعت در و پنجره', 
-        titleEn: 'Golden Statue of Popular Brand of the Year', 
-        architect: 'صنایع ساختمانی ایران', 
-        location: 'تهران، مرکز همایش‌ها', 
-        year: '۱۴۰۴',
-        description: 'انتخاب مردمی و مهندسی برند برتر تولیدکننده پروفیل اختصاصی.',
-        fileName: 'Popular_Brand_Statue_1404.pdf',
-        fileUrl: '#'
-      }
-    ];
+    return [];
   });
 
   useEffect(() => {
@@ -648,37 +499,14 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
   }, [portfolioProjects]);
 
   // Brand Projects
-  const [projects, setProjects] = useState(() => {
+  const [projects, setProjects] = useState<any[]>(() => {
     try {
       const saved = localStorage.getItem('iranbimhub_mfg_projects');
       if (saved) return JSON.parse(saved);
     } catch (e) {
       console.error(e);
     }
-    return [
-      { 
-        id: 'proj-1', 
-        titleFa: 'مجتمع تجاری اداری روشا تهران', 
-        titleEn: 'Rosha Department Store Tehran', 
-        architect: 'مهندس محمدرضا نیکبخت', 
-        location: 'تهران، نیاوران', 
-        year: '۱۴۰۲',
-        description: 'اجرای نمای شیشه‌ای و کرتین‌وال آلومینیومی با مقاطع اختصاصی آلوپن.',
-        fileName: 'Rosha_Project_Brief.pdf',
-        fileUrl: '#'
-      },
-      { 
-        id: 'proj-2', 
-        titleFa: 'برج آرمیتاژ گلشن مشهد', 
-        titleEn: 'Armitage Golshan Tower Mashhad', 
-        architect: 'دفتر فنی آرمیتاژ', 
-        location: 'مشهد، هفت تیر', 
-        year: '۱۴۰۳',
-        description: 'پوشش کامل پنجره‌های ترمال‌بریک کشویی و لولایی با ضریب عایق بسیار بالا.',
-        fileName: 'Armitage_Tower_SpecSheet.pdf',
-        fileUrl: '#'
-      }
-    ];
+    return [];
   });
 
   useEffect(() => {
@@ -733,45 +561,14 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
   });
 
   // Technical Bookshelf & Catalogs State
-  const [catalogs, setCatalogs] = useState(() => {
+  const [catalogs, setCatalogs] = useState<any[]>(() => {
     try {
       const saved = localStorage.getItem('iranbimhub_mfg_catalogs');
       if (saved) return JSON.parse(saved);
     } catch (e) {
       console.error(e);
     }
-    return [
-      {
-        id: 'cat-1',
-        titleFa: 'دفترچه راهنمای فنی و جزئیات اجرایی پروفیل‌های آلوپن',
-        titleEn: 'Alupan Technical Handbook & Execution Details',
-        category: 'راهنمای فنی / Technical Handbook',
-        fileSize: '14.8 MB',
-        description: 'کاتالوگ جامع مقاطع پروفیل‌های ترمال‌بریک، جزئیات آب‌بندی، هواپذیری و ضرایب انتقال حرارت U-Value.',
-        fileName: 'Alupan_Technical_Handbook_2026.pdf',
-        fileUrl: '#'
-      },
-      {
-        id: 'cat-2',
-        titleFa: 'کاتالوگ جامع سیستم‌های در و پنجره دوجداره آلومینیومی',
-        titleEn: 'Comprehensive Aluminum Doors & Windows Catalog',
-        category: 'کاتالوگ محصولات / Product Catalog',
-        fileSize: '8.2 MB',
-        description: 'کاتالوگ اصلی معرفی ابعاد استاندارد، تنوع رنگ آنادایز و پودری و یراق‌آلات سازگار.',
-        fileName: 'Alupan_Window_Catalog.pdf',
-        fileUrl: '#'
-      },
-      {
-        id: 'cat-3',
-        titleFa: 'جدول محاسبات بار باد و ضرایب حرارتی فریم‌های نما',
-        titleEn: 'Wind Load & Thermal Resistance Calculation Tables',
-        category: 'جدول محاسباتی / Calculation Sheets',
-        fileSize: '4.5 MB',
-        description: 'دستورالعمل‌ها و جداول فنی محاسبه ممان اینرسی و مقاومت فریم در برابر بارهای سازه‌ای.',
-        fileName: 'Wind_Load_Tables.pdf',
-        fileUrl: '#'
-      }
-    ];
+    return [];
   });
 
   useEffect(() => {
@@ -818,10 +615,10 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
 
   // Simulated Analytics views trend data (last 7 periods)
   const analyticsTimeRange = [
-    { label: isRtl ? 'فروردین' : 'Apr', views: 820, downloads: 210 },
-    { label: isRtl ? 'اردیبهشت' : 'May', views: 1100, downloads: 350 },
-    { label: isRtl ? 'خرداد' : 'Jun', views: 1350, downloads: 410 },
-    { label: isRtl ? 'تیر' : 'Jul', views: 1420, downloads: 420 }
+    { label: isRtl ? 'فروردین' : 'Apr', views: 0, downloads: 0 },
+    { label: isRtl ? 'اردیبهشت' : 'May', views: 0, downloads: 0 },
+    { label: isRtl ? 'خرداد' : 'Jun', views: 0, downloads: 0 },
+    { label: isRtl ? 'تیر' : 'Jul', views: 0, downloads: 0 }
   ];
 
   // Predictive indicator - Next 30 days aggregate projection
@@ -901,13 +698,13 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
     setSupportTickets(prev => [...prev, newTicket]);
     setNewSupportSubject('');
     setNewSupportMsg('');
-    alert(isRtl ? 'تیکت شما با موفقیت ارسال شد.' : 'Support ticket submitted successfully.');
+    toast(isRtl ? 'تیکت شما با موفقیت ارسال شد.' : 'Support ticket submitted successfully.');
   };
 
   // Add Product Wizard handler
   const handlePublishNewProduct = () => {
     if (!agreePublishTerms) {
-      alert(isRtl ? 'لطفاً ابتدا تایید نمایید که مالکیت فایل کاتالوگ متعلق به برند شماست و با شرایط استفاده موافق هستید.' : 'Please confirm that you own the catalog files and agree to the Terms of Service.');
+      toast(isRtl ? 'لطفاً ابتدا تایید نمایید که مالکیت فایل کاتالوگ متعلق به برند شماست و با شرایط استفاده موافق هستید.' : 'Please confirm that you own the catalog files and agree to the Terms of Service.');
       return;
     }
     const newProduct: BIMObject = {
@@ -949,7 +746,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
 
     setCatalogObjects(prev => [enhancedProduct as any, ...prev]);
     window.dispatchEvent(new CustomEvent('iranbimhub_custom_objects_updated'));
-    alert(isRtl
+    toast(isRtl
       ? 'فایل/محصول به‌صورت پیش‌نویس ثبت شد. انتشار عمومی پس از پرداخت هزینه ارزیابی، بررسی تیم ارزیاب و تأیید نهایی انجام می‌شود.'
       : 'Product/file saved as draft. Public publishing happens after evaluation fee payment, evaluation team review, and final approval.'
     );
@@ -972,7 +769,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
     }));
 
     setCrmReplyText('');
-    alert(isRtl ? 'پاسخ به معمار با موفقیت ارسال گردید.' : 'Reply sent to architect.');
+    toast(isRtl ? 'پاسخ به معمار با موفقیت ارسال گردید.' : 'Reply sent to architect.');
   };
 
   const handleVerifyDocumentSubmit = (e: React.FormEvent) => {
@@ -1002,7 +799,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
     setNewDocDesc('');
     setNewDocFileName('');
     setNewDocFileUrl('');
-    alert(isRtl ? 'سند رسمی جهت راستی‌آزمایی بارگذاری شد.' : 'Verification documentation uploaded successfully.');
+    toast(isRtl ? 'سند رسمی جهت راستی‌آزمایی بارگذاری شد.' : 'Verification documentation uploaded successfully.');
   };
 
   const handleUpdateDocumentDetails = (docId: string, updates: Partial<any>) => {
@@ -1060,7 +857,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
     setNewStdValidityDate('');
     setNewStdFileName('');
     setNewStdFileUrl('');
-    alert(isRtl ? 'استاندارد جدید با موفقیت ثبت شد و در وضعیت بررسی قرار گرفت.' : 'New standard added successfully and is under review.');
+    toast(isRtl ? 'استاندارد جدید با موفقیت ثبت شد و در وضعیت بررسی قرار گرفت.' : 'New standard added successfully and is under review.');
   };
 
   const handleEditStandard = (id: string, updatedFields: Partial<typeof standards[0]>) => {
@@ -1102,7 +899,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
       onConfirm: () => {
         setStandards(prev => prev.filter(item => item.id !== id));
         setEditingStdId(null);
-        alert(isRtl ? 'استاندارد مورد نظر با موفقیت حذف گردید.' : 'Standard deleted successfully.');
+        toast(isRtl ? 'استاندارد مورد نظر با موفقیت حذف گردید.' : 'Standard deleted successfully.');
         setDeleteConfirmDialog(prev => ({ ...prev, isOpen: false }));
       }
     });
@@ -1118,7 +915,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
       onConfirm: () => {
         setPortfolioProjects(prev => prev.filter(item => item.id !== id));
         setEditingAwardId(null);
-        alert(isRtl ? 'افتخار مورد نظر با موفقیت حذف گردید.' : 'Award/Honor deleted successfully.');
+        toast(isRtl ? 'افتخار مورد نظر با موفقیت حذف گردید.' : 'Award/Honor deleted successfully.');
         setDeleteConfirmDialog(prev => ({ ...prev, isOpen: false }));
       }
     });
@@ -1139,7 +936,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
             verificationDocs: nextDocs
           };
         });
-        alert(isRtl ? 'مدرک با موفقیت حذف گردید. برای ثبت نهایی روی دکمه ذخیره کلیک کنید.' : 'Document deleted successfully. Click Save to apply.');
+        toast(isRtl ? 'مدرک با موفقیت حذف گردید. برای ثبت نهایی روی دکمه ذخیره کلیک کنید.' : 'Document deleted successfully. Click Save to apply.');
         setDeleteConfirmDialog(prev => ({ ...prev, isOpen: false }));
       }
     });
@@ -1193,7 +990,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
     setNewAwardDesc('');
     setNewAwardFileName('');
     setNewAwardFileUrl('');
-    alert(isRtl ? 'افتخار جدید با موفقیت ثبت شد.' : 'New award added successfully.');
+    toast(isRtl ? 'افتخار جدید با موفقیت ثبت شد.' : 'New award added successfully.');
   };
 
   const handleDeleteProject = (id: string) => {
@@ -1206,7 +1003,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
       onConfirm: () => {
         setProjects(prev => prev.filter(item => item.id !== id));
         setEditingProjId(null);
-        alert(isRtl ? 'پروژه مورد نظر با موفقیت حذف گردید.' : 'Project deleted successfully.');
+        toast(isRtl ? 'پروژه مورد نظر با موفقیت حذف گردید.' : 'Project deleted successfully.');
         setDeleteConfirmDialog(prev => ({ ...prev, isOpen: false }));
       }
     });
@@ -1260,7 +1057,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
     setNewProjDesc('');
     setNewProjFileName('');
     setNewProjFileUrl('');
-    alert(isRtl ? 'پروژه جدید با موفقیت ثبت گردید.' : 'New project added successfully.');
+    toast(isRtl ? 'پروژه جدید با موفقیت ثبت گردید.' : 'New project added successfully.');
   };
 
   const handleDeleteCatalog = (id: string) => {
@@ -1327,7 +1124,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
     setNewCatDesc('');
     setNewCatFileName('');
     setNewCatFileUrl('');
-    alert(isRtl ? 'کاتالوگ / سند فنی جدید با موفقیت اضافه شد و به پروفایل عمومی برند متصل گردید.' : 'Catalog document added successfully and linked to public brand profile.');
+    toast(isRtl ? 'کاتالوگ / سند فنی جدید با موفقیت اضافه شد و به پروفایل عمومی برند متصل گردید.' : 'Catalog document added successfully and linked to public brand profile.');
   };
 
   const handleSaveBrandInfo = (e?: React.FormEvent) => {
@@ -1336,7 +1133,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!normalizedEmail) {
-      alert(isRtl
+      toast(isRtl
         ? 'برای تکمیل پروفایل برند، ثبت ایمیل رسمی شرکت الزامی است.'
         : 'Official company email is required to complete the brand profile.'
       );
@@ -1344,7 +1141,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
     }
 
     if (!emailRegex.test(normalizedEmail)) {
-      alert(isRtl
+      toast(isRtl
         ? 'لطفاً یک ایمیل رسمی معتبر برای شرکت وارد کنید.'
         : 'Please enter a valid official company email.'
       );
@@ -1362,7 +1159,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
       localStorage.setItem('iranbimhub_mfg_profile_m1', JSON.stringify(profileToSave));
       setBrandInfo(profileToSave);
       window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
-      alert(isRtl 
+      toast(isRtl 
         ? 'اطلاعات برند با موفقیت ذخیره شد و در صفحه عمومی برند به‌روزرسانی گردید.' 
         : 'Brand profile details saved successfully and updated on the public page.'
       );
@@ -1372,15 +1169,15 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
   };
 
   const SOCIAL_PLATFORM_OPTIONS = [
-    { id: 'instagram', labelFa: 'اینستاگرام (Instagram)', labelEn: 'Instagram', icon: Instagram, placeholder: 'https://instagram.com/alupan' },
-    { id: 'linkedin', labelFa: 'لینکدین (LinkedIn)', labelEn: 'LinkedIn', icon: Linkedin, placeholder: 'https://linkedin.com/company/alupan' },
-    { id: 'youtube', labelFa: 'یوتیوب (YouTube)', labelEn: 'YouTube', icon: Youtube, placeholder: 'https://youtube.com/alupan' },
-    { id: 'telegram', labelFa: 'تلگرام (Telegram)', labelEn: 'Telegram', icon: Send, placeholder: 'https://t.me/alupan' },
-    { id: 'twitter', labelFa: 'توئیتر / X', labelEn: 'X / Twitter', icon: Twitter, placeholder: 'https://x.com/alupan' },
-    { id: 'pinterest', labelFa: 'پینترست (Pinterest)', labelEn: 'Pinterest', icon: Globe, placeholder: 'https://pinterest.com/alupan' },
-    { id: 'aparat', labelFa: 'آپارات (Aparat)', labelEn: 'Aparat', icon: Video, placeholder: 'https://aparat.com/alupan' },
+    { id: 'instagram', labelFa: 'اینستاگرام (Instagram)', labelEn: 'Instagram', icon: Instagram, placeholder: '' },
+    { id: 'linkedin', labelFa: 'لینکدین (LinkedIn)', labelEn: 'LinkedIn', icon: Linkedin, placeholder: '' },
+    { id: 'youtube', labelFa: 'یوتیوب (YouTube)', labelEn: 'YouTube', icon: Youtube, placeholder: '' },
+    { id: 'telegram', labelFa: 'تلگرام (Telegram)', labelEn: 'Telegram', icon: Send, placeholder: '' },
+    { id: 'twitter', labelFa: 'توئیتر / X', labelEn: 'X / Twitter', icon: Twitter, placeholder: 'https://x.com/yourbrand' },
+    { id: 'pinterest', labelFa: 'پینترست (Pinterest)', labelEn: 'Pinterest', icon: Globe, placeholder: '' },
+    { id: 'aparat', labelFa: 'آپارات (Aparat)', labelEn: 'Aparat', icon: Video, placeholder: 'https://aparat.com/yourbrand' },
     { id: 'whatsapp', labelFa: 'واتس‌اپ (WhatsApp)', labelEn: 'WhatsApp', icon: MessageSquare, placeholder: 'https://wa.me/989123456789' },
-    { id: 'website', labelFa: 'وب‌سایت رسمی', labelEn: 'Official Website', icon: Globe, placeholder: 'https://alupan.com' }
+    { id: 'website', labelFa: 'وب‌سایت رسمی', labelEn: 'Official Website', icon: Globe, placeholder: 'https://yourbrand.ir' }
   ];
 
   const handleAddSocialLinkRow = () => {
@@ -1443,7 +1240,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
     setBrandInfo(prev => {
       const currentVideos = prev.promoVideos || [];
       if (currentVideos.length >= 3) {
-        alert(isRtl ? 'حداکثر می‌توانید تا ۳ ویدیو اضافه نمایید.' : 'Maximum 3 promo videos allowed.');
+        toast(isRtl ? 'حداکثر می‌توانید تا ۳ ویدیو اضافه نمایید.' : 'Maximum 3 promo videos allowed.');
         return prev;
       }
       const newVideo = {
@@ -1609,7 +1406,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
             <Menu className="w-6 h-6" />
           </button>
           <span className="text-xs font-bold text-gray-800 dark:text-white">
-            {isRtl ? 'پنل کارفرمایی آلوپن' : 'Alupan B2B Admin'}
+            {isRtl ? 'پنل کارفرمایی برند' : 'Brand B2B Admin'}
           </span>
         </div>
         <span className="bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase">
@@ -1960,7 +1757,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                       <button 
                         onClick={() => {
                           setActiveTab('catalog');
-                          alert(isRtl 
+                          toast(isRtl 
                             ? 'به زبانه مدیریت محصولات هدایت شدید. از فرم افزودن محصول برای ایجاد آبجکت جدید استفاده کنید.' 
                             : 'Redirecting to products view. Use the wizard to upload your Revit families.'
                           );
@@ -2257,11 +2054,11 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                         const file = e.target.files?.[0];
                         if (!file) return;
                         if (!file.type.startsWith('image/')) {
-                          alert(isRtl ? 'خطا: فایل انتخابی باید تصویر باشد.' : 'Error: Selected file must be an image.');
+                          toast(isRtl ? 'خطا: فایل انتخابی باید تصویر باشد.' : 'Error: Selected file must be an image.');
                           return;
                         }
                         if (file.size > 2 * 1024 * 1024) {
-                          alert(isRtl ? 'خطا: حجم لوگو نباید بیشتر از ۲ مگابایت باشد.' : 'Error: Logo size must not exceed 2MB.');
+                          toast(isRtl ? 'خطا: حجم لوگو نباید بیشتر از ۲ مگابایت باشد.' : 'Error: Logo size must not exceed 2MB.');
                           return;
                         }
                         const reader = new FileReader();
@@ -2269,7 +2066,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                           const dataUrl = evt.target?.result as string;
                           if (dataUrl) {
                             setBrandInfo(prev => ({ ...prev, logoUrl: dataUrl }));
-                            alert(isRtl ? 'لوگوی جدید ضمیمه شد (به صورت پیش‌نویس). برای ثبت نهایی روی دکمه ذخیره کلیک کنید.' : 'New logo attached as draft. Click Save to apply.');
+                            toast(isRtl ? 'لوگوی جدید ضمیمه شد (به صورت پیش‌نویس). برای ثبت نهایی روی دکمه ذخیره کلیک کنید.' : 'New logo attached as draft. Click Save to apply.');
                           }
                         };
                         reader.readAsDataURL(file);
@@ -2314,11 +2111,11 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                       const file = e.target.files?.[0];
                       if (!file) return;
                       if (!file.type.startsWith('image/')) {
-                        alert(isRtl ? 'خطا: فایل انتخابی باید تصویر باشد.' : 'Error: Selected file must be an image.');
+                        toast(isRtl ? 'خطا: فایل انتخابی باید تصویر باشد.' : 'Error: Selected file must be an image.');
                         return;
                       }
                       if (file.size > 5 * 1024 * 1024) {
-                        alert(isRtl ? 'خطا: حجم تصویر کاور هدر نباید بیشتر از ۵ مگابایت باشد.' : 'Error: Cover image size must not exceed 5MB.');
+                        toast(isRtl ? 'خطا: حجم تصویر کاور هدر نباید بیشتر از ۵ مگابایت باشد.' : 'Error: Cover image size must not exceed 5MB.');
                         return;
                       }
                       const reader = new FileReader();
@@ -2326,7 +2123,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                         const dataUrl = evt.target?.result as string;
                         if (dataUrl) {
                           setBrandInfo(prev => ({ ...prev, coverUrl: dataUrl }));
-                          alert(isRtl ? 'تصویر کاور جدید ضمیمه شد (به صورت پیش‌نویس). برای ثبت نهایی روی دکمه ذخیره کلیک کنید.' : 'New cover photo attached as draft. Click Save to apply.');
+                          toast(isRtl ? 'تصویر کاور جدید ضمیمه شد (به صورت پیش‌نویس). برای ثبت نهایی روی دکمه ذخیره کلیک کنید.' : 'New cover photo attached as draft. Click Save to apply.');
                         }
                       };
                       reader.readAsDataURL(file);
@@ -2706,11 +2503,11 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                         const file = e.target.files?.[0];
                         if (!file) return;
                         if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-                          alert(isRtl ? 'خطا: فقط فایل‌های با فرمت PDF پذیرفته می‌شوند.' : 'Error: Only PDF files are accepted.');
+                          toast(isRtl ? 'خطا: فقط فایل‌های با فرمت PDF پذیرفته می‌شوند.' : 'Error: Only PDF files are accepted.');
                           return;
                         }
                         if (file.size > 10 * 1024 * 1024) {
-                          alert(isRtl ? 'خطا: حجم فایل PDF نباید بیشتر از ۱۰ مگابایت باشد.' : 'Error: PDF file size must not exceed 10MB.');
+                          toast(isRtl ? 'خطا: حجم فایل PDF نباید بیشتر از ۱۰ مگابایت باشد.' : 'Error: PDF file size must not exceed 10MB.');
                           return;
                         }
                         const formatBytes = (bytes: number, decimals = 2) => {
@@ -2728,7 +2525,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                           portfolioPdfUrl: localUrl,
                           portfolioPdfSize: formatBytes(file.size)
                         }));
-                        alert(isRtl ? `کاتالوگ ${file.name} با موفقیت پیوست گردید.` : `Portfolio catalog ${file.name} attached successfully.`);
+                        toast(isRtl ? `کاتالوگ ${file.name} با موفقیت پیوست گردید.` : `Portfolio catalog ${file.name} attached successfully.`);
                       }}
                     />
 
@@ -3003,7 +2800,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                       fileName: file.name,
                                       fileUrl: localUrl
                                     });
-                                    alert(isRtl ? 'سند استاندارد به این گواهی پیوست شد.' : 'Certificate file attached successfully.');
+                                    toast(isRtl ? 'سند استاندارد به این گواهی پیوست شد.' : 'Certificate file attached successfully.');
                                   }}
                                 />
                                 <button
@@ -3319,7 +3116,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                       fileName: file.name,
                                       fileUrl: localUrl
                                     });
-                                    alert(isRtl ? 'فایل تاییدیه به این افتخار ضمیمه شد.' : 'Document attached to award.');
+                                    toast(isRtl ? 'فایل تاییدیه به این افتخار ضمیمه شد.' : 'Document attached to award.');
                                   }}
                                 />
                                 <button
@@ -3612,7 +3409,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                       fileName: file.name,
                                       fileUrl: localUrl
                                     });
-                                    alert(isRtl ? 'دفترچه مشخصات فنی به پروژه ضمیمه شد.' : 'Document attached to project.');
+                                    toast(isRtl ? 'دفترچه مشخصات فنی به پروژه ضمیمه شد.' : 'Document attached to project.');
                                   }}
                                 />
                                 <button
@@ -3892,7 +3689,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                       fileUrl: localUrl,
                                       fileSize: `${(file.size / (1024 * 1024)).toFixed(1)} MB`
                                     });
-                                    alert(isRtl ? 'فایل PDF جدید به کاتالوگ پیوست شد.' : 'PDF file attached to catalog.');
+                                    toast(isRtl ? 'فایل PDF جدید به کاتالوگ پیوست شد.' : 'PDF file attached to catalog.');
                                   }}
                                 />
                                 <button
@@ -4177,7 +3974,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                             <button 
                               onClick={() => {
                                 const v = prompt(isRtl ? 'ورژن جدید فایل را وارد کنید (مثال: v1.2.0):' : 'Enter updated version tag (e.g. v2.1.0):');
-                                if (v) alert(isRtl ? `ورژن جدید ${v} ثبت شد.` : `Version ${v} logged.`);
+                                if (v) toast(isRtl ? `ورژن جدید ${v} ثبت شد.` : `Version ${v} logged.`);
                               }}
                               className="bg-slate-50 hover:bg-slate-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-[10px] py-1 px-2.5 rounded border border-slate-100 dark:border-gray-700 cursor-pointer"
                             >
@@ -4284,7 +4081,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                         <button 
                           onClick={() => {
                             if (!bimFileName) {
-                              alert(isRtl ? 'ابتدا فایل بیم را آپلود کنید.' : 'Please choose a BIM family first.');
+                              toast(isRtl ? 'ابتدا فایل بیم را آپلود کنید.' : 'Please choose a BIM family first.');
                               return;
                             }
                             setWizardStep(2);
@@ -4657,9 +4454,14 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                       })()}
                     </div>
                   ) : (
-                    <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 p-8 rounded-2xl text-center text-xs text-gray-400">
-                      {isRtl ? 'جهت بررسی پیام معماران، یک مورد را از لیست چپ انتخاب کنید.' : 'Select an active lead from the left pane to initialize chat.'}
-                    </div>
+                    <EmptyState
+                      compact
+                      icon={MessageSquare}
+                      title={isRtl ? 'هنوز گفت‌وگویی فعال نیست' : 'No active conversation'}
+                      description={isRtl
+                        ? 'برای بررسی پیام معماران، یک مورد را از لیست سمت چپ انتخاب کنید.'
+                        : 'Select an active lead from the left pane to initialize chat.'}
+                    />
                   )}
 
                   {/* Support ticket thread to platform */}
@@ -4809,9 +4611,14 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
 
                       if (items.length === 0) {
                         return (
-                          <div className="bg-white dark:bg-gray-900 border rounded-2xl p-8 text-center text-xs text-gray-400">
-                            {isRtl ? 'هیچ درخواستی با فیلترهای کنونی مطابقت ندارد.' : 'No requests match current filters.'}
-                          </div>
+                          <EmptyState
+                            compact
+                            icon={Filter}
+                            title={isRtl ? 'موردی مطابق فیلترها نیست' : 'No matching requests'}
+                            description={isRtl
+                              ? 'هیچ درخواستی با فیلترهای کنونی مطابقت ندارد؛ فیلتر دیگری را امتحان کنید.'
+                              : 'No requests match current filters. Try adjusting them.'}
+                          />
                         );
                       }
 
@@ -4922,7 +4729,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                   onChange={e => {
                                     const newStatus = e.target.value;
                                     setObjectRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: newStatus } : r));
-                                    alert(isRtl ? 'وضعیت درخواست با موفقیت به روز شد.' : 'Modeling request status updated successfully.');
+                                    toast(isRtl ? 'وضعیت درخواست با موفقیت به روز شد.' : 'Modeling request status updated successfully.');
                                   }}
                                   className="text-xs p-2 border rounded-xl bg-gray-50 dark:bg-gray-950 font-bold focus:ring-1 focus:ring-amber-500 focus:outline-none"
                                 >
@@ -4937,7 +4744,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                 onClick={() => {
                                   // Automatically complete and transition to catalog
                                   setObjectRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: 'Completed' } : r));
-                                  alert(isRtl ? 'این فمیلی رسماً تایید شد و کاتالوگ آن آماده اتصال به آرشیو رویت گردید.' : 'Family released. Added to standard Revit spec libraries.');
+                                  toast(isRtl ? 'این فمیلی رسماً تایید شد و کاتالوگ آن آماده اتصال به آرشیو رویت گردید.' : 'Family released. Added to standard Revit spec libraries.');
                                 }}
                                 className="bg-amber-500 hover:bg-amber-600 text-white text-xs font-black py-2.5 px-4.5 rounded-xl transition-colors cursor-pointer shadow-sm self-stretch sm:self-auto text-center"
                               >
@@ -4948,9 +4755,14 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                         );
                       })()
                     ) : (
-                      <div className="bg-white dark:bg-gray-900 border rounded-2xl p-12 text-center text-xs text-gray-400 dark:border-gray-800">
-                        {isRtl ? 'جهت مشاهده جزئیات فنی درخواست و مشخصات معمار، یک مورد را از لیست سمت چپ انتخاب کنید.' : 'Select an active modeling request from the left list to view technical specs and contact coordinates.'}
-                      </div>
+                      <EmptyState
+                        compact
+                        icon={Layers}
+                        title={isRtl ? 'درخواستی انتخاب نشده است' : 'No request selected'}
+                        description={isRtl
+                          ? 'برای مشاهده جزئیات فنی درخواست و مشخصات معمار، یک مورد را از لیست سمت چپ انتخاب کنید.'
+                          : 'Select an active modeling request from the left list to view technical specs and contact coordinates.'}
+                      />
                     )}
                   </div>
                 </div>
@@ -4986,7 +4798,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
             <div className="space-y-3 max-w-xl mx-auto border dark:border-gray-800 rounded-2xl p-4 h-64 overflow-y-auto bg-slate-50/50 dark:bg-gray-950">
               <div className="p-3 bg-white dark:bg-gray-900 border dark:border-gray-800/80 rounded-xl text-xs max-w-md">
                 <span className="font-bold text-[#26B6B6] block mb-0.5">{isRtl ? 'ناظر سیستم فرخی' : 'QA Supervisor'}</span>
-                <p>{isRtl ? 'سلام، کاتالوگ پنجره سری آلو-۹۰ بررسی شد. اتصالات پکیج رویت به درستی مپ گردیده است. فردا رسماً تایید می‌شود.' : 'Hello. We checked the window Alu-90 family specs. It is mapped perfectly.'}</p>
+                <p>{isRtl ? 'سلام، کاتالوگ ارسالی شما در حال بررسی است؛ نتیجهٔ ارزیابی فنی به‌زودی از همین بخش اطلاع‌رسانی می‌شود.' : 'Hello. Your submitted catalog is under review; the technical evaluation result will be shared here shortly.'}</p>
               </div>
 
               <div className="p-3 bg-indigo-50/50 dark:bg-gray-900 border border-indigo-100 dark:border-gray-800/80 rounded-xl text-xs max-w-md mr-0 ml-auto text-start">

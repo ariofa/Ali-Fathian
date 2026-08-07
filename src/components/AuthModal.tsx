@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { toast } from './ui/toast';
 import { useLanguage } from './LanguageContext';
 import { 
   X, 
@@ -124,7 +125,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
 
   const handleSendMockOtp = () => {
     if (!regPhone.trim()) {
-      alert(isRtl ? 'ابتدا شماره موبایل را وارد کنید.' : 'Please enter your mobile number first.');
+      toast(isRtl ? 'ابتدا شماره موبایل را وارد کنید.' : 'Please enter your mobile number first.');
       return;
     }
 
@@ -132,7 +133,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
     setRegOtpSent(true);
     setRegOtpVerified(false);
     setRegOtpCode('');
-    alert(isRtl
+    toast(isRtl
       ? 'کد تأیید آزمایشی ارسال شد. تا اتصال پنل پیامکی، کد ۱۲۳۴۵۶ را وارد کنید.'
       : 'Mock verification code sent. Until SMS provider is connected, use code 123456.'
     );
@@ -142,10 +143,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
     // TODO: Replace this mock with backend endpoint POST /api/auth/verify-otp.
     if (regOtpCode.trim() === '123456') {
       setRegOtpVerified(true);
-      alert(isRtl ? 'شماره موبایل با موفقیت تأیید شد.' : 'Mobile number verified successfully.');
+      toast(isRtl ? 'شماره موبایل با موفقیت تأیید شد.' : 'Mobile number verified successfully.');
       return;
     }
-    alert(isRtl ? 'کد تأیید نادرست است.' : 'Incorrect verification code.');
+    toast(isRtl ? 'کد تأیید نادرست است.' : 'Incorrect verification code.');
   };
 
   const handleRegisterSubmit = (e: React.FormEvent) => {
@@ -158,17 +159,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
 
     if (regAccountType === 'Manufacturer') {
       if (!regName.trim() || !regPhone.trim()) {
-        alert(isRtl ? 'برای ثبت‌نام اولیه برند، نام برند/شرکت و شماره موبایل الزامی است.' : 'For initial brand signup, brand/company name and mobile number are required.');
+        toast(isRtl ? 'برای ثبت‌نام اولیه برند، نام برند/شرکت و شماره موبایل الزامی است.' : 'For initial brand signup, brand/company name and mobile number are required.');
         return;
       }
 
       if (!regOtpVerified) {
-        alert(isRtl ? 'لطفاً شماره موبایل را با کد پیامکی تأیید کنید.' : 'Please verify your mobile number with the SMS code.');
+        toast(isRtl ? 'لطفاً شماره موبایل را با کد پیامکی تأیید کنید.' : 'Please verify your mobile number with the SMS code.');
         return;
       }
 
       if (!regAgreeTerms) {
-        alert(isRtl ? 'لطفاً موافقت خود با قوانین و مقررات را تایید کنید.' : 'Please agree to the Terms of Service.');
+        toast(isRtl ? 'لطفاً موافقت خود با قوانین و مقررات را تایید کنید.' : 'Please agree to the Terms of Service.');
         return;
       }
 
@@ -179,22 +180,22 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
     }
 
     if (!regPhone || !regName || !regPassword) {
-      alert(isRtl ? 'لطفاً تمامی فیلدهای اجباری را تکمیل نمایید.' : 'Please fill in all required fields.');
+      toast(isRtl ? 'لطفاً تمامی فیلدهای اجباری را تکمیل نمایید.' : 'Please fill in all required fields.');
       return;
     }
 
     if (!regOtpVerified) {
-      alert(isRtl ? 'لطفاً شماره موبایل را با کد پیامکی تأیید کنید.' : 'Please verify your mobile number with the SMS code.');
+      toast(isRtl ? 'لطفاً شماره موبایل را با کد پیامکی تأیید کنید.' : 'Please verify your mobile number with the SMS code.');
       return;
     }
 
     if (regPassword !== regConfirmPassword) {
-      alert(isRtl ? 'رمز عبور و تایید آن با هم مطابقت ندارند.' : 'Password and confirmation do not match.');
+      toast(isRtl ? 'رمز عبور و تایید آن با هم مطابقت ندارند.' : 'Password and confirmation do not match.');
       return;
     }
 
     if (!regAgreeTerms) {
-      alert(isRtl ? 'لطفاً موافقت خود با قوانین و مقررات را تایید کنید.' : 'Please agree to the Terms of Service.');
+      toast(isRtl ? 'لطفاً موافقت خود با قوانین و مقررات را تایید کنید.' : 'Please agree to the Terms of Service.');
       return;
     }
 
@@ -289,7 +290,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
     onLoginSuccess(newUser);
     onClose();
 
-    alert(regAccountType === 'Manufacturer'
+    toast(regAccountType === 'Manufacturer'
       ? (isRtl
           ? `ثبت‌نام اولیه برند با موفقیت انجام شد. صفحه برند شما تا زمان تأیید مدارک رسمی توسط واحد ارزیابی به‌صورت عمومی منتشر نمی‌شود.`
           : `Brand account created. Your public brand page remains private until official documents are approved by the evaluation team.`)
@@ -302,7 +303,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (!loginPhone || !loginPassword) {
-      alert(isRtl ? 'لطفاً شماره تلفن همراه و رمز عبور را وارد کنید.' : 'Please enter your phone number and password.');
+      toast(isRtl ? 'لطفاً شماره تلفن همراه و رمز عبور را وارد کنید.' : 'Please enter your phone number and password.');
       return;
     }
 
@@ -313,7 +314,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
       if (storedUser.phone === loginPhone && storedUser.password === loginPassword) {
         onLoginSuccess(storedUser);
         onClose();
-        alert(isRtl ? `خوش آمدید، ورود موفقیت‌آمیز بود!` : `Welcome back, login successful!`);
+        toast(isRtl ? `خوش آمدید، ورود موفقیت‌آمیز بود!` : `Welcome back, login successful!`);
         return;
       }
     }
@@ -333,14 +334,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
     localStorage.setItem('iranbimhub_user', JSON.stringify(mockUser));
     onLoginSuccess(mockUser);
     onClose();
-    alert(isRtl ? `ورود موفقیت‌آمیز بود!` : `Login successful!`);
+    toast(isRtl ? `ورود موفقیت‌آمیز بود!` : `Login successful!`);
   };
 
   const mockGoogleSignup = () => {
     // Check if there is an existing phone-verified account registered in localStorage
     const storedUserStr = localStorage.getItem('iranbimhub_user');
     if (!storedUserStr) {
-      alert(isRtl 
+      toast(isRtl 
         ? 'خطا: ورود با گوگل غیرفعال است! حساب کاربری متصل به گوگل تنها در صورتی مجاز است که ابتدا با شماره تلفن همراه و تایید پیامکی (SMS OTP) ثبت‌نام شده باشد. لطفاً ابتدا از بخش ثبت‌نام، حساب خود را ایجاد کنید.' 
         : 'Error: Google Sign-In is restricted! Google authentication is only allowed for existing accounts registered with a phone number and SMS OTP first. Please sign up with your phone number first.'
       );
@@ -348,7 +349,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
     }
 
     const storedUser = JSON.parse(storedUserStr);
-    alert(isRtl 
+    toast(isRtl 
       ? `ورود با گوگل با موفقیت انجام شد! خوش آمدید ${storedUser.fullName || storedUser.name}` 
       : `Google Sign-In successful! Welcome back, ${storedUser.fullName || storedUser.name}`
     );
@@ -365,7 +366,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
     ];
     const randomName = fileNames[Math.floor(Math.random() * fileNames.length)];
     setRegLicenseName(randomName);
-    alert(isRtl 
+    toast(isRtl 
       ? `فایل سند رسمی «${randomName}» با موفقیت جهت تایید پیوست شد.` 
       : `Legal file "${randomName}" attached successfully.`
     );
@@ -827,7 +828,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
                       <input
                         type="text"
                         required
-                        placeholder={regAccountType === 'Manufacturer' ? (isRtl ? 'مثال: صنایع آلومینیوم آلوپن' : 'e.g., Alupan Aluminum Industries') : (isRtl ? 'مثال: آرش علوی' : 'e.g., Arash Alavi')}
+                        placeholder={regAccountType === 'Manufacturer' ? (isRtl ? 'مثال: شرکت ساختمانی نمونه' : 'e.g., Sample Building Co.') : (isRtl ? 'مثال: آرش علوی' : 'e.g., Arash Alavi')}
                         value={regName}
                         onChange={(e) => setRegName(e.target.value)}
                         className="w-full text-xs p-3 border border-gray-200 dark:border-gray-800 dark:bg-gray-950 dark:text-white rounded-xl focus:ring-1 focus:ring-[#26B6B6] focus:outline-none"

@@ -149,13 +149,13 @@ export const SEEDED_MANUFACTURER_REQUESTS: ManufacturerRequest[] = [
   },
   {
     id: 'mfg-req-2',
-    companyName: 'صنایع روشنایی مازی‌نور',
-    brandName: 'Mazinoor Lighting',
+    companyName: 'شرکت نمونهٔ روشنایی',
+    brandName: 'Sample Lighting Co.',
     ceoName: 'حسین مازیار',
     phone: '02122334455',
-    email: 'b2b@mazinoor.ir',
+    email: 'info@sample-lighting.ir',
     licenseNumber: '82/م/54932',
-    licenseFile: 'mazinoor_industrial_permit.pdf',
+    licenseFile: 'sample_industrial_permit.pdf',
     dateSubmitted: '1405/04/14',
     status: 'Pending'
   },
@@ -312,8 +312,8 @@ export const SEEDED_TICKETS: SupportTicket[] = [
 export const SEEDED_INVOICES: BillingInvoice[] = [
   {
     id: 'inv-4001',
-    companyName: 'صنایع روشنایی مازی‌نور',
-    userEmail: 'b2b@mazinoor.ir',
+    companyName: 'شرکت نمونهٔ روشنایی',
+    userEmail: 'info@sample-lighting.ir',
     userRole: 'Manufacturer',
     planName: 'طرح کارخانه‌ای طلایی',
     amount: 120000000, // 12,000,000 Toman (120,000,000 Rials)

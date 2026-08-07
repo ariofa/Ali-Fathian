@@ -1,4 +1,5 @@
 import React from 'react';
+import { toast } from '../ui/toast';
 import {
   AlertCircle,
   CheckCircle2,
@@ -172,11 +173,11 @@ export const BrandOwnershipVerificationPanel: React.FC<BrandOwnershipVerificatio
     if (!file) return;
     const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
-      alert(isRtl ? 'فرمت فایل باید PDF یا تصویر باشد.' : 'File must be PDF or image.');
+      toast(isRtl ? 'فرمت فایل باید PDF یا تصویر باشد.' : 'File must be PDF or image.');
       return;
     }
     if (file.size > 8 * 1024 * 1024) {
-      alert(isRtl ? 'حجم فایل نباید بیشتر از ۸ مگابایت باشد.' : 'File size must not exceed 8MB.');
+      toast(isRtl ? 'حجم فایل نباید بیشتر از ۸ مگابایت باشد.' : 'File size must not exceed 8MB.');
       return;
     }
 
@@ -192,19 +193,19 @@ export const BrandOwnershipVerificationPanel: React.FC<BrandOwnershipVerificatio
     const docs = getDefaultOfficialDocs(brandInfo);
 
     if (!docs.officialCompanyName.trim()) {
-      alert(isRtl ? 'نام رسمی شرکت یا برند را وارد کنید.' : 'Please enter the official company/brand name.');
+      toast(isRtl ? 'نام رسمی شرکت یا برند را وارد کنید.' : 'Please enter the official company/brand name.');
       return;
     }
     if (!docs.ownershipType) {
-      alert(isRtl ? 'نقش خود نسبت به برند را انتخاب کنید.' : 'Please select your relationship to the brand.');
+      toast(isRtl ? 'نقش خود نسبت به برند را انتخاب کنید.' : 'Please select your relationship to the brand.');
       return;
     }
     if (!docs.nationalId.trim() && !docs.registrationNumber.trim()) {
-      alert(isRtl ? 'شناسه ملی یا شماره ثبت شرکت را وارد کنید.' : 'Please enter national ID or registration number.');
+      toast(isRtl ? 'شناسه ملی یا شماره ثبت شرکت را وارد کنید.' : 'Please enter national ID or registration number.');
       return;
     }
     if (!docs.officialGazetteUrl.trim() && !docs.officialGazetteFile) {
-      alert(isRtl ? 'لینک یا فایل روزنامه رسمی را وارد کنید.' : 'Please provide an official gazette URL or file.');
+      toast(isRtl ? 'لینک یا فایل روزنامه رسمی را وارد کنید.' : 'Please provide an official gazette URL or file.');
       return;
     }
 
@@ -260,7 +261,7 @@ export const BrandOwnershipVerificationPanel: React.FC<BrandOwnershipVerificatio
     localStorage.setItem('iranbimhub_mfg_profile_m1', JSON.stringify(nextProfile));
     window.dispatchEvent(new CustomEvent('iranbimhub_brand_profile_updated'));
 
-    alert(isRtl
+    toast(isRtl
       ? 'مدارک احراز مالکیت برند برای واحد ارزیابی ارسال شد. صفحه برند تا زمان تأیید عمومی نمی‌شود.'
       : 'Brand ownership documents were submitted to the evaluation team. The brand page remains private until approval.'
     );

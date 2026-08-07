@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { toast } from '../ui/toast';
 import {
   AlertCircle,
   CheckCircle2,
@@ -136,7 +137,7 @@ export const BrandVerificationAdminView: React.FC<BrandVerificationAdminViewProp
 
     const note = adminNote.trim();
     if (decision !== 'approve' && !note) {
-      alert(isRtl ? 'برای درخواست اصلاح یا رد مدارک، یادداشت واحد ارزیابی الزامی است.' : 'A note is required for correction request or rejection.');
+      toast(isRtl ? 'برای درخواست اصلاح یا رد مدارک، یادداشت واحد ارزیابی الزامی است.' : 'A note is required for correction request or rejection.');
       return;
     }
 
@@ -211,7 +212,7 @@ export const BrandVerificationAdminView: React.FC<BrandVerificationAdminViewProp
 
     setAdminNote('');
 
-    alert(decision === 'approve'
+    toast(decision === 'approve'
       ? (isRtl ? 'برند تأیید شد و پیام تأیید برای تولیدکننده ثبت شد.' : 'Brand verified and approval message saved for manufacturer.')
       : decision === 'needs_correction'
       ? (isRtl ? 'درخواست اصلاح مدارک برای تولیدکننده ثبت شد.' : 'Correction request saved for manufacturer.')

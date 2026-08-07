@@ -13,11 +13,17 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   const { t, isRtl } = useLanguage();
   const { siteConfig } = useSiteConfig();
 
-  const footerMail = siteConfig?.footer?.email || 'support@iranbimhub.ir';
-  const footerPhone = siteConfig?.footer?.phone || '+98 (21) 8877-4433';
+  // Contact rows render ONLY when the admin has actually provided a value
+  // in the site config (footer section) — no fabricated fallbacks.
+  const footerMail = siteConfig?.footer?.email?.trim() || '';
+  const footerPhone = siteConfig?.footer?.phone?.trim() || '';
   const footerAddress = isRtl 
-    ? (siteConfig?.footer?.addressFa || 'تهران، پارک فناوری پردیس، مجتمع شکوفایی، واحد ۴۰2')
-    : (siteConfig?.footer?.addressEn || 'Suite 402, Shokoufaei Bldg, Pardis Technology Park, Tehran, Iran');
+    ? (siteConfig?.footer?.addressFa?.trim() || '')
+    : (siteConfig?.footer?.addressEn?.trim() || '');
+  // Social row is shown only if at least one primary channel has a URL in config.
+  const hasSocials = ['telegram', 'aparat', 'linkedin', 'instagram', 'whatsapp'].some(
+    (key) => Boolean((siteConfig?.footer as any)?.[key]?.trim?.())
+  );
 
   return (
     <footer className="bg-slate-50 dark:bg-gray-950 text-gray-600 dark:text-gray-300 mt-10 sm:mt-16 border-t border-gray-200 dark:border-gray-800 transition-colors">
@@ -106,24 +112,32 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <h4 className="text-sm font-bold text-gray-800 dark:text-white mb-3 border-b border-gray-200 dark:border-gray-800 pb-2">
               {t('contact')}
             </h4>
-            <div className="flex items-center gap-2 text-start">
-              <Mail className="w-4 h-4 text-[#26B6B6] shrink-0" />
-              <span className="text-gray-600 dark:text-gray-300">{footerMail}</span>
-            </div>
-            <div className="flex items-center gap-2 text-start">
-              <Phone className="w-4 h-4 text-[#26B6B6] shrink-0" />
-              <span className="font-sans text-gray-600 dark:text-gray-300" dir="ltr">{footerPhone}</span>
-            </div>
-            <div className="flex items-start gap-2 leading-normal text-start">
-              <MapPin className="w-4 h-4 text-[#26B6B6] shrink-0 mt-0.5" />
-              <span className="text-gray-600 dark:text-gray-300">
-                {footerAddress}
-              </span>
-            </div>
-            <div className="pt-4 border-t border-gray-200/50 dark:border-gray-800/50 space-y-2">
-              <span className="text-[10px] text-gray-400 font-bold block">{isRtl ? 'ما را در شبکه‌های اجتماعی دنبال کنید:' : 'Follow us on social media:'}</span>
-              <SocialIconsRow className="flex gap-2" iconClassName="w-4.5 h-4.5" />
-            </div>
+            {footerMail && (
+              <a href={`mailto:${footerMail}`} className="flex items-center gap-2 text-start hover:text-[#26B6B6] dark:hover:text-[#26B6B6] transition-colors">
+                <Mail className="w-4 h-4 text-[#26B6B6] shrink-0" />
+                <span className="text-gray-600 dark:text-gray-300">{footerMail}</span>
+              </a>
+            )}
+            {footerPhone && (
+              <a href={`tel:${footerPhone.replace(/[^\d+]/g, '')}`} className="flex items-center gap-2 text-start hover:text-[#26B6B6] dark:hover:text-[#26B6B6] transition-colors">
+                <Phone className="w-4 h-4 text-[#26B6B6] shrink-0" />
+                <span className="font-sans text-gray-600 dark:text-gray-300" dir="ltr">{footerPhone}</span>
+              </a>
+            )}
+            {footerAddress && (
+              <div className="flex items-start gap-2 leading-normal text-start">
+                <MapPin className="w-4 h-4 text-[#26B6B6] shrink-0 mt-0.5" />
+                <span className="text-gray-600 dark:text-gray-300">
+                  {footerAddress}
+                </span>
+              </div>
+            )}
+            {hasSocials && (
+              <div className="pt-4 border-t border-gray-200/50 dark:border-gray-800/50 space-y-2">
+                <span className="text-[10px] text-gray-400 font-bold block">{isRtl ? 'ما را در شبکه‌های اجتماعی دنبال کنید:' : 'Follow us on social media:'}</span>
+                <SocialIconsRow className="flex gap-2" iconClassName="w-4.5 h-4.5" />
+              </div>
+            )}
           </div>
 
         </div>

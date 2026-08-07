@@ -72,11 +72,14 @@ export interface SupportTicket {
   userRole: 'Modeler' | 'Manufacturer';
   subject: string;
   message: string;
-  category: 'Billing' | 'Download Issue' | 'Metadata error' | 'Account Verification' | 'General';
+  category: 'Billing' | 'Download Issue' | 'Metadata error' | 'Account Verification' | 'General' | 'Technical Support';
   status: 'Open' | 'In Progress' | 'Resolved' | 'Escalated';
   dateCreated: string;
   messages: TicketMessage[];
   escalatedTo?: 'Finance' | 'Review Manager' | 'None';
+  /** Present for tickets synced from the website contact form (server store). */
+  refNumber?: string;
+  department?: string;
 }
 
 export interface BillingInvoice {

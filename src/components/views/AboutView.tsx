@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../LanguageContext';
+import { useSiteConfig } from '../SiteConfigContext';
+import { toast } from '../ui/toast';
+import { Breadcrumb } from '../Breadcrumb';
 import { FAQ_ITEMS, MANUFACTURERS } from '../../data';
 import { 
   SocialIconsRow, 
@@ -55,15 +58,65 @@ export const AboutView: React.FC<AboutViewProps> = ({
   onViewBrand 
 }) => {
   const { language, t, isRtl } = useLanguage();
+  const { siteConfig } = useSiteConfig();
   const [openFaq, setOpenFaq] = useState<string | null>(null);
   const [contactSubmitted, setContactSubmitted] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '', department: 'general' });
+  const [contactSubmitting, setContactSubmitting] = useState(false);
+  const [ticketRefNumber, setTicketRefNumber] = useState<string>('');
+  const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '', department: 'tech', website: '' });
   const [mfgSearch, setMfgSearch] = useState('');
   const [isAboutVideoOpen, setIsAboutVideoOpen] = useState(false);
 
-  const handleContactSubmit = (e: React.FormEvent) => {
+  // Contact coordinates — admin-editable via site config (footer section), unified with Footer
+  const contactEmail = siteConfig?.footer?.email?.trim() || 'info@iranbimhub.ir';
+  const contactAddress = isRtl
+    ? (siteConfig?.footer?.addressFa?.trim() || 'آدرس دفتر به‌زودی درج می‌شود؛ فعلاً از راه‌های آنلاین با ما در تماس باشید')
+    : (siteConfig?.footer?.addressEn?.trim() || 'Office address will be listed soon; please reach us online for now');
+  // Official social/channel URLs — admin-editable (site config). Per product
+  // decision, each link renders ONLY when its URL has been provided; otherwise hidden.
+  const socialUrl = (id: string): string => {
+    const v = (siteConfig?.footer as any)?.[id];
+    return (typeof v === 'string' && v.trim()) ? v.trim() : '';
+  };
+  const contactPhone = siteConfig?.footer?.phone?.trim() || '';
+  const waUrl = socialUrl('whatsapp');
+  const tgUrl = socialUrl('telegram');
+  const baleUrl = socialUrl('bale');
+  const liUrl = socialUrl('linkedin');
+  const igUrl = socialUrl('instagram');
+  const apUrl = socialUrl('aparat');
+  const ytUrl = socialUrl('youtube');
+  const xUrl = socialUrl('x');
+  const hasDirectChannels = Boolean(waUrl || tgUrl || baleUrl);
+  const hasFollowChannels = Boolean(liUrl || igUrl || apUrl || ytUrl || xUrl);
+
+  // REAL ticket submission — POSTs to the server; the ticket lands in the admin panel
+  const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setContactSubmitted(true);
+    if (contactSubmitting) return;
+    setContactSubmitting(true);
+    try {
+      const res = await fetch('/api/tickets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setTicketRefNumber(data.refNumber || '');
+        setContactSubmitted(true);
+      } else {
+        toast.error(isRtl
+          ? (data.messageFa || 'ثبت تیکت با خطا مواجه شد؛ لطفاً دوباره تلاش کنید.')
+          : (data.messageEn || 'Ticket submission failed. Please try again.'));
+      }
+    } catch {
+      toast.error(isRtl
+        ? 'ارتباط با سرور برقرار نشد؛ لطفاً اتصال خود را بررسی و دوباره تلاش کنید.'
+        : 'Could not reach the server. Please check your connection and retry.');
+    } finally {
+      setContactSubmitting(false);
+    }
   };
 
   const selectDepartment = (deptId: string, deptNameFa: string, deptNameEn: string) => {
@@ -86,6 +139,12 @@ export const AboutView: React.FC<AboutViewProps> = ({
 
     return (
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-9 space-y-8 sm:space-y-14" dir={isRtl ? 'rtl' : 'ltr'}>
+        <Breadcrumb
+          items={[
+            { label: isRtl ? 'صفحه اصلی' : 'Home', onClick: () => onNavigate?.('home') },
+            { label: isRtl ? 'درباره ما' : 'About Us' }
+          ]}
+        />
         {/* Hero is the only visual container; the only content cards appear later in the value section. */}
         <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0F3D5E] via-[#123D5A] to-[#064E4B] text-white px-5 py-7 sm:px-10 sm:py-12">
           <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#0FB9B1_1px,transparent_1px)] [background-size:20px_20px]" />
@@ -207,20 +266,40 @@ export const AboutView: React.FC<AboutViewProps> = ({
   if (viewMode === 'contact') {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12" dir={isRtl ? 'rtl' : 'ltr'}>
-        
+        <Breadcrumb
+          items={[
+            { label: isRtl ? 'صفحه اصلی' : 'Home', onClick: () => onNavigate?.('home') },
+            { label: isRtl ? 'تماس و پشتیبانی' : 'Contact & Support' }
+          ]}
+        />
+
         {/* Banner with Map Accent */}
         <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1E2326] to-[#464E56] text-white p-8 md:p-12 text-start shadow-xs">
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#26B6B6_1px,transparent_1px)] [background-size:20px_20px]"></div>
           <div className="relative z-10 max-w-2xl space-y-3">
             <span className="text-[10px] uppercase font-bold text-[#26B6B6] tracking-wider">{isRtl ? 'پاسخگویی سریع و فنی' : 'Prompt Technical Support'}</span>
             <h1 className="text-2xl sm:text-4xl font-black text-white leading-tight">
-              {isRtl ? 'تماس با ما و دپارتمان‌های پشتیبانی' : 'Contact Us & Engineering Helpdesks'}
+              {isRtl ? 'پشتیبانی فنی و مشاوره' : 'Technical Support & Consultation'}
             </h1>
             <p className="text-xs sm:text-sm text-gray-300 font-light leading-relaxed">
               {isRtl 
-                ? 'مهندسان مشاور و نمایندگان کارخانجات می‌توانند درخواست‌های ارزیابی، تبدیل فایل و همکاری‌های سازمانی را از طریق ارسال تیکت مستقیم پیگیری نمایند.'
-                : 'Consulting engineers and industrial factory reps can coordinate files conversion, validation audits, and B2B alliances via our direct ticketing system.'
+                ? 'هر پرسشی که امروز مطرح می‌کنید، تصمیمی مطمئن‌تر برای فردای پروژهٔ شماست؛ تیم ایران‌بیم‌هاب با پاسخ‌گویی فنی و مسیر مشاورهٔ تخصصی، کنار شماست.'
+                : 'Every question you raise today becomes a more confident decision for your project’s tomorrow; the IranBIMhub team stands by you with technical answers and a dedicated consultation path.'
               }
+            </p>
+            <p className="text-[11px] sm:text-xs text-gray-400 font-light leading-relaxed">
+              {isRtl ? (
+                <>
+                  مهندسان و نمایندگان کارخانجات، تولیدکنندگان و صاحبان برند می‌توانند درخواست‌های ارزیابی، کنترل کیفی، تبدیل فایل و همکاری‌های سازمانی را از طریق{' '}
+                  <button type="button" onClick={() => onNavigate?.('for-manufacturers')} className="text-[#26B6B6] font-bold hover:underline underline-offset-4 cursor-pointer">بخش محور تولیدکنندگان</button>
+                  {' '}ارسال کنند.
+                </>
+              ) : (
+                <>
+                  Factory engineers, manufacturers, and brand owners can submit evaluation, quality-control, file-conversion, and organizational collaboration requests via the{' '}
+                  <button type="button" onClick={() => onNavigate?.('for-manufacturers')} className="text-[#26B6B6] font-bold hover:underline underline-offset-4 cursor-pointer">Manufacturers Hub section</button>.
+                </>
+              )}
             </p>
           </div>
         </section>
@@ -228,53 +307,37 @@ export const AboutView: React.FC<AboutViewProps> = ({
         {/* CONTACT CHANNELS & INTERACTIVE FORM */}
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-8 text-start pb-6">
           
-          {/* Office Contact Coordinates (Row 1) */}
+          {/* Office Contact Coordinates (Row 1) — unified with Footer via admin-editable site config */}
           <div className="bg-[#464E56] text-white p-8 rounded-3xl space-y-6 flex flex-col justify-between">
             <div className="space-y-4">
               <div>
-                <h2 className="text-lg font-bold">
-                  {isRtl ? 'دبیرخانه مرکزی هاب بیم' : 'Central Secretariat'}
+                <h2 className="text-lg font-bold leading-8">
+                  {isRtl ? 'اطلاعات تماس ایران‌بیم‌هاب' : 'IranBIMhub Contact Information'}
                 </h2>
-                <p className="text-[10px] text-gray-300 mt-1">
-                  {isRtl ? 'پاسخگویی به درخواست‌های همکاری ملی و فنی' : 'Institutional partnerships & compliance desks'}
-                </p>
               </div>
 
               <div className="space-y-4 font-light text-xs">
                 <div className="flex items-start gap-3">
                   <MapPin className="w-5 h-5 text-[#26B6B6] shrink-0" />
-                  <span>
-                    {isRtl 
-                      ? 'تهران، میدان ونک، خیابان ملاصدرا، پلاک ۱۴، طبقه سوم، واحد ۳۰۲' 
-                      : 'Suite 302, 3rd Floor, No. 14, Mollasadra St., Vanak Square, Tehran, Iran'
-                    }
-                  </span>
+                  <span>{contactAddress}</span>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <Phone className="w-5 h-5 text-[#26B6B6] shrink-0" />
-                  <span className="font-mono text-gray-200">+98 21 8888 7766</span>
-                </div>
+                {contactPhone && (
+                  <a href={`tel:${contactPhone.replace(/[^\d+]/g, '')}`} className="flex items-center gap-3 hover:text-[#7EE7E7] transition-colors group/tel">
+                    <Phone className="w-5 h-5 text-[#26B6B6] shrink-0" />
+                    <span className="font-mono text-gray-200 group-hover/tel:underline" dir="ltr">{contactPhone}</span>
+                  </a>
+                )}
 
-                <div className="flex items-center gap-3">
+                <a href={`mailto:${contactEmail}`} className="flex items-center gap-3 hover:text-[#7EE7E7] transition-colors group/mail">
                   <Mail className="w-5 h-5 text-[#26B6B6] shrink-0" />
-                  <span className="font-mono text-gray-200">support@iranbimhub.ir</span>
-                </div>
+                  <span className="font-mono text-gray-200 group-hover/mail:underline" dir="ltr">{contactEmail}</span>
+                </a>
               </div>
             </div>
 
-            <div className="space-y-3.5 pt-4 border-t border-white/10">
-              <span className="text-[10px] uppercase font-bold tracking-wider text-[#26B6B6] block">{isRtl ? 'دپارتمان بازرگانی' : 'Onboarding Hotline'}</span>
-              <div className="flex items-center gap-2 text-xs font-mono text-gray-300">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>+98 21 8888 7767</span>
-              </div>
-              <p className="text-[10px] text-gray-400 font-light leading-relaxed">
-                {isRtl 
-                  ? 'شنبه تا چهارشنبه از ۹:۰۰ صبح الی ۱۷:۰۰ جهت هدایت پرونده‌های کارخانجات' 
-                  : 'Dedicated expert guidance for industrial factories (Sat - Wed)'
-                }
-              </p>
+            <div className="pt-4 border-t border-white/10">
+              <SocialIconsRow className="flex gap-1.5" iconClassName="w-4.5 h-4.5" isDarkBg />
             </div>
           </div>
 
@@ -282,15 +345,15 @@ export const AboutView: React.FC<AboutViewProps> = ({
           <div className="lg:col-span-2 bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-3xl p-6 sm:p-8 shadow-2xs space-y-6">
             <div>
               <h2 className="text-xl font-extrabold text-gray-800 dark:text-white">
-                {isRtl ? 'ارسال تیکت مستقیم به دپارتمان‌های هاب' : 'Direct Engineering ticketing Desk'}
+                {isRtl ? 'ارسال تیکت به بخش‌های پشتیبانی' : 'Send a Ticket to Support Desks'}
               </h2>
               <p className="text-xs text-gray-400 mt-1">
                 {isRtl ? 'بخش مورد نظر را انتخاب نموده تا تیکت شما سریعاً پاسخ داده شود' : 'Select a target department below to route your ticket efficiently'}
               </p>
             </div>
 
-            {/* Department Quick Buttons */}
-            <div className="grid grid-cols-3 gap-2.5">
+            {/* Department Quick Buttons (factory onboarding removed per product decision) */}
+            <div className="grid grid-cols-2 gap-2.5">
               <button
                 type="button"
                 onClick={() => selectDepartment('tech', 'پشتیبانی فنی فمیلی‌ها', 'Technical Support')}
@@ -304,25 +367,14 @@ export const AboutView: React.FC<AboutViewProps> = ({
               </button>
               <button
                 type="button"
-                onClick={() => selectDepartment('brand', 'عضویت و پذیرش کارخانجات', 'Brand Onboarding')}
-                className={`p-2.5 rounded-xl border text-[11px] font-bold text-center cursor-pointer transition-all ${
-                  formData.department === 'brand' 
-                    ? 'border-[#26B6B6] bg-[#26B6B6]/5 text-[#26B6B6]' 
-                    : 'border-gray-150 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'
-                }`}
-              >
-                {isRtl ? 'پذیرش کارخانه' : 'Brand Onboarding'}
-              </button>
-              <button
-                type="button"
-                onClick={() => selectDepartment('general', 'دبیرخانه کل', 'General Secretariat')}
+                onClick={() => selectDepartment('general', 'پشتیبانی عمومی', 'General Support')}
                 className={`p-2.5 rounded-xl border text-[11px] font-bold text-center cursor-pointer transition-all ${
                   formData.department === 'general' 
                     ? 'border-[#26B6B6] bg-[#26B6B6]/5 text-[#26B6B6]' 
                     : 'border-gray-150 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50'
                 }`}
               >
-                {isRtl ? 'درخواست عمومی' : 'General Inquiry'}
+                {isRtl ? 'پشتیبانی عمومی' : 'General Support'}
               </button>
             </div>
 
@@ -332,14 +384,15 @@ export const AboutView: React.FC<AboutViewProps> = ({
                 <p className="font-extrabold text-sm">{isRtl ? 'تیکت شما با موفقیت ثبت گردید' : 'Ticket Registered Successfully'}</p>
                 <p className="font-light text-gray-500 dark:text-gray-400 leading-relaxed">
                   {isRtl 
-                    ? `موضوع: «${formData.subject || 'عمومی'}» با موفقیت ثبت شد. شناسه تیکت شما: CRM-9945 می‌باشد. همکاران دپارتمان مربوطه ظرف حداکثر ۲۴ ساعت کاری آینده با شما تماس خواهند گرفت.`
-                    : `Subject "${formData.subject || 'General'}" has been processed. Your reference ticket ID is CRM-9945. Our staff will coordinate with you shortly.`
+                    ? `موضوع: «${formData.subject || 'عمومی'}» با موفقیت ثبت شد. شناسه پیگیری تیکت شما: ${ticketRefNumber} — همکاران بخش پشتیبانی پس از بررسی با ایمیل شما در تماس خواهند بود.`
+                    : `Subject "${formData.subject || 'General'}" has been processed. Your tracking reference is ${ticketRefNumber}. Our support team will follow up via your email.`
                   }
                 </p>
                 <button 
                   onClick={() => {
                     setContactSubmitted(false);
-                    setFormData({ name: '', email: '', subject: '', message: '', department: 'general' });
+                    setTicketRefNumber('');
+                    setFormData({ name: '', email: '', subject: '', message: '', department: 'tech', website: '' });
                   }}
                   className="mt-3 text-[#26B6B6] font-bold hover:underline block cursor-pointer"
                 >
@@ -348,6 +401,17 @@ export const AboutView: React.FC<AboutViewProps> = ({
               </div>
             ) : (
               <form onSubmit={handleContactSubmit} className="space-y-4">
+                {/* Honeypot anti-spam field — invisible to humans */}
+                <input
+                  type="text"
+                  name="website"
+                  value={formData.website}
+                  onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                  className="hidden"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                />
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
@@ -400,9 +464,12 @@ export const AboutView: React.FC<AboutViewProps> = ({
 
                 <button
                   type="submit"
-                  className="bg-[#26B6B6] hover:bg-[#1e9494] text-white px-6 py-3 rounded-xl text-xs font-black transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm shadow-[#26B6B6]/10"
+                  disabled={contactSubmitting}
+                  className={`bg-[#26B6B6] text-white px-6 py-3 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 shadow-sm shadow-[#26B6B6]/10 ${contactSubmitting ? 'opacity-60 cursor-wait' : 'hover:bg-[#1e9494] cursor-pointer'}`}
                 >
-                  <span>{isRtl ? 'ثبت و ارسال تیکت مهندسی' : 'Dispatch Ticket'}</span>
+                  <span>{contactSubmitting
+                    ? (isRtl ? 'در حال ارسال...' : 'Submitting...')
+                    : (isRtl ? 'ثبت و ارسال تیکت' : 'Dispatch Ticket')}</span>
                   <Send className={`w-3.5 h-3.5 ${isRtl ? 'rotate-180' : ''}`} />
                 </button>
 
@@ -411,10 +478,65 @@ export const AboutView: React.FC<AboutViewProps> = ({
           </div>
         </section>
 
+        {/* CONSULTATION CTAs — two short paths: manufacturers/brands & architects/engineers (item 9) */}
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0F3D5E] to-[#0A2D47] text-white p-7 sm:p-8 space-y-4 text-start shadow-xs">
+            <div className="absolute inset-0 opacity-[0.06] bg-[radial-gradient(#22D3EE_1px,transparent_1px)] [background-size:16px_16px]" />
+            <div className="relative z-10 space-y-3">
+              <span className="inline-flex items-center gap-2 text-[10px] font-black bg-white/10 border border-white/15 px-3 py-1 rounded-full text-[#7EE7E7]">
+                <Factory className="w-3.5 h-3.5 shrink-0" />
+                <span>{isRtl ? 'ویژهٔ برندها و تولیدکنندگان' : 'For Brands & Manufacturers'}</span>
+              </span>
+              <h3 className="text-base sm:text-lg font-black leading-snug">
+                {isRtl ? 'مشاورهٔ رایگان ورود برند و محصول شما به BIM' : 'Free consultation for bringing your brand into BIM'}
+              </h3>
+              <p className="text-[11px] sm:text-xs text-white/70 font-light leading-relaxed">
+                {isRtl
+                  ? 'مسیر ارزیابی، آماده‌سازی یا مدل‌سازی آبجکت‌های محصولتان را با ما هماهنگ کنید؛ بدون هزینهٔ اولیه و با پیش‌فاکتور شفاف.'
+                  : 'Coordinate the evaluation, preparation, or modeling path of your product objects with us — no upfront cost and transparent proforma.'}
+              </p>
+              <button
+                type="button"
+                onClick={() => onNavigate?.('for-manufacturers')}
+                className="inline-flex items-center gap-1.5 bg-[#0FB9B1] hover:bg-[#087F7A] text-white text-xs font-extrabold px-5 py-3 rounded-xl transition-all cursor-pointer active:scale-97 shadow-md"
+              >
+                <span>{isRtl ? 'شروع مشاورهٔ تولیدکنندگان' : 'Start Manufacturer Consultation'}</span>
+                <Send className={`w-3.5 h-3.5 ${isRtl ? 'rotate-180' : ''}`} />
+              </button>
+            </div>
+          </div>
+
+          <div className="relative overflow-hidden rounded-3xl bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 p-7 sm:p-8 space-y-4 text-start shadow-2xs">
+            <div className="relative z-10 space-y-3">
+              <span className="inline-flex items-center gap-2 text-[10px] font-black bg-[#26B6B6]/10 border border-[#26B6B6]/20 px-3 py-1 rounded-full text-[#087F7A] dark:text-[#22D3EE]">
+                <Compass className="w-3.5 h-3.5 shrink-0" />
+                <span>{isRtl ? 'ویژهٔ معماران و مهندسان' : 'For Architects & Engineers'}</span>
+              </span>
+              <h3 className="text-base sm:text-lg font-black text-gray-800 dark:text-white leading-snug">
+                {isRtl ? 'راهنمای استفاده از کتابخانه و حساب کاربری' : 'Guidance on using the library & your account'}
+              </h3>
+              <p className="text-[11px] sm:text-xs text-gray-400 dark:text-gray-500 font-light leading-relaxed">
+                {isRtl
+                  ? 'از ثبت‌نام رایگان تا دانلود آبجکت و سازمان‌دهی پروژه‌ها؛ اگر سؤالی دارید از بخش پشتیبانی فنی بپرسید یا راهنمای نحوهٔ کار را ببینید.'
+                  : 'From free sign-up to object downloads and project organization — ask the technical support desk or read the how-to guide.'}
+              </p>
+              <button
+                type="button"
+                onClick={() => onNavigate?.('for-designers')}
+                className="inline-flex items-center gap-1.5 border border-[#26B6B6]/50 bg-white dark:bg-gray-900 hover:bg-[#26B6B6]/5 text-[#087F7A] dark:text-[#22D3EE] text-xs font-extrabold px-5 py-3 rounded-xl transition-all cursor-pointer active:scale-97"
+              >
+                <span>{isRtl ? 'مشاورهٔ معماران و مهندسان' : 'Architect & Engineer Consultation'}</span>
+                <Send className={`w-3.5 h-3.5 ${isRtl ? 'rotate-180' : ''}`} />
+              </button>
+            </div>
+          </div>
+        </section>
+
         {/* SOCIAL CONTACT & FOLLOW GROUPS */}
         <section className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
           
-          {/* Group 1: Direct Contact */}
+          {/* Group 1: Direct Contact — hidden entirely when no channel URL is set in admin config */}
+          {hasDirectChannels && (
           <div className="bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-3xl p-6 sm:p-8 space-y-6">
             <div className="space-y-1.5 text-start">
               <h3 className="font-extrabold text-sm sm:text-base text-gray-800 dark:text-white flex items-center gap-2">
@@ -423,15 +545,16 @@ export const AboutView: React.FC<AboutViewProps> = ({
               </h3>
               <p className="text-[11px] text-gray-400 font-light leading-relaxed">
                 {isRtl 
-                  ? 'جهت مشاوره سریع بازرگانی، ارسال فایل، یا پیگیری تیکت‌های پشتیبانی از این پیام‌رسان‌ها استفاده نمایید.' 
-                  : 'Get in touch directly with our commercial desk or technical support teams via secure chat.'}
+                  ? 'جهت مشاورهٔ سریع، ارسال فایل یا پیگیری تیکت‌های پشتیبانی، از این پیام‌رسان‌ها استفاده نمایید.' 
+                  : 'Use these channels for quick consultation, file sharing, or following up on your support tickets.'}
               </p>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {/* WhatsApp */}
+              {/* WhatsApp — rendered only when its URL is set in admin config */}
+              {waUrl && (
               <a 
-                href="https://wa.me/982188887767" 
+                href={waUrl} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="p-4 rounded-2xl bg-emerald-500/5 hover:bg-emerald-500/10 border border-emerald-500/10 hover:border-emerald-500/30 transition-all text-center flex flex-col items-center gap-2"
@@ -440,10 +563,12 @@ export const AboutView: React.FC<AboutViewProps> = ({
                 <span className="text-xs font-bold text-gray-800 dark:text-gray-100">{isRtl ? 'واتساپ' : 'WhatsApp'}</span>
                 <span className="text-[9px] text-gray-400">{isRtl ? 'گفتگوی مستقیم' : 'Direct Chat'}</span>
               </a>
+              )}
 
-              {/* Telegram */}
+              {/* Telegram — rendered only when its URL is set in admin config */}
+              {tgUrl && (
               <a 
-                href="https://t.me/iranbimhub" 
+                href={tgUrl} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="p-4 rounded-2xl bg-sky-500/5 hover:bg-sky-500/10 border border-sky-500/10 hover:border-sky-500/30 transition-all text-center flex flex-col items-center gap-2"
@@ -452,10 +577,12 @@ export const AboutView: React.FC<AboutViewProps> = ({
                 <span className="text-xs font-bold text-gray-800 dark:text-gray-100">{isRtl ? 'تلگرام' : 'Telegram'}</span>
                 <span className="text-[9px] text-gray-400">{isRtl ? 'ارسال سریع پیام' : 'Direct Message'}</span>
               </a>
+              )}
 
-              {/* Bale */}
+              {/* Bale — rendered only when its URL is set in admin config */}
+              {baleUrl && (
               <a 
-                href="https://ble.ir/iranbimhub" 
+                href={baleUrl} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="p-4 rounded-2xl bg-emerald-600/5 hover:bg-emerald-600/10 border border-emerald-600/10 hover:border-emerald-600/30 transition-all text-center flex flex-col items-center gap-2"
@@ -464,10 +591,13 @@ export const AboutView: React.FC<AboutViewProps> = ({
                 <span className="text-xs font-bold text-gray-800 dark:text-gray-100">{isRtl ? 'بله' : 'Bale'}</span>
                 <span className="text-[9px] text-gray-400">{isRtl ? 'پیام‌رسان بومی' : 'Domestic Chat'}</span>
               </a>
+              )}
             </div>
           </div>
+          )}
 
-          {/* Group 2: Follow Us */}
+          {/* Group 2: Follow Us — hidden entirely when no channel URL is set in admin config */}
+          {hasFollowChannels && (
           <div className="bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-3xl p-6 sm:p-8 space-y-6">
             <div className="space-y-1.5 text-start">
               <h3 className="font-extrabold text-sm sm:text-base text-gray-800 dark:text-white flex items-center gap-2">
@@ -482,9 +612,10 @@ export const AboutView: React.FC<AboutViewProps> = ({
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 font-medium">
-              {/* LinkedIn */}
+              {/* LinkedIn — rendered only when its URL is set in admin config */}
+              {liUrl && (
               <a 
-                href="https://linkedin.com/company/iranbimhub" 
+                href={liUrl} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="p-3 rounded-2xl bg-blue-600/5 hover:bg-blue-600/10 border border-blue-600/10 hover:border-blue-600/30 transition-all text-center flex flex-col items-center gap-2"
@@ -492,10 +623,12 @@ export const AboutView: React.FC<AboutViewProps> = ({
                 <div className="text-blue-600">{LinkedInIcon('w-5 h-5')}</div>
                 <span className="text-[10px] font-bold text-gray-700 dark:text-gray-200">{isRtl ? 'لینکدین' : 'LinkedIn'}</span>
               </a>
+              )}
 
-              {/* Instagram */}
+              {/* Instagram — rendered only when its URL is set in admin config */}
+              {igUrl && (
               <a 
-                href="https://instagram.com/iranbimhub" 
+                href={igUrl} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="p-3 rounded-2xl bg-pink-600/5 hover:bg-pink-600/10 border border-pink-600/10 hover:border-pink-600/30 transition-all text-center flex flex-col items-center gap-2"
@@ -503,10 +636,12 @@ export const AboutView: React.FC<AboutViewProps> = ({
                 <div className="text-pink-600">{InstagramIcon('w-5 h-5')}</div>
                 <span className="text-[10px] font-bold text-gray-700 dark:text-gray-200">{isRtl ? 'اینستاگرام' : 'Instagram'}</span>
               </a>
+              )}
 
-              {/* Aparat */}
+              {/* Aparat — rendered only when its URL is set in admin config */}
+              {apUrl && (
               <a 
-                href="https://aparat.com/iranbimhub" 
+                href={apUrl} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="p-3 rounded-2xl bg-rose-600/5 hover:bg-rose-600/10 border border-rose-600/10 hover:border-rose-600/30 transition-all text-center flex flex-col items-center gap-2"
@@ -514,10 +649,12 @@ export const AboutView: React.FC<AboutViewProps> = ({
                 <div className="text-rose-600">{AparatIcon('w-5 h-5')}</div>
                 <span className="text-[10px] font-bold text-gray-700 dark:text-gray-200">{isRtl ? 'آپارات' : 'Aparat'}</span>
               </a>
+              )}
 
-              {/* YouTube */}
+              {/* YouTube — rendered only when its URL is set in admin config */}
+              {ytUrl && (
               <a 
-                href="https://youtube.com/@iranbimhub" 
+                href={ytUrl} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="p-3 rounded-2xl bg-red-600/5 hover:bg-red-600/10 border border-red-600/10 hover:border-red-600/30 transition-all text-center flex flex-col items-center gap-2"
@@ -525,10 +662,12 @@ export const AboutView: React.FC<AboutViewProps> = ({
                 <div className="text-red-600">{YouTubeIcon('w-5 h-5')}</div>
                 <span className="text-[10px] font-bold text-gray-700 dark:text-gray-200">{isRtl ? 'یوتیوب' : 'YouTube'}</span>
               </a>
+              )}
 
-              {/* X */}
+              {/* X — rendered only when its URL is set in admin config */}
+              {xUrl && (
               <a 
-                href="https://x.com/iranbimhub" 
+                href={xUrl} 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="p-3 rounded-2xl bg-gray-900/5 hover:bg-gray-900/10 border border-gray-900/10 hover:border-gray-900/30 dark:bg-white/5 dark:hover:bg-white/10 dark:border-white/10 transition-all text-center flex flex-col items-center gap-2"
@@ -536,8 +675,10 @@ export const AboutView: React.FC<AboutViewProps> = ({
                 <div className="text-gray-800 dark:text-white">{XIcon('w-5 h-5')}</div>
                 <span className="text-[10px] font-bold text-gray-700 dark:text-gray-200">{isRtl ? 'X / توییتر' : 'X / Twitter'}</span>
               </a>
+              )}
             </div>
           </div>
+          )}
 
         </section>
 
@@ -557,7 +698,13 @@ export const AboutView: React.FC<AboutViewProps> = ({
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 text-start" dir={isRtl ? 'rtl' : 'ltr'}>
-      
+      <Breadcrumb
+        items={[
+          { label: isRtl ? 'صفحه اصلی' : 'Home', onClick: () => onNavigate?.('home') },
+          { label: isRtl ? 'تولیدکنندگان و برندها' : 'Manufacturers & Brands' }
+        ]}
+      />
+
       {/* Directory Hero */}
       <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1E2326] via-[#2F3539] to-[#464E56] text-white p-8 md:p-12">
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#26B6B6_1px,transparent_1px)] [background-size:20px_20px]"></div>

@@ -1,8 +1,11 @@
 import React, { useEffect, useState, useMemo } from 'react';
+import { toast } from '../ui/toast';
+import { readDownloadHistory, appendDownloadEntry, getTodayDownloadCount, DAILY_FREE_LIMIT, subscribeDownloadHistory } from '../../lib/downloadHistory';
 import { useLanguage } from '../LanguageContext';
 import { BIMObject } from '../../types';
 import { BIM_OBJECTS } from '../../data';
 import { BIMObjectCard } from '../BIMObjectCard';
+import { EmptyState } from '../ui/EmptyState';
 import { 
   User, 
   Settings, 
@@ -114,7 +117,7 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
       }
     }
     return {
-      fullName: isRtl ? 'مهندس آرش علوی' : 'Eng. Arash Alavi',
+      fullName: isRtl ? 'حساب کاربری شما' : 'Your Account',
       email: 'arash.alavi@aec-design.ir',
       role: 'Modeler',
       isPremium: false, // Default Free, can upgrade to VIP
@@ -126,11 +129,10 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
     };
   });
 
-  // Daily download tracking (for Free account)
-  const [dailyDownloadsRemaining, setDailyDownloadsRemaining] = useState<number>(() => {
-    const saved = localStorage.getItem('iranbimhub_modeler_dl_remaining');
-    return saved !== null ? parseInt(saved) : 3; // 3 of 5 remaining
-  });
+  // Daily download tracking — REAL count derived from the unified history store (Phase 3 fix)
+  const [todayDownloadsUsed, setTodayDownloadsUsed] = useState<number>(() => getTodayDownloadCount());
+  useEffect(() => subscribeDownloadHistory(() => setTodayDownloadsUsed(getTodayDownloadCount())), []);
+  const dailyDownloadsRemaining = Math.max(0, DAILY_FREE_LIMIT - todayDownloadsUsed);
   const [timerString, setTimerString] = useState('16:42:05');
 
   // Simulated countdown timer for download limit reset
@@ -146,30 +148,10 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
     return () => clearInterval(interval);
   }, []);
 
-  // Save remaining downloads to local storage
-  useEffect(() => {
-    localStorage.setItem('iranbimhub_modeler_dl_remaining', String(dailyDownloadsRemaining));
-  }, [dailyDownloadsRemaining]);
-
-  // Project Folders State
+  // Project Folders State — honest default: a brand-new user has NO projects yet (approved removal of fake seeds)
   const [folders, setFolders] = useState<{ id: string; name: string; desc: string; objectIds: string[]; dateCreated: string }[]>(() => {
     const local = localStorage.getItem('iranbimhub_user_folders_v2');
-    return local ? JSON.parse(local) : [
-      { 
-        id: 'f1', 
-        name: isRtl ? 'پروژه فاز دو هتل مسکونی شیراز' : 'Shiraz Residential Hotel Phase 2', 
-        desc: isRtl ? 'نقشه‌های اجرایی و جزئیات نازک‌کاری بخش اقامتی' : 'Detail specs & architectural window units',
-        objectIds: ['obj1'], 
-        dateCreated: '۱۴۰۵/۰۲/۱۵' 
-      },
-      { 
-        id: 'f2', 
-        name: isRtl ? 'بیمارستان تخصصی ۲۰۰ تخت‌خوابی کرج' : 'Karaj Specialty Hospital', 
-        desc: isRtl ? 'مدل‌سازی موتورخانه و سیستم‌های تبرید مرکزی' : 'Boiler plant and MEP mechanical layout',
-        objectIds: ['obj2'], 
-        dateCreated: '۱۴۰۵/۰۳/۱۰' 
-      }
-    ];
+    return local ? JSON.parse(local) : [];
   });
 
   useEffect(() => {
@@ -181,13 +163,10 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
   const [newFolderName, setNewFolderName] = useState('');
   const [newFolderDesc, setNewFolderDesc] = useState('');
 
-  // Custom Collections (Freeform shortlists, VIP exclusive)
+  // Custom Collections — honest default: empty until the user creates one (approved removal of fake seeds)
   const [collections, setCollections] = useState<{ id: string; name: string; objectIds: string[] }[]>(() => {
     const local = localStorage.getItem('iranbimhub_user_collections');
-    return local ? JSON.parse(local) : [
-      { id: 'c1', name: isRtl ? 'شورت‌لیست شیرآلات لوکس' : 'Luxury Faucets Shortlist', objectIds: [] },
-      { id: 'c2', name: isRtl ? 'تجهیزات معماری پایدار' : 'Green Materials Moodboard', objectIds: [] }
-    ];
+    return local ? JSON.parse(local) : [];
   });
 
   useEffect(() => {
@@ -211,35 +190,9 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
   });
 
   // Download History Log
-  const [downloadHistory, setDownloadHistory] = useState<any[]>(() => {
-    const local = localStorage.getItem('iranbimhub_dl_history_v2');
-    return local ? JSON.parse(local) : [
-      {
-        id: 'dl-1',
-        objectId: 'obj1',
-        titleFa: 'پنجره دوجداره آلومینیومی ترمال‌بریک سری آلو-۹۰',
-        titleEn: 'Thermal-Break Aluminum Double Glazed Window - Alu-90 Series',
-        format: 'Revit',
-        fileSize: '14.2 MB',
-        date: '۱۴۰۵/۰۴/۰۹',
-        manufacturerName: 'Alupan Co.'
-      },
-      {
-        id: 'dl-2',
-        objectId: 'obj2',
-        titleFa: 'پکیج دیواری چگالشی دیجیتال پارما ۲۴',
-        titleEn: 'Parma 24 Condensing Wall Boiler',
-        format: 'IFC',
-        fileSize: '22.8 MB',
-        date: '۱۴۰۵/۰۴/۰۱',
-        manufacturerName: 'Butane Group'
-      }
-    ];
-  });
-
-  useEffect(() => {
-    localStorage.setItem('iranbimhub_dl_history_v2', JSON.stringify(downloadHistory));
-  }, [downloadHistory]);
+  // Download history — REAL entries from the unified store (written on every actual download, Phase 3 fix)
+  const [downloadHistory, setDownloadHistory] = useState<any[]>(() => readDownloadHistory());
+  useEffect(() => subscribeDownloadHistory(() => setDownloadHistory(readDownloadHistory())), []);
 
   // Search & Filters inside lists
   const [historySearch, setHistorySearch] = useState('');
@@ -266,13 +219,13 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
     const updated = { ...currentUser, isPremium: false };
     setCurrentUser(updated);
     localStorage.setItem('iranbimhub_user_session', JSON.stringify(updated));
-    alert(isRtl ? 'حساب شما با موفقیت به نسخه رایگان برگردانده شد.' : 'Account downgraded to Free tier.');
+    toast(isRtl ? 'حساب شما با موفقیت به نسخه رایگان برگردانده شد.' : 'Account downgraded to Free tier.');
   };
 
-  // Quick download implementation with daily limits
+  // Quick re-download — REAL daily-limit counting via the unified history store (dates are real)
   const handleReDownload = (dlEntry: any) => {
-    if (!currentUser.isPremium && dailyDownloadsRemaining <= 0) {
-      alert(isRtl 
+    if (!currentUser.isPremium && getTodayDownloadCount() >= DAILY_FREE_LIMIT) {
+      toast(isRtl 
         ? 'خطا: سقف دانلود روزانه شما (۵ عدد) به پایان رسیده است. لطفاً برای دانلود نامحدود به VIP ارتقا دهید.' 
         : 'Error: You have reached your limit of 5 downloads per day. Please upgrade to VIP for unlimited access.'
       );
@@ -280,34 +233,26 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
       return;
     }
 
-    if (!currentUser.isPremium) {
-      setDailyDownloadsRemaining(prev => Math.max(0, prev - 1));
-    }
-
-    alert(isRtl 
-      ? `در حال دانلود مجدد فایل ${dlEntry.format} محصول...` 
-      : `Starting download of ${dlEntry.format} product file...`
-    );
-
-    // Append to history log
-    const newLog = {
-      id: `dl-${Math.random().toString(36).substring(2, 9)}`,
+    appendDownloadEntry({
       objectId: dlEntry.objectId,
       titleFa: dlEntry.titleFa,
       titleEn: dlEntry.titleEn,
       format: dlEntry.format,
       fileSize: dlEntry.fileSize,
-      date: isRtl ? '۱۴۰۵/۰۴/۰۱' : '2026-07-01',
-      manufacturerName: dlEntry.manufacturerName
-    };
-    setDownloadHistory(prev => [newLog, ...prev]);
+      manufacturerName: dlEntry.manufacturerName,
+    });
+
+    toast(isRtl 
+      ? `در حال دانلود مجدد فایل ${dlEntry.format} محصول...` 
+      : `Starting download of ${dlEntry.format} product file...`
+    );
   };
 
   // Add folder
   const handleCreateFolder = (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentUser.isPremium) {
-      alert(isRtl 
+      toast(isRtl 
         ? 'قابلیت ایجاد پوشه اختصاصی پروژه مختص اعضای VIP است!' 
         : 'Creating custom project folders is a VIP-only feature!'
       );
@@ -327,14 +272,14 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
     setFolders(prev => [...prev, newFolder]);
     setNewFolderName('');
     setNewFolderDesc('');
-    alert(isRtl ? 'پوشه پروژه با موفقیت ایجاد شد.' : 'Project folder created successfully.');
+    toast(isRtl ? 'پوشه پروژه با موفقیت ایجاد شد.' : 'Project folder created successfully.');
   };
 
   // Add collection
   const handleCreateCollection = (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentUser.isPremium) {
-      alert(isRtl 
+      toast(isRtl 
         ? 'قابلیت ایجاد مجموعه‌های دلخواه مختص اعضای VIP است!' 
         : 'Creating custom collections is a VIP-only feature!'
       );
@@ -351,7 +296,7 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
 
     setCollections(prev => [...prev, newColl]);
     setNewCollectionName('');
-    alert(isRtl ? 'کلکسیون جدید با موفقیت ایجاد شد.' : 'Collection created successfully.');
+    toast(isRtl ? 'کلکسیون جدید با موفقیت ایجاد شد.' : 'Collection created successfully.');
   };
 
   // Remove folder
@@ -363,7 +308,7 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
   // Add BIM Object to folder
   const handleAddObjectToFolder = (folderId: string, objId: string) => {
     if (!currentUser.isPremium) {
-      alert(isRtl ? 'پوشه‌بندی پروژه‌ها مختص کاربران ویژه است.' : 'Project organization is for VIP users.');
+      toast(isRtl ? 'پوشه‌بندی پروژه‌ها مختص کاربران ویژه است.' : 'Project organization is for VIP users.');
       setActiveTab('subscription');
       return;
     }
@@ -379,7 +324,7 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
   // Add BIM Object to Collection
   const handleAddObjectToCollection = (collId: string, objId: string) => {
     if (!currentUser.isPremium) {
-      alert(isRtl ? 'دسته‌بندی کلکسیونی مختص کاربران ویژه است.' : 'Collection categorization is for VIP users.');
+      toast(isRtl ? 'دسته‌بندی کلکسیونی مختص کاربران ویژه است.' : 'Collection categorization is for VIP users.');
       setActiveTab('subscription');
       return;
     }
@@ -461,7 +406,7 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
     };
     setCurrentUser(updated);
     localStorage.setItem('iranbimhub_user_session', JSON.stringify(updated));
-    alert(isRtl ? 'تنظیمات پروفایل با موفقیت ذخیره گردید.' : 'Profile settings saved successfully.');
+    toast(isRtl ? 'تنظیمات پروفایل با موفقیت ذخیره گردید.' : 'Profile settings saved successfully.');
   };
 
   const handleToggleNotification = (key: string) => {
@@ -827,6 +772,13 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
                 </div>
 
                 <div className="space-y-2.5">
+                  {folders.length === 0 && (
+                    <p className="text-[11px] text-gray-400 dark:text-gray-500 leading-6 bg-slate-50 dark:bg-gray-950 border border-dashed border-slate-200 dark:border-gray-800 rounded-xl p-4 text-center">
+                      {isRtl
+                        ? 'هنوز پوشهٔ پروژه‌ای ندارید؛ با ارتقا به نسخهٔ VIP اولین پوشهٔ خود را بسازید.'
+                        : 'No project folders yet. Upgrade to VIP to create your first folder.'}
+                    </p>
+                  )}
                   {folders.slice(0, 3).map(f => (
                     <div 
                       key={f.id}
@@ -835,7 +787,7 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
                           setActiveFolderId(f.id);
                           setActiveTab('projects');
                         } else {
-                          alert(isRtl ? 'پروژه‌های پیشرفته مخصوص اعضای ویژه است.' : 'Custom folders is a premium feature.');
+                          toast(isRtl ? 'پروژه‌های پیشرفته مخصوص اعضای ویژه است.' : 'Custom folders is a premium feature.');
                           setActiveTab('subscription');
                         }
                       }}
@@ -868,9 +820,14 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
               </h3>
 
               {downloadHistory.length === 0 ? (
-                <div className="bg-white dark:bg-gray-900 rounded-xl p-8 border border-dashed border-gray-100 dark:border-gray-800 text-center text-xs text-gray-400">
-                  {isRtl ? 'هنوز هیچ فایلی دانلود نکرده‌اید.' : 'No downloaded files found.'}
-                </div>
+                <EmptyState
+                  compact
+                  icon={Download}
+                  title={isRtl ? 'هنوز هیچ فایلی دانلود نکرده‌اید' : 'No downloaded files yet'}
+                  description={isRtl
+                    ? 'پس از ورود و دانلود اولین آبجکت BIM، تاریخچهٔ دانلودهای شما اینجا نمایش داده می‌شود.'
+                    : 'Once you download your first BIM object, your download history will appear here.'}
+                />
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                   {downloadHistory.slice(0, 3).map(dl => (
@@ -960,11 +917,11 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
                       const file = e.target.files?.[0];
                       if (!file) return;
                       if (!file.type.startsWith('image/')) {
-                        alert(isRtl ? 'خطا: فایل انتخابی باید تصویر باشد.' : 'Error: Selected file must be an image.');
+                        toast(isRtl ? 'خطا: فایل انتخابی باید تصویر باشد.' : 'Error: Selected file must be an image.');
                         return;
                       }
                       if (file.size > 3 * 1024 * 1024) {
-                        alert(isRtl ? 'خطا: حجم تصویر نباید بیشتر از ۳ مگابایت باشد.' : 'Error: File size must not exceed 3MB.');
+                        toast(isRtl ? 'خطا: حجم تصویر نباید بیشتر از ۳ مگابایت باشد.' : 'Error: File size must not exceed 3MB.');
                         return;
                       }
                       const reader = new FileReader();
@@ -978,7 +935,7 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
                           } catch (err) {
                             console.error("Failed to save avatar to localStorage:", err);
                           }
-                          alert(isRtl ? 'تصویر نمایه کاربری شما با موفقیت به روز شد.' : 'User avatar updated successfully.');
+                          toast(isRtl ? 'تصویر نمایه کاربری شما با موفقیت به روز شد.' : 'User avatar updated successfully.');
                         }
                       };
                       reader.readAsDataURL(file);
@@ -1234,9 +1191,14 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
 
             {/* History Table */}
             {filteredHistory.length === 0 ? (
-              <div className="bg-white dark:bg-gray-900 rounded-xl p-12 border border-gray-100 dark:border-gray-800 text-center text-xs text-gray-400">
-                {isRtl ? 'موردی یافت نشد.' : 'No download entries match your filters.'}
-              </div>
+              <EmptyState
+                compact
+                icon={Search}
+                title={isRtl ? 'موردی مطابق فیلترها یافت نشد' : 'No entries match your filters'}
+                description={isRtl
+                  ? 'بازهٔ زمانی یا فرمت دیگری را امتحان کنید؛ یا پس از دانلود اولین آبجکت به این بخش بازگردید.'
+                  : 'Try a different date range or format, or return after downloading your first object.'}
+              />
             ) : (
               <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden shadow-2xs">
                 <div className="overflow-x-auto">
@@ -1273,7 +1235,7 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
                                     onChange={(e) => {
                                       if (e.target.value) {
                                         handleAddObjectToFolder(e.target.value, dl.objectId);
-                                        alert(isRtl ? 'آبجکت با موفقیت به پوشه الصاق شد.' : 'Linked to project.');
+                                        toast(isRtl ? 'آبجکت با موفقیت به پوشه الصاق شد.' : 'Linked to project.');
                                         e.target.value = '';
                                       }
                                     }}
@@ -1360,6 +1322,16 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
                 </div>
 
                 {/* Folders grid */}
+                {folders.length === 0 ? (
+                  <EmptyState
+                    compact
+                    icon={Folder}
+                    title={isRtl ? 'هنوز پوشهٔ پروژه‌ای ساخته نشده است' : 'No project folders yet'}
+                    description={isRtl
+                      ? 'با فرم بالا اولین پوشهٔ پروژهٔ خود را بسازید و آبجکت‌های منتخب را داخل آن سازمان‌دهی کنید.'
+                      : 'Use the form above to create your first project folder and organize selected objects inside it.'}
+                  />
+                ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {folders.map(folder => (
                     <div 
@@ -1385,7 +1357,7 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
                               if (currentUser.isPremium) {
                                 setActiveFolderId(folder.id);
                               } else {
-                                alert(isRtl ? 'پروژه‌های تفصیلی مخصوص اعضای ویژه است.' : 'Detailed view is for VIP gold members.');
+                                toast(isRtl ? 'پروژه‌های تفصیلی مخصوص اعضای ویژه است.' : 'Detailed view is for VIP gold members.');
                                 setActiveTab('subscription');
                               }
                             }}
@@ -1406,6 +1378,7 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
                     </div>
                   ))}
                 </div>
+                )}
               </div>
             ) : (
               /* Single Folder Detail View */
@@ -1459,11 +1432,14 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
                         <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">{isRtl ? 'آبجکت‌های الصاق شده' : 'Linked parametric models'}</h3>
                         
                         {linkedBimObjects.length === 0 ? (
-                          <div className="bg-white dark:bg-gray-900 rounded-2xl p-12 text-center text-xs text-gray-400 border border-dashed border-gray-100 dark:border-gray-800 space-y-2">
-                            <Info className="w-8 h-8 text-[#26B6B6] mx-auto opacity-70" />
-                            <p>{isRtl ? 'این پوشه پروژه خالی است.' : 'No BIM products associated yet.'}</p>
-                            <p className="text-[11px] text-gray-400">{isRtl ? 'از کاتالوگ اصلی محصولات را به این پوشه متصل کنید.' : 'Assign spec targets from search or favorites.'}</p>
-                          </div>
+                          <EmptyState
+                            compact
+                            icon={Folder}
+                            title={isRtl ? 'این پوشهٔ پروژه خالی است' : 'This project folder is empty'}
+                            description={isRtl
+                              ? 'از صفحهٔ جزئیات هر آبجکت یا از لیست علاقه‌مندی‌ها، محصولات را به این پوشه متصل کنید.'
+                              : 'Link products to this folder from any object page or from your favorites.'}
+                          />
                         ) : (
                           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                             {linkedBimObjects.map(obj => (
@@ -1558,7 +1534,7 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
                   key={col.id} 
                   onClick={() => {
                     if (!currentUser.isPremium) {
-                      alert(isRtl ? 'کلکسیون‌های سفارشی مخصوص کاربران ویژه است.' : 'Collections are for VIP accounts.');
+                      toast(isRtl ? 'کلکسیون‌های سفارشی مخصوص کاربران ویژه است.' : 'Collections are for VIP accounts.');
                       setActiveTab('subscription');
                     }
                   }}
@@ -1571,10 +1547,13 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
 
             {/* Objects Grid */}
             {favoriteObjects.length === 0 ? (
-              <div className="bg-white dark:bg-gray-900 rounded-2xl p-12 text-center text-xs text-gray-400 border border-dashed border-gray-100 dark:border-gray-800">
-                <Bookmark className="w-8 h-8 text-[#26B6B6] mx-auto opacity-70 mb-2" />
-                <p>{isRtl ? 'هیچ محصولی را نشان نکرده‌اید.' : 'Your favorites list is currently empty.'}</p>
-              </div>
+              <EmptyState
+                icon={Bookmark}
+                title={isRtl ? 'هنوز محصولی را نشان نکرده‌اید' : 'Your favorites list is empty'}
+                description={isRtl
+                  ? 'با لمس آیکون نشان‌کردن روی هر آبجکت، آن را برای دسترسی سریع به این لیست اضافه کنید.'
+                  : 'Tap the bookmark icon on any object to pin it here for quick access.'}
+              />
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {favoriteObjects.map(obj => (
@@ -1595,7 +1574,7 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
                           onChange={(e) => {
                             if (e.target.value) {
                               handleAddObjectToCollection(e.target.value, obj.id);
-                              alert(isRtl ? 'آبجکت به کلکسیون منتقل شد.' : 'Added to collection.');
+                              toast(isRtl ? 'آبجکت به کلکسیون منتقل شد.' : 'Added to collection.');
                               e.target.value = '';
                             }
                           }}
@@ -1689,7 +1668,7 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
             <div className="pt-4 border-t border-gray-100 dark:border-gray-800 flex justify-end">
               <button
                 onClick={() => {
-                  alert(isRtl ? 'علایق و فید هوشمند شما با موفقیت به‌روزرسانی شد.' : 'Smart feedback feed personalized successfully.');
+                  toast(isRtl ? 'علایق و فید هوشمند شما با موفقیت به‌روزرسانی شد.' : 'Smart feedback feed personalized successfully.');
                   setActiveTab('overview');
                 }}
                 className="bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-bold py-2.5 px-5 rounded-xl cursor-pointer"
@@ -1717,7 +1696,7 @@ export const ModelerDashboard: React.FC<ModelerDashboardProps> = ({
               <button 
                 onClick={() => {
                   setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-                  alert(isRtl ? 'همه موارد به عنوان خوانده‌شده علامت‌گذاری شدند.' : 'All notifications marked as read.');
+                  toast(isRtl ? 'همه موارد به عنوان خوانده‌شده علامت‌گذاری شدند.' : 'All notifications marked as read.');
                 }}
                 className="text-[11px] text-[#26B6B6] hover:underline cursor-pointer"
               >

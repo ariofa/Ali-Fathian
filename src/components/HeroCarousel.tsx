@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from './LanguageContext';
 import { useSiteConfig } from './SiteConfigContext';
 import { parseVideoEmbedUrl } from '../lib/videoUtils';
+import { toast } from './ui/toast';
 import { Logo } from './Logo';
 import {
   Sparkles,
@@ -241,6 +242,11 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
     ? parsedManufacturerVideo.embedUrl
     : '';
   const manufacturerSlide = activeSlides.find((slide) => slide.id === 'manufacturers');
+  const hasManufacturerVideo = Boolean(manufacturerVideoEmbedUrl);
+  const manufacturerVideoTitle = isRtl
+    ? (siteConfig?.manufacturerHeroVideoTitleFa?.trim() || 'چطور محصول شما وارد مسیر طراحی می‌شود؟')
+    : (siteConfig?.manufacturerHeroVideoTitleEn?.trim() || 'How does your product enter the design process?');
+  const manufacturerVideoThumbnail = siteConfig?.manufacturerHeroVideoThumbnail?.trim() || manufacturerSlide?.bgImage || '';
 
   const handleNextSlide = () => {
     setActiveSlide((prev) => (prev + 1) % activeSlides.length);
@@ -301,7 +307,13 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
   }, [isManufacturerVideoOpen]);
 
   const handleOpenManufacturerVideo = () => {
-    if (!manufacturerVideoEmbedUrl) return;
+    if (!manufacturerVideoEmbedUrl) {
+      // Video slot is visible by design; the actual file lands soon (admin panel -> hero video URL)
+      toast.info(isRtl
+        ? 'ویدیوی معرفی مسیر تولیدکنندگان به‌زودی در این بخش منتشر می‌شود.'
+        : 'The manufacturer pathway video will be published here soon.');
+      return;
+    }
     setIsPaused(true);
     setIsManufacturerVideoOpen(true);
   };
@@ -817,7 +829,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
             </div>
           )}
 
-          {activeSlide === 2 && manufacturerVideoEmbedUrl && manufacturerSlide?.bgImage && (
+          {activeSlide === 2 && (
             <div
               dir={isRtl ? 'rtl' : 'ltr'}
               className={`${isRtl ? 'md:order-1' : 'md:order-2'} order-2 md:col-span-6 lg:col-span-6 relative w-full animate-fadeIn`}
@@ -843,14 +855,26 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
                     className="group relative flex-1 min-h-0 overflow-hidden rounded-[1.5rem] border border-white/20 bg-slate-950 text-white shadow-xl cursor-pointer"
                     aria-label={isRtl ? 'پخش ویدیوی مسیر معرفی برند' : 'Play the manufacturer introduction video'}
                   >
-                    <img
-                      src={manufacturerSlide.bgImage}
-                      alt=""
-                      aria-hidden="true"
-                      className="absolute inset-0 w-full h-full object-cover opacity-70 transition-transform duration-700 group-hover:scale-105"
-                    />
+                    {manufacturerVideoThumbnail ? (
+                      <img
+                        src={manufacturerVideoThumbnail}
+                        alt=""
+                        aria-hidden="true"
+                        className="absolute inset-0 w-full h-full object-cover opacity-70 transition-transform duration-700 group-hover:scale-105"
+                      />
+                    ) : (
+                      <span className="absolute inset-0 bg-[linear-gradient(135deg,#0B1220_0%,#12303A_55%,#0F3D5E_100%)]" />
+                    )}
                     <span className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/35 to-slate-950/25" />
                     <span className="absolute inset-0 bg-[#07111F]/20" />
+
+                    {/* "Coming soon" ribbon until the admin publishes the video URL */}
+                    {!hasManufacturerVideo && (
+                      <span className="absolute top-4 start-4 z-20 inline-flex items-center gap-1.5 rounded-full bg-amber-400/95 text-amber-950 px-3 py-1 text-[10px] sm:text-[11px] font-black shadow-lg">
+                        <Sparkles className="w-3 h-3 shrink-0" />
+                        <span>{isRtl ? 'به‌زودی' : 'Coming Soon'}</span>
+                      </span>
+                    )}
 
                     <span className="relative z-10 flex h-full min-h-[245px] flex-col items-center justify-center gap-4 px-5 text-center">
                       <span className="flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-white text-brand-primary shadow-2xl transition-transform duration-300 group-hover:scale-110">
@@ -858,10 +882,12 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
                       </span>
                       <span>
                         <span className="block text-sm sm:text-base font-black leading-tight">
-                          {isRtl ? 'چطور محصول شما وارد مسیر طراحی می‌شود؟' : 'How does your product enter the design process?'}
+                          {manufacturerVideoTitle}
                         </span>
                         <span className="mt-1.5 block text-[10px] sm:text-xs font-bold text-white/75">
-                          {isRtl ? 'تماشای ویدیوی کوتاه معرفی مسیر همکاری' : 'Watch the short manufacturer pathway video'}
+                          {hasManufacturerVideo
+                            ? (isRtl ? 'تماشای ویدیوی کوتاه معرفی مسیر همکاری' : 'Watch the short manufacturer pathway video')
+                            : (isRtl ? 'ویدیوی معرفی مسیر همکاری در نمایشگاه از این بخش پخش می‌شود' : 'The collaboration pathway video plays from this slot')}
                         </span>
                       </span>
                     </span>

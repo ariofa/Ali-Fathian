@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Breadcrumb } from '../Breadcrumb';
 import { useLanguage } from '../LanguageContext';
 import {
   AlertCircle,
@@ -263,6 +264,14 @@ export const BIMModelerCollaborationView: React.FC<BIMModelerCollaborationViewPr
 
   return (
     <div className="min-h-screen bg-[#FBFBFC] dark:bg-gray-950 transition-colors" dir={isRtl ? 'rtl' : 'ltr'}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <Breadcrumb
+          items={[
+            { label: isRtl ? 'صفحه اصلی' : 'Home', onClick: () => onNavigate('home') },
+            { label: isRtl ? 'همکاری با متخصصان BIM' : 'BIM Specialist Collaboration' }
+          ]}
+        />
+      </div>
       {/* HERO */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[#1E2326] via-[#2F3539] to-[#3B4247] text-white py-16 sm:py-24 px-4 sm:px-6 lg:px-8 text-start">
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#26B6B6_1.5px,transparent_1.5px)] [background-size:24px_24px]" />

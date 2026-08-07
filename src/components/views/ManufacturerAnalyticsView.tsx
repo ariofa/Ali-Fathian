@@ -35,30 +35,30 @@ interface ManufacturerAnalyticsViewProps {
 // to dynamically filter metrics based on duration and object.
 const RAW_PERIOD_DATA = {
   '7days': [
-    { labelFa: 'شنبه', labelEn: 'Sat', views: 240, downloads: 72, inquiries: 2 },
-    { labelFa: 'یکشنبه', labelEn: 'Sun', views: 310, downloads: 95, inquiries: 4 },
-    { labelFa: 'دوشنبه', labelEn: 'Mon', views: 280, downloads: 88, inquiries: 1 },
-    { labelFa: 'سه‌شنبه', labelEn: 'Tue', views: 340, downloads: 110, inquiries: 5 },
-    { labelFa: 'چهارشنبه', labelEn: 'Wed', views: 390, downloads: 125, inquiries: 3 },
-    { labelFa: 'پنجشنبه', labelEn: 'Thu', views: 210, downloads: 55, inquiries: 0 },
-    { labelFa: 'جمعه', labelEn: 'Fri', views: 120, downloads: 30, inquiries: 1 },
+    { labelFa: 'شنبه', labelEn: 'Sat', views: 0, downloads: 0, inquiries: 0 },
+    { labelFa: 'یکشنبه', labelEn: 'Sun', views: 0, downloads: 0, inquiries: 0 },
+    { labelFa: 'دوشنبه', labelEn: 'Mon', views: 0, downloads: 0, inquiries: 0 },
+    { labelFa: 'سه‌شنبه', labelEn: 'Tue', views: 0, downloads: 0, inquiries: 0 },
+    { labelFa: 'چهارشنبه', labelEn: 'Wed', views: 0, downloads: 0, inquiries: 0 },
+    { labelFa: 'پنجشنبه', labelEn: 'Thu', views: 0, downloads: 0, inquiries: 0 },
+    { labelFa: 'جمعه', labelEn: 'Fri', views: 0, downloads: 0, inquiries: 0 },
   ],
   '30days': [
-    { labelFa: 'هفته ۱', labelEn: 'Wk 1', views: 920, downloads: 270, inquiries: 8 },
-    { labelFa: 'هفته ۲', labelEn: 'Wk 2', views: 1100, downloads: 340, inquiries: 12 },
-    { labelFa: 'هفته ۳', labelEn: 'Wk 3', views: 1250, downloads: 380, inquiries: 9 },
-    { labelFa: 'هفته ۴', labelEn: 'Wk 4', views: 1420, downloads: 420, inquiries: 14 },
+    { labelFa: 'هفته ۱', labelEn: 'Wk 1', views: 0, downloads: 0, inquiries: 0 },
+    { labelFa: 'هفته ۲', labelEn: 'Wk 2', views: 0, downloads: 0, inquiries: 0 },
+    { labelFa: 'هفته ۳', labelEn: 'Wk 3', views: 0, downloads: 0, inquiries: 0 },
+    { labelFa: 'هفته ۴', labelEn: 'Wk 4', views: 0, downloads: 0, inquiries: 0 },
   ],
   '90days': [
-    { labelFa: 'اردیبهشت', labelEn: 'May', views: 3200, downloads: 950, inquiries: 28 },
-    { labelFa: 'خرداد', labelEn: 'Jun', views: 3900, downloads: 1210, inquiries: 36 },
-    { labelFa: 'تیر', labelEn: 'Jul', views: 4420, downloads: 1350, inquiries: 42 },
+    { labelFa: 'اردیبهشت', labelEn: 'May', views: 0, downloads: 0, inquiries: 0 },
+    { labelFa: 'خرداد', labelEn: 'Jun', views: 0, downloads: 0, inquiries: 0 },
+    { labelFa: 'تیر', labelEn: 'Jul', views: 0, downloads: 0, inquiries: 0 },
   ],
   'alltime': [
-    { labelFa: '۱۴۰۳ پاییز', labelEn: 'Q3 2024', views: 8800, downloads: 2600, inquiries: 78 },
-    { labelFa: '۱۴۰۳ زمستان', labelEn: 'Q4 2024', views: 11200, downloads: 3400, inquiries: 95 },
-    { labelFa: '۱۴۰۴ بهار', labelEn: 'Q1 2025', views: 12400, downloads: 3900, inquiries: 112 },
-    { labelFa: '۱۴۰۴ تابستان', labelEn: 'Q2 2025', views: 14200, downloads: 4400, inquiries: 130 },
+    { labelFa: '۱۴۰۳ پاییز', labelEn: 'Q3 2024', views: 0, downloads: 0, inquiries: 0 },
+    { labelFa: '۱۴۰۳ زمستان', labelEn: 'Q4 2024', views: 0, downloads: 0, inquiries: 0 },
+    { labelFa: '۱۴۰۴ بهار', labelEn: 'Q1 2025', views: 0, downloads: 0, inquiries: 0 },
+    { labelFa: '۱۴۰۴ تابستان', labelEn: 'Q2 2025', views: 0, downloads: 0, inquiries: 0 },
   ]
 };
 
@@ -100,8 +100,8 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
   // Multiplier coefficient based on product selection to make metrics feel responsive and real
   const productMultiplier = useMemo(() => {
     if (selectedProductId === 'all') return 1.0;
-    if (selectedProductId === 'obj1') return 0.6; // Representing Alu-90
-    if (selectedProductId === 'obj2') return 0.35; // Representing Parma 24
+    if (selectedProductId === 'obj1') return 0.6; // sample product A
+    if (selectedProductId === 'obj2') return 0.35; // sample product B
     return 0.05; // Other small ones
   }, [selectedProductId]);
 
@@ -113,8 +113,8 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
     if (period === '90days') periodMultiplier = 2.9;
     if (period === 'alltime') periodMultiplier = 9.4;
 
-    const baseViews = 2420;
-    const baseDownloads = 660;
+    const baseViews = 0;
+    const baseDownloads = 0;
     const baseInquiries = leads.length || 2;
     const baseSpecRate = 14;
 
@@ -200,9 +200,9 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
       const isAlu = obj.id === 'obj1';
       const isParma = obj.id === 'obj2';
       
-      let baseViews = isAlu ? 1420 : (isParma ? 940 : 60);
-      let baseDownloads = isAlu ? 420 : (isParma ? 240 : 12);
-      let baseLeads = isAlu ? 2 : (isParma ? 1 : 0);
+      let baseViews = 0;
+      let baseDownloads = 0;
+      let baseLeads = 0;
 
       // Scale by period
       let scale = 1.0;
@@ -735,7 +735,7 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
           
           {/* Quick badge indicating top province */}
           <span className="bg-[#26B6B6]/10 text-[#26B6B6] dark:bg-[#26B6B6]/20 text-[10px] font-bold px-3 py-1 rounded-xl">
-            {isRtl ? '📌 بیشترین نفوذ: استان تهران (۵۴٪ دانلودها)' : '📌 Lead Zone: Tehran (54% Downloads)'}
+            {isRtl ? '📌 تحلیل منطقه‌ای پس از فعال‌سازی دادهٔ واقعی نمایش داده می‌شود' : '📌 Regional insights appear once real data is active'}
           </span>
         </div>
 

@@ -459,7 +459,7 @@ export const BIM_OBJECTS: BIMObject[] = [
     tagsFa: ['پنجره', 'آلومینیوم', 'ترمال‌بریک', 'کتابخانهٔ اولیه'], tagsEn: ['Window', 'Aluminum', 'Thermal Break', 'Initial Library'],
     formats: [], lod: 'LOD 300', priceType: 'Free', certification: [], isImported: false, hasCutsheet: false, hasSample: false,
     fileSize: '—', downloadCount: 0, rating: 0,
-    imageUrl: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=80',
+    imageUrl: '/objects/window.jpg',
     descriptionFa: 'ساختار اولیهٔ اطلاعات برای یک پنجرهٔ آلومینیومی؛ اطلاعات فنی و فایل‌های قابل انتشار پس از تکمیل منبع محصول درج می‌شوند.',
     descriptionEn: 'An initial information structure for an aluminum window. Technical data and publishable files will be listed once the product source is complete.',
     specs: { frame_material: 'aluminum', glazing_type: 'double', dimensions: 'در حال تکمیل' }
@@ -470,7 +470,7 @@ export const BIM_OBJECTS: BIMObject[] = [
     tagsFa: ['درِ ضدحریق', 'معماری', 'کتابخانهٔ اولیه'], tagsEn: ['Fire Door', 'Architecture', 'Initial Library'],
     formats: [], lod: 'LOD 300', priceType: 'Free', certification: [], isImported: false, hasCutsheet: false, hasSample: false,
     fileSize: '—', downloadCount: 0, rating: 0,
-    imageUrl: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=900&q=80',
+    imageUrl: '/objects/fire-door.jpg',
     descriptionFa: 'ساختار اولیهٔ اطلاعات و پارامترهای موردنیاز برای آبجکت درِ ضدحریق در جریان طراحی.',
     descriptionEn: 'An initial product-information structure for a fire-rated door used in a design workflow.',
     specs: { fire_rating: 'در حال تکمیل', dimensions: 'در حال تکمیل' }
@@ -481,7 +481,7 @@ export const BIM_OBJECTS: BIMObject[] = [
     tagsFa: ['روشنایی', 'چراغ توکار', 'کتابخانهٔ اولیه'], tagsEn: ['Lighting', 'Recessed Luminaire', 'Initial Library'],
     formats: [], lod: 'LOD 300', priceType: 'Free', certification: [], isImported: false, hasCutsheet: false, hasSample: false,
     fileSize: '—', downloadCount: 0, rating: 0,
-    imageUrl: 'https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=900&q=80',
+    imageUrl: '/objects/luminaire.jpg',
     descriptionFa: 'ساختار اولیهٔ دادهٔ محصول برای تجهیزات روشنایی؛ فرمت و مشخصات نهایی بر اساس منبع محصول اعلام می‌شود.',
     descriptionEn: 'An initial product-data structure for lighting equipment. Final formats and specifications depend on the product source.',
     specs: { dimensions: 'در حال تکمیل', wattage: 'در حال تکمیل' }
@@ -492,7 +492,7 @@ export const BIM_OBJECTS: BIMObject[] = [
     tagsFa: ['نما', 'پنل', 'مصالح ساختمانی', 'کتابخانهٔ اولیه'], tagsEn: ['Facade', 'Cladding', 'Building Materials', 'Initial Library'],
     formats: [], lod: 'LOD 300', priceType: 'Free', certification: [], isImported: false, hasCutsheet: false, hasSample: false,
     fileSize: '—', downloadCount: 0, rating: 0,
-    imageUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=900&q=80',
+    imageUrl: '/objects/facade-panel.jpg',
     descriptionFa: 'ساختار اولیهٔ اطلاعات محصول برای پنل‌های پوشش نما و بررسی نیازهای فنی آن در مدل ساختمان.',
     descriptionEn: 'An initial product-information structure for facade cladding panels and their technical requirements in a building model.',
     specs: { material_type: 'در حال تکمیل', dimensions: 'در حال تکمیل' }

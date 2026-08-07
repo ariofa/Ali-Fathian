@@ -7,6 +7,7 @@ import { CategoryIcon } from '../CategoryIcon';
 import { ARTICLES } from './LearnView';
 import { Logo } from '../Logo';
 import { HeroCarousel } from '../HeroCarousel';
+import { ExpertInsightsSection } from '../ExpertInsightsSection';
 import { 
   Search, 
   Download, 
@@ -35,7 +36,7 @@ import {
   CheckCircle2,
   Check,
   Building,
-  MessageSquare,
+
   Compass,
   Factory,
   Package,
@@ -45,7 +46,7 @@ import {
   DoorOpen
 } from 'lucide-react';
 import { StayConnectedBlock } from '../SocialLinks';
-import { useSiteConfig } from '../SiteConfigContext';
+
 
 const toPersianDigits = (num: string | number) => {
   const id = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
@@ -98,83 +99,7 @@ const CountUp: React.FC<{ end: number; duration?: number; prefix?: string; suffi
   );
 };
 
-const SLIDE_CONFIGS = [
-  {
-    id: 'identity',
-    labelFa: 'هویت',
-    labelEn: 'Identity',
-    numFa: '۰۱',
-    numEn: '01',
-    bgImage: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1600&q=80',
-    overlay: 'bg-gradient-to-r from-slate-950/95 via-slate-900/90 to-[#1E2326]/85',
-    badgeFa: 'اولین اکوسیستم ملی بیم ایران',
-    badgeEn: "Iran's National BIM Ecosystem",
-    headingFa: 'ایران‌بیم‌هاب، خانه صنعت ساختمان هوشمند ایران',
-    headingEn: "IranBIMhub — Home of Iran's Smart Construction Industry",
-    descFa: 'جایی برای ساخت تدریجی کتابخانه‌ای قابل اعتماد از آبجکت‌های BIM محصولات واقعی ایران؛ با احراز برند، ارزیابی فایل و همکاری متخصصان BIM.',
-    descEn: 'A place to gradually build a trusted library of BIM objects for real Iranian products, through brand verification, file evaluation, and BIM specialist collaboration.'
-  },
-  {
-    id: 'designers',
-    labelFa: 'طراحان',
-    labelEn: 'Designers',
-    numFa: '۰۲',
-    numEn: '02',
-    bgImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80',
-    overlay: 'bg-gradient-to-r from-slate-950/95 via-slate-900/85 to-[#26B6B6]/25',
-    badgeFa: 'برای طراحان، مهندسان و مدلرهای بیم',
-    badgeEn: 'For Architects, Engineers & BIM Modelers',
-    headingFa: 'هر آبجکتی که برای پروژه‌تان نیاز دارید، همین‌جاست',
-    headingEn: 'Every Object Your Project Needs, Right Here',
-    descFa: 'به نمونه آبجکت‌های اولیه و کاتالوگ‌های فنی دسترسی پیدا کنید و مسیر استفاده از محصولات واقعی در پروژه‌های BIM را ساده‌تر کنید.',
-    descEn: 'Explore early BIM object samples and technical catalogs designed to make real products easier to use in BIM workflows.'
-  },
-  {
-    id: 'manufacturers',
-    labelFa: 'تولیدکنندگان',
-    labelEn: 'Manufacturers',
-    numFa: '۰۳',
-    numEn: '03',
-    bgImage: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1600&q=80',
-    overlay: 'bg-gradient-to-r from-slate-950/95 via-slate-900/90 to-emerald-950/50',
-    badgeFa: 'برای تولیدکنندگان و صاحبان برند',
-    badgeEn: 'For Manufacturers & Brand Owners',
-    headingFa: 'برند شما، در دستان مهندسانی که تصمیم می‌گیرند',
-    headingEn: 'Your Brand, In the Hands of Decision-Making Engineers',
-    descFa: 'اگر فایل BIM آماده دارید، از مسیر پنل برند و ارزیابی فایل اقدام کنید؛ اگر هنوز فایل BIM ندارید، برای تولید آبجکت استاندارد از کاتالوگ محصول مشاوره بگیرید.',
-    descEn: 'Use the brand panel and file evaluation path if BIM files are ready, or start with consultation if you need standard BIM objects created from product catalogs.'
-  },
-  {
-    id: 'trust',
-    labelFa: 'اصالت برند',
-    labelEn: 'Authenticity',
-    numFa: '۰۴',
-    numEn: '04',
-    bgImage: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=80',
-    overlay: 'bg-gradient-to-r from-[#112a2b]/95 via-slate-950/90 to-slate-900/85',
-    badgeFa: 'حفاظت از هویت رسمی برندها',
-    badgeEn: 'Protecting Official Brand Identity',
-    headingFa: 'اعتماد از مسیر احراز برند و ارزیابی فایل ساخته می‌شود',
-    headingEn: 'Trust Starts with Brand Verification and File Evaluation',
-    descFa: 'صفحه برند و فایل‌های BIM تنها پس از تکمیل مدارک رسمی و ارزیابی تخصصی برای نمایش عمومی آماده می‌شوند.',
-    descEn: 'Brand pages and BIM files become public only after official documents and technical evaluation are completed.'
-  },
-  {
-    id: 'start',
-    labelFa: 'شروع',
-    labelEn: 'Start',
-    numFa: '۰۵',
-    numEn: '05',
-    bgImage: 'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=1600&q=80',
-    overlay: 'bg-gradient-to-r from-slate-950/95 via-slate-900/90 to-[#1E2326]/85',
-    badgeFa: 'عضویت رایگان',
-    badgeEn: 'Free Start',
-    headingFa: 'شروع، بدون هیچ هزینه‌ای',
-    headingEn: 'Start — At No Cost',
-    descFa: 'چه به‌دنبال نمونه آبجکت BIM باشید، چه بخواهید مسیر رسمی برندتان را شروع کنید؛ ایران‌بیم‌هاب از یک مسیر ساده و قابل اعتماد آغاز می‌شود.',
-    descEn: 'Whether you are looking for BIM object samples or want to start your official brand path, IranBIMhub begins with a simple, trusted workflow.'
-  }
-];
+
 
 interface HomeViewProps {
   onNavigate: (view: string, customTextFa?: string, customTextEn?: string, param?: string) => void;
@@ -200,8 +125,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onOpenAuthModal
 }) => {
   const { language, t, isRtl, formatNumber } = useLanguage();
-  const { siteConfig } = useSiteConfig();
-  const expertInsights = (siteConfig?.expertInsights || []).filter((item) => item.isPublished);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFormat, setSelectedFormat] = useState('All');
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -252,7 +175,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             ...mfg,
             nameFa: savedProfile.nameFa || mfg.nameFa,
             nameEn: savedProfile.nameEn || mfg.nameEn,
-            logo: savedProfile.logoUrl ? (savedProfile.nameFa ? savedProfile.nameFa.slice(0, 6) : 'ALUPAN') : mfg.logo,
+            logo: savedProfile.logoUrl ? (savedProfile.nameFa ? savedProfile.nameFa.slice(0, 6) : 'BRAND') : mfg.logo,
             descriptionFa: savedProfile.descriptionFa || mfg.descriptionFa,
             descriptionEn: savedProfile.descriptionEn || mfg.descriptionEn,
             tier: savedProfile.tier || mfg.tier,
@@ -270,53 +193,19 @@ export const HomeView: React.FC<HomeViewProps> = ({
     }
   }, [customObjectsVersion]);
 
-  // Dynamic Live Manufacturer Dashboard Statistics
-  const mfgDashboardStats = React.useMemo(() => {
-    let mfgObjectsCount = 0;
-    let totalViews = 4250;
-    let totalDownloads = 1840;
-    let activeLeadsCount = 156;
-    let mfgName = isRtl ? 'شرکت آلوپن' : 'Alupan Co.';
-    let tier = 'VIP';
+  /* ------------------------------------------------------------------
+   * Phase 2 (UX): honest carousels.
+   * The infinite-scroll marquee is only enabled when we actually have
+   * enough unique items to fill it. Below the threshold we render a
+   * single, honest row — repeating 3–4 items three times looked fake.
+   * As the real library grows past the threshold, the marquee resumes
+   * automatically with no further code change.
+   * ------------------------------------------------------------------ */
+  const MARQUEE_MIN_ITEMS = 6;
+  const newestObjects = React.useMemo(() => combinedObjects.slice(-8).reverse(), [combinedObjects]);
+  const newestLoopActive = newestObjects.length >= MARQUEE_MIN_ITEMS;
+  const brandLoopActive = mergedManufacturers.length >= MARQUEE_MIN_ITEMS;
 
-    try {
-      mfgObjectsCount = combinedObjects.filter(o => o.manufacturerId === 'm1' || o.manufacturerId === 'custom').length;
-
-      const savedProfileStr = localStorage.getItem('iranbimhub_mfg_profile') || localStorage.getItem('iranbimhub_mfg_profile_m1');
-      if (savedProfileStr) {
-        const p = JSON.parse(savedProfileStr);
-        if (p) {
-          mfgName = isRtl ? (p.nameFa || mfgName) : (p.nameEn || mfgName);
-          tier = p.tier || tier;
-          if (p.stats) {
-            totalViews = p.stats.views || totalViews;
-            totalDownloads = p.stats.downloads || totalDownloads;
-            activeLeadsCount = p.stats.leads || activeLeadsCount;
-          }
-        }
-      }
-
-      const savedLeadsStr = localStorage.getItem('iranbimhub_mfg_leads');
-      if (savedLeadsStr) {
-        const leads = JSON.parse(savedLeadsStr);
-        if (Array.isArray(leads) && leads.length > 0) {
-          activeLeadsCount = leads.length;
-        }
-      }
-    } catch (e) {
-      console.error(e);
-    }
-
-    return {
-      mfgObjectsCount: mfgObjectsCount || 8,
-      totalViews,
-      totalDownloads,
-      activeLeadsCount,
-      mfgName,
-      tier
-    };
-  }, [combinedObjects, isRtl, customObjectsVersion]);
-  
   // Carousel State & Interactive Drag Stack
   const [activeSlide, setActiveSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -496,7 +385,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   // Continuous auto horizontal movement scroll for trusted brands
   useEffect(() => {
     const el = brandScrollRef.current;
-    if (!el) return;
+    if (!el || !brandLoopActive) return; // static row when too few brands — no auto-scroll (Phase 2)
 
     let animationFrameId: number;
     let lastTime = performance.now();
@@ -528,7 +417,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
     animationFrameId = requestAnimationFrame(scroll);
     return () => cancelAnimationFrame(animationFrameId);
-  }, [isBrandHovered, isRtl]);
+  }, [isBrandHovered, isRtl, brandLoopActive]);
 
   const scrollCategories = (direction: 'left' | 'right') => {
     if (categoryScrollRef.current) {
@@ -540,138 +429,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
     }
   };
 
-  const testimonialScrollRef = useRef<HTMLDivElement>(null);
-  const [isTestimonialsHovered, setIsTestimonialsHovered] = useState(false);
-  const isDraggingTestimonialsRef = useRef(false);
-  const testimonialsStartXRef = useRef(0);
-  const testimonialsScrollLeftRef = useRef(0);
-  const testimonialsHasDraggedRef = useRef(false);
+  /* Testimonial carousel handlers were removed in Phase 3: the section
+     returned as the admin-driven unified Expert Insights grid shared with the
+     For Designers page (no dead code kept). */
 
-  const scrollTestimonials = (direction: 'left' | 'right') => {
-    const el = testimonialScrollRef.current;
-    if (!el) return;
-
-    const firstCard = el.querySelector('[data-testimonial-card]') as HTMLElement | null;
-    const gap = 24;
-    const scrollAmount = firstCard ? firstCard.offsetWidth + gap : Math.min(el.clientWidth * 0.9, 380);
-
-    el.scrollBy({
-      left: direction === 'left' ? -scrollAmount : scrollAmount,
-      behavior: 'smooth'
-    });
-  };
-
-  // Keep testimonials aligned with the trusted-brands carousel:
-  // mouse drag on desktop and native touch scrolling on mobile.
-  const handleTestimonialsMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.button !== 0 || !testimonialScrollRef.current) return;
-
-    const el = testimonialScrollRef.current;
-    isDraggingTestimonialsRef.current = true;
-    testimonialsHasDraggedRef.current = false;
-    testimonialsStartXRef.current = e.pageX - el.offsetLeft;
-    testimonialsScrollLeftRef.current = el.scrollLeft;
-  };
-
-  const handleTestimonialsMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isDraggingTestimonialsRef.current || !testimonialScrollRef.current) return;
-
-    e.preventDefault();
-    const el = testimonialScrollRef.current;
-    const x = e.pageX - el.offsetLeft;
-    const walk = (x - testimonialsStartXRef.current) * 1.5;
-
-    if (Math.abs(walk) > 5) {
-      testimonialsHasDraggedRef.current = true;
-    }
-
-    el.scrollLeft = testimonialsScrollLeftRef.current - walk;
-  };
-
-  const handleTestimonialsMouseUpOrLeave = () => {
-    isDraggingTestimonialsRef.current = false;
-  };
-
-  const handleTestimonialsTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (!testimonialScrollRef.current || e.touches.length === 0) return;
-
-    const el = testimonialScrollRef.current;
-    isDraggingTestimonialsRef.current = true;
-    testimonialsHasDraggedRef.current = false;
-    testimonialsStartXRef.current = e.touches[0].pageX - el.offsetLeft;
-    testimonialsScrollLeftRef.current = el.scrollLeft;
-  };
-
-  const handleTestimonialsTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (
-      !isDraggingTestimonialsRef.current ||
-      !testimonialScrollRef.current ||
-      e.touches.length === 0
-    ) {
-      return;
-    }
-
-    const el = testimonialScrollRef.current;
-    const x = e.touches[0].pageX - el.offsetLeft;
-    const walk = (x - testimonialsStartXRef.current) * 1.5;
-
-    if (Math.abs(walk) > 5) {
-      testimonialsHasDraggedRef.current = true;
-    }
-
-    el.scrollLeft = testimonialsScrollLeftRef.current - walk;
-  };
-
-  const handleTestimonialsTouchEnd = () => {
-    isDraggingTestimonialsRef.current = false;
-  };
-
-  const handleTestimonialsClickCapture = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!testimonialsHasDraggedRef.current) return;
-
-    e.preventDefault();
-    e.stopPropagation();
-    testimonialsHasDraggedRef.current = false;
-  };
-
-  const handleTestimonialsDragStart = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-  };
-
-  // Continuous movement, matching the trusted-brands carousel.
-  useEffect(() => {
-    const el = testimonialScrollRef.current;
-    if (!el) return;
-
-    let animationFrameId: number;
-    let lastTime = performance.now();
-    const speed = 35;
-
-    const scroll = (time: number) => {
-      if (!isTestimonialsHovered && !isDraggingTestimonialsRef.current && el) {
-        const delta = (time - lastTime) / 1000;
-        const oneGroupWidth = el.scrollWidth / 3;
-
-        if (isRtl) {
-          el.scrollLeft -= speed * delta;
-          if (Math.abs(el.scrollLeft) >= oneGroupWidth) {
-            el.scrollLeft += oneGroupWidth;
-          }
-        } else {
-          el.scrollLeft += speed * delta;
-          if (el.scrollLeft >= oneGroupWidth) {
-            el.scrollLeft -= oneGroupWidth;
-          }
-        }
-      }
-
-      lastTime = time;
-      animationFrameId = requestAnimationFrame(scroll);
-    };
-
-    animationFrameId = requestAnimationFrame(scroll);
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [isTestimonialsHovered, isRtl]);
 
   const newestObjectsScrollRef = useRef<HTMLDivElement>(null);
   const [isNewestObjectsHovered, setIsNewestObjectsHovered] = useState(false);
@@ -774,7 +535,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   // Continuous movement, matching the trusted-brands carousel.
   useEffect(() => {
     const el = newestObjectsScrollRef.current;
-    if (!el) return;
+    if (!el || !newestLoopActive) return; // static row until the library grows (Phase 2)
 
     let animationFrameId: number;
     let lastTime = performance.now();
@@ -804,7 +565,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
     animationFrameId = requestAnimationFrame(scroll);
     return () => cancelAnimationFrame(animationFrameId);
-  }, [isNewestObjectsHovered, isRtl]);
+  }, [isNewestObjectsHovered, isRtl, newestLoopActive]);
 
   // Filter suggestions based on searchQuery
   const suggestions = searchQuery.trim().length > 1 ? {
@@ -1346,15 +1107,15 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
         {/* Objects Horizontally Scrollable Row */}
         <div className="relative group/newest">
-          {/* Soft edge gradients */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 sm:w-16 bg-gradient-to-r from-white dark:from-gray-950 to-transparent" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 sm:w-16 bg-gradient-to-l from-white dark:from-gray-950 to-transparent" />
+          {/* Soft edge gradients (hidden on large screens while the row is static — Phase 2) */}
+          <div className={`pointer-events-none absolute inset-y-0 left-0 z-10 w-10 sm:w-16 bg-gradient-to-r from-white dark:from-gray-950 to-transparent ${!newestLoopActive ? 'lg:hidden' : ''}`} />
+          <div className={`pointer-events-none absolute inset-y-0 right-0 z-10 w-10 sm:w-16 bg-gradient-to-l from-white dark:from-gray-950 to-transparent ${!newestLoopActive ? 'lg:hidden' : ''}`} />
 
           {/* Glass side navigation buttons */}
           <button
             type="button"
             onClick={() => scrollNewestObjects('left')}
-            className="absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/75 dark:bg-gray-950/70 backdrop-blur-xl border border-white/70 dark:border-gray-800/80 shadow-lg flex items-center justify-center text-gray-700 dark:text-gray-200 hover:text-[#26B6B6] hover:border-[#26B6B6]/40 hover:bg-white/90 dark:hover:bg-gray-900/90 transition-all active:scale-95 cursor-pointer"
+            className={`absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/75 dark:bg-gray-950/70 backdrop-blur-xl border border-white/70 dark:border-gray-800/80 shadow-lg flex items-center justify-center text-gray-700 dark:text-gray-200 hover:text-[#26B6B6] hover:border-[#26B6B6]/40 hover:bg-white/90 dark:hover:bg-gray-900/90 transition-all active:scale-95 cursor-pointer ${!newestLoopActive ? 'lg:hidden' : ''}`}
             aria-label={isRtl ? 'اسکرول به چپ' : 'Scroll left'}
           >
             <ChevronLeft className="w-5 h-5" />
@@ -1363,7 +1124,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <button
             type="button"
             onClick={() => scrollNewestObjects('right')}
-            className="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/75 dark:bg-gray-950/70 backdrop-blur-xl border border-white/70 dark:border-gray-800/80 shadow-lg flex items-center justify-center text-gray-700 dark:text-gray-200 hover:text-[#26B6B6] hover:border-[#26B6B6]/40 hover:bg-white/90 dark:hover:bg-gray-900/90 transition-all active:scale-95 cursor-pointer"
+            className={`absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/75 dark:bg-gray-950/70 backdrop-blur-xl border border-white/70 dark:border-gray-800/80 shadow-lg flex items-center justify-center text-gray-700 dark:text-gray-200 hover:text-[#26B6B6] hover:border-[#26B6B6]/40 hover:bg-white/90 dark:hover:bg-gray-900/90 transition-all active:scale-95 cursor-pointer ${!newestLoopActive ? 'lg:hidden' : ''}`}
             aria-label={isRtl ? 'اسکرول به راست' : 'Scroll right'}
           >
             <ChevronRight className="w-5 h-5" />
@@ -1389,9 +1150,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
           >
             <div className="flex gap-3.5 sm:gap-4 md:gap-5 px-10 sm:px-12 shrink-0">
-              {[1, 2, 3].map((groupIndex) => (
+              {/* Phase 2: single honest row until >= 6 unique objects exist; tripled loop resumes automatically */}
+              {(newestLoopActive ? [1, 2, 3] : [1]).map((groupIndex) => (
                 <div key={`newest-group-${groupIndex}`} className="flex gap-3.5 sm:gap-4 md:gap-5 shrink-0">
-                  {combinedObjects.slice(-8).reverse().map((obj) => (
+                  {newestObjects.map((obj) => (
                     <div
                       key={`new-obj-${groupIndex}-${obj.id}`}
                       data-newest-object-card
@@ -1467,9 +1229,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 className="w-full overflow-x-auto whitespace-nowrap scrollbar-none cursor-grab active:cursor-grabbing flex items-center py-2"
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
               >
-                {/* We triple the manufacturers array to create a seamless infinite horizontal scrolling list */}
-                <div className="flex gap-4 px-4 shrink-0">
-                  {[[...mergedManufacturers], [...mergedManufacturers], [...mergedManufacturers]].map((group, groupIdx) => (
+                {/* Phase 2: while fewer than 6 real brands exist we show ONE honest row;
+                    the seamless tripled marquee resumes automatically as the directory grows. */}
+                <div className={`flex gap-4 px-4 shrink-0 ${!brandLoopActive ? 'w-full justify-center' : ''}`}>
+                  {(brandLoopActive ? [mergedManufacturers, mergedManufacturers, mergedManufacturers] : [mergedManufacturers]).map((group, groupIdx) => (
                     <div key={groupIdx} className="flex gap-4 shrink-0">
                       {group.map((mfg, idx) => (
                         <div
@@ -1691,31 +1454,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
       </section>
 
-      {/* 7. EXPERT INSIGHTS — controlled from the admin panel */}
-      {expertInsights.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6" id="homepage-expert-insights">
-          <div className="max-w-2xl text-start space-y-1">
-            <div className="inline-flex items-center gap-2 text-[#26B6B6] text-[10px] font-black">
-              <MessageSquare className="w-4 h-4" />
-              <span>{isRtl ? 'گفت‌وگوی حرفه‌ای' : 'Professional Perspectives'}</span>
-            </div>
-            <h2 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white">{isRtl ? 'دیدگاه متخصصان دربارهٔ مسیر ایران‌بیم‌هاب' : 'Specialists on the IranBIMhub Path'}</h2>
-            <p className="text-xs text-gray-400 leading-relaxed">{isRtl ? 'برداشت‌های اولیهٔ متخصصان BIM از مسئلهٔ دادهٔ محصول و فرصت شکل‌گیری یک مسیر بومی در ایران.' : 'Early professional perspectives on product data and a local BIM path in Iran.'}</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {expertInsights.map((insight) => (
-              <article key={insight.id} className="bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-2xl p-5 text-start shadow-2xs flex flex-col">
-                <MessageSquare className="w-5 h-5 text-[#26B6B6] mb-4" />
-                <p className="text-xs text-gray-600 dark:text-gray-300 leading-7 flex-1">«{isRtl ? insight.quoteFa : insight.quoteEn}»</p>
-                <div className="mt-5 pt-4 border-t border-gray-100 dark:border-gray-800">
-                  <p className="text-xs font-black text-gray-800 dark:text-white">{isRtl ? insight.nameFa : insight.nameEn}</p>
-                  <p className="text-[10px] text-gray-400 mt-1">{isRtl ? insight.roleFa : insight.roleEn}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-      )}
+      {/* 7. EXPERT INSIGHTS — shared unified section (identical code on the
+             For-Designers page); real named quotes are managed in the admin panel */}
+      <ExpertInsightsSection />
 
       {/* 8. LANDING FAQ SECTION */}
       <section className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-10 lg:py-12 text-start space-y-8 border-t border-gray-100 dark:border-gray-800/60 mt-8 sm:mt-10 lg:mt-12">
