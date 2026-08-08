@@ -42,6 +42,9 @@ const MainAppContent: React.FC = () => {
   // It mirrors the stable two-level taxonomy URL: /library/:family/:subcategory.
   const [libraryPath, setLibraryPath] = useState<{ categorySlug?: string; subcategorySlug?: string }>({});
   const [catalogProductId, setCatalogProductId] = useState<string | null>(null);
+  // Incremented by the mobile bottom-nav catalog button. It opens the existing
+  // library category-and-filter drawer immediately after the library mounts.
+  const [mobileFilterOpenRequest, setMobileFilterOpenRequest] = useState(0);
 
   // Payment states
   const [paymentPlanId, setPaymentPlanId] = useState<string>('modeler-vip');
@@ -194,10 +197,15 @@ const MainAppContent: React.FC = () => {
   };
 
   const openMobileCatalogFilters = () => {
-    // The mobile bottom-nav entry uses the same category-and-filter drawer as
-    // the library page. It never opens a separate taxonomy implementation.
-    navigateLibrary();
-    window.setTimeout(() => window.dispatchEvent(new CustomEvent('iranbimhub-open-library-filters')), 450);
+    // Deliberately bypass the loading transition: the first tap on the mobile
+    // BIM Catalog button must reveal the category-and-filter drawer at once.
+    if (currentView !== 'library') {
+      window.history.pushState({ view: 'library' }, '', '/library');
+      setLibraryPath({});
+      setCurrentView('library');
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }
+    setMobileFilterOpenRequest(request => request + 1);
   };
 
   const handleDashboardTabNavigate = (view: string, tab: string) => {
@@ -635,6 +643,7 @@ const MainAppContent: React.FC = () => {
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             initialQuery={filterState.search}
+            mobileFilterOpenRequest={mobileFilterOpenRequest}
           />
         );
 

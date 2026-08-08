@@ -55,6 +55,8 @@ interface CatalogLibraryViewProps {
   onRequestObject: () => void;
   onSelectCatalogProduct: (product: Product) => void;
   initialQuery?: string;
+  /** A new value requests that the existing mobile categories/filters drawer opens immediately. */
+  mobileFilterOpenRequest?: number;
 }
 
 interface BrowseFilters {
@@ -106,21 +108,21 @@ export const CatalogLibraryView: React.FC<CatalogLibraryViewProps> = ({
   onRequestObject,
   onSelectCatalogProduct,
   initialQuery,
+  mobileFilterOpenRequest = 0,
 }) => {
   const { isRtl } = useLanguage();
   const [filters, setFilters] = useState<BrowseFilters>({ ...EMPTY_FILTERS, query: initialQuery || '' });
   const [expandedFamilies, setExpandedFamilies] = useState<Record<string, boolean>>({});
   const [sortMode, setSortMode] = useState<SortMode>('default');
-  const [filtersDrawerOpen, setFiltersDrawerOpen] = useState(false);
+  // Initialise from the request as well as reacting to later requests: the
+  // first mobile tap therefore paints the drawer open, not one frame later.
+  const [filtersDrawerOpen, setFiltersDrawerOpen] = useState(() => mobileFilterOpenRequest > 0);
 
-  // The mobile bottom navigation dispatches this event after navigating to the
-  // library, so its catalog button opens this exact drawer rather than a
-  // duplicate mobile category menu.
+  // A prop (not a timeout/event race) opens this exact drawer from the first
+  // mobile bottom-nav tap, including when the library has to mount first.
   useEffect(() => {
-    const openFilters = () => setFiltersDrawerOpen(true);
-    window.addEventListener('iranbimhub-open-library-filters', openFilters);
-    return () => window.removeEventListener('iranbimhub-open-library-filters', openFilters);
-  }, []);
+    if (mobileFilterOpenRequest > 0) setFiltersDrawerOpen(true);
+  }, [mobileFilterOpenRequest]);
 
   // A new header search lands here as initialQuery; keep the in-page query in
   // sync even when the user is already on the library view (no remount).
