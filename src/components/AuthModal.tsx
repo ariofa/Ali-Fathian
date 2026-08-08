@@ -19,6 +19,8 @@ import {
   AlertCircle 
 } from 'lucide-react';
 import { Logo } from './Logo';
+import { seedProfileCompletionNotification } from '../lib/notifications';
+import { upsertRegisteredUser } from '../lib/usersIndex';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -78,6 +80,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
   const [regOtpCode, setRegOtpCode] = useState('');
   const [regOtpSent, setRegOtpSent] = useState(false);
   const [regOtpVerified, setRegOtpVerified] = useState(false);
+  // Resend cooldown — 120s matches the SMS-OTP convention of major Iranian
+  // apps (Snapp/Divar ~90–120s); counts down in mm:ss after every send.
+  const OTP_RESEND_SECONDS = 120;
+  const [otpCooldownLeft, setOtpCooldownLeft] = useState(0);
 
   // Post-registration WELCOME screen: shows the new user by name and hands
   // them back to the page they came from (instead of an abrupt modal close).
@@ -161,7 +167,24 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, regOtpSent, regOtpVerified]);
 
+  // Resend cooldown ticker (120s → 0)
+  useEffect(() => {
+    if (otpCooldownLeft <= 0) return;
+    const timer = window.setInterval(() => {
+      setOtpCooldownLeft(prev => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [otpCooldownLeft]);
+
   if (!isOpen) return null;
+
+  const mmss = (total: number) => {
+    const m = Math.floor(total / 60);
+    const s = total % 60;
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${pad(m)}:${pad(s)}`;
+  };
+  const faMmss = (total: number) => mmss(total).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
 
   // Toggle multi-select expertise for Professional
   const handleToggleExpertise = (val: string) => {
@@ -200,6 +223,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
     setRegOtpSent(true);
     setRegOtpVerified(false);
     setRegOtpCode('');
+    setOtpCooldownLeft(OTP_RESEND_SECONDS);
     toast(isRtl
       ? 'کد تأیید آزمایشی ارسال شد. تا اتصال پنل پیامکی، کد ۱۲۳۴۵۶ را وارد کنید.'
       : 'Mock verification code sent. Until SMS provider is connected, use code 123456.'
@@ -333,6 +357,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
     // Store in global users database
     localStorage.setItem('iranbimhub_user', JSON.stringify(newUser));
 
+    // Geo-aligned analytics base: upsert this account into the registered-users
+    // index (manufacturer panel reads the REAL province distribution from it).
+    upsertRegisteredUser({
+      phone: newUser.phone,
+      name: newUser.fullName,
+      role: newUser.role || 'Modeler',
+      company: regAccountType === 'Manufacturer' ? regName : undefined
+    });
+
+    // Item 13 — first inbox notification for new BIM professionals: a gentle
+    // push to complete «پروفایل من» (deep-links to the profile tab).
+    if (regAccountType === 'Modeler') {
+      seedProfileCompletionNotification(newUser.phone, newUser.fullName, isRtl);
+    }
+
     // For manufacturers, also seed the company profile details instantly
     if (regAccountType === 'Manufacturer') {
       const mfgProfile = {
@@ -412,16 +451,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
       }
     }
 
-    // Fallback Mock Logins for testing
+    // Demo-mode fallback (no fabricated persona — clearly labelled placeholder)
     const mockUser = {
-      name: isRtl ? 'مهندس رضایی' : 'Eng. Rezaei',
-      fullName: isRtl ? 'مهندس رضایی' : 'Eng. Rezaei',
+      name: isRtl ? 'کاربر نمایشی (حالت آزمایشی)' : 'Demo User (sandbox)',
+      fullName: isRtl ? 'کاربر نمایشی (حالت آزمایشی)' : 'Demo User (sandbox)',
       phone: normalizedLoginPhone,
-      email: 'rezaei@example.com',
+      email: '',
       role: 'Modeler',
-      isPremium: loginPhone.endsWith('9') || loginPhone.includes('99'),
-      selectedRoles: ['Architect', 'MEP Engineer'],
-      selectedTopics: ['HVAC', 'Facades', 'Sustainable Materials']
+      isPremium: false,
+      selectedRoles: [],
+      selectedTopics: []
     };
     
     localStorage.setItem('iranbimhub_user', JSON.stringify(mockUser));
@@ -533,8 +572,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
           <Logo className="h-9 justify-center" />
           <p className="text-xs text-gray-500 dark:text-gray-400">
             {isRtl 
-              ? 'یک قدم تا دانلود آبجکت‌های BIM واقعی محصولات ساختمان ایران' 
-              : 'One step away from real BIM objects of Iranian building products'
+              ? 'یک قدم تا ورود به جامعهٔ ایران‌بیم‌هاب' 
+              : 'One step to joining the IranBIMhub community'
             }
           </p>
         </div>
@@ -1055,11 +1094,27 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
                         <button
                           type="button"
                           onClick={handleSendMockOtp}
-                          className="px-4 py-3 rounded-xl bg-[#26B6B6]/10 hover:bg-[#26B6B6]/15 text-[#138f8f] dark:text-[#26B6B6] text-[10px] font-black transition-all cursor-pointer whitespace-nowrap self-start"
+                          disabled={regOtpSent && otpCooldownLeft > 0}
+                          className={`px-4 py-3 rounded-xl text-[10px] font-black transition-all whitespace-nowrap self-start ${
+                            regOtpSent && otpCooldownLeft > 0
+                              ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                              : 'bg-[#26B6B6]/10 hover:bg-[#26B6B6]/15 text-[#138f8f] dark:text-[#26B6B6] cursor-pointer'
+                          }`}
                         >
-                          {regOtpSent ? (isRtl ? 'ارسال مجدد' : 'Resend') : (isRtl ? 'ارسال کد' : 'Send Code')}
+                          {regOtpSent
+                            ? (otpCooldownLeft > 0
+                                ? (isRtl ? `ارسال مجدد (${faMmss(otpCooldownLeft)})` : `Resend in ${mmss(otpCooldownLeft)}`)
+                                : (isRtl ? 'ارسال مجدد کد' : 'Resend code'))
+                            : (isRtl ? 'ارسال کد' : 'Send Code')}
                         </button>
                       </div>
+                      {regOtpSent && !regOtpVerified && otpCooldownLeft > 0 && (
+                        <p className="text-[10px] text-gray-400 flex items-center gap-1">
+                          <span>{isRtl ? 'تا امکان ارسال مجدد کد:' : 'You can resend the code in'}</span>
+                          <span className="font-black text-[#26B6B6] tabular-nums" dir="ltr">{isRtl ? faMmss(otpCooldownLeft) : mmss(otpCooldownLeft)}</span>
+                          <span>{isRtl ? '' : 's'}</span>
+                        </p>
+                      )}
 
                       <div className="rounded-2xl bg-slate-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 p-3 space-y-2">
                         <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2 sm:items-end">

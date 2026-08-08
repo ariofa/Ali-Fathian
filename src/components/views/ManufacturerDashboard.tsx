@@ -98,13 +98,8 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
 }) => {
   const { language, t, isRtl, formatNumber } = useLanguage();
   const [activeTab, setActiveTab] = useState<MFGTab>('overview');
-  const [workspaceMode, setWorkspaceMode] = useState<'simple' | 'professional'>(() => (localStorage.getItem('iranbimhub_mfg_workspace_mode') === 'simple' ? 'simple' : 'professional'));
-  const advancedTabs: MFGTab[] = ['followers', 'subscription', 'analytics', 'approval-chat'];
-
-  useEffect(() => {
-    localStorage.setItem('iranbimhub_mfg_workspace_mode', workspaceMode);
-    if (workspaceMode === 'simple' && advancedTabs.includes(activeTab)) setActiveTab('overview');
-  }, [workspaceMode, activeTab]);
+  // Item 4: the «کار روزمره / فضای حرفه‌ای» switch was removed — every feature is
+  // always visible in both dashboards.
   const [isSidebarOpenMobile, setIsSidebarOpenMobile] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [profileSubTab, setProfileSubTab] = useState<'info' | 'standards' | 'awards' | 'projects' | 'catalogs'>('info');
@@ -1409,7 +1404,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
             {isRtl ? 'پنل کارفرمایی برند' : 'Brand B2B Admin'}
           </span>
         </div>
-        <span className="bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase">
+        <span className="bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 text-[13px] font-black px-2 py-0.5 rounded-full uppercase">
           {brandInfo.tier}
         </span>
       </div>
@@ -1427,7 +1422,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                 <img src={brandInfo.logoUrl} alt="Logo" className="w-9 h-9 rounded object-cover" />
                 <div>
                   <h4 className="text-xs font-bold text-gray-800 dark:text-white">{isRtl ? brandInfo.nameFa : brandInfo.nameEn}</h4>
-                  <p className="text-[9px] text-gray-400">{isRtl ? 'پنل مدیریتی کارخانجات' : 'Enterprise Provider Node'}</p>
+                  <p className="text-[13px] text-gray-400">{isRtl ? 'پنل مدیریتی کارخانجات' : 'Enterprise Provider Node'}</p>
                 </div>
               </div>
               <button 
@@ -1440,18 +1435,17 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
 
             {/* Nav List */}
             <div className="flex-1 overflow-y-auto space-y-1">
-              <MfgSidebarNavList 
-                activeTab={activeTab} 
+              <MfgSidebarNavList
+                activeTab={activeTab}
                 onSelectTab={(tab) => {
                   setActiveTab(tab);
                   if (tab === 'profile') setProfileSubTab('info');
                   if (tab === 'requests') setRequestsSubTab('leads');
                   setIsSidebarOpenMobile(false);
-                }} 
+                }}
                 isRtl={isRtl}
                 unansweredLeadsCount={unansweredLeadsCount}
                 onLogout={onLogout}
-                workspaceMode={workspaceMode}
               />
             </div>
           </div>
@@ -1482,15 +1476,15 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
           <div className="p-4 mx-3 my-4 bg-slate-50 dark:bg-gray-950 border border-slate-100 dark:border-gray-800/50 rounded-xl space-y-3">
             <div className="flex items-center gap-2.5">
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[10px] text-gray-500 dark:text-gray-400 font-bold">{isRtl ? 'برند احراز هویت شده' : 'Verified Brand Node'}</span>
+              <span className="text-[12px] text-gray-500 dark:text-gray-400 font-bold">{isRtl ? 'برند احراز هویت شده' : 'Verified Brand Node'}</span>
             </div>
             
             <div className="text-xs">
               <span className="block font-bold text-gray-800 dark:text-white truncate">{isRtl ? brandInfo.nameFa : brandInfo.nameEn}</span>
-              <span className="text-[9.5px] text-gray-400 block mt-0.5">{brandInfo.website}</span>
+              <span className="text-[11.5px] text-gray-400 block mt-0.5">{brandInfo.website}</span>
             </div>
 
-            <div className="flex justify-between items-center text-[10px] pt-2 border-t border-gray-200/50 dark:border-gray-800">
+            <div className="flex justify-between items-center text-[12px] pt-2 border-t border-gray-200/50 dark:border-gray-800">
               <span className="text-gray-400">{isRtl ? 'سطح کاربری:' : 'Tier:'}</span>
               <span className="text-emerald-500 font-black tracking-wide uppercase">{brandInfo.tier}</span>
             </div>
@@ -1499,32 +1493,24 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
 
         {/* Sidebar Nav Links */}
         <div className="flex-1 overflow-y-auto px-3 space-y-1">
-          <MfgSidebarNavList 
-            activeTab={activeTab} 
+          <MfgSidebarNavList
+            activeTab={activeTab}
             onSelectTab={(tab) => {
               setActiveTab(tab);
               if (tab === 'profile') setProfileSubTab('info');
               if (tab === 'requests') setRequestsSubTab('leads');
-            }} 
+            }}
             isRtl={isRtl}
             unansweredLeadsCount={unansweredLeadsCount}
             collapsed={isSidebarCollapsed}
             onLogout={onLogout}
-            workspaceMode={workspaceMode}
           />
         </div>
       </div>
 
       {/* Main Content Pane */}
       <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-[#0FB9B1]/20 bg-[#0FB9B1]/5 px-4 py-3">
-          <div><p className="text-xs font-black text-gray-800 dark:text-white">{isRtl ? 'نمایش فضای کاری' : 'Workspace view'}</p><p className="text-[10px] text-gray-500 mt-1">{workspaceMode === 'simple' ? (isRtl ? 'مسیر شروع برند: فقط قدم‌های ضروری را ببینید.' : 'Brand start path: only essential steps are shown.') : (isRtl ? 'ابزارهای حرفه‌ای مدیریت برند فعال هستند.' : 'Professional brand-management tools are enabled.')}</p></div>
-          <div className="inline-flex rounded-xl bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-700 p-1">
-            <button onClick={() => setWorkspaceMode('simple')} className={`px-3 py-1.5 rounded-lg text-[10px] font-black cursor-pointer ${workspaceMode === 'simple' ? 'bg-[#0FB9B1] text-white' : 'text-gray-500'}`}>{isRtl ? 'مسیر شروع برند' : 'Start path'}</button>
-            <button onClick={() => setWorkspaceMode('professional')} className={`px-3 py-1.5 rounded-lg text-[10px] font-black cursor-pointer ${workspaceMode === 'professional' ? 'bg-[#0F3D5E] text-white' : 'text-gray-500'}`}>{isRtl ? 'فضای حرفه‌ای' : 'Professional'}</button>
-          </div>
-        </div>
-        
+
         {/* OVERVIEW HOME TAB */}
         {activeTab === 'overview' && (
           <div className="space-y-8 animate-fadeIn">
@@ -1549,7 +1535,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
-                    <span className="bg-[#26B6B6]/10 text-[#26B6B6] border border-[#26B6B6]/20 text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase">
+                    <span className="bg-[#26B6B6]/10 text-[#26B6B6] border border-[#26B6B6]/20 text-[13px] font-black px-2.5 py-0.5 rounded-full uppercase">
                       Enterprise SaaS Panel
                     </span>
                     <span className="text-emerald-400 text-xs font-semibold">✓ Live data synced</span>
@@ -1588,11 +1574,11 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                   <div className="space-y-1 text-start">
                     <h3 className="text-xs font-extrabold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
                       <span>{isRtl ? '⚠️ عدم بارگذاری مدرک الزامی (مجوز فعالیت / روزنامه رسمی)' : '⚠️ Pending Required Prerequisite (Operating License / Official Gazette)'}</span>
-                      <span className="text-[9px] bg-red-500 text-white px-2 py-0.5 rounded-full font-black animate-pulse">
+                      <span className="text-[13px] bg-red-500 text-white px-2 py-0.5 rounded-full font-black animate-pulse">
                         {isRtl ? 'بسیار مهم' : 'Required first'}
                       </span>
                     </h3>
-                    <p className="text-[11px] text-amber-700/90 dark:text-amber-400 font-light leading-relaxed max-w-3xl">
+                    <p className="text-[13px] text-amber-700/90 dark:text-amber-400 font-light leading-relaxed max-w-3xl">
                       {isRtl 
                         ? 'بر اساس ضوابط سامانه ایران‌بیم‌هاب، ثبت اطلاعات اولیه شرکت تایید شده است؛ اما جهت تایید نهایی برند و صدور مجوز انتشار کاتالوگ آبجکت‌ها در میان مهندسان مشاور، بارگذاری تصویر مجوز بهره‌برداری، پروانه تولید، یا آگهی روزنامه رسمی الزامی است.' 
                         : 'Your basic enrollment was recorded successfully. However, to authorize the release and download permissions of your Revit/BIM catalogs across the network, uploading an official operating license is a mandatory prerequisite.'}
@@ -1601,7 +1587,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                 </div>
                 <button
                   onClick={() => setActiveTab('profile')}
-                  className="bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-extrabold px-4 py-2.5 rounded-xl shrink-0 shadow-sm transition-all cursor-pointer hover:scale-102 self-start sm:self-auto"
+                  className="bg-amber-600 hover:bg-amber-700 text-white text-[13px] font-extrabold px-4 py-2.5 rounded-xl shrink-0 shadow-sm transition-all cursor-pointer hover:scale-102 self-start sm:self-auto"
                 >
                   {isRtl ? 'بارگذاری پیش‌نیاز الزامی' : 'Upload Prerequisite Now'}
                 </button>
@@ -1613,13 +1599,13 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
               <div className="bg-white dark:bg-gray-900 border border-[#26B6B6]/25 rounded-2xl p-6 space-y-4 shadow-sm relative overflow-hidden" id="brand-onboarding-checklist">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <div className="space-y-1">
-                    <span className="text-[10px] font-black text-[#26B6B6] bg-[#26B6B6]/10 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                    <span className="text-[12px] font-black text-[#26B6B6] bg-[#26B6B6]/10 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                       {isRtl ? 'راه‌اندازی اولیه برند' : 'Brand Onboarding Launchpad'}
                     </span>
                     <h3 className="text-sm font-extrabold text-gray-800 dark:text-white">
                       {isRtl ? 'مراحل تکمیل اطلاعات و احراز هویت برند' : 'Complete Your Brand Profile'}
                     </h3>
-                    <p className="text-[11px] text-gray-400">
+                    <p className="text-[13px] text-gray-400">
                       {isRtl 
                         ? 'تکمیل گام‌های زیر جهت افزایش اعتبار برند و باز شدن امکان نمایش نامحدود کاتالوگ شما الزامی است.' 
                         : 'Finalize these key items to maximize catalog visibility and brand validation across IranBIMhub.'
@@ -1628,7 +1614,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                   </div>
                   <div className="text-end shrink-0">
                     <span className="text-lg font-black text-[#26B6B6] font-mono">{progressPercent}%</span>
-                    <span className="text-[10px] text-gray-400 block">{isRtl ? 'تکمیل شده' : 'Complete'}</span>
+                    <span className="text-[12px] text-gray-400 block">{isRtl ? 'تکمیل شده' : 'Complete'}</span>
                   </div>
                 </div>
 
@@ -1654,14 +1640,14 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                       </div>
                       <div className="space-y-0.5 text-start">
                         <div className="flex items-center gap-1">
-                          <h4 className="text-[11px] font-bold text-gray-800 dark:text-white">
+                          <h4 className="text-[13px] font-bold text-gray-800 dark:text-white">
                             {isRtl ? 'ثبت شرکت و مجوز بهره‌برداری' : 'Company Registration & License'}
                           </h4>
-                          <span className="text-[8px] bg-amber-500 text-white font-bold px-1.5 py-0.5 rounded">
+                          <span className="text-[13px] bg-amber-500 text-white font-bold px-1.5 py-0.5 rounded">
                             {isRtl ? 'پیش‌نیاز اصلی' : 'Prior Required'}
                           </span>
                         </div>
-                        <p className="text-[10px] text-gray-400 leading-normal">
+                        <p className="text-[12px] text-gray-400 leading-normal">
                           {isRtl ? 'پیوست مجوز رسمی یا روزنامه رسمی جهت تایید عمومی برند' : 'Attach operating license or registered documents'}
                         </p>
                       </div>
@@ -1669,7 +1655,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                     {!isDocsCompleted && (
                       <button 
                         onClick={() => setActiveTab('profile')} 
-                        className="text-[10px] text-[#26B6B6] hover:underline font-bold text-start cursor-pointer w-fit"
+                        className="text-[12px] text-[#26B6B6] hover:underline font-bold text-start cursor-pointer w-fit"
                       >
                         {isRtl ? 'بارگذاری سند پیش‌نیاز ←' : 'Upload Required Docs →'}
                       </button>
@@ -1687,10 +1673,10 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                         <Check className="w-3.5 h-3.5 stroke-[3]" />
                       </div>
                       <div className="space-y-0.5 text-start">
-                        <h4 className="text-[11px] font-bold text-gray-800 dark:text-white">
+                        <h4 className="text-[13px] font-bold text-gray-800 dark:text-white">
                           {isRtl ? 'لوگوی تجاری برند' : 'Upload Brand Logo'}
                         </h4>
-                        <p className="text-[10px] text-gray-400 leading-normal">
+                        <p className="text-[12px] text-gray-400 leading-normal">
                           {isRtl ? 'آپلود لوگوی رسمی جهت معرفی برند در نتایج' : 'Represent your brand identity in searches'}
                         </p>
                       </div>
@@ -1698,7 +1684,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                     {!isLogoCompleted && (
                       <button 
                         onClick={() => setActiveTab('profile')} 
-                        className="text-[10px] text-[#26B6B6] hover:underline font-bold text-start cursor-pointer w-fit"
+                        className="text-[12px] text-[#26B6B6] hover:underline font-bold text-start cursor-pointer w-fit"
                       >
                         {isRtl ? 'بارگذاری لوگو ←' : 'Upload Logo →'}
                       </button>
@@ -1716,10 +1702,10 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                         <Check className="w-3.5 h-3.5 stroke-[3]" />
                       </div>
                       <div className="space-y-0.5 text-start">
-                        <h4 className="text-[11px] font-bold text-gray-800 dark:text-white">
+                        <h4 className="text-[13px] font-bold text-gray-800 dark:text-white">
                           {isRtl ? 'توضیحات کوتاه شرکت' : 'Add Brand Description'}
                         </h4>
-                        <p className="text-[10px] text-gray-400 leading-normal">
+                        <p className="text-[12px] text-gray-400 leading-normal">
                           {isRtl ? 'ثبت تاریخچه یا معرفی کوتاه کارخانه' : 'Short description for designers to read'}
                         </p>
                       </div>
@@ -1727,7 +1713,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                     {!isDescCompleted && (
                       <button 
                         onClick={() => setActiveTab('profile')} 
-                        className="text-[10px] text-[#26B6B6] hover:underline font-bold text-start cursor-pointer w-fit"
+                        className="text-[12px] text-[#26B6B6] hover:underline font-bold text-start cursor-pointer w-fit"
                       >
                         {isRtl ? 'تکمیل توضیحات ←' : 'Add Description →'}
                       </button>
@@ -1745,10 +1731,10 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                         <Check className="w-3.5 h-3.5 stroke-[3]" />
                       </div>
                       <div className="space-y-0.5 text-start">
-                        <h4 className="text-[11px] font-bold text-gray-800 dark:text-white">
+                        <h4 className="text-[13px] font-bold text-gray-800 dark:text-white">
                           {isRtl ? 'آپلود اولین محصول BIM' : 'Upload First BIM Object'}
                         </h4>
-                        <p className="text-[10px] text-gray-400 leading-normal">
+                        <p className="text-[12px] text-gray-400 leading-normal">
                           {isRtl ? 'انتشار اولین محصول Revit یا IFC کارخانه' : 'Publish first product to catalog'}
                         </p>
                       </div>
@@ -1762,7 +1748,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                             : 'Redirecting to products view. Use the wizard to upload your Revit families.'
                           );
                         }} 
-                        className="text-[10px] text-[#26B6B6] hover:underline font-bold text-start cursor-pointer w-fit"
+                        className="text-[12px] text-[#26B6B6] hover:underline font-bold text-start cursor-pointer w-fit"
                       >
                         {isRtl ? 'آپلود محصول ←' : 'Upload Product →'}
                       </button>
@@ -1775,42 +1761,42 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
             {/* KPI Cards Board */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
               <div className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-1.5 shadow-2xs">
-                <div className="flex justify-between items-center text-gray-400 text-[10px] font-bold uppercase tracking-wider">
+                <div className="flex justify-between items-center text-gray-400 text-[12px] font-bold uppercase tracking-wider">
                   <span>{isRtl ? 'کل بازدید کاتالوگ' : 'Total Catalog Views'}</span>
                   <Eye className="w-4 h-4 text-[#26B6B6]" />
                 </div>
                 <span className="block text-2xl font-black font-mono text-gray-800 dark:text-white">{formatNumber(totalViews)}</span>
-                <span className="text-[10px] text-emerald-500 font-bold flex items-center gap-1">
+                <span className="text-[12px] text-emerald-500 font-bold flex items-center gap-1">
                   <TrendingUp className="w-3 h-3" />
                   <span>+14% vs last week</span>
                 </span>
               </div>
 
               <div className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-1.5 shadow-2xs">
-                <div className="flex justify-between items-center text-gray-400 text-[10px] font-bold uppercase tracking-wider">
+                <div className="flex justify-between items-center text-gray-400 text-[12px] font-bold uppercase tracking-wider">
                   <span>{isRtl ? 'کل دانلودها' : 'Total Downloads'}</span>
                   <Clock className="w-4 h-4 text-[#26B6B6]" />
                 </div>
                 <span className="block text-2xl font-black font-mono text-gray-800 dark:text-white">{formatNumber(totalDownloads)}</span>
-                <span className="text-[10px] text-emerald-500 font-bold flex items-center gap-1">
+                <span className="text-[12px] text-emerald-500 font-bold flex items-center gap-1">
                   <TrendingUp className="w-3 h-3" />
                   <span>+8.2% monthly trend</span>
                 </span>
               </div>
 
               <div className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-1.5 shadow-2xs">
-                <div className="flex justify-between items-center text-gray-400 text-[10px] font-bold uppercase tracking-wider">
+                <div className="flex justify-between items-center text-gray-400 text-[12px] font-bold uppercase tracking-wider">
                   <span>{isRtl ? 'سرنخ‌های فروش (لید)' : 'CRM Active Leads'}</span>
                   <Mail className="w-4 h-4 text-[#26B6B6]" />
                 </div>
                 <span className="block text-2xl font-black font-mono text-gray-800 dark:text-white">{leads.length}</span>
-                <span className="text-[10px] text-[#26B6B6] font-bold">
+                <span className="text-[12px] text-[#26B6B6] font-bold">
                   {unansweredLeadsCount} {isRtl ? 'مورد پاسخ داده نشده' : 'unanswered'}
                 </span>
               </div>
 
               <div className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-1.5 shadow-2xs">
-                <div className="flex justify-between items-center text-gray-400 text-[10px] font-bold uppercase tracking-wider">
+                <div className="flex justify-between items-center text-gray-400 text-[12px] font-bold uppercase tracking-wider">
                   <span>{isRtl ? 'وضعیت تایید اسناد' : 'Brand Certification'}</span>
                   <ShieldCheck className="w-4 h-4 text-emerald-500" />
                 </div>
@@ -1821,12 +1807,12 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
 
               <div className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-2.5 shadow-2xs relative flex flex-col justify-between">
                 <div className="space-y-1.5">
-                  <div className="flex justify-between items-center text-gray-400 text-[10px] font-bold uppercase tracking-wider">
+                  <div className="flex justify-between items-center text-gray-400 text-[12px] font-bold uppercase tracking-wider">
                     <span>{isRtl ? 'دنبال‌کنندگان برند' : 'Brand Followers'}</span>
                     <Users className="w-4 h-4 text-[#26B6B6]" />
                   </div>
                   <span className="block text-2xl font-black font-mono text-gray-800 dark:text-white">۱۴۲</span>
-                  <span className="text-[9px] text-emerald-500 font-bold flex items-center gap-1">
+                  <span className="text-[13px] text-emerald-500 font-bold flex items-center gap-1">
                     <TrendingUp className="w-3 h-3" />
                     <span>{isRtl ? 'رشد ۸٪ این ماه' : '+8% growth'}</span>
                   </span>
@@ -1834,7 +1820,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                 
                 <button
                   onClick={() => setActiveTab('followers')}
-                  className="w-full flex items-center justify-center gap-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-gray-800/50 dark:hover:bg-gray-800 border border-slate-100 dark:border-gray-700/80 rounded-xl text-[9px] font-bold text-[#26B6B6] hover:text-[#1e9494] cursor-pointer group relative transition-colors"
+                  className="w-full flex items-center justify-center gap-1 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-gray-800/50 dark:hover:bg-gray-800 border border-slate-100 dark:border-gray-700/80 rounded-xl text-[13px] font-bold text-[#26B6B6] hover:text-[#1e9494] cursor-pointer group relative transition-colors"
                 >
                   <Users className="w-3 h-3 shrink-0" />
                   <span>{isRtl ? 'مشاهده لیست' : 'View Follower List'}</span>
@@ -1894,7 +1880,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                     <TrendingUp className="w-4 h-4 text-[#26B6B6]" />
                     <span>{isRtl ? 'پیش‌بینی هوشمند دوره‌ای نما' : 'Lightweight Predictive Forecast'}</span>
                   </h3>
-                  <p className="text-[10px] text-gray-400">
+                  <p className="text-[12px] text-gray-400">
                     {isRtl ? 'تخمین رشد بازدید کاتالوگ بر اساس روند دانلود آرشیتکت‌ها در ۳۰ روز آتی.' : 'Est. aggregate projection models based on daily architectural activity.'}
                   </p>
                 </div>
@@ -1914,7 +1900,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                   </div>
                 </div>
 
-                <div className="text-[9.5px] bg-slate-50 dark:bg-gray-950 p-2 text-gray-400 rounded-lg">
+                <div className="text-[11.5px] bg-slate-50 dark:bg-gray-950 p-2 text-gray-400 rounded-lg">
                   💡 {isRtl ? 'تخمین‌ها جنبه مشاوره فنی دارند و تضمینی برای فروش قطعی نیستند.' : 'Forward-looking predictive projections, not binding guarantees.'}
                 </div>
               </div>
@@ -1930,7 +1916,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
               <button
                 type="button"
                 onClick={() => setProfileSubTab('info')}
-                className={`px-3.5 py-2 rounded-xl text-[11px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 whitespace-nowrap cursor-pointer ${
+                className={`px-3.5 py-2 rounded-xl text-[13px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 whitespace-nowrap cursor-pointer ${
                   profileSubTab === 'info'
                     ? 'shadow-2xs border border-[#26B6B6]/30 text-[#26B6B6] bg-[#26B6B6]/5'
                     : 'hover:shadow-xs border border-gray-200 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-700 text-gray-500 dark:text-gray-400 bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800'
@@ -1942,7 +1928,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
               <button
                 type="button"
                 onClick={() => setProfileSubTab('standards')}
-                className={`px-3.5 py-2 rounded-xl text-[11px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 whitespace-nowrap cursor-pointer ${
+                className={`px-3.5 py-2 rounded-xl text-[13px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 whitespace-nowrap cursor-pointer ${
                   profileSubTab === 'standards'
                     ? 'shadow-2xs border border-[#26B6B6]/30 text-[#26B6B6] bg-[#26B6B6]/5'
                     : 'hover:shadow-xs border border-gray-200 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-700 text-gray-500 dark:text-gray-400 bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800'
@@ -1954,7 +1940,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
               <button
                 type="button"
                 onClick={() => setProfileSubTab('awards')}
-                className={`px-3.5 py-2 rounded-xl text-[11px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 whitespace-nowrap cursor-pointer ${
+                className={`px-3.5 py-2 rounded-xl text-[13px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 whitespace-nowrap cursor-pointer ${
                   profileSubTab === 'awards'
                     ? 'shadow-2xs border border-[#26B6B6]/30 text-[#26B6B6] bg-[#26B6B6]/5'
                     : 'hover:shadow-xs border border-gray-200 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-700 text-gray-500 dark:text-gray-400 bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800'
@@ -1966,7 +1952,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
               <button
                 type="button"
                 onClick={() => setProfileSubTab('projects')}
-                className={`px-3.5 py-2 rounded-xl text-[11px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 whitespace-nowrap cursor-pointer ${
+                className={`px-3.5 py-2 rounded-xl text-[13px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 whitespace-nowrap cursor-pointer ${
                   profileSubTab === 'projects'
                     ? 'shadow-2xs border border-[#26B6B6]/30 text-[#26B6B6] bg-[#26B6B6]/5'
                     : 'hover:shadow-xs border border-gray-200 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-700 text-gray-500 dark:text-gray-400 bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800'
@@ -1978,7 +1964,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
               <button
                 type="button"
                 onClick={() => setProfileSubTab('catalogs')}
-                className={`px-3.5 py-2 rounded-xl text-[11px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 whitespace-nowrap cursor-pointer ${
+                className={`px-3.5 py-2 rounded-xl text-[13px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 whitespace-nowrap cursor-pointer ${
                   profileSubTab === 'catalogs'
                     ? 'shadow-2xs border border-[#26B6B6]/30 text-[#26B6B6] bg-[#26B6B6]/5'
                     : 'hover:shadow-xs border border-gray-200 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-700 text-gray-500 dark:text-gray-400 bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800'
@@ -1996,7 +1982,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                     <Building className="w-5 h-5 text-[#26B6B6]" />
                     <span>{isRtl ? 'مشخصات رسمی و حقوقی برند کارخانه' : 'B2B Brand Profile & Verification'}</span>
                   </h2>
-                  <p className="text-[11px] text-gray-400 mt-1">
+                  <p className="text-[13px] text-gray-400 mt-1">
                     {isRtl ? 'تصویر لوگو، کاتالوگ‌های چاپی، شبکه‌های اجتماعی و اسناد شرکت برای جلب اعتماد معماران ساختمانی.' : 'Manage public presentation specs, company registration files and website links.'}
                   </p>
                 </div>
@@ -2027,10 +2013,10 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                 {/* Logo Section */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-1.5">
-                    <label className="text-[11px] font-bold text-gray-500 uppercase block">{isRtl ? 'لوگو برند چاپی' : 'Company Logo'}</label>
+                    <label className="text-[13px] font-bold text-gray-500 uppercase block">{isRtl ? 'لوگو برند چاپی' : 'Company Logo'}</label>
                     <div className="relative group cursor-help inline-block">
                       <span className="text-[#26B6B6] font-bold text-xs hover:scale-110 transition-transform select-none">ⓘ</span>
-                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-64 p-3 bg-slate-900/95 dark:bg-gray-950 border border-slate-800 text-white text-[10px] rounded-xl shadow-xl z-50 leading-relaxed font-normal">
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-64 p-3 bg-slate-900/95 dark:bg-gray-950 border border-slate-800 text-white text-[12px] rounded-xl shadow-xl z-50 leading-relaxed font-normal">
                         {isRtl 
                           ? 'فرمت PNG با پس‌زمینه شفاف، حداقل ۵۱۲×۵۱۲ پیکسل، حداکثر ۲ مگابایت' 
                           : 'PNG format with transparent background, minimum 512×512px, max 2MB'}
@@ -2085,10 +2071,10 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                 {/* Cover Section */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-1.5">
-                    <label className="text-[11px] font-bold text-gray-500 uppercase block">{isRtl ? 'تصویر کاور هدر پروفایل' : 'Profile Cover Photo'}</label>
+                    <label className="text-[13px] font-bold text-gray-500 uppercase block">{isRtl ? 'تصویر کاور هدر پروفایل' : 'Profile Cover Photo'}</label>
                     <div className="relative group cursor-help inline-block">
                       <span className="text-[#26B6B6] font-bold text-xs hover:scale-110 transition-transform select-none">ⓘ</span>
-                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-64 p-3 bg-slate-900/95 dark:bg-gray-950 border border-slate-800 text-white text-[10px] rounded-xl shadow-xl z-50 leading-relaxed font-normal">
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-64 p-3 bg-slate-900/95 dark:bg-gray-950 border border-slate-800 text-white text-[12px] rounded-xl shadow-xl z-50 leading-relaxed font-normal">
                         {isRtl 
                           ? 'فرمت JPG یا PNG، حداقل عرض ۱۲۰۰ پیکسل، نسبت تصویر ۳:۱ (پهن)، حداکثر ۵ مگابایت' 
                           : 'JPG or PNG format, minimum 1200px width, 3:1 wide aspect ratio, max 5MB'}
@@ -2143,7 +2129,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
               <div className="md:col-span-2 space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-gray-400 block">{isRtl ? 'نام برند (فارسی)' : 'Brand Name (Persian)'}</label>
+                    <label className="text-[13px] font-bold text-gray-400 block">{isRtl ? 'نام برند (فارسی)' : 'Brand Name (Persian)'}</label>
                     <input 
                       type="text" 
                       value={brandInfo.nameFa}
@@ -2152,7 +2138,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-gray-400 block">{isRtl ? 'نام برند (انگلیسی)' : 'Brand Name (English)'}</label>
+                    <label className="text-[13px] font-bold text-gray-400 block">{isRtl ? 'نام برند (انگلیسی)' : 'Brand Name (English)'}</label>
                     <input 
                       type="text" 
                       value={brandInfo.nameEn}
@@ -2163,7 +2149,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[11px] font-bold text-gray-400 block">{isRtl ? 'توضیحات کوتاه شرکت (فارسی)' : 'Brand Description (Persian)'}</label>
+                  <label className="text-[13px] font-bold text-gray-400 block">{isRtl ? 'توضیحات کوتاه شرکت (فارسی)' : 'Brand Description (Persian)'}</label>
                   <textarea 
                     rows={3}
                     value={brandInfo.descFa}
@@ -2173,7 +2159,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[11px] font-bold text-gray-400 block">{isRtl ? 'توضیحات کوتاه شرکت (انگلیسی)' : 'Brand Description (English)'}</label>
+                  <label className="text-[13px] font-bold text-gray-400 block">{isRtl ? 'توضیحات کوتاه شرکت (انگلیسی)' : 'Brand Description (English)'}</label>
                   <textarea 
                     rows={3}
                     value={brandInfo.descEn}
@@ -2190,7 +2176,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
 
                   <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-[11px] font-bold text-gray-400 block">{isRtl ? 'کشور مبداء برند' : 'Brand Country'}</label>
+                      <label className="text-[13px] font-bold text-gray-400 block">{isRtl ? 'کشور مبداء برند' : 'Brand Country'}</label>
                       <select 
                         value={brandInfo.country || 'IR'}
                         onChange={(e) => setBrandInfo({...brandInfo, country: e.target.value})}
@@ -2205,7 +2191,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                       </select>
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[11px] font-bold text-gray-400 block">{isRtl ? 'شماره تلفن رسمی' : 'Official Phone'}</label>
+                      <label className="text-[13px] font-bold text-gray-400 block">{isRtl ? 'شماره تلفن رسمی' : 'Official Phone'}</label>
                       <input 
                         type="text" 
                         value={brandInfo.phone || ''}
@@ -2215,7 +2201,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[11px] font-bold text-gray-400 block">{isRtl ? 'آدرس وب‌سایت' : 'Website URL'}</label>
+                      <label className="text-[13px] font-bold text-gray-400 block">{isRtl ? 'آدرس وب‌سایت' : 'Website URL'}</label>
                       <input 
                         type="text" 
                         value={brandInfo.website || ''}
@@ -2225,9 +2211,9 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[11px] font-bold text-gray-500 dark:text-gray-400 flex items-center justify-between gap-2">
+                      <label className="text-[13px] font-bold text-gray-500 dark:text-gray-400 flex items-center justify-between gap-2">
                         <span>{isRtl ? 'ایمیل رسمی شرکت *' : 'Official Company Email *'}</span>
-                        <span className="text-[9px] bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-300 px-2 py-0.5 rounded-full font-black">{isRtl ? 'الزامی' : 'Required'}</span>
+                        <span className="text-[13px] bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-300 px-2 py-0.5 rounded-full font-black">{isRtl ? 'الزامی' : 'Required'}</span>
                       </label>
                       <input 
                         type="email" 
@@ -2236,7 +2222,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                         placeholder="info@example.com"
                         className="w-full text-xs p-3 border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-xl focus:outline-none font-mono"
                       />
-                      <p className="text-[10px] text-gray-400 leading-relaxed mt-1">
+                      <p className="text-[12px] text-gray-400 leading-relaxed mt-1">
                         {isRtl
                           ? 'برای ارسال فاکتورهای رسمی، دریافت پیام‌های مشتریان بالقوه، اعلان‌های واحد ارزیابی و اطلاع‌رسانی‌های مهم پلتفرم، ثبت ایمیل رسمی شرکت الزامی است. در نسخه نهایی، این ایمیل با لینک تأیید ایمیلی فعال خواهد شد.'
                           : 'An official company email is required for formal invoices, potential customer messages, evaluation team notifications, and important platform updates. In production, this email will be activated through an email verification link.'
@@ -2246,7 +2232,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-gray-400 block">{isRtl ? 'آدرس دقیق دفتر مرکزی / کارخانه' : 'Physical Address'}</label>
+                    <label className="text-[13px] font-bold text-gray-400 block">{isRtl ? 'آدرس دقیق دفتر مرکزی / کارخانه' : 'Physical Address'}</label>
                     <textarea 
                       rows={2}
                       value={brandInfo.addressFa || ''}
@@ -2264,14 +2250,14 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                       <h4 className="text-xs font-bold text-gray-700 dark:text-gray-200">
                         {isRtl ? 'شبکه‌های اجتماعی و کانال‌های رسمی' : 'Official Social Media Accounts'}
                       </h4>
-                      <p className="text-[10.5px] text-gray-400 mt-0.5">
+                      <p className="text-[12.5px] text-gray-400 mt-0.5">
                         {isRtl ? 'افزودن و مدیریت لینک‌های شبکه‌های اجتماعی جهت نمایش در پروفایل عمومی برند' : 'Add and manage social media channels shown on your public brand page'}
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={handleAddSocialLinkRow}
-                      className="bg-[#26B6B6]/10 hover:bg-[#26B6B6]/20 text-[#26B6B6] text-[11px] font-extrabold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+                      className="bg-[#26B6B6]/10 hover:bg-[#26B6B6]/20 text-[#26B6B6] text-[13px] font-extrabold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       <span>{isRtl ? 'افزودن شبکه اجتماعی' : 'Add Social Link'}</span>
@@ -2342,7 +2328,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                       <h4 className="text-xs font-bold text-gray-700 dark:text-gray-200">
                         {isRtl ? 'ویدیوهای معرفی و تبلیغاتی (تا ۳ ویدیو)' : 'Promotional Presentation Videos (Up to 3)'}
                       </h4>
-                      <p className="text-[10.5px] text-gray-400 mt-0.5">
+                      <p className="text-[12.5px] text-gray-400 mt-0.5">
                         {isRtl ? 'لینک ویدیوهای آپارات یا یوتیوب جهت پخش تعاملی در صفحه برند' : 'Aparat or YouTube embeddable video links'}
                       </p>
                     </div>
@@ -2351,7 +2337,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                       <button
                         type="button"
                         onClick={handleAddPromoVideoRow}
-                        className="bg-[#26B6B6]/10 hover:bg-[#26B6B6]/20 text-[#26B6B6] text-[11px] font-extrabold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+                        className="bg-[#26B6B6]/10 hover:bg-[#26B6B6]/20 text-[#26B6B6] text-[13px] font-extrabold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         <span>{isRtl ? 'افزودن ویدیو' : 'Add Video'}</span>
@@ -2371,7 +2357,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                           <div key={vid.id} className="p-3.5 bg-slate-50 dark:bg-gray-800/60 rounded-xl border border-gray-150 dark:border-gray-700/60 space-y-3 shadow-2xs">
                             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-200/60 dark:border-gray-700/60 pb-2">
                               <div className="flex items-center gap-2">
-                                <span className={`text-[10px] font-black px-2.5 py-1 rounded-lg flex items-center gap-1 ${
+                                <span className={`text-[12px] font-black px-2.5 py-1 rounded-lg flex items-center gap-1 ${
                                   idx === 0 
                                     ? 'bg-emerald-500 text-white shadow-2xs' 
                                     : idx === 1 
@@ -2381,7 +2367,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                   <Play className="w-3 h-3 fill-current" />
                                   <span>{isRtl ? priorityLabelsFa[idx] : priorityLabelsEn[idx]}</span>
                                 </span>
-                                <span className="text-[11px] font-bold text-gray-500 dark:text-gray-400">
+                                <span className="text-[13px] font-bold text-gray-500 dark:text-gray-400">
                                   {isRtl ? `ویدیو #${idx + 1}` : `Video #${idx + 1}`}
                                 </span>
                               </div>
@@ -2390,7 +2376,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                               <div className="flex items-center gap-2">
                                 {totalVids > 1 && (
                                   <div className="flex items-center gap-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-0.5">
-                                    <span className="text-[9.5px] text-gray-400 font-bold px-1">
+                                    <span className="text-[11.5px] text-gray-400 font-bold px-1">
                                       {isRtl ? 'اولویت:' : 'Order:'}
                                     </span>
                                     {Array.from({ length: totalVids }).map((_, pIdx) => (
@@ -2398,7 +2384,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                         key={pIdx}
                                         type="button"
                                         onClick={() => handleSetPromoVideoPriority(vid.id, pIdx)}
-                                        className={`px-2 py-0.5 text-[10px] font-black rounded transition-all cursor-pointer ${
+                                        className={`px-2 py-0.5 text-[12px] font-black rounded transition-all cursor-pointer ${
                                           idx === pIdx
                                             ? 'bg-[#26B6B6] text-white shadow-2xs'
                                             : 'text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
@@ -2470,7 +2456,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                       <div className="text-center py-6 bg-slate-50 dark:bg-gray-800/40 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 text-xs text-gray-400 space-y-1">
                         <Video className="w-6 h-6 mx-auto text-gray-300 dark:text-gray-600 mb-1" />
                         <p className="font-bold">{isRtl ? 'هیچ ویدیویی ثبت نشده است.' : 'No promotional videos added yet.'}</p>
-                        <p className="text-[10px] text-gray-400">{isRtl ? 'با افزودن لینک ویدیو، بخش پخش ویدیو در پروفایل برند شما فعال می‌شود.' : 'Adding a video link will enable the video player on your brand profile.'}</p>
+                        <p className="text-[12px] text-gray-400">{isRtl ? 'با افزودن لینک ویدیو، بخش پخش ویدیو در پروفایل برند شما فعال می‌شود.' : 'Adding a video link will enable the video player on your brand profile.'}</p>
                       </div>
                     )}
                   </div>
@@ -2478,17 +2464,17 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                   {/* Company Portfolio PDF Upload */}
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <label className="text-[11px] font-bold text-gray-400 block">
+                      <label className="text-[13px] font-bold text-gray-400 block">
                         {isRtl ? 'کاتالوگ جامع / پرتفولیوی شرکت (فایل PDF)' : 'Company Portfolio PDF'}
                       </label>
 
                       {/* Tooltip */}
                       <div className="relative group cursor-help">
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#26B6B6]">
+                        <span className="inline-flex items-center gap-1 text-[12px] font-bold text-[#26B6B6]">
                           <HelpCircle className="w-3 h-3" />
                           <span>{isRtl ? 'راهنما' : 'Info'}</span>
                         </span>
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block w-52 p-2.5 bg-slate-900 text-white text-[10px] rounded-xl shadow-lg z-50 leading-relaxed font-normal text-center">
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block w-52 p-2.5 bg-slate-900 text-white text-[12px] rounded-xl shadow-lg z-50 leading-relaxed font-normal text-center">
                           {isRtl ? 'فرمت PDF، حداکثر ۱۰ مگابایت' : 'PDF format, max 10MB size limit'}
                         </div>
                       </div>
@@ -2539,7 +2525,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                           <button
                             type="button"
                             onClick={() => document.getElementById('portfolio-pdf-upload')?.click()}
-                            className="text-[10px] font-bold text-[#26B6B6] hover:underline cursor-pointer"
+                            className="text-[12px] font-bold text-[#26B6B6] hover:underline cursor-pointer"
                           >
                             {isRtl ? 'تعویض' : 'Change'}
                           </button>
@@ -2571,7 +2557,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                       <span className="text-xs font-bold text-gray-800 dark:text-gray-100 block">
                         {isRtl ? 'ثبت و اعمال تغییرات مشخصات برند' : 'Save Brand Profile Updates'}
                       </span>
-                      <span className="text-[10.5px] text-gray-400 block">
+                      <span className="text-[12.5px] text-gray-400 block">
                         {isRtl ? 'جهت نمایش آخرین لوگو، کاور، شبکه‌های اجتماعی و کاتالوگ شرکت در صفحه عمومی برند.' : 'Update public showcase with latest logo, promo videos, catalog PDF, and social links.'}
                       </span>
                     </div>
@@ -2598,7 +2584,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                     <ShieldCheck className="w-5 h-5 text-[#26B6B6]" />
                     <span>{isRtl ? 'پایش استانداردهای کیفی در سطح کارخانه' : 'Quality Standards & Compliance Certifications'}</span>
                   </h2>
-                  <p className="text-[11px] text-gray-400 mt-1">
+                  <p className="text-[13px] text-gray-400 mt-1">
                     {isRtl ? 'مدیریت و افزودن ایزوها و گواهی‌های استاندارد معتبر ملی و بین‌المللی برند شما.' : 'Link regional structural standards and international ISO ratings to the brand page.'}
                   </p>
                 </div>
@@ -2622,7 +2608,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                           <div className="space-y-3.5 text-xs">
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                               <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'نام استاندارد' : 'Standard Name'}</label>
+                                <label className="text-[12px] font-bold text-gray-400 block">{isRtl ? 'نام استاندارد' : 'Standard Name'}</label>
                                 <input 
                                   type="text" 
                                   className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl"
@@ -2631,7 +2617,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                 />
                               </div>
                               <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'کد یا شناسه گواهینامه' : 'Certificate Code'}</label>
+                                <label className="text-[12px] font-bold text-gray-400 block">{isRtl ? 'کد یا شناسه گواهینامه' : 'Certificate Code'}</label>
                                 <input 
                                   type="text" 
                                   className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl font-mono"
@@ -2640,7 +2626,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                 />
                               </div>
                               <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'مرجع صادرکننده / کشور' : 'Issuer / Country'}</label>
+                                <label className="text-[12px] font-bold text-gray-400 block">{isRtl ? 'مرجع صادرکننده / کشور' : 'Issuer / Country'}</label>
                                 <input 
                                   type="text" 
                                   className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl"
@@ -2652,7 +2638,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'تاریخ صدور (شمسی یا میلادی)' : 'Issue Date'}</label>
+                                <label className="text-[12px] font-bold text-gray-400 block">{isRtl ? 'تاریخ صدور (شمسی یا میلادی)' : 'Issue Date'}</label>
                                 <input 
                                   type="text" 
                                   placeholder="۱۴۰۴/۰۱/۰۱"
@@ -2662,7 +2648,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                 />
                               </div>
                               <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'تاریخ اعتبار / انقضا' : 'Expiry Date'}</label>
+                                <label className="text-[12px] font-bold text-gray-400 block">{isRtl ? 'تاریخ اعتبار / انقضا' : 'Expiry Date'}</label>
                                 <input 
                                   type="text" 
                                   placeholder="۱۴۰۷/۰۱/۰۱"
@@ -2674,7 +2660,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                             </div>
 
                             <div className="space-y-1">
-                              <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'آدرس اینترنتی استعلام مدرک' : 'Verification Lookup URL'}</label>
+                              <label className="text-[12px] font-bold text-gray-400 block">{isRtl ? 'آدرس اینترنتی استعلام مدرک' : 'Verification Lookup URL'}</label>
                               <input 
                                 type="text" 
                                 placeholder="https://example.com/verify"
@@ -2685,7 +2671,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                             </div>
 
                             <div className="space-y-1">
-                              <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'توضیحات استاندارد' : 'Standard Description'}</label>
+                              <label className="text-[12px] font-bold text-gray-400 block">{isRtl ? 'توضیحات استاندارد' : 'Standard Description'}</label>
                               <textarea 
                                 rows={2}
                                 className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl resize-none"
@@ -2698,7 +2684,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                               <button
                                 type="button"
                                 onClick={() => handleDeleteStandard(std.id)}
-                                className="px-3.5 py-2 rounded-xl text-[10.5px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 shadow-2xs hover:shadow-xs border border-rose-200 hover:border-rose-300 dark:border-rose-900/30 dark:hover:border-rose-800 text-rose-600 dark:text-rose-400 bg-rose-50/50 hover:bg-rose-50 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 cursor-pointer"
+                                className="px-3.5 py-2 rounded-xl text-[12.5px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 shadow-2xs hover:shadow-xs border border-rose-200 hover:border-rose-300 dark:border-rose-900/30 dark:hover:border-rose-800 text-rose-600 dark:text-rose-400 bg-rose-50/50 hover:bg-rose-50 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 cursor-pointer"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                                 <span>{isRtl ? 'حذف دائمی' : 'Permanently Delete'}</span>
@@ -2706,7 +2692,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                               <button
                                 type="button"
                                 onClick={() => setEditingStdId(null)}
-                                className="bg-[#26B6B6] text-white text-[10px] font-bold px-4 py-2 rounded-xl cursor-pointer hover:bg-[#1e9494]"
+                                className="bg-[#26B6B6] text-white text-[12px] font-bold px-4 py-2 rounded-xl cursor-pointer hover:bg-[#1e9494]"
                               >
                                 {isRtl ? 'ذخیره تغییرات' : 'Save Changes'}
                               </button>
@@ -2718,7 +2704,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                             <div className="flex items-start justify-between gap-4">
                               <div className="space-y-1">
                                 <h4 className="font-extrabold text-gray-800 dark:text-gray-100 text-sm">{std.name}</h4>
-                                <div className="flex flex-wrap items-center gap-2 text-gray-400 text-[10px] font-mono">
+                                <div className="flex flex-wrap items-center gap-2 text-gray-400 text-[12px] font-mono">
                                   <span>ID: {std.code}</span>
                                   <span>•</span>
                                   <span>Region: {std.country}</span>
@@ -2734,7 +2720,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                 </div>
                               </div>
                               <div className="flex items-center gap-2 shrink-0">
-                                <span className={`text-[9px] font-extrabold px-2.5 py-0.5 rounded-full ${
+                                <span className={`text-[13px] font-extrabold px-2.5 py-0.5 rounded-full ${
                                   std.verified ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
                                 }`}>
                                   {std.verified ? (isRtl ? 'تایید شده ✓' : 'Verified ✓') : (isRtl ? 'در حال بررسی ⏳' : 'Under Review ⏳')}
@@ -2758,7 +2744,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
 
                             {/* Verification URL link if present */}
                             {std.verificationUrl && (
-                              <div className="flex items-center gap-1.5 text-[10px] text-[#26B6B6]">
+                              <div className="flex items-center gap-1.5 text-[12px] text-[#26B6B6]">
                                 <ExternalLink className="w-3 h-3 shrink-0" />
                                 <span className="font-bold">{isRtl ? 'آدرس استعلام مدرک:' : 'Verification URL:'}</span>
                                 <a href={std.verificationUrl} target="_blank" rel="noreferrer" className="underline truncate font-mono max-w-md">
@@ -2770,11 +2756,11 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                             {/* Standard Attached Document Section */}
                             <div className="pt-2.5 border-t border-gray-100/60 dark:border-gray-800/60 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
                               <div className="flex items-center gap-2">
-                                <span className="text-gray-400 font-bold text-[10px]">{isRtl ? 'سند ضمیمه:' : 'Certificate Doc:'}</span>
+                                <span className="text-gray-400 font-bold text-[12px]">{isRtl ? 'سند ضمیمه:' : 'Certificate Doc:'}</span>
                                 {std.fileName ? (
                                   <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white dark:bg-gray-900 border border-gray-100 rounded-lg">
                                     <FileText className="w-3.5 h-3.5 text-[#26B6B6]" />
-                                    <span className="text-[10px] text-gray-700 dark:text-gray-300 font-mono max-w-[200px] truncate">{std.fileName}</span>
+                                    <span className="text-[12px] text-gray-700 dark:text-gray-300 font-mono max-w-[200px] truncate">{std.fileName}</span>
                                     {std.fileUrl && std.fileUrl !== '#' && (
                                       <a href={std.fileUrl} target="_blank" rel="noreferrer" className="text-[#26B6B6] hover:underline p-0.5">
                                         <ExternalLink className="w-3 h-3" />
@@ -2782,7 +2768,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                     )}
                                   </div>
                                 ) : (
-                                  <span className="text-[10px] text-gray-400 font-light italic">{isRtl ? 'سندی پیوست نشده است.' : 'No document attached.'}</span>
+                                  <span className="text-[12px] text-gray-400 font-light italic">{isRtl ? 'سندی پیوست نشده است.' : 'No document attached.'}</span>
                                 )}
                               </div>
 
@@ -2806,7 +2792,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                 <button
                                   type="button"
                                   onClick={() => document.getElementById(`std-file-input-${std.id}`)?.click()}
-                                  className="bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800 border rounded-xl text-[10px] px-3 py-1.5 text-gray-700 dark:text-gray-200 cursor-pointer flex items-center gap-1"
+                                  className="bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800 border rounded-xl text-[12px] px-3 py-1.5 text-gray-700 dark:text-gray-200 cursor-pointer flex items-center gap-1"
                                 >
                                   <Upload className="w-3.5 h-3.5 text-[#26B6B6]" />
                                   <span>{std.fileName ? (isRtl ? 'جایگزینی سند' : 'Replace Doc') : (isRtl ? 'بارگذاری سند گواهی' : 'Upload Doc')}</span>
@@ -2919,13 +2905,13 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                           <button
                             type="button"
                             onClick={() => document.getElementById('new-std-file-picker')?.click()}
-                            className="bg-white hover:bg-slate-100 border rounded-xl text-[10px] font-bold px-3 py-2 cursor-pointer flex items-center gap-1"
+                            className="bg-white hover:bg-slate-100 border rounded-xl text-[12px] font-bold px-3 py-2 cursor-pointer flex items-center gap-1"
                           >
                             <Upload className="w-3.5 h-3.5 text-[#26B6B6]" />
                             <span>{newStdFileName ? (isRtl ? 'تغییر فایل مدرک' : 'Change Document') : (isRtl ? 'ضمیمه فایل گواهی استاندارد' : 'Attach Certificate File')}</span>
                           </button>
                           {newStdFileName && (
-                            <span className="text-[10px] text-gray-500 font-mono truncate max-w-[200px]">✓ {newStdFileName}</span>
+                            <span className="text-[12px] text-gray-500 font-mono truncate max-w-[200px]">✓ {newStdFileName}</span>
                           )}
                         </div>
 
@@ -2948,7 +2934,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                     <Award className="w-5 h-5 text-[#26B6B6]" />
                     <span>{isRtl ? 'افتخارات، نشان‌ها و دستاوردهای برند کارخانه' : 'Brand Awards & National Honors'}</span>
                   </h2>
-                  <p className="text-[11px] text-gray-400 mt-1">
+                  <p className="text-[13px] text-gray-400 mt-1">
                     {isRtl ? 'مدیریت تندیس‌ها، گواهینامه‌های حامی مصرف‌کننده، رتبه‌های برتر جشنواره‌ها و گواهی‌های ثبت اختراع.' : 'Display national awards, design prizes, consumer satisfaction plaques and patents.'}
                   </p>
                 </div>
@@ -2972,7 +2958,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                           <div className="space-y-3.5 text-xs">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'عنوان افتخار (فارسی)' : 'Award Title (Persian)'}</label>
+                                <label className="text-[12px] font-bold text-gray-400 block">{isRtl ? 'عنوان افتخار (فارسی)' : 'Award Title (Persian)'}</label>
                                 <input 
                                   type="text" 
                                   className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl"
@@ -2981,7 +2967,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                 />
                               </div>
                               <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'عنوان افتخار (انگلیسی)' : 'Award Title (English)'}</label>
+                                <label className="text-[12px] font-bold text-gray-400 block">{isRtl ? 'عنوان افتخار (انگلیسی)' : 'Award Title (English)'}</label>
                                 <input 
                                   type="text" 
                                   className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl text-left"
@@ -2993,7 +2979,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
 
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                               <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'مرجع صادرکننده' : 'Issuer / Architect'}</label>
+                                <label className="text-[12px] font-bold text-gray-400 block">{isRtl ? 'مرجع صادرکننده' : 'Issuer / Architect'}</label>
                                 <input 
                                   type="text" 
                                   className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl"
@@ -3002,7 +2988,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                 />
                               </div>
                               <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'مکان صادرکننده' : 'Location'}</label>
+                                <label className="text-[12px] font-bold text-gray-400 block">{isRtl ? 'مکان صادرکننده' : 'Location'}</label>
                                 <input 
                                   type="text" 
                                   className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl"
@@ -3011,7 +2997,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                 />
                               </div>
                               <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'سال اخذ' : 'Year'}</label>
+                                <label className="text-[12px] font-bold text-gray-400 block">{isRtl ? 'سال اخذ' : 'Year'}</label>
                                 <input 
                                   type="text" 
                                   className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl"
@@ -3022,7 +3008,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                             </div>
 
                             <div className="space-y-1">
-                              <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'شرح یا جزئیات افتخار' : 'Description'}</label>
+                              <label className="text-[12px] font-bold text-gray-400 block">{isRtl ? 'شرح یا جزئیات افتخار' : 'Description'}</label>
                               <textarea 
                                 rows={2}
                                 className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl resize-none"
@@ -3035,7 +3021,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                               <button
                                 type="button"
                                 onClick={() => handleDeleteAward(award.id)}
-                                className="px-3.5 py-2 rounded-xl text-[10.5px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 shadow-2xs hover:shadow-xs border border-rose-200 hover:border-rose-300 dark:border-rose-900/30 dark:hover:border-rose-800 text-rose-600 dark:text-rose-400 bg-rose-50/50 hover:bg-rose-50 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 cursor-pointer"
+                                className="px-3.5 py-2 rounded-xl text-[12.5px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 shadow-2xs hover:shadow-xs border border-rose-200 hover:border-rose-300 dark:border-rose-900/30 dark:hover:border-rose-800 text-rose-600 dark:text-rose-400 bg-rose-50/50 hover:bg-rose-50 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 cursor-pointer"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                                 <span>{isRtl ? 'حذف دائمی' : 'Permanently Delete'}</span>
@@ -3043,7 +3029,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                               <button
                                 type="button"
                                 onClick={() => setEditingAwardId(null)}
-                                className="bg-[#26B6B6] text-white text-[10px] font-bold px-4 py-2 rounded-xl cursor-pointer hover:bg-[#1e9494]"
+                                className="bg-[#26B6B6] text-white text-[12px] font-bold px-4 py-2 rounded-xl cursor-pointer hover:bg-[#1e9494]"
                               >
                                 {isRtl ? 'ذخیره تغییرات' : 'Save Changes'}
                               </button>
@@ -3057,7 +3043,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                 <h4 className="font-extrabold text-gray-800 dark:text-gray-100 text-sm">
                                   {isRtl ? award.titleFa : award.titleEn}
                                 </h4>
-                                <div className="flex flex-wrap items-center gap-2 text-gray-400 text-[10px] font-mono">
+                                <div className="flex flex-wrap items-center gap-2 text-gray-400 text-[12px] font-mono">
                                   <span>Issuer: {award.architect}</span>
                                   <span>•</span>
                                   <span>{award.location}</span>
@@ -3086,11 +3072,11 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                             {/* Award Associated Document */}
                             <div className="pt-2.5 border-t border-gray-100/60 dark:border-gray-800/60 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
                               <div className="flex items-center gap-2">
-                                <span className="text-gray-400 font-bold text-[10px]">{isRtl ? 'فایل پیوست:' : 'Attached File:'}</span>
+                                <span className="text-gray-400 font-bold text-[12px]">{isRtl ? 'فایل پیوست:' : 'Attached File:'}</span>
                                 {award.fileName ? (
                                   <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white dark:bg-gray-900 border border-gray-100 rounded-lg">
                                     <FileText className="w-3.5 h-3.5 text-[#26B6B6]" />
-                                    <span className="text-[10px] text-gray-700 dark:text-gray-300 font-mono max-w-[200px] truncate">{award.fileName}</span>
+                                    <span className="text-[12px] text-gray-700 dark:text-gray-300 font-mono max-w-[200px] truncate">{award.fileName}</span>
                                     {award.fileUrl && award.fileUrl !== '#' && (
                                       <a href={award.fileUrl} target="_blank" rel="noreferrer" className="text-[#26B6B6] hover:underline p-0.5">
                                         <ExternalLink className="w-3 h-3" />
@@ -3098,7 +3084,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                     )}
                                   </div>
                                 ) : (
-                                  <span className="text-[10px] text-gray-400 font-light italic">{isRtl ? 'سندی پیوست نشده است.' : 'No document attached.'}</span>
+                                  <span className="text-[12px] text-gray-400 font-light italic">{isRtl ? 'سندی پیوست نشده است.' : 'No document attached.'}</span>
                                 )}
                               </div>
 
@@ -3122,7 +3108,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                 <button
                                   type="button"
                                   onClick={() => document.getElementById(`award-file-input-${award.id}`)?.click()}
-                                  className="bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800 border rounded-xl text-[10px] px-3 py-1.5 text-gray-700 dark:text-gray-200 cursor-pointer flex items-center gap-1"
+                                  className="bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800 border rounded-xl text-[12px] px-3 py-1.5 text-gray-700 dark:text-gray-200 cursor-pointer flex items-center gap-1"
                                 >
                                   <Upload className="w-3.5 h-3.5 text-[#26B6B6]" />
                                   <span>{award.fileName ? (isRtl ? 'جایگزینی سند' : 'Replace Doc') : (isRtl ? 'بارگذاری سند افتخار' : 'Upload Doc')}</span>
@@ -3212,13 +3198,13 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                           <button
                             type="button"
                             onClick={() => document.getElementById('new-award-file-picker')?.click()}
-                            className="bg-white hover:bg-slate-100 border rounded-xl text-[10px] font-bold px-3 py-2 cursor-pointer flex items-center gap-1"
+                            className="bg-white hover:bg-slate-100 border rounded-xl text-[12px] font-bold px-3 py-2 cursor-pointer flex items-center gap-1"
                           >
                             <Upload className="w-3.5 h-3.5 text-[#26B6B6]" />
                             <span>{newAwardFileName ? (isRtl ? 'تغییر فایل تاییدیه' : 'Change Document') : (isRtl ? 'ضمیمه فایل تاییدیه نشان' : 'Attach Supporting Document')}</span>
                           </button>
                           {newAwardFileName && (
-                            <span className="text-[10px] text-gray-500 font-mono truncate max-w-[200px]">✓ {newAwardFileName}</span>
+                            <span className="text-[12px] text-gray-500 font-mono truncate max-w-[200px]">✓ {newAwardFileName}</span>
                           )}
                         </div>
 
@@ -3241,7 +3227,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                     <Briefcase className="w-5 h-5 text-[#26B6B6]" />
                     <span>{isRtl ? 'پروژه‌های شاخص اجرا شده با محصولات برند شما' : 'Key AEC Reference Projects'}</span>
                   </h2>
-                  <p className="text-[11px] text-gray-400 mt-1">
+                  <p className="text-[13px] text-gray-400 mt-1">
                     {isRtl ? 'مدیریت و افزودن پروژه‌های معروفی که مجهز به محصولات کارخانه‌ای یا بلوک‌های بیم شما شده‌اند.' : 'Showcase major structural design builds equipped with your catalog specification objects.'}
                   </p>
                 </div>
@@ -3265,7 +3251,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                           <div className="space-y-3.5 text-xs">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'نام پروژه (فارسی)' : 'Project Title (Persian)'}</label>
+                                <label className="text-[12px] font-bold text-gray-400 block">{isRtl ? 'نام پروژه (فارسی)' : 'Project Title (Persian)'}</label>
                                 <input 
                                   type="text" 
                                   className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl"
@@ -3274,7 +3260,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                 />
                               </div>
                               <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'نام پروژه (انگلیسی)' : 'Project Title (English)'}</label>
+                                <label className="text-[12px] font-bold text-gray-400 block">{isRtl ? 'نام پروژه (انگلیسی)' : 'Project Title (English)'}</label>
                                 <input 
                                   type="text" 
                                   className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl text-left"
@@ -3286,7 +3272,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
 
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                               <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'دفتر معماری یا طراح نما' : 'Architect / Designer'}</label>
+                                <label className="text-[12px] font-bold text-gray-400 block">{isRtl ? 'دفتر معماری یا طراح نما' : 'Architect / Designer'}</label>
                                 <input 
                                   type="text" 
                                   className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl"
@@ -3295,7 +3281,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                 />
                               </div>
                               <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'موقعیت پروژه' : 'Location'}</label>
+                                <label className="text-[12px] font-bold text-gray-400 block">{isRtl ? 'موقعیت پروژه' : 'Location'}</label>
                                 <input 
                                   type="text" 
                                   className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl"
@@ -3304,7 +3290,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                 />
                               </div>
                               <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'سال اجرا' : 'Year'}</label>
+                                <label className="text-[12px] font-bold text-gray-400 block">{isRtl ? 'سال اجرا' : 'Year'}</label>
                                 <input 
                                   type="text" 
                                   className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl"
@@ -3315,7 +3301,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                             </div>
 
                             <div className="space-y-1">
-                              <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'توضیحات کوتاه پروژه' : 'Description'}</label>
+                              <label className="text-[12px] font-bold text-gray-400 block">{isRtl ? 'توضیحات کوتاه پروژه' : 'Description'}</label>
                               <textarea 
                                 rows={2}
                                 className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl resize-none"
@@ -3328,7 +3314,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                               <button
                                 type="button"
                                 onClick={() => handleDeleteProject(proj.id)}
-                                className="px-3.5 py-2 rounded-xl text-[10.5px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 shadow-2xs hover:shadow-xs border border-rose-200 hover:border-rose-300 dark:border-rose-900/30 dark:hover:border-rose-800 text-rose-600 dark:text-rose-400 bg-rose-50/50 hover:bg-rose-50 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 cursor-pointer"
+                                className="px-3.5 py-2 rounded-xl text-[12.5px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 shadow-2xs hover:shadow-xs border border-rose-200 hover:border-rose-300 dark:border-rose-900/30 dark:hover:border-rose-800 text-rose-600 dark:text-rose-400 bg-rose-50/50 hover:bg-rose-50 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 cursor-pointer"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                                 <span>{isRtl ? 'حذف دائمی' : 'Permanently Delete'}</span>
@@ -3336,7 +3322,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                               <button
                                 type="button"
                                 onClick={() => setEditingProjId(null)}
-                                className="bg-[#26B6B6] text-white text-[10px] font-bold px-4 py-2 rounded-xl cursor-pointer hover:bg-[#1e9494]"
+                                className="bg-[#26B6B6] text-white text-[12px] font-bold px-4 py-2 rounded-xl cursor-pointer hover:bg-[#1e9494]"
                               >
                                 {isRtl ? 'ذخیره تغییرات' : 'Save Changes'}
                               </button>
@@ -3350,7 +3336,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                 <h4 className="font-extrabold text-gray-800 dark:text-gray-100 text-sm">
                                   {isRtl ? proj.titleFa : proj.titleEn}
                                 </h4>
-                                <div className="flex flex-wrap items-center gap-2 text-gray-400 text-[10px] font-mono">
+                                <div className="flex flex-wrap items-center gap-2 text-gray-400 text-[12px] font-mono">
                                   <span>Architect: {proj.architect}</span>
                                   <span>•</span>
                                   <span>{proj.location}</span>
@@ -3379,11 +3365,11 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                             {/* Project Attached Brief/Specs file */}
                             <div className="pt-2.5 border-t border-gray-100/60 dark:border-gray-800/60 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
                               <div className="flex items-center gap-2">
-                                <span className="text-gray-400 font-bold text-[10px]">{isRtl ? 'دفترچه پروژه:' : 'Project Brief:'}</span>
+                                <span className="text-gray-400 font-bold text-[12px]">{isRtl ? 'دفترچه پروژه:' : 'Project Brief:'}</span>
                                 {proj.fileName ? (
                                   <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white dark:bg-gray-900 border border-gray-100 rounded-lg">
                                     <FileText className="w-3.5 h-3.5 text-[#26B6B6]" />
-                                    <span className="text-[10px] text-gray-700 dark:text-gray-300 font-mono max-w-[200px] truncate">{proj.fileName}</span>
+                                    <span className="text-[12px] text-gray-700 dark:text-gray-300 font-mono max-w-[200px] truncate">{proj.fileName}</span>
                                     {proj.fileUrl && proj.fileUrl !== '#' && (
                                       <a href={proj.fileUrl} target="_blank" rel="noreferrer" className="text-[#26B6B6] hover:underline p-0.5">
                                         <ExternalLink className="w-3 h-3" />
@@ -3391,7 +3377,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                     )}
                                   </div>
                                 ) : (
-                                  <span className="text-[10px] text-gray-400 font-light italic">{isRtl ? 'سندی پیوست نشده است.' : 'No specs document attached.'}</span>
+                                  <span className="text-[12px] text-gray-400 font-light italic">{isRtl ? 'سندی پیوست نشده است.' : 'No specs document attached.'}</span>
                                 )}
                               </div>
 
@@ -3415,7 +3401,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                 <button
                                   type="button"
                                   onClick={() => document.getElementById(`proj-file-input-${proj.id}`)?.click()}
-                                  className="bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800 border rounded-xl text-[10px] px-3 py-1.5 text-gray-700 dark:text-gray-200 cursor-pointer flex items-center gap-1"
+                                  className="bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800 border rounded-xl text-[12px] px-3 py-1.5 text-gray-700 dark:text-gray-200 cursor-pointer flex items-center gap-1"
                                 >
                                   <Upload className="w-3.5 h-3.5 text-[#26B6B6]" />
                                   <span>{proj.fileName ? (isRtl ? 'جایگزینی مدرک' : 'Replace Doc') : (isRtl ? 'بارگذاری مدرک پروژه' : 'Upload Brief/Specs')}</span>
@@ -3505,13 +3491,13 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                           <button
                             type="button"
                             onClick={() => document.getElementById('new-proj-file-picker')?.click()}
-                            className="bg-white hover:bg-slate-100 border rounded-xl text-[10px] font-bold px-3 py-2 cursor-pointer flex items-center gap-1"
+                            className="bg-white hover:bg-slate-100 border rounded-xl text-[12px] font-bold px-3 py-2 cursor-pointer flex items-center gap-1"
                           >
                             <Upload className="w-3.5 h-3.5 text-[#26B6B6]" />
                             <span>{newProjFileName ? (isRtl ? 'تغییر فایل ضمیمه' : 'Change Attached Brief') : (isRtl ? 'ضمیمه دفترچه یا تصاویر پروژه' : 'Attach Technical Case study/Brief')}</span>
                           </button>
                           {newProjFileName && (
-                            <span className="text-[10px] text-gray-500 font-mono truncate max-w-[200px]">✓ {newProjFileName}</span>
+                            <span className="text-[12px] text-gray-500 font-mono truncate max-w-[200px]">✓ {newProjFileName}</span>
                           )}
                         </div>
 
@@ -3534,7 +3520,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                     <BookOpen className="w-5 h-5 text-[#26B6B6]" />
                     <span>{isRtl ? 'کتابخانه فنی و کاتالوگ‌های برند' : 'Technical Bookshelf & Catalogs'}</span>
                   </h2>
-                  <p className="text-[11px] text-gray-400 mt-1">
+                  <p className="text-[13px] text-gray-400 mt-1">
                     {isRtl ? 'مدیریت و افزودن کاتالوگ‌های چاپی، کتب فنی، کات‌شیت‌ها و جداول محاسباتی درخواستی معماران و مهندسان.' : 'Manage technical handbooks, corporate brochures, U-value calculation tables and physical cutsheets.'}
                   </p>
                 </div>
@@ -3550,7 +3536,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                           <div className="space-y-3.5 text-xs">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'عنوان کاتالوگ / کتاب فنی (فارسی)' : 'Catalog Title (Persian)'}</label>
+                                <label className="text-[12px] font-bold text-gray-400 block">{isRtl ? 'عنوان کاتالوگ / کتاب فنی (فارسی)' : 'Catalog Title (Persian)'}</label>
                                 <input 
                                   type="text" 
                                   className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl"
@@ -3559,7 +3545,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                 />
                               </div>
                               <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'عنوان کاتالوگ / کتاب فنی (انگلیسی)' : 'Catalog Title (English)'}</label>
+                                <label className="text-[12px] font-bold text-gray-400 block">{isRtl ? 'عنوان کاتالوگ / کتاب فنی (انگلیسی)' : 'Catalog Title (English)'}</label>
                                 <input 
                                   type="text" 
                                   className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl text-left"
@@ -3571,7 +3557,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'دسته‌بندی یا نوع سند' : 'Category / Document Type'}</label>
+                                <label className="text-[12px] font-bold text-gray-400 block">{isRtl ? 'دسته‌بندی یا نوع سند' : 'Category / Document Type'}</label>
                                 <input 
                                   type="text" 
                                   className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl"
@@ -3580,7 +3566,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                 />
                               </div>
                               <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'حجم فایل' : 'File Size'}</label>
+                                <label className="text-[12px] font-bold text-gray-400 block">{isRtl ? 'حجم فایل' : 'File Size'}</label>
                                 <input 
                                   type="text" 
                                   className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl font-mono"
@@ -3591,7 +3577,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                             </div>
 
                             <div className="space-y-1">
-                              <label className="text-[10px] font-bold text-gray-400 block">{isRtl ? 'توضیحات و سرفصل‌ها' : 'Description'}</label>
+                              <label className="text-[12px] font-bold text-gray-400 block">{isRtl ? 'توضیحات و سرفصل‌ها' : 'Description'}</label>
                               <textarea 
                                 rows={2}
                                 className="w-full p-2.5 bg-white dark:bg-gray-900 border rounded-xl resize-none"
@@ -3604,7 +3590,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                               <button
                                 type="button"
                                 onClick={() => handleDeleteCatalog(cat.id)}
-                                className="px-3.5 py-2 rounded-xl text-[10.5px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 shadow-2xs hover:shadow-xs border border-rose-200 hover:border-rose-300 dark:border-rose-900/30 dark:hover:border-rose-800 text-rose-600 dark:text-rose-400 bg-rose-50/50 hover:bg-rose-50 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 cursor-pointer"
+                                className="px-3.5 py-2 rounded-xl text-[12.5px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 shadow-2xs hover:shadow-xs border border-rose-200 hover:border-rose-300 dark:border-rose-900/30 dark:hover:border-rose-800 text-rose-600 dark:text-rose-400 bg-rose-50/50 hover:bg-rose-50 dark:bg-rose-950/20 dark:hover:bg-rose-950/40 cursor-pointer"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                                 <span>{isRtl ? 'حذف دائمی' : 'Permanently Delete'}</span>
@@ -3612,7 +3598,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                               <button
                                 type="button"
                                 onClick={() => setEditingCatId(null)}
-                                className="bg-[#26B6B6] text-white text-[10px] font-bold px-4 py-2 rounded-xl cursor-pointer hover:bg-[#1e9494]"
+                                className="bg-[#26B6B6] text-white text-[12px] font-bold px-4 py-2 rounded-xl cursor-pointer hover:bg-[#1e9494]"
                               >
                                 {isRtl ? 'ذخیره تغییرات' : 'Save Changes'}
                               </button>
@@ -3630,7 +3616,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                   <h4 className="font-extrabold text-gray-800 dark:text-gray-100 text-sm">
                                     {isRtl ? cat.titleFa : cat.titleEn}
                                   </h4>
-                                  <div className="flex flex-wrap items-center gap-2 text-gray-400 text-[10px]">
+                                  <div className="flex flex-wrap items-center gap-2 text-gray-400 text-[12px]">
                                     <span className="bg-slate-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded font-medium">{cat.category}</span>
                                     <span>•</span>
                                     <span className="font-mono text-[#26B6B6]">{cat.fileSize}</span>
@@ -3658,11 +3644,11 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                             {/* Catalog Document File */}
                             <div className="pt-2.5 border-t border-gray-100/60 dark:border-gray-800/60 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
                               <div className="flex items-center gap-2">
-                                <span className="text-gray-400 font-bold text-[10px]">{isRtl ? 'فایل ضمیمه PDF:' : 'PDF File:'}</span>
+                                <span className="text-gray-400 font-bold text-[12px]">{isRtl ? 'فایل ضمیمه PDF:' : 'PDF File:'}</span>
                                 {cat.fileName ? (
                                   <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white dark:bg-gray-900 border border-gray-100 rounded-lg">
                                     <FileText className="w-3.5 h-3.5 text-rose-500" />
-                                    <span className="text-[10px] text-gray-700 dark:text-gray-300 font-mono max-w-[200px] truncate">{cat.fileName}</span>
+                                    <span className="text-[12px] text-gray-700 dark:text-gray-300 font-mono max-w-[200px] truncate">{cat.fileName}</span>
                                     {cat.fileUrl && cat.fileUrl !== '#' && (
                                       <a href={cat.fileUrl} target="_blank" rel="noreferrer" className="text-[#26B6B6] hover:underline p-0.5">
                                         <ExternalLink className="w-3 h-3" />
@@ -3670,7 +3656,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                     )}
                                   </div>
                                 ) : (
-                                  <span className="text-[10px] text-gray-400 font-light italic">{isRtl ? 'فایلی بارگذاری نشده است.' : 'No PDF attached.'}</span>
+                                  <span className="text-[12px] text-gray-400 font-light italic">{isRtl ? 'فایلی بارگذاری نشده است.' : 'No PDF attached.'}</span>
                                 )}
                               </div>
 
@@ -3695,7 +3681,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                 <button
                                   type="button"
                                   onClick={() => document.getElementById(`cat-file-input-${cat.id}`)?.click()}
-                                  className="bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800 border rounded-xl text-[10px] px-3 py-1.5 text-gray-700 dark:text-gray-200 cursor-pointer flex items-center gap-1"
+                                  className="bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800 border rounded-xl text-[12px] px-3 py-1.5 text-gray-700 dark:text-gray-200 cursor-pointer flex items-center gap-1"
                                 >
                                   <Upload className="w-3.5 h-3.5 text-[#26B6B6]" />
                                   <span>{cat.fileName ? (isRtl ? 'جایگزینی PDF' : 'Replace PDF') : (isRtl ? 'بارگذاری فایل PDF' : 'Upload PDF')}</span>
@@ -3784,7 +3770,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                           <span>{newCatFileName ? (isRtl ? 'تغییر فایل PDF' : 'Change PDF File') : (isRtl ? 'انتخاب فایل PDF' : 'Attach PDF File')}</span>
                         </button>
                         {newCatFileName && (
-                          <span className="text-[10px] text-gray-500 font-mono truncate max-w-xs block">
+                          <span className="text-[12px] text-gray-500 font-mono truncate max-w-xs block">
                             ✓ {newCatFileName}
                           </span>
                         )}
@@ -3838,7 +3824,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                   <Layers className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="text-[10px] text-gray-400 font-medium">{isRtl ? 'کل آبجکت‌ها' : 'Total Objects'}</div>
+                  <div className="text-[12px] text-gray-400 font-medium">{isRtl ? 'کل آبجکت‌ها' : 'Total Objects'}</div>
                   <div className="text-sm font-extrabold text-gray-800 dark:text-white font-mono">{catalogObjects.length}</div>
                 </div>
               </div>
@@ -3848,7 +3834,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                   <CheckCircle className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="text-[10px] text-gray-400 font-medium">{isRtl ? 'منتشر شده' : 'Published'}</div>
+                  <div className="text-[12px] text-gray-400 font-medium">{isRtl ? 'منتشر شده' : 'Published'}</div>
                   <div className="text-sm font-extrabold text-gray-800 dark:text-white font-mono">{catalogObjects.filter(o => (o as any).status === 'Published').length}</div>
                 </div>
               </div>
@@ -3858,7 +3844,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                   <Clock className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="text-[10px] text-gray-400 font-medium">{isRtl ? 'در انتظار بررسی' : 'Pending Review'}</div>
+                  <div className="text-[12px] text-gray-400 font-medium">{isRtl ? 'در انتظار بررسی' : 'Pending Review'}</div>
                   <div className="text-sm font-extrabold text-gray-800 dark:text-white font-mono">{pendingApprovalsCount}</div>
                 </div>
               </div>
@@ -3868,7 +3854,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                   <FileText className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="text-[10px] text-gray-400 font-medium">{isRtl ? 'مجموع دانلودها' : 'Total Downloads'}</div>
+                  <div className="text-[12px] text-gray-400 font-medium">{isRtl ? 'مجموع دانلودها' : 'Total Downloads'}</div>
                   <div className="text-sm font-extrabold text-gray-800 dark:text-white font-mono">{totalDownloads}</div>
                 </div>
               </div>
@@ -3956,11 +3942,11 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                           </td>
                           <td className="p-3 font-bold text-gray-800 dark:text-white max-w-xs truncate">
                             {isRtl ? obj.titleFa : obj.titleEn}
-                            <span className="block font-mono text-[9px] text-gray-400 mt-0.5">{obj.lod}</span>
+                            <span className="block font-mono text-[13px] text-gray-400 mt-0.5">{obj.lod}</span>
                           </td>
                           <td className="p-3 text-center text-gray-500 dark:text-gray-400 font-medium">{obj.category}</td>
                           <td className="p-3 text-center">
-                            <span className={`text-[9.5px] font-black px-2 py-0.5 rounded-full ${
+                            <span className={`text-[11.5px] font-black px-2 py-0.5 rounded-full ${
                               (obj as any).status === 'Published' 
                                 ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400' 
                                 : 'bg-amber-100 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400'
@@ -3976,7 +3962,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                 const v = prompt(isRtl ? 'ورژن جدید فایل را وارد کنید (مثال: v1.2.0):' : 'Enter updated version tag (e.g. v2.1.0):');
                                 if (v) toast(isRtl ? `ورژن جدید ${v} ثبت شد.` : `Version ${v} logged.`);
                               }}
-                              className="bg-slate-50 hover:bg-slate-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-[10px] py-1 px-2.5 rounded border border-slate-100 dark:border-gray-700 cursor-pointer"
+                              className="bg-slate-50 hover:bg-slate-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-[12px] py-1 px-2.5 rounded border border-slate-100 dark:border-gray-700 cursor-pointer"
                             >
                               {isRtl ? 'ثبت آپدیت' : 'Update file'}
                             </button>
@@ -4024,7 +4010,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                         <p className="text-xs font-bold text-gray-700 dark:text-gray-300 mt-2">
                           {bimFileName ? `${isRtl ? 'فایل انتخاب شده:' : 'File target:'} ${bimFileName}` : (isRtl ? 'فایل رویت (RFA) یا IFC خود را اینجا رها کنید' : 'Drag & Drop Revit (.RFA, .RVT) or IFC files here')}
                         </p>
-                        <p className="text-[11px] text-gray-400 mt-1">{isRtl ? 'حداکثر حجم مجاز: ۵۰ مگابایت' : 'Supported sizes up to 50MB maximum'}</p>
+                        <p className="text-[13px] text-gray-400 mt-1">{isRtl ? 'حداکثر حجم مجاز: ۵۰ مگابایت' : 'Supported sizes up to 50MB maximum'}</p>
                         <input 
                           type="file" 
                           id="bimFile" 
@@ -4045,11 +4031,11 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                       <div className="p-3 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/20 rounded-xl space-y-1.5 text-start">
                         <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400">
                           <HelpCircle className="w-3.5 h-3.5 shrink-0" />
-                          <span className="text-[10px] font-black uppercase tracking-wider">
+                          <span className="text-[12px] font-black uppercase tracking-wider">
                             {isRtl ? 'شفاف‌سازی فنی: عدم امکان قفل فایل‌ها در Revit' : 'Technical Note: Revit Family Lock Limits'}
                           </span>
                         </div>
-                        <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-relaxed font-light">
+                        <p className="text-[12px] text-gray-500 dark:text-gray-400 leading-relaxed font-light">
                           {isRtl ? (
                             <span>به دلیل ساختار ذاتی و معماری بسته‌نرم‌افزار Autodesk Revit، هیچ روش فنی بومی برای قفل مادی یا سلب کامل امکان ویرایش فایل‌های فمیلی (.rfa) پس از دریافت توسط کاربران وجود ندارد. صیانت از حقوق تجاری شما بر دوش ضوابط حقوقی و توافق‌نامه کاربری ایران‌بیم‌هاب است.</span>
                           ) : (
@@ -4098,7 +4084,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                     <div className="py-6 space-y-4">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-1">
-                          <span className="text-[11px] text-gray-400 block font-bold">{isRtl ? 'نوع LOD (سطح توسعه جزئیات)' : 'LOD standard'}</span>
+                          <span className="text-[13px] text-gray-400 block font-bold">{isRtl ? 'نوع LOD (سطح توسعه جزئیات)' : 'LOD standard'}</span>
                           <select 
                             value={wizardForm.lod} 
                             onChange={(e: any) => setWizardForm({...wizardForm, lod: e.target.value})}
@@ -4111,7 +4097,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                         </div>
 
                         <div className="space-y-1">
-                          <span className="text-[11px] text-gray-400 block font-bold">{isRtl ? 'جنس پروفایل اصلی نما' : 'Facade Material Spec'}</span>
+                          <span className="text-[13px] text-gray-400 block font-bold">{isRtl ? 'جنس پروفایل اصلی نما' : 'Facade Material Spec'}</span>
                           <input 
                             type="text" 
                             value={wizardForm.specs.material} 
@@ -4130,7 +4116,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                             onChange={(e) => setAgreePublishTerms(e.target.checked)}
                             className="w-4 h-4 mt-0.5 rounded accent-[#26B6B6] cursor-pointer animate-pulse"
                           />
-                          <span className="text-[11px] leading-relaxed text-gray-700 dark:text-gray-300">
+                          <span className="text-[13px] leading-relaxed text-gray-700 dark:text-gray-300">
                             {isRtl ? (
                               <span>
                                 تایید می‌کنم که مالکیت مادی و معنوی این فایل‌ها متعلق به برند تولیدی ما بوده و صحت تمام ابعاد فنی منطبق بر{' '}
@@ -4195,7 +4181,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
           <div className="space-y-8 animate-fadeIn">
             <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
               <div className="space-y-1.5">
-                <span className="text-[10px] text-gray-400 block font-bold uppercase tracking-wider">{isRtl ? 'پلن کارفرمایی برند' : 'Active Brand Plan'}</span>
+                <span className="text-[12px] text-gray-400 block font-bold uppercase tracking-wider">{isRtl ? 'پلن کارفرمایی برند' : 'Active Brand Plan'}</span>
                 <div className="flex items-center gap-2">
                   <h2 className="text-xl font-black text-gray-800 dark:text-white">
                     {isRtl ? `عضویت ویژه ${brandInfo.tier} کارخانجات` : `${brandInfo.tier} Provider SLA`}
@@ -4315,7 +4301,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200">{isRtl ? 'علی مرادی' : 'Ali Moradi'}</h4>
-                  <p className="text-[10px] text-gray-400 font-mono">Senior Architect • 2 days ago</p>
+                  <p className="text-[12px] text-gray-400 font-mono">Senior Architect • 2 days ago</p>
                 </div>
               </div>
               <div className="bg-slate-50 dark:bg-gray-950/40 border border-gray-150 dark:border-gray-800 rounded-xl p-4 flex items-center gap-3">
@@ -4324,7 +4310,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200">{isRtl ? 'زهرا شیرازی' : 'Zahra Shirazi'}</h4>
-                  <p className="text-[10px] text-gray-400 font-mono">BIM Modeler • 5 days ago</p>
+                  <p className="text-[12px] text-gray-400 font-mono">BIM Modeler • 5 days ago</p>
                 </div>
               </div>
               <div className="bg-slate-50 dark:bg-gray-950/40 border border-gray-150 dark:border-gray-800 rounded-xl p-4 flex items-center gap-3">
@@ -4333,7 +4319,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                 </div>
                 <div>
                   <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200">{isRtl ? 'نوید تهرانی' : 'Navid Tehrani'}</h4>
-                  <p className="text-[10px] text-gray-400 font-mono">Interior Designer • 1 week ago</p>
+                  <p className="text-[12px] text-gray-400 font-mono">Interior Designer • 1 week ago</p>
                 </div>
               </div>
             </div>
@@ -4354,7 +4340,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
               <button
                 type="button"
                 onClick={() => setRequestsSubTab('leads')}
-                className={`px-3.5 py-2 rounded-xl text-[11px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 whitespace-nowrap cursor-pointer ${
+                className={`px-3.5 py-2 rounded-xl text-[13px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 whitespace-nowrap cursor-pointer ${
                   requestsSubTab === 'leads'
                     ? 'shadow-2xs border border-[#26B6B6]/30 text-[#26B6B6] bg-[#26B6B6]/5'
                     : 'hover:shadow-xs border border-gray-200 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-700 text-gray-500 dark:text-gray-400 bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800'
@@ -4366,7 +4352,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
               <button
                 type="button"
                 onClick={() => setRequestsSubTab('objects')}
-                className={`px-3.5 py-2 rounded-xl text-[11px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 whitespace-nowrap cursor-pointer ${
+                className={`px-3.5 py-2 rounded-xl text-[13px] font-extrabold flex items-center gap-1.5 transition-all duration-200 active:scale-95 whitespace-nowrap cursor-pointer ${
                   requestsSubTab === 'objects'
                     ? 'shadow-2xs border border-[#26B6B6]/30 text-[#26B6B6] bg-[#26B6B6]/5'
                     : 'hover:shadow-xs border border-gray-200 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-700 text-gray-500 dark:text-gray-400 bg-white hover:bg-slate-50 dark:bg-gray-900 dark:hover:bg-gray-800'
@@ -4398,11 +4384,11 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                         }`}
                       >
                         <div className="flex justify-between items-start gap-2">
-                          <span className="text-[11px] font-bold text-gray-800 truncate block">{lead.senderName}</span>
+                          <span className="text-[13px] font-bold text-gray-800 truncate block">{lead.senderName}</span>
                           {!lead.read && <span className="w-2 h-2 rounded-full bg-[#26B6B6] shrink-0" />}
                         </div>
-                        <span className="text-[9.5px] text-gray-400 font-mono block mt-1">{lead.date}</span>
-                        <span className="inline-block bg-slate-100 text-gray-500 text-[8.5px] px-1.5 py-0.5 rounded font-bold mt-1.5">{lead.tag}</span>
+                        <span className="text-[11.5px] text-gray-400 font-mono block mt-1">{lead.date}</span>
+                        <span className="inline-block bg-slate-100 text-gray-500 text-[13px] px-1.5 py-0.5 rounded font-bold mt-1.5">{lead.tag}</span>
                       </div>
                     ))}
                   </div>
@@ -4419,7 +4405,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                           <div className="space-y-4 text-start">
                             <div className="border-b pb-3">
                               <h4 className="text-xs font-extrabold text-gray-800 dark:text-white">{lead.senderName}</h4>
-                              <p className="text-[10px] text-gray-400 mt-1">Product: <span className="text-[#26B6B6] font-bold">{lead.productName}</span></p>
+                              <p className="text-[12px] text-gray-400 mt-1">Product: <span className="text-[#26B6B6] font-bold">{lead.productName}</span></p>
                             </div>
 
                             <div className="p-3 bg-slate-50 dark:bg-gray-950 rounded-xl text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
@@ -4429,7 +4415,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                             {/* Thread of replies */}
                             {lead.replies.map((rep: any, idx: number) => (
                               <div key={idx} className="p-3 bg-indigo-50/30 rounded-xl text-xs flex flex-col justify-between">
-                                <span className="text-[9.5px] text-gray-400 font-bold">{isRtl ? 'پاسخ کارفرما:' : 'Your Response:'}</span>
+                                <span className="text-[11.5px] text-gray-400 font-bold">{isRtl ? 'پاسخ کارفرما:' : 'Your Response:'}</span>
                                 <p className="mt-1">{rep.text}</p>
                               </div>
                             ))}
@@ -4476,12 +4462,12 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                         <div key={tick.id} className="p-4 bg-slate-50 dark:bg-gray-950 rounded-xl border border-slate-100 dark:border-gray-800 space-y-2 text-start">
                           <div className="flex justify-between items-center text-xs font-bold">
                             <span className="text-gray-800 dark:text-white">{tick.subject}</span>
-                            <span className="bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full text-[9px]">{tick.status}</span>
+                            <span className="bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full text-[13px]">{tick.status}</span>
                           </div>
                           
                           {tick.chat.map((m: any, idx: number) => (
-                            <div key={idx} className="p-2.5 bg-white dark:bg-gray-900 rounded-lg text-[11px] text-gray-600 dark:text-gray-300">
-                              <span className="font-bold text-[9.5px] block text-gray-400">{m.sender === 'mfg' ? (isRtl ? 'من' : 'Brand') : (isRtl ? 'پشتیبان سیستم' : 'Mod Desk')}</span>
+                            <div key={idx} className="p-2.5 bg-white dark:bg-gray-900 rounded-lg text-[13px] text-gray-600 dark:text-gray-300">
+                              <span className="font-bold text-[11.5px] block text-gray-400">{m.sender === 'mfg' ? (isRtl ? 'من' : 'Brand') : (isRtl ? 'پشتیبان سیستم' : 'Mod Desk')}</span>
                               <p className="mt-0.5">{m.text}</p>
                             </div>
                           ))}
@@ -4522,7 +4508,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                     <HelpCircle className="w-5 h-5 text-[#26B6B6]" />
                     <span>{isRtl ? 'آبجکت‌ها و فمیلی‌های درخواستی معماران (BIM)' : 'Requested BIM Families from Designers'}</span>
                   </h2>
-                  <p className="text-[11px] text-gray-400 mt-1">
+                  <p className="text-[13px] text-gray-400 mt-1">
                     {isRtl 
                       ? 'مشاهده و مدیریت درخواست‌های مدل‌سازی که توسط کاربران بیم‌هاب در صفحه برند شما ثبت شده است.' 
                       : 'Review, accept and update statuses of custom modeling requests submitted by designers.'}
@@ -4532,19 +4518,19 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                 {/* Quick stats for requested objects */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-800 space-y-1">
-                    <span className="text-[10px] text-gray-400 block font-bold uppercase">{isRtl ? 'کل درخواست‌ها' : 'Total Requests'}</span>
+                    <span className="text-[12px] text-gray-400 block font-bold uppercase">{isRtl ? 'کل درخواست‌ها' : 'Total Requests'}</span>
                     <span className="text-lg font-black text-gray-800 dark:text-white font-mono">{objectRequests.length}</span>
                   </div>
                   <div className="bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-800 space-y-1">
-                    <span className="text-[10px] text-gray-400 block font-bold uppercase text-red-500">{isRtl ? 'اولویت بالا (فوری)' : 'High Priority'}</span>
+                    <span className="text-[12px] text-gray-400 block font-bold uppercase text-red-500">{isRtl ? 'اولویت بالا (فوری)' : 'High Priority'}</span>
                     <span className="text-lg font-black text-red-500 font-mono">{objectRequests.filter(r => r.priority === 'High').length}</span>
                   </div>
                   <div className="bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-800 space-y-1">
-                    <span className="text-[10px] text-gray-400 block font-bold uppercase text-amber-500">{isRtl ? 'در حال بررسی' : 'Pending Review'}</span>
+                    <span className="text-[12px] text-gray-400 block font-bold uppercase text-amber-500">{isRtl ? 'در حال بررسی' : 'Pending Review'}</span>
                     <span className="text-lg font-black text-amber-500 font-mono">{objectRequests.filter(r => r.status === 'Pending').length}</span>
                   </div>
                   <div className="bg-white dark:bg-gray-900 p-4 rounded-xl border border-gray-100 dark:border-gray-800 space-y-1">
-                    <span className="text-[10px] text-gray-400 block font-bold uppercase text-emerald-500">{isRtl ? 'مدل‌سازی شده' : 'Completed'}</span>
+                    <span className="text-[12px] text-gray-400 block font-bold uppercase text-emerald-500">{isRtl ? 'مدل‌سازی شده' : 'Completed'}</span>
                     <span className="text-lg font-black text-emerald-500 font-mono">{objectRequests.filter(r => r.status === 'Completed').length}</span>
                   </div>
                 </div>
@@ -4553,7 +4539,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                 <div className="flex flex-wrap gap-4 items-center justify-between bg-white dark:bg-gray-900 border p-4 rounded-2xl dark:border-gray-800">
                   <div className="flex flex-wrap items-center gap-4">
                     <div className="space-y-0.5">
-                      <label className="block text-[10px] text-gray-400 font-bold">{isRtl ? 'وضعیت بررسی' : 'Status Filter'}</label>
+                      <label className="block text-[12px] text-gray-400 font-bold">{isRtl ? 'وضعیت بررسی' : 'Status Filter'}</label>
                       <select 
                         value={selectedRequestFilterStatus}
                         onChange={e => setSelectedRequestFilterStatus(e.target.value)}
@@ -4568,7 +4554,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                     </div>
 
                     <div className="space-y-0.5">
-                      <label className="block text-[10px] text-gray-400 font-bold">{isRtl ? 'اولویت پروژه' : 'Priority Filter'}</label>
+                      <label className="block text-[12px] text-gray-400 font-bold">{isRtl ? 'اولویت پروژه' : 'Priority Filter'}</label>
                       <select 
                         value={selectedRequestFilterPriority}
                         onChange={e => setSelectedRequestFilterPriority(e.target.value)}
@@ -4634,7 +4620,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                         >
                           <div className="flex justify-between items-start gap-2">
                             <h4 className="text-xs font-bold text-gray-800 dark:text-white truncate">{req.objectName}</h4>
-                            <span className={`text-[8.5px] px-2 py-0.5 rounded-full shrink-0 font-black tracking-wide ${
+                            <span className={`text-[13px] px-2 py-0.5 rounded-full shrink-0 font-black tracking-wide ${
                               req.priority === 'High' 
                                 ? 'bg-rose-100 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400' 
                                 : req.priority === 'Medium'
@@ -4645,11 +4631,11 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                             </span>
                           </div>
 
-                          <p className="text-[10px] text-gray-400 font-medium truncate leading-tight">
+                          <p className="text-[12px] text-gray-400 font-medium truncate leading-tight">
                             {req.senderName}
                           </p>
 
-                          <div className="flex justify-between items-center text-[9.5px] text-gray-400 pt-1.5 border-t dark:border-gray-800/60">
+                          <div className="flex justify-between items-center text-[11.5px] text-gray-400 pt-1.5 border-t dark:border-gray-800/60">
                             <span className="font-mono">{req.date}</span>
                             <span className={`font-bold px-2 py-0.5 rounded ${
                               req.status === 'Completed' 
@@ -4682,7 +4668,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                             <div className="flex justify-between items-start gap-4 border-b pb-4 dark:border-gray-800">
                               <div>
                                 <h3 className="text-sm font-extrabold text-gray-800 dark:text-white leading-tight">{req.objectName}</h3>
-                                <div className="flex flex-wrap gap-3 items-center text-[10px] text-gray-400 mt-2 font-bold">
+                                <div className="flex flex-wrap gap-3 items-center text-[12px] text-gray-400 mt-2 font-bold">
                                   <span>Format: <span className="text-amber-600">{req.format}</span></span>
                                   <span>•</span>
                                   <span>Category: <span className="text-[#26B6B6]">{req.category.replace('_', ' ')}</span></span>
@@ -4690,7 +4676,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                                   <span className="font-mono">{req.date}</span>
                                 </div>
                               </div>
-                              <span className={`text-[10px] px-3 py-1 rounded-full font-black tracking-widest ${
+                              <span className={`text-[12px] px-3 py-1 rounded-full font-black tracking-widest ${
                                 req.priority === 'High' 
                                   ? 'bg-rose-100 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400' 
                                   : req.priority === 'Medium'
@@ -4702,7 +4688,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                             </div>
 
                             <div className="space-y-1 text-xs">
-                              <h4 className="font-extrabold text-gray-400 uppercase tracking-wider text-[10px]">{isRtl ? 'جزئیات فنی درخواست شده' : 'Requested Details & Specs'}</h4>
+                              <h4 className="font-extrabold text-gray-400 uppercase tracking-wider text-[12px]">{isRtl ? 'جزئیات فنی درخواست شده' : 'Requested Details & Specs'}</h4>
                               <div className="p-4 bg-slate-50 dark:bg-gray-950 rounded-xl leading-relaxed text-gray-700 dark:text-gray-300 whitespace-pre-wrap font-light border dark:border-gray-800/50">
                                 {req.description}
                               </div>
@@ -4710,13 +4696,13 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50/50 dark:bg-gray-950 p-4 rounded-xl text-xs border dark:border-gray-800/30">
                               <div className="space-y-1">
-                                <h5 className="font-bold text-gray-400 uppercase tracking-wider text-[9.5px]">{isRtl ? 'درخواست دهنده (معمار)' : 'AEC Contact Person'}</h5>
+                                <h5 className="font-bold text-gray-400 uppercase tracking-wider text-[11.5px]">{isRtl ? 'درخواست دهنده (معمار)' : 'AEC Contact Person'}</h5>
                                 <p className="font-extrabold text-gray-800 dark:text-white">{req.senderName}</p>
                               </div>
                               <div className="space-y-1">
-                                <h5 className="font-bold text-gray-400 uppercase tracking-wider text-[9.5px]">{isRtl ? 'مختصات تماس مستقیم' : 'Direct Coordinates'}</h5>
+                                <h5 className="font-bold text-gray-400 uppercase tracking-wider text-[11.5px]">{isRtl ? 'مختصات تماس مستقیم' : 'Direct Coordinates'}</h5>
                                 <p className="text-gray-600 dark:text-gray-400">{req.email}</p>
-                                <p className="font-mono text-[11px] text-gray-500">{req.phone}</p>
+                                <p className="font-mono text-[13px] text-gray-500">{req.phone}</p>
                               </div>
                             </div>
 
@@ -4779,7 +4765,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                 <FileCheck className="w-5 h-5 text-[#26B6B6]" />
                 <span>{isRtl ? 'میز گفتگوی مستقیم با ناظر فنی کاتالوگ' : 'AEC Supervisor Approval Board'}</span>
               </h2>
-              <p className="text-[11px] text-gray-400 mt-1">
+              <p className="text-[13px] text-gray-400 mt-1">
                 {isRtl ? 'با ناظر فنی اختصاصی برند خود جهت ارزیابی پارامترها و گواهی‌ها گفتگو کنید.' : 'Direct Slack-like communication with your designated account supervisor manager.'}
               </p>
             </div>
@@ -4839,7 +4825,7 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
               <h3 className="text-sm font-black text-gray-900 dark:text-white">
                 {deleteConfirmDialog.title}
               </h3>
-              <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
+              <p className="text-[13px] text-gray-500 dark:text-gray-400 leading-relaxed">
                 {deleteConfirmDialog.message}
               </p>
             </div>
@@ -4876,7 +4862,6 @@ interface MfgSidebarNavListProps {
   unansweredLeadsCount: number;
   collapsed?: boolean;
   onLogout: () => void;
-  workspaceMode: 'simple' | 'professional';
 }
 
 const MfgSidebarNavList: React.FC<MfgSidebarNavListProps> = ({
@@ -4885,8 +4870,7 @@ const MfgSidebarNavList: React.FC<MfgSidebarNavListProps> = ({
   isRtl,
   unansweredLeadsCount,
   collapsed = false,
-  onLogout,
-  workspaceMode
+  onLogout
 }) => {
   const items = [
     { id: 'overview' as const, labelFa: 'پیشخوان', labelEn: 'Overview', icon: Grid },
@@ -4901,11 +4885,9 @@ const MfgSidebarNavList: React.FC<MfgSidebarNavListProps> = ({
     { id: 'logout' as const, labelFa: 'خروج از حساب کاربری', labelEn: 'Sign Out', icon: LogOut, isLogout: true }
   ];
 
-  const visibleItems = workspaceMode === 'professional' ? items : items.filter((item) => ['overview', 'profile', 'catalog', 'requests', 'notifications', 'logout'].includes(item.id));
-
   return (
-    <ul className="space-y-1 font-medium text-xs leading-none">
-      {visibleItems.map(item => {
+    <ul className="space-y-1 font-medium text-[13px] leading-none">
+      {items.map(item => {
         const Icon = item.icon;
         const active = activeTab === item.id;
         const label = isRtl ? item.labelFa : item.labelEn;
@@ -4950,7 +4932,7 @@ const MfgSidebarNavList: React.FC<MfgSidebarNavListProps> = ({
               </div>
 
               {!collapsed && item.leadBadge && (
-                <span className="bg-[#26B6B6] text-white text-[8px] font-black px-1.5 py-0.5 rounded-full animate-pulse shrink-0">
+                <span className="bg-[#26B6B6] text-white text-[13px] font-black px-1.5 py-0.5 rounded-full animate-pulse shrink-0">
                   {isRtl ? 'جدید' : 'NEW'}
                 </span>
               )}

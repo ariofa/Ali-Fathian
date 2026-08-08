@@ -31,7 +31,9 @@ import {
   BookOpen,
   History,
   Send,
-  HelpCircle
+  HelpCircle,
+  PackagePlus,
+  MessagesSquare
 } from 'lucide-react';
 import { useLanguage } from '../LanguageContext';
 import { useLoading } from '../LoadingContext';
@@ -60,6 +62,8 @@ import {
 } from './AdminMockData';
 import { BIMModelerApplicationsAdminView } from './BIMModelerApplicationsAdminView';
 import { ManufacturerLeadsAdminView } from './ManufacturerLeadsAdminView';
+import { ObjectRequestsAdminView } from './ObjectRequestsAdminView';
+import { CommentsModerationAdminView } from './CommentsModerationAdminView';
 import { BrandVerificationAdminView } from './BrandVerificationAdminView';
 
 export const AdminControlPanel: React.FC = () => {
@@ -454,6 +458,11 @@ export const AdminControlPanel: React.FC = () => {
         return currentAdmin.role === 'Review Team Manager';
       case 'manufacturer-leads':
         return ['Review Team Manager', 'Support & Customer Success', 'Manufacturer Verification Admin'].includes(currentAdmin.role);
+      case 'object-requests':
+        // Architects' «درخواست آبجکت جدید» queue (item 20)
+        return ['Review Team Manager', 'Support & Customer Success', 'Manufacturer Verification Admin'].includes(currentAdmin.role);
+      case 'comments-moderation':
+        // Object-page comment moderation (item 14)
         return ['Review Team Manager', 'Support & Customer Success'].includes(currentAdmin.role);
       case 'my-reviews':
         return currentAdmin.role === 'Reviewer';
@@ -1077,6 +1086,36 @@ export const AdminControlPanel: React.FC = () => {
               </button>
             )}
 
+            {/* Tab: Architect object requests */}
+            {hasAccessTo('object-requests') && (
+              <button
+                onClick={() => setActiveTab('object-requests')}
+                className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === 'object-requests'
+                    ? 'bg-[#26B6B6] text-white'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                }`}
+              >
+                <PackagePlus className="w-4 h-4" />
+                <span>{isRtl ? 'درخواست‌های آبجکت' : 'Object Requests'}</span>
+              </button>
+            )}
+
+            {/* Tab: Comments moderation */}
+            {hasAccessTo('comments-moderation') && (
+              <button
+                onClick={() => setActiveTab('comments-moderation')}
+                className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === 'comments-moderation'
+                    ? 'bg-[#26B6B6] text-white'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                }`}
+              >
+                <MessagesSquare className="w-4 h-4" />
+                <span>{isRtl ? 'مدیریت دیدگاه‌ها' : 'Comments Moderation'}</span>
+              </button>
+            )}
+
             {/* Tab: BIM Modeler collaboration applications */}
             {hasAccessTo('bim-modeler-applications') && (
               <button
@@ -1373,6 +1412,14 @@ export const AdminControlPanel: React.FC = () => {
           {/* ==================== TAB: MANUFACTURER LEADS ==================== */}
           {activeTab === 'manufacturer-leads' && hasAccessTo('manufacturer-leads') && (
             <ManufacturerLeadsAdminView />
+          )}
+
+          {activeTab === 'object-requests' && hasAccessTo('object-requests') && (
+            <ObjectRequestsAdminView />
+          )}
+
+          {activeTab === 'comments-moderation' && hasAccessTo('comments-moderation') && (
+            <CommentsModerationAdminView />
           )}
 
           {/* ==================== TAB: BIM MODELER COLLABORATION APPLICATIONS ==================== */}

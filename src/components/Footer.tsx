@@ -2,7 +2,7 @@ import React from 'react';
 import { useLanguage } from './LanguageContext';
 import { useSiteConfig } from './SiteConfigContext';
 import { Logo } from './Logo';
-import { Mail, Phone, MapPin, ExternalLink, ShieldCheck } from 'lucide-react';
+import { Mail, Phone, MapPin, ExternalLink, ShieldCheck, Globe } from 'lucide-react';
 import { SocialIconsRow } from './SocialLinks';
 
 interface FooterProps {
@@ -10,7 +10,7 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
-  const { t, isRtl } = useLanguage();
+  const { t, isRtl, language, setLanguage } = useLanguage();
   const { siteConfig } = useSiteConfig();
 
   // Contact rows render ONLY when the admin has actually provided a value
@@ -147,10 +147,26 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           <div className="text-gray-500 dark:text-gray-400">
             &copy; 2026 {isRtl ? 'ایران‌بیم‌هاب. تمامی حقوق مادی و معنوی محفوظ است.' : 'IranBIMhub. All Rights Reserved.'}
           </div>
-          <div className="flex gap-4">
-            <span className="text-gray-400 dark:text-gray-600 font-sans">v1.1.0-AEC</span>
-            <span className="text-gray-400 dark:text-gray-600">|</span>
-            <span className="text-gray-400 dark:text-gray-600 font-sans">UTC: 2026-06-30</span>
+          <div className="flex items-center gap-4">
+            {/* Item 15 — language switch, also reachable from the footer */}
+            <div className="flex items-center gap-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-full p-1" role="group" aria-label={isRtl ? 'انتخاب زبان' : 'Language selector'}>
+              <Globe className="w-3.5 h-3.5 text-gray-400 mx-1.5" />
+              <button
+                type="button"
+                onClick={() => setLanguage('fa')}
+                className={`px-3 py-1 rounded-full text-[11px] font-black transition-colors cursor-pointer ${language === 'fa' ? 'bg-[#26B6B6] text-white' : 'text-gray-500 dark:text-gray-400 hover:text-[#26B6B6]'}`}
+              >
+                فارسی
+              </button>
+              <button
+                type="button"
+                onClick={() => setLanguage('en')}
+                className={`px-3 py-1 rounded-full text-[11px] font-black transition-colors cursor-pointer ${language === 'en' ? 'bg-[#26B6B6] text-white' : 'text-gray-500 dark:text-gray-400 hover:text-[#26B6B6]'}`}
+              >
+                English
+              </button>
+            </div>
+            <span className="text-gray-400 dark:text-gray-600 font-sans hidden sm:inline">v1.1.0-AEC</span>
           </div>
         </div>
       </div>

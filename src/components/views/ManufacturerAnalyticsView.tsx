@@ -1,28 +1,27 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useLanguage } from '../LanguageContext';
 import { BIMObject } from '../../types';
+import { modelerProvinceDistribution } from '../../lib/usersIndex';
+import { provinceLabel } from '../../lib/iranGeo';
 import { 
   BarChart3, 
-  TrendingUp, 
-  TrendingDown, 
-  Download, 
-  Eye, 
-  Mail, 
-  Globe, 
-  MapPin, 
-  Calendar, 
-  ArrowUpRight, 
-  Search, 
-  ChevronDown, 
-  SlidersHorizontal, 
-  Sparkles, 
-  FileSpreadsheet, 
-  DownloadCloud, 
+  TrendingUp,
+  Download,
+  Eye,
+  Mail,
+  Globe,
+  MapPin,
+  Calendar,
+  ArrowUpRight,
+  Search,
+  ChevronDown,
+  SlidersHorizontal,
+  Sparkles,
+  FileSpreadsheet,
+  DownloadCloud,
   Users,
   Target,
-  Layers,
-  HelpCircle,
-  Building
+  Layers
 } from 'lucide-react';
 
 interface ManufacturerAnalyticsViewProps {
@@ -62,22 +61,11 @@ const RAW_PERIOD_DATA = {
   ]
 };
 
-const PROVINCES_BASE = [
-  { nameFa: 'تهران', nameEn: 'Tehran', code: 'THR', viewsPct: 52, downloadsPct: 54, inquiriesPct: 58, color: 'bg-[#26B6B6]' },
-  { nameFa: 'اصفهان', nameEn: 'Isfahan', code: 'ISF', viewsPct: 18, downloadsPct: 17, inquiriesPct: 14, color: 'bg-emerald-500' },
-  { nameFa: 'خراسان رضوی', nameEn: 'Razavi Khorasan', code: 'KHO', viewsPct: 11, downloadsPct: 12, inquiriesPct: 10, color: 'bg-indigo-500' },
-  { nameFa: 'آذربایجان شرقی', nameEn: 'East Azerbaijan', code: 'AZS', viewsPct: 8, downloadsPct: 7, inquiriesPct: 8, color: 'bg-purple-500' },
-  { nameFa: 'فارس', nameEn: 'Fars', code: 'FRS', viewsPct: 6, downloadsPct: 6, inquiriesPct: 5, color: 'bg-amber-500' },
-  { nameFa: 'البرز', nameEn: 'Alborz', code: 'ALB', viewsPct: 3, downloadsPct: 3, inquiriesPct: 4, color: 'bg-cyan-500' },
-  { nameFa: 'یزد', nameEn: 'Yazd', code: 'YZD', viewsPct: 2, downloadsPct: 1, inquiriesPct: 1, color: 'bg-teal-500' },
-];
-
-const FIRM_COHORTS_BASE = [
-  { nameFa: 'مهندسین مشاور پایه ۱ و ۲', nameEn: 'Grade 1&2 Consulting Engineers', pct: 45, icon: Building, color: 'text-sky-500' },
-  { nameFa: 'دفاتر معماری و طراحان نما', nameEn: 'Facade Designers & Studios', pct: 30, icon: Target, color: 'text-[#26B6B6]' },
-  { nameFa: 'پیمانکاران و شرکت‌های سازنده', nameEn: 'General Contractors & Builders', pct: 15, icon: Users, color: 'text-amber-500' },
-  { nameFa: 'طراحان داخلی و مدلسازان آزاد', nameEn: 'Interior Designers & Freelancers', pct: 10, icon: Sparkles, color: 'text-emerald-500' }
-];
+// Honest-by-design: no fabricated provincial percentages. The geo chart is fed
+// exclusively by REAL registered Modeler accounts (src/lib/usersIndex.ts) whose
+// province/city are picked in «پروفایل من» (src/lib/iranGeo.ts ids). Until real
+// users register, the section renders a transparent empty state instead of bars.
+const GEO_BAR_COLORS = ['bg-[#26B6B6]', 'bg-emerald-500', 'bg-indigo-500', 'bg-purple-500', 'bg-amber-500', 'bg-cyan-500', 'bg-teal-500', 'bg-rose-400', 'bg-lime-500', 'bg-sky-500'];
 
 export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps> = ({
   catalogObjects,
@@ -163,35 +151,37 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
     return Math.ceil(max * 1.15); // Add 15% padding
   }, [chartPoints, activeChartMetric]);
 
-  // Interactive geographic data responding to metrics
+  // Real geo distribution of registered professional (Modeler) users — live store
+  const [geoTick, setGeoTick] = useState(0);
+  useEffect(() => {
+    const bump = () => setGeoTick(t => t + 1);
+    window.addEventListener('iranbimhub_users_index_updated', bump);
+    window.addEventListener('storage', bump);
+    window.addEventListener('focus', bump);
+    return () => {
+      window.removeEventListener('iranbimhub_users_index_updated', bump);
+      window.removeEventListener('storage', bump);
+      window.removeEventListener('focus', bump);
+    };
+  }, []);
+
   const geographicStats = useMemo(() => {
-    return PROVINCES_BASE.map(prov => {
-      let pct = prov.viewsPct;
-      if (activeChartMetric === 'downloads') pct = prov.downloadsPct;
-      if (activeChartMetric === 'inquiries') pct = prov.inquiriesPct;
-
-      const totalValue = currentMetrics[activeChartMetric];
-      const count = Math.round((pct / 100) * totalValue) || 0;
-
-      return {
-        ...prov,
-        pct,
-        count
-      };
-    });
-  }, [currentMetrics, activeChartMetric]);
-
-  // Derived firm cohorts responding to total inquiries/leads
-  const firmCohorts = useMemo(() => {
-    return FIRM_COHORTS_BASE.map(cohort => {
-      const totalDownloads = currentMetrics.downloads;
-      const count = Math.round((cohort.pct / 100) * totalDownloads) || 0;
-      return {
-        ...cohort,
-        count
-      };
-    });
-  }, [currentMetrics.downloads]);
+    // geoTick forces re-read after registrations / profile saves
+    void geoTick;
+    const dist = modelerProvinceDistribution();
+    const total = dist.reduce((sum, d) => sum + d.count, 0);
+    return {
+      total,
+      rows: dist.map((d, idx) => ({
+        provinceId: d.provinceId,
+        nameFa: provinceLabel(d.provinceId, true) || d.provinceId,
+        nameEn: provinceLabel(d.provinceId, false) || d.provinceId,
+        color: GEO_BAR_COLORS[idx % GEO_BAR_COLORS.length],
+        pct: total > 0 ? Math.round((d.count / total) * 100) : 0,
+        count: d.count
+      }))
+    };
+  }, [geoTick]);
 
   // Handle SKU Performance table processing
   const skuPerformanceData = useMemo(() => {
@@ -300,7 +290,7 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-100 dark:border-gray-800 pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <span className="bg-[#26B6B6]/10 text-[#26B6B6] dark:bg-[#26B6B6]/20 font-bold text-[9px] uppercase tracking-wider px-2.5 py-0.5 rounded-full flex items-center gap-1">
+            <span className="bg-[#26B6B6]/10 text-[#26B6B6] dark:bg-[#26B6B6]/20 font-bold text-[13px] uppercase tracking-wider px-2.5 py-0.5 rounded-full flex items-center gap-1">
               <Sparkles className="w-3 h-3" />
               <span>{isRtl ? 'هوش بازاریابی بیم' : 'BIM Market Intelligence'}</span>
             </span>
@@ -359,7 +349,7 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
           <div className="bg-slate-50 dark:bg-gray-950 p-1 rounded-xl flex border border-slate-150/40 dark:border-gray-800">
             <button
               onClick={() => setPeriod('7days')}
-              className={`px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-extrabold transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg text-[12px] sm:text-xs font-extrabold transition-all cursor-pointer ${
                 period === '7days' 
                   ? 'bg-white dark:bg-gray-900 text-[#26B6B6] shadow-2xs font-black' 
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
@@ -369,7 +359,7 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
             </button>
             <button
               onClick={() => setPeriod('30days')}
-              className={`px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-extrabold transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg text-[12px] sm:text-xs font-extrabold transition-all cursor-pointer ${
                 period === '30days' 
                   ? 'bg-white dark:bg-gray-900 text-[#26B6B6] shadow-2xs font-black' 
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
@@ -379,7 +369,7 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
             </button>
             <button
               onClick={() => setPeriod('90days')}
-              className={`px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-extrabold transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg text-[12px] sm:text-xs font-extrabold transition-all cursor-pointer ${
                 period === '90days' 
                   ? 'bg-white dark:bg-gray-900 text-[#26B6B6] shadow-2xs font-black' 
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
@@ -389,7 +379,7 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
             </button>
             <button
               onClick={() => setPeriod('alltime')}
-              className={`px-3 py-1.5 rounded-lg text-[10px] sm:text-xs font-extrabold transition-all cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg text-[12px] sm:text-xs font-extrabold transition-all cursor-pointer ${
                 period === 'alltime' 
                   ? 'bg-white dark:bg-gray-900 text-[#26B6B6] shadow-2xs font-black' 
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
@@ -407,7 +397,7 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
         {/* KPI 1: BIM Object Views */}
         <div className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-1.5 shadow-3xs relative overflow-hidden group hover:border-[#26B6B6]/30 transition-all">
           <div className="absolute right-0 top-0 w-16 h-16 bg-gradient-to-bl from-teal-500/5 to-transparent rounded-bl-full pointer-events-none" />
-          <div className="flex justify-between items-center text-gray-400 text-[10px] font-extrabold uppercase tracking-wider">
+          <div className="flex justify-between items-center text-gray-400 text-[12px] font-extrabold uppercase tracking-wider">
             <span>{isRtl ? 'بازدید کاتالوگ' : 'Catalog Views'}</span>
             <div className="p-1 bg-teal-50 dark:bg-teal-950/20 rounded-lg text-[#26B6B6]">
               <Eye className="w-4 h-4" />
@@ -418,14 +408,14 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
           </span>
           <div className="flex items-center gap-1.5 pt-1.5 border-t border-gray-50 dark:border-gray-800">
             <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
-            <span className="text-[10px] text-emerald-500 font-extrabold">+14.2% {isRtl ? 'رشد ماهانه' : 'monthly'}</span>
+            <span className="text-[12px] text-emerald-500 font-extrabold">+14.2% {isRtl ? 'رشد ماهانه' : 'monthly'}</span>
           </div>
         </div>
 
         {/* KPI 2: BIM Object Downloads */}
         <div className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-1.5 shadow-3xs relative overflow-hidden group hover:border-[#26B6B6]/30 transition-all">
           <div className="absolute right-0 top-0 w-16 h-16 bg-gradient-to-bl from-amber-500/5 to-transparent rounded-bl-full pointer-events-none" />
-          <div className="flex justify-between items-center text-gray-400 text-[10px] font-extrabold uppercase tracking-wider">
+          <div className="flex justify-between items-center text-gray-400 text-[12px] font-extrabold uppercase tracking-wider">
             <span>{isRtl ? 'دانلود خانواده‌های BIM' : 'BIM Downloads'}</span>
             <div className="p-1 bg-amber-50 dark:bg-amber-950/20 rounded-lg text-amber-500">
               <Download className="w-4 h-4" />
@@ -434,7 +424,7 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
           <span className="block text-2xl sm:text-3xl font-black font-mono text-gray-800 dark:text-white leading-tight">
             {formatNumber(currentMetrics.downloads)}
           </span>
-          <div className="flex items-center justify-between pt-1.5 border-t border-gray-50 dark:border-gray-800 text-[10px]">
+          <div className="flex items-center justify-between pt-1.5 border-t border-gray-50 dark:border-gray-800 text-[12px]">
             <span className="text-gray-400">{isRtl ? 'نرخ تبدیل بازدید:' : 'Conversion Rate:'}</span>
             <span className="text-amber-500 font-black font-mono">{currentMetrics.conversion}%</span>
           </div>
@@ -443,7 +433,7 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
         {/* KPI 3: User Inquiries / Leads */}
         <div className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-1.5 shadow-3xs relative overflow-hidden group hover:border-[#26B6B6]/30 transition-all">
           <div className="absolute right-0 top-0 w-16 h-16 bg-gradient-to-bl from-purple-500/5 to-transparent rounded-bl-full pointer-events-none" />
-          <div className="flex justify-between items-center text-gray-400 text-[10px] font-extrabold uppercase tracking-wider">
+          <div className="flex justify-between items-center text-gray-400 text-[12px] font-extrabold uppercase tracking-wider">
             <span>{isRtl ? 'سرنخ‌های فنی (پیام)' : 'Architectural Leads'}</span>
             <div className="p-1 bg-purple-50 dark:bg-purple-950/20 rounded-lg text-purple-500">
               <Mail className="w-4 h-4" />
@@ -452,7 +442,7 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
           <span className="block text-2xl sm:text-3xl font-black font-mono text-gray-800 dark:text-white leading-tight">
             {formatNumber(currentMetrics.inquiries)}
           </span>
-          <div className="flex items-center justify-between pt-1.5 border-t border-gray-50 dark:border-gray-800 text-[10px]">
+          <div className="flex items-center justify-between pt-1.5 border-t border-gray-50 dark:border-gray-800 text-[12px]">
             <span className="text-gray-400">{isRtl ? 'نرخ استعلام دانلود:' : 'Lead/DL Ratio:'}</span>
             <span className="text-purple-500 font-black font-mono">{currentMetrics.leadConv}%</span>
           </div>
@@ -461,7 +451,7 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
         {/* KPI 4: Specification Inclusions */}
         <div className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 space-y-1.5 shadow-3xs relative overflow-hidden group hover:border-[#26B6B6]/30 transition-all">
           <div className="absolute right-0 top-0 w-16 h-16 bg-gradient-to-bl from-blue-500/5 to-transparent rounded-bl-full pointer-events-none" />
-          <div className="flex justify-between items-center text-gray-400 text-[10px] font-extrabold uppercase tracking-wider">
+          <div className="flex justify-between items-center text-gray-400 text-[12px] font-extrabold uppercase tracking-wider">
             <span>{isRtl ? 'تخمین نفوذ در نقشه‌ها' : 'Specification Placements'}</span>
             <div className="p-1 bg-blue-50 dark:bg-blue-950/20 rounded-lg text-blue-500">
               <Target className="w-4 h-4" />
@@ -471,7 +461,7 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
             {formatNumber(currentMetrics.specRate)}
           </span>
           <div className="flex items-center gap-1.5 pt-1.5 border-t border-gray-50 dark:border-gray-800">
-            <span className="text-[10px] text-gray-400">{isRtl ? 'افزوده به پوشه مشاوران' : 'Added into project folders'}</span>
+            <span className="text-[12px] text-gray-400">{isRtl ? 'افزوده به پوشه مشاوران' : 'Added into project folders'}</span>
           </div>
         </div>
 
@@ -487,7 +477,7 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
               <h3 className="text-xs font-black text-gray-700 dark:text-white uppercase tracking-wider">
                 {isRtl ? 'نمودار زمانی و روند پایش آمار' : 'Interactive Metric Timeline Analytics'}
               </h3>
-              <p className="text-[11px] text-gray-400 mt-0.5">
+              <p className="text-[13px] text-gray-400 mt-0.5">
                 {isRtl ? 'با کلیک روی دکمه‌های زیر، روند زمانی آمار انتخابی را ردیابی کنید.' : 'Toggle below keys to plot dynamic trendlines.'}
               </p>
             </div>
@@ -499,7 +489,7 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
                   setActiveChartMetric('views');
                   setHoveredIndex(null);
                 }}
-                className={`px-3 py-1 text-[10px] font-bold rounded-lg transition-all cursor-pointer ${
+                className={`px-3 py-1 text-[12px] font-bold rounded-lg transition-all cursor-pointer ${
                   activeChartMetric === 'views' 
                     ? 'bg-[#26B6B6] text-white shadow-3xs' 
                     : 'text-gray-500 hover:text-gray-700'
@@ -512,7 +502,7 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
                   setActiveChartMetric('downloads');
                   setHoveredIndex(null);
                 }}
-                className={`px-3 py-1 text-[10px] font-bold rounded-lg transition-all cursor-pointer ${
+                className={`px-3 py-1 text-[12px] font-bold rounded-lg transition-all cursor-pointer ${
                   activeChartMetric === 'downloads' 
                     ? 'bg-amber-500 text-white shadow-3xs' 
                     : 'text-gray-500 hover:text-gray-700'
@@ -525,7 +515,7 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
                   setActiveChartMetric('inquiries');
                   setHoveredIndex(null);
                 }}
-                className={`px-3 py-1 text-[10px] font-bold rounded-lg transition-all cursor-pointer ${
+                className={`px-3 py-1 text-[12px] font-bold rounded-lg transition-all cursor-pointer ${
                   activeChartMetric === 'inquiries' 
                     ? 'bg-purple-500 text-white shadow-3xs' 
                     : 'text-gray-500 hover:text-gray-700'
@@ -631,7 +621,7 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
               {/* Dynamic Interactive Tooltip overlay */}
               {hoveredIndex !== null && svgPoints[hoveredIndex] && (
                 <div 
-                  className={`absolute z-20 bg-slate-900 text-white text-[10px] p-2 rounded-lg shadow-xl border border-white/10 pointer-events-none transition-all duration-200`}
+                  className={`absolute z-20 bg-slate-900 text-white text-[12px] p-2 rounded-lg shadow-xl border border-white/10 pointer-events-none transition-all duration-200`}
                   style={{
                     left: `${(svgPoints[hoveredIndex].x / 500) * 100}%`,
                     bottom: `${180 - svgPoints[hoveredIndex].y + 10}px`,
@@ -654,7 +644,7 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
               {/* X-Axis labels inside standard HTML grid */}
               {chartPoints.map((pt, idx) => (
                 <div key={idx} className="flex-1 flex flex-col items-center justify-end h-full z-10 pointer-events-none pb-2">
-                  <span className="text-[9px] text-gray-400 font-bold bg-slate-50 dark:bg-gray-800 border dark:border-gray-700/60 px-2 py-0.5 rounded-md">
+                  <span className="text-[13px] text-gray-400 font-bold bg-slate-50 dark:bg-gray-800 border dark:border-gray-700/60 px-2 py-0.5 rounded-md">
                     {pt.label}
                   </span>
                 </div>
@@ -663,7 +653,7 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
             </div>
           </div>
           
-          <div className="flex gap-4 text-[10.5px] text-gray-400 justify-end pt-2">
+          <div className="flex gap-4 text-[12.5px] text-gray-400 justify-end pt-2">
             <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 bg-[#26B6B6] rounded-full" /> {isRtl ? 'میزان کلیک و بازدید' : 'Views'}</span>
             <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 bg-amber-500 rounded-full" /> {isRtl ? 'دانلودهای قطعی خانواده' : 'BIM Downloads'}</span>
             <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 bg-purple-500 rounded-full" /> {isRtl ? 'ارسال تیکت / پیام' : 'Inquiries'}</span>
@@ -677,42 +667,24 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
               <Users className="w-4.5 h-4.5 text-[#26B6B6]" />
               <span>{isRtl ? 'تفکیک معماران و طراحان فعال' : 'Target Specifier Profiles'}</span>
             </h3>
-            <p className="text-[11px] text-gray-400 mt-0.5">
+            <p className="text-[13px] text-gray-400 mt-0.5">
               {isRtl ? 'توزیع طراحانی که کاتالوگ شما را مشخص کرده‌اند.' : 'Categorization of design offices specifying your products.'}
             </p>
           </div>
 
-          <div className="space-y-4.5 pt-2">
-            {firmCohorts.map((cohort, idx) => {
-              const CohortIcon = cohort.icon;
-              return (
-                <div key={idx} className="space-y-1.5">
-                  <div className="flex justify-between items-center text-xs">
-                    <div className="flex items-center gap-2 font-bold text-gray-700 dark:text-gray-200">
-                      <CohortIcon className={`w-4 h-4 ${cohort.color}`} />
-                      <span>{isRtl ? cohort.nameFa : cohort.nameEn}</span>
-                    </div>
-                    <span className="font-mono text-gray-400 text-[11px]">
-                      {cohort.pct}% (<span className="text-gray-700 dark:text-white font-bold">{formatNumber(cohort.count)}</span>)
-                    </span>
-                  </div>
-                  {/* Progress Line */}
-                  <div className="h-1.5 w-full bg-slate-50 dark:bg-gray-950 rounded-full overflow-hidden border dark:border-gray-800/60">
-                    <div 
-                      className={`h-full rounded-full bg-gradient-to-r from-[#26B6B6] to-emerald-500`}
-                      style={{ width: `${cohort.pct}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="bg-amber-50/40 dark:bg-amber-950/10 border border-amber-100/50 dark:border-amber-900/30 rounded-xl p-3 text-[10.5px] leading-relaxed text-amber-700 dark:text-amber-400">
-            {isRtl 
-              ? '💡 طراحان پایه یک شهرداری تهران بیشترین سهم را در تجویز محصولات شما برای فاز دو برجهای بالای ۱۰ طبقه داشته‌اند.'
-              : '💡 Consulting firms focusing on building code compliance in Tehran represent your highest specification growth vector.'
-            }
+          {/* Honest empty state: cohort breakdown is only computed from REAL
+              registered user profiles; until the sample is statistically
+              meaningful we show nothing instead of fabricated percentages. */}
+          <div className="border border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-5 text-center space-y-2">
+            <Users className="w-6 h-6 text-gray-300 mx-auto" />
+            <p className="text-[12.5px] font-bold text-gray-500 dark:text-gray-300">
+              {isRtl ? 'به‌محض رسیدن تعداد کاربران حرفه‌ای به آستانهٔ آماری، تفکیک رشته‌ای این‌جا نمایش داده می‌شود' : 'Discipline breakdown appears here once the professional user base reaches a meaningful sample size'}
+            </p>
+            <p className="text-[13px] text-gray-400 leading-relaxed max-w-sm mx-auto">
+              {isRtl
+                ? 'این نمودار از روی نقش‌ها و تخصص‌هایی که کاربران واقعی در «پروفایل من» ثبت می‌کنند محاسبه خواهد شد — بدون هیچ دادهٔ ساختگی.'
+                : 'This chart will be computed from the roles and disciplines real users register in "My Profile" — with no fabricated data.'}
+            </p>
           </div>
         </div>
 
@@ -724,41 +696,53 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
           <div>
             <h3 className="text-xs font-black text-gray-700 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
               <MapPin className="w-4.5 h-4.5 text-[#26B6B6]" />
-              <span>{isRtl ? 'توزیع جغرافیایی نفوذ برند در سطح کشور' : 'Geographic Reach & Specification Heatmap'}</span>
+              <span>{isRtl ? 'توزیع جغرافیایی کاربران حرفه‌ای' : 'Registered Professionals Geo Distribution'}</span>
             </h3>
-            <p className="text-[11px] text-gray-400 mt-0.5">
-              {isRtl 
-                ? 'رصد و ارزیابی استقرار دفاتر طراحان فعال در شهرهای مختلف ایران که محصولات شما را دانلود کرده‌اند.' 
-                : 'Mapping geographic centers of designers requesting technical support and files.'}
+            <p className="text-[13px] text-gray-400 mt-0.5">
+              {isRtl
+                ? 'محل استقرار معماران و متخصصین BIM بر اساس استان و شهری که در «پروفایل من» خود ثبت کرده‌اند — دادهٔ واقعی، بدون تخمین.'
+                : 'Where the registered architects and BIM professionals are based — from the province/city they picked in "My Profile". Real data only.'}
             </p>
           </div>
-          
-          {/* Quick badge indicating top province */}
-          <span className="bg-[#26B6B6]/10 text-[#26B6B6] dark:bg-[#26B6B6]/20 text-[10px] font-bold px-3 py-1 rounded-xl">
-            {isRtl ? '📌 تحلیل منطقه‌ای پس از فعال‌سازی دادهٔ واقعی نمایش داده می‌شود' : '📌 Regional insights appear once real data is active'}
+
+          <span className="bg-[#26B6B6]/10 text-[#26B6B6] dark:bg-[#26B6B6]/20 text-[12px] font-bold px-3 py-1 rounded-xl">
+            {isRtl ? `👥 ${formatNumber(geographicStats.total)} کاربر حرفه‌ای ثبت‌نام‌کرده` : `👥 ${formatNumber(geographicStats.total)} registered professionals`}
           </span>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-          
-          {/* List of Province Stats */}
+
+          {/* List of Province Stats — REAL registered users */}
           <div className="lg:col-span-7 space-y-4">
-            <h4 className="text-[11.5px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              {isRtl ? 'رتبه‌بندی نفوذ به تفکیک استان‌ها' : 'Market Share Ranking by Province'}
+            <h4 className="text-[13px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              {isRtl ? 'رتبه‌بندی استان‌ها بر اساس کاربران ثبت‌نام‌کرده' : 'Provinces Ranked by Registered Users'}
             </h4>
 
+            {geographicStats.rows.length === 0 ? (
+              <div className="border border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-6 text-center space-y-2">
+                <MapPin className="w-6 h-6 text-gray-300 mx-auto" />
+                <p className="text-[12.5px] font-bold text-gray-500 dark:text-gray-300">
+                  {isRtl ? 'هنوز کاربری استان خود را ثبت نکرده است' : 'No user has registered a province yet'}
+                </p>
+                <p className="text-[13px] text-gray-400 leading-relaxed max-w-sm mx-auto">
+                  {isRtl
+                    ? 'به‌محض اینکه معماران در پروفایل خود استان و شهرشان را ثبت کنند، رتبه‌بندی واقعی استان‌ها این‌جا به‌صورت خودکار نمایش داده می‌شود.'
+                    : 'As soon as architects pick their province and city in their profile, the real province ranking will appear here automatically.'}
+                </p>
+              </div>
+            ) : (
             <div className="space-y-3">
-              {geographicStats.map((prov, idx) => (
-                <div key={idx} className="bg-slate-50/50 dark:bg-gray-950/40 border border-slate-100 dark:border-gray-850 rounded-xl p-3 flex items-center justify-between gap-4">
+              {geographicStats.rows.map((prov, idx) => (
+                <div key={prov.provinceId} className="bg-slate-50/50 dark:bg-gray-950/40 border border-slate-100 dark:border-gray-850 rounded-xl p-3 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3 flex-1">
                     <span className="font-mono text-xs text-gray-400 w-5 text-center">#{idx + 1}</span>
                     <div className="text-xs min-w-[100px] text-start">
                       <span className="font-extrabold text-gray-800 dark:text-white block">{isRtl ? prov.nameFa : prov.nameEn}</span>
-                      <span className="text-[9.5px] text-gray-400 font-mono">CODE: {prov.code}</span>
+                      <span className="text-[13px] text-gray-400">{isRtl ? 'کاربر حرفه‌ای' : 'professionals'}</span>
                     </div>
                     {/* Visual Progress Bar */}
                     <div className="hidden sm:block h-1.5 flex-1 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                      <div 
+                      <div
                         className={`h-full rounded-full ${prov.color}`}
                         style={{ width: `${prov.pct}%` }}
                       />
@@ -769,61 +753,46 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
                     <span className="font-black font-mono text-gray-800 dark:text-white">
                       {formatNumber(prov.count)}
                     </span>
-                    <span className="text-gray-400 text-[10px] block font-mono font-bold">
+                    <span className="text-gray-400 text-[12px] block font-mono font-bold">
                       {prov.pct}%
                     </span>
                   </div>
                 </div>
               ))}
             </div>
+            )}
           </div>
 
-          {/* Interactive Graphic Representation of Iran's BIM Hub Activity */}
+          {/* Honest geo summary card (replaces the decorative map with
+              fabricated node percentages) */}
           <div className="lg:col-span-5 bg-gradient-to-br from-slate-50 to-slate-100/60 dark:from-gray-950 dark:to-gray-900 border border-slate-200/50 dark:border-gray-800 rounded-2xl p-6 flex flex-col items-center justify-center text-center space-y-4 relative overflow-hidden h-full min-h-[340px]">
-            {/* Ambient Background Grid pattern */}
             <div className="absolute inset-0 bg-[radial-gradient(#26B6B6_1px,transparent_1px)] opacity-5 [background-size:16px_16px]" />
-            
-            {/* Conceptual Abstract Map Outline using polished HTML structure */}
-            <div className="relative w-56 h-56 flex items-center justify-center">
-              {/* Core Hub: Tehran */}
-              <div className="absolute w-24 h-24 bg-[#26B6B6]/10 dark:bg-[#26B6B6]/20 border border-[#26B6B6]/40 rounded-full animate-ping pointer-events-none" />
-              <div className="absolute w-12 h-12 bg-[#26B6B6]/30 border border-[#26B6B6] rounded-full flex items-center justify-center shadow-xl cursor-pointer hover:scale-110 transition-transform">
-                <span className="font-mono font-black text-xs text-[#26B6B6]">54%</span>
-              </div>
-              <span className="absolute text-[9px] font-bold text-gray-600 dark:text-gray-300 top-10 bg-white/80 dark:bg-slate-900/80 px-1.5 py-0.5 rounded shadow-2xs">{isRtl ? 'تهران (طراحان اصلی)' : 'Tehran Hub'}</span>
-
-              {/* Node 2: Isfahan */}
-              <div className="absolute w-8 h-8 bg-emerald-500/20 border border-emerald-500 rounded-full flex items-center justify-center bottom-12 right-10 cursor-pointer hover:scale-110 transition-all">
-                <span className="font-mono text-[10px] text-emerald-500 font-bold">17%</span>
-              </div>
-              <span className="absolute text-[8.5px] font-bold text-gray-500 dark:text-gray-400 bottom-6 right-10 bg-white/80 dark:bg-slate-900/80 px-1.5 py-0.5 rounded shadow-2xs">{isRtl ? 'اصفهان' : 'Isfahan'}</span>
-
-              {/* Node 3: Tabriz (East Azerbaijan) */}
-              <div className="absolute w-7 h-7 bg-purple-500/20 border border-purple-500 rounded-full flex items-center justify-center top-14 left-8 cursor-pointer hover:scale-110 transition-all">
-                <span className="font-mono text-[9px] text-purple-500 font-bold">7%</span>
-              </div>
-              <span className="absolute text-[8.5px] font-bold text-gray-500 dark:text-gray-400 top-8 left-6 bg-white/80 dark:bg-slate-900/80 px-1.5 py-0.5 rounded shadow-2xs">{isRtl ? 'تبریز' : 'Tabriz'}</span>
-
-              {/* Node 4: Mashhad (Razavi Khorasan) */}
-              <div className="absolute w-7 h-7 bg-indigo-500/20 border border-indigo-500 rounded-full flex items-center justify-center top-16 right-6 cursor-pointer hover:scale-110 transition-all">
-                <span className="font-mono text-[9px] text-indigo-500 font-bold">12%</span>
-              </div>
-              <span className="absolute text-[8.5px] font-bold text-gray-500 dark:text-gray-400 top-10 right-4 bg-white/80 dark:bg-slate-900/80 px-1.5 py-0.5 rounded shadow-2xs">{isRtl ? 'مشهد' : 'Mashhad'}</span>
-
-              {/* Node 5: Shiraz (Fars) */}
-              <div className="absolute w-6 h-6 bg-amber-500/20 border border-amber-500 rounded-full flex items-center justify-center bottom-6 left-16 cursor-pointer hover:scale-110 transition-all">
-                <span className="font-mono text-[8.5px] text-amber-500 font-bold">6%</span>
-              </div>
-              <span className="absolute text-[8.5px] font-bold text-gray-500 dark:text-gray-400 bottom-1 left-16 bg-white/80 dark:bg-slate-900/80 px-1.5 py-0.5 rounded shadow-2xs">{isRtl ? 'شیراز' : 'Shiraz'}</span>
-            </div>
-
-            <div className="space-y-1 text-center max-w-xs relative z-10">
-              <h5 className="text-xs font-black text-gray-800 dark:text-white">{isRtl ? 'تراکم موقعیت مکانی کاربران' : 'Market Spec Density Map'}</h5>
-              <p className="text-[10px] text-gray-400 leading-normal">
-                {isRtl 
-                  ? 'نمایش کانون‌های فعالیت دفاتر مشاور طراحی. شهرهای بزرگ صنعتی به صورت کانونهای متمرکز استخراج شده‌اند.' 
-                  : 'Concentration of BIM modelers specifying building blocks. Major cities map to centralized active nodes.'}
-              </p>
+            <Globe className="w-10 h-10 text-[#26B6B6] relative z-10" />
+            <div className="space-y-1.5 text-center max-w-xs relative z-10">
+              <h5 className="text-xs font-black text-gray-800 dark:text-white">{isRtl ? 'پوشش جغرافیایی واقعی' : 'Real Geographic Coverage'}</h5>
+              {geographicStats.rows.length === 0 ? (
+                <p className="text-[13px] text-gray-400 leading-relaxed">
+                  {isRtl
+                    ? 'نقشهٔ پراکندگی برند شما به‌محض ثبت موقعیت توسط کاربران واقعی، این‌جا به‌صورت خودکار ترسیم می‌شود.'
+                    : 'Your brand coverage map is drawn automatically once real users register their locations.'}
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-[13px] text-gray-400 leading-relaxed">
+                    {isRtl
+                      ? `هم‌اکنون کاربران حرفه‌ای از ${geographicStats.rows.length.toLocaleString('fa-IR')} استان کشور در سایت عضو هستند.`
+                      : `Professionals from ${geographicStats.rows.length} provinces are already registered.`}
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-1.5">
+                    {geographicStats.rows.slice(0, 6).map((prov, idx) => (
+                      <span key={prov.provinceId} className="bg-white/80 dark:bg-slate-900/80 border border-slate-200/60 dark:border-gray-700 text-[12px] font-bold text-gray-600 dark:text-gray-300 px-2 py-1 rounded-lg shadow-2xs flex items-center gap-1">
+                        <span className={`w-1.5 h-1.5 rounded-full ${prov.color}`} />
+                        <span>{isRtl ? prov.nameFa : prov.nameEn}</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -838,7 +807,7 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
               <Layers className="w-4.5 h-4.5 text-[#26B6B6]" />
               <span>{isRtl ? 'تفکیک و ارزیابی تفصیلی تک‌تک محصولات' : 'BIM SKU Catalog Performance'}</span>
             </h3>
-            <p className="text-[11px] text-gray-400 mt-0.5">
+            <p className="text-[13px] text-gray-400 mt-0.5">
               {isRtl ? 'لیست محصولات کاتالوگ شما به همراه آمار دقیق بازدید، دانلود و نرخ تبدیل هر کدام.' : 'Detailed metrics mapped per product catalog file in your B2B account.'}
             </p>
           </div>
@@ -860,7 +829,7 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
         <div className="overflow-x-auto">
           <table className="w-full text-xs text-right border-collapse">
             <thead>
-              <tr className="border-b border-gray-100 dark:border-gray-800 text-gray-400 text-[10.5px] font-bold">
+              <tr className="border-b border-gray-100 dark:border-gray-800 text-gray-400 text-[12.5px] font-bold">
                 <th className="py-3 px-4 text-start">{isRtl ? 'نام آبجکت BIM' : 'BIM Object SKU'}</th>
                 <th className="py-3 px-4 cursor-pointer hover:text-gray-600 select-none text-center" onClick={() => toggleSort('views')}>
                   <span className="flex items-center justify-center gap-1">
@@ -900,7 +869,7 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
                   <tr key={sku.id} className="hover:bg-slate-50/50 dark:hover:bg-gray-950/20 transition-all">
                     <td className="py-3.5 px-4 text-start">
                       <div className="font-extrabold text-gray-800 dark:text-white">{sku.title}</div>
-                      <span className="inline-block bg-slate-100 dark:bg-gray-800 text-gray-400 text-[9px] px-1.5 py-0.5 rounded-md mt-0.5 uppercase tracking-wider">
+                      <span className="inline-block bg-slate-100 dark:bg-gray-800 text-gray-400 text-[13px] px-1.5 py-0.5 rounded-md mt-0.5 uppercase tracking-wider">
                         {sku.category.replace('_', ' ')}
                       </span>
                     </td>
@@ -920,7 +889,7 @@ export const ManufacturerAnalyticsView: React.FC<ManufacturerAnalyticsViewProps>
                       </div>
                     </td>
                     <td className="py-3.5 px-4 text-center">
-                      <span className={`inline-block font-mono font-bold px-2.5 py-1 rounded-full text-[10.5px] ${
+                      <span className={`inline-block font-mono font-bold px-2.5 py-1 rounded-full text-[12.5px] ${
                         sku.leads > 0 
                           ? 'bg-purple-150/10 text-purple-600 dark:bg-purple-950/20 dark:text-purple-400 font-extrabold' 
                           : 'text-gray-400'

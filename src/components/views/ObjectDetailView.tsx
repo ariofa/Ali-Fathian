@@ -24,6 +24,9 @@ import {
 } from 'lucide-react';
 import { BIM3DViewer } from '../BIM3DViewer';
 import { Breadcrumb, BreadcrumbItem } from '../Breadcrumb';
+import { CommentsSection } from '../CommentsSection';
+import { toast } from '../ui/toast';
+import { Share2, Link2, CheckCheck, Send } from 'lucide-react';
 
 interface ObjectDetailViewProps {
   object: BIMObject;
@@ -34,6 +37,7 @@ interface ObjectDetailViewProps {
   onSelectObject: (obj: BIMObject) => void;
   onNavigate: (view: string) => void;
   onViewBrand?: (mfgId: string) => void;
+  onOpenAuthModal?: () => void;
 }
 
 export const ObjectDetailView: React.FC<ObjectDetailViewProps> = ({
@@ -44,7 +48,8 @@ export const ObjectDetailView: React.FC<ObjectDetailViewProps> = ({
   onDownloadFile,
   onSelectObject,
   onNavigate,
-  onViewBrand
+  onViewBrand,
+  onOpenAuthModal
 }) => {
   const { language, t, isRtl, formatCurrency } = useLanguage();
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -202,6 +207,37 @@ export const ObjectDetailView: React.FC<ObjectDetailViewProps> = ({
     ? activeCategoryObject.subcategories.find(s => s.id === object.subcategory)
     : null;
 
+  // Item 19 — share this object page (native share sheet when available,
+  // otherwise copy the link to the clipboard and confirm with a toast).
+  const [linkCopied, setLinkCopied] = useState(false);
+  const shareUrl = `${window.location.origin}/detail/${object.id}`;
+  const shareTitle = isRtl ? object.titleFa : object.titleEn;
+  const handleShare = async () => {
+    const shareData = {
+      title: `ایران‌بیم‌هاب | ${shareTitle}`,
+      text: isRtl
+        ? `آبجکت BIM «${shareTitle}» از برند ${mName} در کتابخانه ایران‌بیم‌هاب`
+        : `BIM object "${shareTitle}" by ${mName} on IranBIMhub`,
+      url: shareUrl
+    };
+    try {
+      if ((navigator as any).share) {
+        await (navigator as any).share(shareData);
+        return;
+      }
+      throw new Error('no-native-share');
+    } catch {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setLinkCopied(true);
+        toast(isRtl ? 'لینک این آبجکت در حافظه کپی شد؛ می‌توانید آن را برای همکاران بفرستید.' : 'Object link copied — share it with your team.');
+        setTimeout(() => setLinkCopied(false), 2500);
+      } catch {
+        toast(isRtl ? 'اشتراک‌گذاری در این مرورگر پشتیبانی نمی‌شود.' : 'Sharing is not supported in this browser.');
+      }
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       
@@ -320,6 +356,13 @@ export const ObjectDetailView: React.FC<ObjectDetailViewProps> = ({
                 </div>
 
                 <div className="absolute bottom-4 end-4 flex gap-2 z-10">
+                  <button
+                    onClick={handleShare}
+                    className="p-2.5 rounded-full backdrop-blur-md cursor-pointer transition-all bg-black/45 text-white hover:bg-black/75"
+                    title={isRtl ? 'اشتراک‌گذاری این آبجکت' : 'Share this object'}
+                  >
+                    {linkCopied ? <CheckCheck className="w-4 h-4 text-emerald-300" /> : <Share2 className="w-4 h-4" />}
+                  </button>
                   <button
                     onClick={() => onToggleSave(object.id)}
                     className={`p-2.5 rounded-full backdrop-blur-md cursor-pointer transition-all ${
@@ -531,6 +574,9 @@ export const ObjectDetailView: React.FC<ObjectDetailViewProps> = ({
             </div>
           </div>
 
+          {/* Item 14 — Discussions (architects comment; manufacturers & modelers reply; public after approval) */}
+          <CommentsSection object={object} onOpenAuthModal={onOpenAuthModal} />
+
         </div>
 
         {/* Right - Downloads Box & Contact Form */}
@@ -647,6 +693,41 @@ export const ObjectDetailView: React.FC<ObjectDetailViewProps> = ({
             >
               {isRtl ? 'مشاهده کاتالوگ کامل برند' : 'View brand profile & catalog'}
             </button>
+          </div>
+
+          {/* Item 19 — share card */}
+          <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-2xs space-y-3">
+            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+              <Share2 className="w-4 h-4 text-[#26B6B6]" />
+              <span>{isRtl ? 'اشتراک‌گذاری این آبجکت' : 'Share this object'}</span>
+            </h3>
+            <p className="text-[11px] text-gray-500 leading-relaxed">
+              {isRtl
+                ? 'لینک این محصول را برای معمار، مهندس یا کارفرمای پروژه‌تان بفرستید تا دقیقاً همان آبجکت را ببیند.'
+                : 'Send this product link to your architect, engineer or client so they see the exact same object.'}
+            </p>
+            <div className="flex items-center gap-2 bg-slate-50 border border-gray-150 rounded-xl px-3 py-2.5">
+              <Link2 className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+              <span className="text-[10px] text-gray-500 font-mono truncate flex-1" dir="ltr">{shareUrl}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={handleShare}
+                className="bg-[#26B6B6] hover:bg-[#1e9494] text-white py-2.5 rounded-xl text-xs font-black transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                {linkCopied ? <CheckCheck className="w-3.5 h-3.5" /> : <Share2 className="w-3.5 h-3.5" />}
+                <span>{linkCopied ? (isRtl ? 'کپی شد!' : 'Copied!') : (isRtl ? 'اشتراک / کپی لینک' : 'Share / Copy')}</span>
+              </button>
+              <a
+                href={`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(isRtl ? `آبجکت BIM «${object.titleFa}» در ایران‌بیم‌هاب` : `BIM object "${object.titleEn}" on IranBIMhub`)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="border border-[#26B6B6]/40 text-[#087F7A] hover:bg-[#26B6B6]/5 py-2.5 rounded-xl text-xs font-black transition-colors flex items-center justify-center gap-1.5"
+              >
+                <Send className="w-3.5 h-3.5" />
+                <span>{isRtl ? 'ارسال در تلگرام' : 'Share on Telegram'}</span>
+              </a>
+            </div>
           </div>
 
           {/* Contact / request path */}

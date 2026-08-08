@@ -1,0 +1,73 @@
+/**
+ * IranBIMhub — Iran provinces & counties dataset (استان‌ها و شهرستان‌های ایران)
+ * ---------------------------------------------------------------------------
+ * Used by:
+ *  - ModelerDashboard profile (province → city cascading selects)
+ *  - Manufacturer analytics geographic distribution (aligned by province id)
+ *  - (Backend note for Reza: keep the same `id` values server-side.)
+ *
+ * The county lists follow the common administrative divisions and are
+ * extendable; if a county is missing users can pick «سایر» ("other").
+ */
+
+export interface IranProvince {
+  id: string;        // stable latin key (used in analytics joins)
+  nameFa: string;
+  nameEn: string;
+  cities: { id: string; nameFa: string; nameEn: string }[];
+}
+
+const cities = (list: Array<[string, string]>) =>
+  list.map(([nameFa, nameEn]) => ({ id: nameEn.toLowerCase().replace(/[^a-z0-9]+/g, '-'), nameFa, nameEn }));
+
+export const IRAN_PROVINCES: IranProvince[] = [
+  { id: 'tehran', nameFa: 'تهران', nameEn: 'Tehran', cities: cities([['تهران', 'Tehran'], ['ری', 'Rey'], ['اسلامشهر', 'Eslamshahr'], ['شهریار', 'Shahriar'], ['قدس', 'Qods'], ['ملارد', 'Malard'], ['پاکدشت', 'Pakdasht'], ['ورامین', 'Varamin'], ['پردیس', 'Pardis'], ['دماوند', 'Damavand'], ['فیروزکوه', 'Firuzkuh'], ['رباط‌کریم', 'Robat Karim'], ['بومهن', 'Bumehen'], ['قرچک', 'Qarchak'], ['پیشوا', 'Pishva'], ['باقرشهر', 'Baqershahr'], ['چهاردانگه', 'Chahardangeh'], ['شمیرانات', 'Shemiranat'], ['سایر', 'Other']]) },
+  { id: 'alborz', nameFa: 'البرز', nameEn: 'Alborz', cities: cities([['کرج', 'Karaj'], ['هشتگرد', 'Hashtgerd'], ['نظرآباد', 'Nazarabad'], ['طالقان', 'Taleqan'], ['اشتهارد', 'Eshtehard'], ['ماهدشت', 'Mahdasht'], ['کمالشهر', 'Kamalshahr'], ['گرمدره', 'Garmdareh'], ['فردیس', 'Fardis'], ['محمدشهر', 'Mohammadshahr'], ['مشکین‌دشت', 'Meshkindasht'], ['سایر', 'Other']]) },
+  { id: 'isfahan', nameFa: 'اصفهان', nameEn: 'Isfahan', cities: cities([['اصفهان', 'Isfahan'], ['کاشان', 'Kashan'], ['خمینی‌شهر', 'Khomeynishahr'], ['نجف‌آباد', 'Najafabad'], ['شاهین‌شهر', 'Shahinshahr'], ['زرین‌شهر', 'Zarrinshahr'], ['مبارکه', 'Mobarakeh'], ['فولادشهر', 'Fuladshahr'], ['لنجان', 'Lenjan'], ['فلاورجان', 'Falavarjan'], ['گلپایگان', 'Golpayegan'], ['خوانسار', 'Khvansar'], ['نطنز', 'Natanz'], ['اردستان', 'Ardestan'], ['سمیرم', 'Semirom'], ['شهرضا', 'Shahreza'], ['دهاقان', 'Dehaqan'], ['تیران', 'Tiran'], ['بوئین‌میاندشت', 'Buein Miandasht'], ['چادگان', 'Chadegan'], ['فریدن', 'Fereydan'], ['فریدونشهر', 'Fereydunshahr'], ['نایین', 'Naein'], ['آران و بیدگل', 'Aran va Bidgol'], ['برخوار', 'Borkhar'], ['سایر', 'Other']]) },
+  { id: 'razavi-khorasan', nameFa: 'خراسان رضوی', nameEn: 'Razavi Khorasan', cities: cities([['مشهد', 'Mashhad'], ['نیشابور', 'Neyshabur'], ['سبزوار', 'Sabzevar'], ['تربت‌حیدریه', 'Torbat Heydariyeh'], ['قوچان', 'Quchan'], ['کاشمر', 'Kashmar'], ['تایباد', 'Taybad'], ['گناباد', 'Gonabad'], ['تربت‌جام', 'Torbat Jam'], ['چناران', 'Chenaran'], ['خواف', 'Khaf'], ['فردوس', 'Ferdows'], ['بجستان', 'Bajestan'], ['بردسکن', 'Bardaskan'], ['درگز', 'Dargaz'], ['سرخس', 'Sarakhs'], ['خلیل‌آباد', 'Khalilabad'], ['مه‌ولات', 'Mahvelat'], ['فیروزه', 'Firuzeh'], ['زاوه', 'Zaveh'], ['صالح‌آباد', 'Salehabad'], ['کلات', 'Kalat'], ['جغتای', 'Joghatay'], ['جوین', 'Joveyn'], ['رشتخوار', 'Roshtkhar'], ['داورزن', 'Davarzan'], ['طرقبه', 'Toroqbeh'], ['شاندیز', 'Shandiz'], ['سایر', 'Other']]) },
+  { id: 'fars', nameFa: 'فارس', nameEn: 'Fars', cities: cities([['شیراز', 'Shiraz'], ['مرودشت', 'Marvdasht'], ['جهرم', 'Jahrom'], ['فسا', 'Fasa'], ['کازرون', 'Kazerun'], ['داراب', 'Darab'], ['لار', 'Lar'], ['آباده', 'Abadeh'], ['اقلید', 'Eqlid'], ['نورآباد', 'Nurabad'], ['ممسنی', 'Mamasani'], ['استهبان', 'Estahban'], ['سپیدان', 'Sepidan'], ['پاسارگاد', 'Pasargad'], ['گراش', 'Gerash'], ['لامرد', 'Lamerd'], ['مهر', 'Mohr'], ['قیر', 'Qir'], ['نی‌ریز', 'Neyriz'], ['سروستان', 'Sarvestan'], ['خرم‌بید', 'Khorrambid'], ['زرقان', 'Zarqan'], ['صدرا', 'Sadra'], ['سایر', 'Other']]) },
+  { id: 'khuzestan', nameFa: 'خوزستان', nameEn: 'Khuzestan', cities: cities([['اهواز', 'Ahvaz'], ['آبادان', 'Abadan'], ['خرمشهر', 'Khorramshahr'], ['دزفول', 'Dezful'], ['اندیمشک', 'Andimeshk'], ['ماهشهر', 'Mahshahr'], ['بندرامام خمینی', 'Bandar Imam Khomeini'], ['بهبهان', 'Behbahan'], ['شوشتر', 'Shushtar'], ['مسجدسلیمان', 'Masjed Soleyman'], ['ایذه', 'Izeh'], ['رامهرمز', 'Ramhormoz'], ['شادگان', 'Shadegan'], ['باغ‌ملک', 'Bagh Malek'], ['هنديجان', 'Hendijan'], ['امیدیه', 'Omidiyeh'], ['گتوند', 'Gotvand'], ['لالی', 'Lali'], ['اندیکا', 'Andika'], ['هفتگل', 'Haftgel'], ['سایر', 'Other']]) },
+  { id: 'mazandaran', nameFa: 'مازندران', nameEn: 'Mazandaran', cities: cities([['ساری', 'Sari'], ['بابل', 'Babol'], ['آمل', 'Amol'], ['قائم‌شهر', 'Qaemshahr'], ['نوشهر', 'Nowshahr'], ['چالوس', 'Chalus'], ['بابلسر', 'Babolsar'], ['تنکابن', 'Tonekabon'], ['نور', 'Nur'], ['محمودآباد', 'Mahmudabad'], ['نکا', 'Neka'], ['بهشهر', 'Behshahr'], ['گلوگاه', 'Galugah'], ['جویبار', 'Juybar'], ['فریدونکنار', 'Fereydunkenar'], ['رامسر', 'Ramsar'], ['کلاردشت', 'Kelardasht'], ['سوادکوه', 'Savadkuh'], ['سایر', 'Other']]) },
+  { id: 'east-azerbaijan', nameFa: 'آذربایجان شرقی', nameEn: 'East Azerbaijan', cities: cities([['تبریز', 'Tabriz'], ['مراغه', 'Maragheh'], ['مرند', 'Marand'], ['اهر', 'Ahar'], ['میانه', 'Mianeh'], ['بناب', 'Bonab'], ['سراب', 'Sarab'], ['شبستر', 'Shabestar'], ['جلفا', 'Jolfa'], ['هادیشهر', 'Hadishahr'], ['خسروشهر', 'Khosroshahr'], ['اسکو', 'Osku'], ['آذرشهر', 'Azarshahr'], ['ملکان', 'Malekan'], ['بستان‌آباد', 'Bostanabad'], ['ورزقان', 'Varzaqan'], ['کلیبر', 'Kaleybar'], ['هريس', 'Heris'], ['چاراویماق', 'Charuymaq'], ['عجب‌شیر', 'Ajabshir'], ['سایر', 'Other']]) },
+  { id: 'west-azerbaijan', nameFa: 'آذربایجان غربی', nameEn: 'West Azerbaijan', cities: cities([['ارومیه', 'Urmia'], ['خوی', 'Khoy'], ['میاندوآب', 'Miandoab'], ['بوکان', 'Bukan'], ['مهاباد', 'Mahabad'], ['سلماس', 'Salmas'], ['نقده', 'Naqadeh'], ['پیرانشهر', 'Piranshahr'], ['سردشت', 'Sardasht'], ['ماکو', 'Maku'], ['شوط', 'Showt'], ['چالدران', 'Chaldoran'], ['پلدشت', 'Poldasht'], ['تکاب', 'Takab'], ['شاهین‌دژ', 'Shahin Dezh'], ['سایر', 'Other']]) },
+  { id: 'gilan', nameFa: 'گیلان', nameEn: 'Gilan', cities: cities([['رشت', 'Rasht'], ['بندرانزلی', 'Bandar Anzali'], ['لاهیجان', 'Lahijan'], ['لنگرود', 'Langarud'], ['تالش', 'Talesh'], ['آستارا', 'Astara'], ['فومن', 'Fuman'], ['صومعه‌سرا', 'Sowmeeh Sara'], ['رودسر', 'Rudsar'], ['رودبار', 'Rudbar'], ['سیاهکل', 'Siahkal'], ['آستانه اشرفیه', 'Astaneh Ashrafiyeh'], ['رضوانشهر', 'Rezvanshahr'], ['ماسال', 'Masal'], ['شفت', 'Shaft'], ['املش', 'Amlash'], ['سایر', 'Other']]) },
+  { id: 'kerman', nameFa: 'کرمان', nameEn: 'Kerman', cities: cities([['کرمان', 'Kerman'], ['سیرجان', 'Sirjan'], ['رفسنجان', 'Rafsanjan'], ['جیرفت', 'Jiroft'], ['بم', 'Bam'], ['زرند', 'Zarand'], ['کهنوج', 'Kahnuj'], ['بافت', 'Baft'], ['بردسیر', 'Bardsir'], ['عنبرآباد', 'Anbarabad'], ['قلعه‌گنج', 'Qaleh Ganj'], ['منوجان', 'Manujan'], ['رودبار جنوب', 'Rudbar Jonub'], ['فهرج', 'Fahraj'], ['ریگان', 'Rigan'], ['نرماشیر', 'Narmashir'], ['ارزوییه', 'Orzuiyeh'], ['شهربابک', 'Shahr Babak'], ['سایر', 'Other']]) },
+  { id: 'sistan-baluchestan', nameFa: 'سیستان و بلوچستان', nameEn: 'Sistan & Baluchestan', cities: cities([['زاهدان', 'Zahedan'], ['چابهار', 'Chabahar'], ['ایرانشهر', 'Iranshahr'], ['ساراван', 'Saravan'], ['خاش', 'Khash'], ['کنارک', 'Konarak'], ['زابل', 'Zabol'], ['سراوان', 'Saravan 2'], ['نیک‌شهر', 'Nikshahr'], ['قصرقند', 'Qasr Qand'], ['دلگان', 'Dalgan'], ['بمپور', 'Bampur'], ['میرجاوه', 'Mirjaveh'], ['هیرمند', 'Hirmand'], ['زهک', 'Zehak'], ['هامون', 'Hamun'], ['نیمروز', 'Nimruz'], ['فنوج', 'Fanuj'], ['مهرستان', 'Mehrestan'], ['سایر', 'Other']]) },
+  { id: 'kermanshah', nameFa: 'کرمانشاه', nameEn: 'Kermanshah', cities: cities([['کرمانشاه', 'Kermanshah'], ['اسلام‌آباد غرب', 'Eslamabad Gharb'], ['سنقر', 'Sonqor'], ['کنگاور', 'Kangavar'], ['صحنه', 'Sahneh'], ['هرسین', 'Harsin'], ['جوانرود', 'Javanrud'], ['پاوه', 'Paveh'], ['سرپل ذهاب', 'Sarpol Zahab'], ['قصرشیرین', 'Qasr Shirin'], ['گیلانغرب', 'Gilan Gharb'], ['روانسر', 'Ravansar'], ['ثلاث باباجانی', 'Salas Babajani'], ['دالاهو', 'Dalahu'], ['سایر', 'Other']]) },
+  { id: 'hormozgan', nameFa: 'هرمزگان', nameEn: 'Hormozgan', cities: cities([['بندرعباس', 'Bandar Abbas'], ['میناب', 'Minab'], ['بندرلنگه', 'Bandar Lengeh'], ['قشم', 'Qeshm'], ['کیش', 'Kish'], ['بستک', 'Bastak'], ['جناح', 'Jenah'], ['حاجی‌آباد', 'Hajiabad'], ['دهبارز', 'Dehbarez'], ['رودان', 'Rudan'], ['پارسیان', 'Parsian'], ['ابوموسی', 'Abumusa'], ['سیریک', 'Sirik'], ['بشاگرد', 'Bashagard'], ['سایر', 'Other']]) },
+  { id: 'yazd', nameFa: 'یزد', nameEn: 'Yazd', cities: cities([['یزد', 'Yazd'], ['میبد', 'Meybod'], ['اردکان', 'Ardakan'], ['بافق', 'Bafq'], ['مهریز', 'Mehriz'], ['تفت', 'Taft'], ['ابرکوه', 'Abarkuh'], ['خاتم', 'Khatam'], ['اشکذر', 'Ashkezar'], ['زاریچ', 'Zarach'], ['هرات', 'Herat'], ['سایر', 'Other']]) },
+  { id: 'qom', nameFa: 'قم', nameEn: 'Qom', cities: cities([['قم', 'Qom'], ['جعفریه', 'Jafariyeh'], ['قنوات', 'Qanavat'], ['سلفچگان', 'Salafchegan'], ['کهک', 'Kahak'], ['دستجرد', 'Dastjerd'], ['سایر', 'Other']]) },
+  { id: 'markazi', nameFa: 'مرکزی', nameEn: 'Markazi', cities: cities([['اراک', 'Arak'], ['ساوه', 'Saveh'], ['خمین', 'Khomeyn'], ['محلات', 'Mahallat'], ['دلیجان', 'Delijan'], ['شازند', 'Shazand'], ['تفرش', 'Tafresh'], ['آشتیان', 'Ashtian'], ['فراهان', 'Farahan'], ['کمیجان', 'Komijan'], ['زرندیه', 'Zarandieh'], ['خنداب', 'Khondab'], ['سایر', 'Other']]) },
+  { id: 'hamadan', nameFa: 'همدان', nameEn: 'Hamadan', cities: cities([['همدان', 'Hamadan'], ['ملایر', 'Malayer'], ['نهاوند', 'Nahavand'], ['تویسرکان', 'Tuyserkan'], ['اسدآباد', 'Asadabad'], ['کبودرآهنگ', 'Kabudrahang'], ['فامنین', 'Famenin'], ['رزن', 'Razan'], ['درگزین', 'Dargezin']]) },
+  { id: 'kurdistan', nameFa: 'کردستان', nameEn: 'Kurdistan', cities: cities([['سنندج', 'Sanandaj'], ['سقز', 'Saqqez'], ['مریوان', 'Marivan'], ['بانه', 'Baneh'], ['قروه', 'Qorveh'], ['دیواندره', 'Divandarreh'], ['بیجار', 'Bijar'], ['کامیاران', 'Kamyaran'], ['دهگلان', 'Dehgolan'], ['سروآباد', 'Sarvaabad'], ['سایر', 'Other']]) },
+  { id: 'lorestan', nameFa: 'لرستان', nameEn: 'Lorestan', cities: cities([['خرم‌آباد', 'Khorramabad'], ['دورود', 'Dorud'], ['بروجرد', 'Borujerd'], ['کوهدشت', 'Kuhdasht'], ['الیگودرز', 'Aligudarz'], ['ازنا', 'Azna'], ['سلسله', 'Selseleh'], ['پل‌دختر', 'Pol Dokhtar'], ['دلفان', 'Delfan'], ['چگنی', 'Chegeni']]) },
+  { id: 'ilam', nameFa: 'ایلام', nameEn: 'Ilam', cities: cities([['ایلام', 'Ilam'], ['ایوان', 'Eyvan'], ['دهلران', 'Dehloran'], ['دره‌شهر', 'Dareh Shahr'], ['مهران', 'Mehran'], ['آبدانان', 'Abdanan'], ['سیروان', 'Sirvan'], ['چرداول', 'Chardavol'], ['ملکشاهی', 'Malekshahi'], ['بدره', 'Badreh'], ['سایر', 'Other']]) },
+  { id: 'bushehr', nameFa: 'بوشهر', nameEn: 'Bushehr', cities: cities([['بوشهر', 'Bushehr'], ['برازجان', 'Borazjan'], ['گناوه', 'Genaveh'], ['خارک', 'Khark'], ['دیلم', 'Deylam'], ['کنگان', 'Kangan'], ['جم', 'Jam'], ['عسلویه', 'Asaluyeh'], ['دیر', 'Deyr'], ['تنگستان', 'Tangestan'], ['دشتستان', 'Dashtestan'], ['دشتی', 'Dashti'], ['سایر', 'Other']]) },
+  { id: 'golestan', nameFa: 'گلستان', nameEn: 'Golestan', cities: cities([['گرگان', 'Gorgan'], ['گنبدکاووس', 'Gonbad Kavus'], ['علی‌آباد', 'Aliabad'], ['بندرترکمن', 'Bandar Torkaman'], ['کردکوی', 'Kordkuy'], ['آق‌قلا', 'Aqqala'], ['کلاله', 'Kalaleh'], ['آزادشهر', 'Azadshahr'], ['مینودشت', 'Minudasht'], ['رامیان', 'Ramian'], ['گمیشان', 'Gomishan'], ['گالیکش', 'Galikash'], ['مراوه‌تپه', 'Maraveh Tappeh'], ['سایر', 'Other']]) },
+  { id: 'semnan', nameFa: 'سمنان', nameEn: 'Semnan', cities: cities([['سمنان', 'Semnan'], ['شاهرود', 'Shahrud'], ['دامغان', 'Damghan'], ['گرمسار', 'Garmsar'], ['مهدیشهر', 'Mehdishahr'], ['سرخه', 'Sorkheh'], ['میامی', 'Meyami'], ['آرادان', 'Aradan'], ['سایر', 'Other']]) },
+  { id: 'zanjan', nameFa: 'زنجان', nameEn: 'Zanjan', cities: cities([['زنجان', 'Zanjan'], ['ابهر', 'Abhar'], ['خرمدره', 'Khorramdarreh'], ['قیدار', 'Qeydar'], ['طارم', 'Tarom'], ['ماه‌نشان', 'Mahneshan'], ['ایجرود', 'Ijrud'], ['سلطانیه', 'Soltaniyeh'], ['سایر', 'Other']]) },
+  { id: 'qazvin', nameFa: 'قزوین', nameEn: 'Qazvin', cities: cities([['قزوین', 'Qazvin'], ['تاکستان', 'Takestan'], ['آبیک', 'Abyek'], ['بوئین‌زهرا', 'Buin Zahra'], ['الوند', 'Alvand'], ['محمدیه', 'Mohammadiyeh'], ['اقبالیه', 'Eqbaliyeh'], ['آوج', 'Avaj'], ['سایر', 'Other']]) },
+  { id: 'ardabil', nameFa: 'اردبیل', nameEn: 'Ardabil', cities: cities([['اردبیل', 'Ardabil'], ['پارس‌آباد', 'Parsabad'], ['مشگین‌شهر', 'Meshginshahr'], ['خلخال', 'Khalkhal'], ['بیله‌سوار', 'Bileh Savar'], ['گرمی', 'Germi'], ['نمین', 'Namin'], ['نیر', 'Nir'], ['کوثر', 'Kowsar'], ['اسلام‌آباد', 'Angut'], ['سایر', 'Other']]) },
+  { id: 'north-khorasan', nameFa: 'خراسان شمالی', nameEn: 'North Khorasan', cities: cities([['بجنورد', 'Bojnord'], ['اسفراین', 'Esfarayen'], ['شیروان', 'Shirvan'], ['آشخانه', 'Ashkhaneh'], ['مانه', 'Maneh'], ['سملقان', 'Samalqan'], ['فاروج', 'Faruj'], ['گرمه', 'Garmeh'], ['راز', 'Raz'], ['جاجرم', 'Jajarm'], ['سایر', 'Other']]) },
+  { id: 'south-khorasan', nameFa: 'خراسان جنوبی', nameEn: 'South Khorasan', cities: cities([['بیرجند', 'Birjand'], ['قائن', 'Qaen'], ['فردوس', 'Ferdows SK'], ['طبس', 'Tabas'], ['نهبندان', 'Nehbandan'], ['سربیشه', 'Sarbisheh'], ['درمیان', 'Darmian'], ['خوسف', 'Khusf'], ['زیرکوه', 'Zirkuh'], ['بشرویه', 'Boshruyeh'], ['سرایان', 'Sarayan'], ['سایر', 'Other']]) },
+  { id: 'chaharmahal', nameFa: 'چهارمحال و بختیاری', nameEn: 'Chaharmahal & Bakhtiari', cities: cities([['شهرکرد', 'Shahr-e Kord'], ['بروجن', 'Borujen'], ['لردگان', 'Lordegan'], ['فارسان', 'Farsan'], ['کوهرنگ', 'Kuhrang'], ['سامان', 'Saman'], ['بن', 'Ben'], ['کیار', 'Kiar'], ['اردل', 'Ardal'], ['سایر', 'Other']]) },
+  { id: 'kohgiluyeh', nameFa: 'کهگیلویه و بویراحمد', nameEn: 'Kohgiluyeh & Boyer-Ahmad', cities: cities([['یاسوج', 'Yasuj'], ['گچساران', 'Gachsaran'], ['دنا', 'Dena'], ['دهدشت', 'Dehdasht'], ['بویراحمد', 'Boyer Ahmad'], ['بهمئی', 'Bahmei'], ['چرام', 'Charam'], ['لنده', 'Landeh'], ['باشت', 'Basht'], ['سایر', 'Other']]) }
+];
+
+export const IRAN_OTHER_CITY = { id: 'other', nameFa: 'سایر', nameEn: 'Other' };
+
+export const provinceById = (id: string | null | undefined) =>
+  IRAN_PROVINCES.find(p => p.id === id) || null;
+
+export const cityById = (provinceId: string | null | undefined, cityId: string | null | undefined) =>
+  provinceById(provinceId)?.cities.find(c => c.id === cityId) || null;
+
+export const provinceLabel = (id: string | null | undefined, isRtl: boolean) => {
+  const p = provinceById(id);
+  return p ? (isRtl ? p.nameFa : p.nameEn) : '';
+};
+
+export const cityLabel = (provinceId: string | null | undefined, cityId: string | null | undefined, isRtl: boolean) => {
+  const c = cityById(provinceId, cityId);
+  return c ? (isRtl ? c.nameFa : c.nameEn) : '';
+};

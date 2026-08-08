@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Breadcrumb } from '../Breadcrumb';
-import { ExpertInsightsSection } from '../ExpertInsightsSection';
 import { useLanguage } from '../LanguageContext';
 import {
   AlertCircle,
@@ -405,9 +404,8 @@ export const BIMModelerCollaborationView: React.FC<BIMModelerCollaborationViewPr
         </div>
       </section>
 
-      {/* EXPERT INSIGHTS — same unified, admin-driven section as the homepage
-          and For-Designers page (single shared component) */}
-      <ExpertInsightsSection />
+      {/* EXPERT INSIGHTS intentionally NOT rendered on this page (product
+          decision: architect testimonials only belong to Home & For-Designers) */}
 
       {/* FORM */}
       <section id="modeler-application-form" className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 text-start">

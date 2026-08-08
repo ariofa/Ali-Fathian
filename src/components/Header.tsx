@@ -28,8 +28,10 @@ import {
   Layers,
   Factory,
   MessageSquare,
-  FileCheck
+  FileCheck,
+  Bell
 } from 'lucide-react';
+import { readInbox, unreadCount, markNotificationRead, markAllRead, subscribeInbox, InboxNotification } from '../lib/notifications';
 
 interface HeaderProps {
   currentView: string;
@@ -198,6 +200,30 @@ export const Header: React.FC<HeaderProps> = ({
   const categoriesRef = useRef<HTMLDivElement>(null);
   const categoryPanelRef = useRef<HTMLDivElement>(null);
   const desktopAccountRef = useRef<HTMLDivElement>(null);
+  const mobileNotifRef = useRef<HTMLDivElement>(null);
+  const notifRef = useRef<HTMLDivElement>(null);
+  const [notifOpen, setNotifOpen] = useState(false);
+  // Personal inbox (item 12 — notifications live at the top of the site now,
+  // not inside the dashboard sidebar). Deep-linkable to dashboard tabs (item 13).
+  const inboxPhone = currentUser?.phone || '';
+  const [inbox, setInbox] = useState<InboxNotification[]>(() => readInbox(inboxPhone));
+  const [inboxUnread, setInboxUnread] = useState<number>(() => unreadCount(inboxPhone));
+  useEffect(() => {
+    setInbox(readInbox(inboxPhone));
+    setInboxUnread(unreadCount(inboxPhone));
+  }, [inboxPhone]);
+  useEffect(() => subscribeInbox(() => {
+    setInbox(readInbox(inboxPhone));
+    setInboxUnread(unreadCount(inboxPhone));
+  }), [inboxPhone]);
+
+  const handleOpenNotification = (note: InboxNotification) => {
+    markNotificationRead(inboxPhone, note.id);
+    setNotifOpen(false);
+    if (note.targetTab) {
+      handleDashboardNavigate(note.targetTab);
+    }
+  };
   const mobileAccountRef = useRef<HTMLDivElement>(null);
   const platformMenuRef = useRef<HTMLDivElement>(null);
 
@@ -236,6 +262,12 @@ export const Header: React.FC<HeaderProps> = ({
       }
       if (platformMenuRef.current && !platformMenuRef.current.contains(target)) {
         setPlatformMenuOpen(false);
+      }
+      if (
+        (!notifRef.current || !notifRef.current.contains(target)) &&
+        (!mobileNotifRef.current || !mobileNotifRef.current.contains(target))
+      ) {
+        setNotifOpen(false);
       }
       if (desktopSearchRef.current && !desktopSearchRef.current.contains(target)) {
         setShowAutocomplete(false);
@@ -736,7 +768,85 @@ export const Header: React.FC<HeaderProps> = ({
 
             {/* Standalone dark mode toggle removed here, it's enough inside the account menu */}
 
-            {/* 3. Account Dropdown (Avatar) */}
+            {/* 3. Notifications bell (item 12 — moved here from the dashboard sidebar) */}
+            {currentUser && (
+              <div className="relative" ref={notifRef}>
+                <button
+                  onClick={() => setNotifOpen(!notifOpen)}
+                  className={`relative p-2 rounded-full transition-all cursor-pointer flex items-center justify-center h-9 w-9 border ${
+                    notifOpen
+                      ? 'bg-slate-100 dark:bg-gray-900 text-[#26B6B6] border-gray-200/60 dark:border-gray-800/80'
+                      : 'border-gray-200/60 dark:border-gray-800/80 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900 hover:text-[#26B6B6]'
+                  }`}
+                  title={isRtl ? 'اعلان‌ها و پیام‌ها' : 'Notifications'}
+                  id="btn-header-notifications"
+                >
+                  <Bell className={`w-4 h-4 ${inboxUnread > 0 ? 'text-[#26B6B6]' : ''}`} />
+                  {inboxUnread > 0 && (
+                    <span className="absolute -top-1 -end-1 min-w-[18px] h-[18px] px-1 bg-rose-500 text-white text-[9px] font-black rounded-full flex items-center justify-center">
+                      {inboxUnread > 9 ? (isRtl ? '۹+' : '9+') : inboxUnread.toLocaleString(isRtl ? 'fa-IR' : 'en-US')}
+                    </span>
+                  )}
+                </button>
+
+                {notifOpen && (
+                  <div className={`absolute ${isRtl ? 'left-0' : 'right-0'} mt-2.5 w-80 max-w-[90vw] bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xl py-2 z-50 animate-fadeIn overflow-hidden`}>
+                    <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100 dark:border-gray-800">
+                      <span className="text-xs font-black text-gray-800 dark:text-white">
+                        {isRtl ? 'اعلان‌ها و پیام‌ها' : 'Notifications'}
+                      </span>
+                      {inbox.length > 0 && inboxUnread > 0 && (
+                        <button
+                          onClick={() => markAllRead(inboxPhone)}
+                          className="text-[10px] font-bold text-[#26B6B6] hover:underline cursor-pointer"
+                        >
+                          {isRtl ? 'خوانده شد همه' : 'Mark all read'}
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="max-h-80 overflow-y-auto divide-y divide-gray-50 dark:divide-gray-800/60">
+                      {inbox.length === 0 ? (
+                        <div className="px-4 py-8 text-center space-y-2">
+                          <Bell className="w-6 h-6 text-gray-300 dark:text-gray-600 mx-auto" />
+                          <p className="text-xs text-gray-400 leading-relaxed">
+                            {isRtl
+                              ? 'فعلاً اعلان جدیدی ندارید؛ مهم‌ترین خبرهای حساب شما اینجا می‌رسد.'
+                              : 'No notifications yet. Important account updates will arrive here.'}
+                          </p>
+                        </div>
+                      ) : (
+                        inbox.map(note => (
+                          <button
+                            key={note.id}
+                            onClick={() => handleOpenNotification(note)}
+                            className={`w-full text-start px-4 py-3 transition-colors cursor-pointer flex items-start gap-2.5 ${
+                              note.read ? 'opacity-75 hover:bg-gray-50 dark:hover:bg-gray-800/40' : 'bg-[#26B6B6]/5 hover:bg-[#26B6B6]/10'
+                            }`}
+                          >
+                            <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${note.read ? 'bg-gray-300 dark:bg-gray-600' : 'bg-[#26B6B6] animate-pulse'}`} />
+                            <span className="flex-1 min-w-0">
+                              <span className="block text-xs font-black text-gray-800 dark:text-white leading-snug">{note.title}</span>
+                              <span className="block text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed mt-1">{note.body}</span>
+                              <span className="flex items-center justify-between mt-1.5">
+                                <span className="text-[9px] text-gray-300 dark:text-gray-600 font-mono">{note.time}</span>
+                                {note.targetTab && (
+                                  <span className="text-[9px] font-black text-[#26B6B6]">
+                                    {isRtl ? 'مشاهده در پیشخوان ←' : 'Open in dashboard →'}
+                                  </span>
+                                )}
+                              </span>
+                            </span>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 4. Account Dropdown (Avatar) */}
             <div className="relative" ref={desktopAccountRef}>
               <button
                 onClick={() => setAccountDropdownOpen(!accountDropdownOpen)}
@@ -952,6 +1062,72 @@ export const Header: React.FC<HeaderProps> = ({
                   <Globe className="w-3.5 h-3.5" />
                   <span>{language === 'fa' ? 'EN' : 'فا'}</span>
                 </button>
+              )}
+
+              {currentUser && (
+                <div className="relative" ref={mobileNotifRef}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNotifOpen(prev => !prev);
+                      setMobileMenuOpen(false);
+                      setMobileSearchOpen(false);
+                      setAccountDropdownOpen(false);
+                    }}
+                    className={`relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-all duration-200 cursor-pointer active:scale-95 ${
+                      notifOpen
+                        ? 'bg-[#26B6B6] border-[#26B6B6] text-white'
+                        : 'border-gray-200/60 dark:border-gray-800/80 text-gray-500 dark:text-gray-400 hover:text-[#26B6B6] hover:bg-gray-50 dark:hover:bg-gray-900'
+                    }`}
+                    title={isRtl ? 'اعلان‌ها و پیام‌ها' : 'Notifications'}
+                  >
+                    <Bell className="w-3.5 h-3.5" />
+                    {inboxUnread > 0 && (
+                      <span className="absolute -top-1 -end-1 min-w-[16px] h-[16px] px-0.5 bg-rose-500 text-white text-[8px] font-black rounded-full flex items-center justify-center">
+                        {inboxUnread > 9 ? (isRtl ? '۹+' : '9+') : inboxUnread.toLocaleString(isRtl ? 'fa-IR' : 'en-US')}
+                      </span>
+                    )}
+                  </button>
+
+                  {notifOpen && (
+                    <div className={`absolute ${isRtl ? 'left-0' : 'right-0'} top-full mt-2 w-72 max-w-[86vw] bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-xl py-2 z-[60] animate-fadeIn overflow-hidden`}>
+                      <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100 dark:border-gray-800">
+                        <span className="text-xs font-black text-gray-800 dark:text-white">{isRtl ? 'اعلان‌ها و پیام‌ها' : 'Notifications'}</span>
+                        {inbox.length > 0 && inboxUnread > 0 && (
+                          <button onClick={() => markAllRead(inboxPhone)} className="text-[10px] font-bold text-[#26B6B6] hover:underline cursor-pointer">
+                            {isRtl ? 'خوانده شد همه' : 'Mark all read'}
+                          </button>
+                        )}
+                      </div>
+                      <div className="max-h-72 overflow-y-auto divide-y divide-gray-50 dark:divide-gray-800/60">
+                        {inbox.length === 0 ? (
+                          <div className="px-4 py-7 text-center space-y-2">
+                            <Bell className="w-5 h-5 text-gray-300 dark:text-gray-600 mx-auto" />
+                            <p className="text-xs text-gray-400 leading-relaxed">{isRtl ? 'فعلاً اعلان جدیدی ندارید؛ مهم‌ترین خبرهای حساب شما اینجا می‌رسد.' : 'No notifications yet.'}</p>
+                          </div>
+                        ) : (
+                          inbox.map(note => (
+                            <button
+                              key={note.id}
+                              onClick={() => handleOpenNotification(note)}
+                              className={`w-full text-start px-4 py-3 transition-colors cursor-pointer flex items-start gap-2.5 ${note.read ? 'opacity-75' : 'bg-[#26B6B6]/5'}`}
+                            >
+                              <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${note.read ? 'bg-gray-300 dark:bg-gray-600' : 'bg-[#26B6B6] animate-pulse'}`} />
+                              <span className="flex-1 min-w-0">
+                                <span className="block text-xs font-black text-gray-800 dark:text-white leading-snug">{note.title}</span>
+                                <span className="block text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed mt-1">{note.body}</span>
+                                <span className="flex items-center justify-between mt-1.5">
+                                  <span className="text-[9px] text-gray-300 dark:text-gray-600 font-mono">{note.time}</span>
+                                  {note.targetTab && <span className="text-[9px] font-black text-[#26B6B6]">{isRtl ? 'مشاهده ←' : 'Open →'}</span>}
+                                </span>
+                              </span>
+                            </button>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
               )}
 
               <div className="relative" ref={mobileAccountRef}>

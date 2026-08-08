@@ -71,6 +71,19 @@ const MainAppContent: React.FC = () => {
         setCurrentView('for-manufacturers');
         return;
       }
+      // Deep links like /detail/<objectId> (used by the new share feature, item 19)
+      // must resolve the object from the catalog state, otherwise a fresh visit
+      // would bounce to the home page.
+      if (viewFromUrl === 'detail' && paramFromUrl) {
+        let customList: BIMObject[] = [];
+        try {
+          customList = JSON.parse(localStorage.getItem('iranbimhub_custom_objects_v2') || '[]') || [];
+        } catch { customList = []; }
+        const found =
+          BIM_OBJECTS.find(o => o.id === paramFromUrl) ||
+          customList.find(o => o && o.id === paramFromUrl);
+        if (found) setActiveObject(found);
+      }
       if (viewFromUrl && (viewFromUrl === 'home' || viewFromUrl === 'admin-panel' || ['about','contact','categories','detail','brand','manufacturers','for-designers','for-manufacturers','manufacturer-dashboard','modeler-dashboard','learn','introduction','for-bim-modelers','privacy','terms','payment'].includes(viewFromUrl))) {
         setCurrentView(viewFromUrl);
         if (viewFromUrl === 'brand' && paramFromUrl) {
@@ -524,6 +537,7 @@ const MainAppContent: React.FC = () => {
             onSelectObject={handleSelectObject}
             onNavigate={navigateTo}
             onViewBrand={handleViewBrand}
+            onOpenAuthModal={() => openAuthModal()}
           />
         );
 

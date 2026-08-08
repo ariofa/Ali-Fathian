@@ -664,6 +664,318 @@ app.patch("/api/admin/tickets/:id", async (req, res) => {
   }
 });
 
+/**
+ * Object Comments & Discussions — Item 14 («دیدگاه‌ها» on object pages)
+ * -----------------------------------------------------------------
+ * Architects/BIM specialists write top-level comments; manufacturers AND
+ * modelers may reply. EVERY entry starts as `pending` and becomes public
+ * only after admin approval (moderation queue in the admin panel).
+ * GET  /api/comments?objectId=&phone=   → approved + caller's own pending
+ * POST /api/comments                    → create (pending)
+ * GET  /api/comments/mine?phone=        → caller's own comments (dashboard)
+ * Admin: GET /api/admin/comments | PATCH /api/admin/comments/:id | DELETE
+ */
+const COMMENTS_FILE = path.join(process.cwd(), "data", "comments.json");
+
+async function readComments(): Promise<any[]> {
+  try {
+    const raw = await fs.promises.readFile(COMMENTS_FILE, "utf8");
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error: any) {
+    if (error?.code === "ENOENT") return [];
+    throw error;
+  }
+}
+
+async function writeComments(comments: any[]) {
+  await fs.promises.mkdir(path.dirname(COMMENTS_FILE), { recursive: true });
+  await fs.promises.writeFile(COMMENTS_FILE, JSON.stringify(comments, null, 2), "utf8");
+}
+
+app.get("/api/comments", async (req, res) => {
+  try {
+    const objectId = sanitizeString(String(req.query.objectId || ""), 120);
+    const phone = sanitizeString(String(req.query.phone || ""), 40);
+    if (!objectId) {
+      return res.status(400).json({ success: false, messageFa: "شناسه آبجکت ارسال نشده است.", messageEn: "Missing objectId." });
+    }
+    const all = await readComments();
+    const visible = all.filter(c =>
+      c.objectId === objectId && (c.status === "approved" || (phone && c.authorPhone === phone))
+    );
+    return res.json({ success: true, comments: visible, total: visible.length });
+  } catch (error) {
+    console.error("Failed to read comments:", error);
+    return res.status(500).json({ success: false, messageFa: "خطا در دریافت دیدگاه‌ها.", messageEn: "Failed to load comments." });
+  }
+});
+
+app.get("/api/comments/mine", async (req, res) => {
+  try {
+    const phone = sanitizeString(String(req.query.phone || ""), 40);
+    if (!phone) {
+      return res.status(400).json({ success: false, messageFa: "شماره موبایل ارسال نشده است.", messageEn: "Missing phone." });
+    }
+    const all = await readComments();
+    const mine = all.filter(c => c.authorPhone === phone);
+    return res.json({ success: true, comments: mine, total: mine.length });
+  } catch (error) {
+    console.error("Failed to read own comments:", error);
+    return res.status(500).json({ success: false, messageFa: "خطا در دریافت دیدگاه‌های شما.", messageEn: "Failed to load your comments." });
+  }
+});
+
+app.post("/api/comments", async (req, res) => {
+  try {
+    const body = req.body || {};
+    if (sanitizeString(body.website, 200)) {
+      return res.status(400).json({ success: false, message: "Invalid submission." });
+    }
+
+    const objectId = sanitizeString(body.objectId, 120);
+    const objectTitle = sanitizeString(body.objectTitle, 200);
+    const parentId = sanitizeString(body.parentId, 120) || null;
+    const authorName = sanitizeString(body.authorName, 120);
+    const authorPhone = sanitizeString(body.authorPhone, 40);
+    const authorRole = sanitizeString(body.authorRole, 40);
+    const text = sanitizeString(body.text, 1200);
+
+    if (!objectId || !authorName || !authorPhone || !text) {
+      return res.status(400).json({
+        success: false,
+        messageFa: "نام، شماره موبایل و متن دیدگاه الزامی است.",
+        messageEn: "Name, mobile number and comment text are required."
+      });
+    }
+
+    // Item 14 permission rule: only Modeler accounts may open a discussion;
+    // manufacturers (and modelers) may only REPLY inside an existing thread.
+    if (!parentId && authorRole !== "Modeler") {
+      return res.status(403).json({
+        success: false,
+        messageFa: "نوشتن دیدگاه جدید فقط برای حساب‌های معمار و متخصص BIM فعال است؛ می‌توانید به دیدگاه‌های موجود پاسخ دهید.",
+        messageEn: "Only architect/BIM professional accounts can start discussions; you may reply to existing comments."
+      });
+    }
+
+    const comments = await readComments();
+    const comment = {
+      id: randomUUID(),
+      objectId,
+      objectTitle,
+      parentId,
+      authorName,
+      authorPhone,
+      authorRole: parentId ? authorRole || "Modeler" : "Modeler",
+      text,
+      status: "pending", // honest-by-design: public only after admin approval
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    comments.unshift(comment);
+    await writeComments(comments);
+
+    return res.status(201).json({
+      success: true,
+      comment,
+      messageFa: "دیدگاه شما ثبت شد و پس از تأیید به‌صورت عمومی نمایش داده می‌شود.",
+      messageEn: "Your comment was submitted and will be public after approval."
+    });
+  } catch (error) {
+    console.error("Failed to save comment:", error);
+    return res.status(500).json({ success: false, messageFa: "ثبت دیدگاه با خطا مواجه شد. لطفاً دوباره تلاش کنید.", messageEn: "Comment submission failed. Please try again." });
+  }
+});
+
+app.get("/api/admin/comments", async (_req, res) => {
+  try {
+    const comments = await readComments();
+    return res.json({ success: true, comments, total: comments.length });
+  } catch (error) {
+    console.error("Failed to read comments for admin:", error);
+    return res.status(500).json({ success: false, messageFa: "خطا در دریافت دیدگاه‌ها.", messageEn: "Failed to load comments." });
+  }
+});
+
+app.patch("/api/admin/comments/:id", async (req, res) => {
+  try {
+    const allowed = new Set(["approved", "rejected", "pending"]);
+    const id = sanitizeString(req.params.id, 120);
+    const status = sanitizeString(req.body?.status, 40);
+    if (!allowed.has(status)) {
+      return res.status(400).json({ success: false, messageFa: "وضعیت دیدگاه معتبر نیست.", messageEn: "Invalid comment status." });
+    }
+    const comments = await readComments();
+    const idx = comments.findIndex(c => c.id === id);
+    if (idx === -1) {
+      return res.status(404).json({ success: false, messageFa: "دیدگاه پیدا نشد.", messageEn: "Comment not found." });
+    }
+    comments[idx] = { ...comments[idx], status, updatedAt: new Date().toISOString() };
+    await writeComments(comments);
+    return res.json({ success: true, comment: comments[idx], messageFa: "وضعیت دیدگاه بروزرسانی شد.", messageEn: "Comment status updated." });
+  } catch (error) {
+    console.error("Failed to update comment:", error);
+    return res.status(500).json({ success: false, messageFa: "خطا در بروزرسانی دیدگاه.", messageEn: "Failed to update comment." });
+  }
+});
+
+app.delete("/api/admin/comments/:id", async (req, res) => {
+  try {
+    const id = sanitizeString(req.params.id, 120);
+    const comments = await readComments();
+    const remaining = comments.filter(c => c.id !== id && c.parentId !== id);
+    await writeComments(remaining);
+    return res.json({ success: true, messageFa: "دیدگاه حذف شد.", messageEn: "Comment deleted." });
+  } catch (error) {
+    console.error("Failed to delete comment:", error);
+    return res.status(500).json({ success: false, messageFa: "خطا در حذف دیدگاه.", messageEn: "Failed to delete comment." });
+  }
+});
+
+/**
+ * Object Requests — Item 20 («درخواست آبجکت جدید» in the Modeler panel)
+ * -------------------------------------------------------------------
+ * Architects ask IranBIMhub to contact a brand (even one not registered yet)
+ * and produce/publish a BIM object for a real product.
+ * POST /api/object-requests                → create (returns trackingRef)
+ * GET  /api/object-requests/mine?phone=    → caller's requests + statuses
+ * Admin: GET /api/admin/object-requests | PATCH /:id (status, adminNote)
+ */
+const OBJECT_REQUESTS_FILE = path.join(process.cwd(), "data", "object-requests.json");
+
+async function readObjectRequests(): Promise<any[]> {
+  try {
+    const raw = await fs.promises.readFile(OBJECT_REQUESTS_FILE, "utf8");
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error: any) {
+    if (error?.code === "ENOENT") return [];
+    throw error;
+  }
+}
+
+async function writeObjectRequests(items: any[]) {
+  await fs.promises.mkdir(path.dirname(OBJECT_REQUESTS_FILE), { recursive: true });
+  await fs.promises.writeFile(OBJECT_REQUESTS_FILE, JSON.stringify(items, null, 2), "utf8");
+}
+
+app.post("/api/object-requests", async (req, res) => {
+  try {
+    const body = req.body || {};
+    if (sanitizeString(body.website, 200)) {
+      return res.status(400).json({ success: false, message: "Invalid submission." });
+    }
+
+    const brandName = sanitizeString(body.brandName, 160);
+    const brandUrl = sanitizeString(body.brandUrl, 300);
+    const productName = sanitizeString(body.productName, 200);
+    const detailLevel = sanitizeString(body.detailLevel, 60);
+    const discipline = sanitizeString(body.discipline, 80);
+    const categoryId = sanitizeString(body.categoryId, 80);
+    const subcategoryName = sanitizeString(body.subcategoryName, 120);
+    const linkUrl = sanitizeString(body.linkUrl, 300);
+    const photoName = sanitizeString(body.photoName, 200);
+    const projectName = sanitizeString(body.projectName, 200);
+    const description = sanitizeString(body.description, 1800);
+    const requesterName = sanitizeString(body.requesterName, 120);
+    const requesterPhone = sanitizeString(body.requesterPhone, 40);
+
+    if (!brandName || !productName || !requesterName || !requesterPhone) {
+      return res.status(400).json({
+        success: false,
+        messageFa: "نام برند، نام محصول و مشخصات درخواست‌کننده الزامی است.",
+        messageEn: "Brand name, product name and requester details are required."
+      });
+    }
+
+    const requests = await readObjectRequests();
+    const trackingRef = `REQ-${new Date().getFullYear()}-${String(requests.length + 1).padStart(3, "0")}`;
+    const item = {
+      id: randomUUID(),
+      trackingRef,
+      brandName,
+      brandUrl,
+      productName,
+      detailLevel,
+      discipline,
+      categoryId,
+      subcategoryName,
+      linkUrl,
+      photoName,
+      projectName,
+      description,
+      requesterName,
+      requesterPhone,
+      status: "new", // new → in_progress_contact → in_production → published | rejected
+      adminNote: "",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    requests.unshift(item);
+    await writeObjectRequests(requests);
+
+    return res.status(201).json({
+      success: true,
+      trackingRef,
+      request: item,
+      messageFa: "درخواست آبجکت شما ثبت شد؛ تیم ایران‌بیم‌هاب با برند تماس می‌گیرد.",
+      messageEn: "Your object request was submitted; IranBIMhub will contact the brand."
+    });
+  } catch (error) {
+    console.error("Failed to save object request:", error);
+    return res.status(500).json({ success: false, messageFa: "ثبت درخواست با خطا مواجه شد. لطفاً دوباره تلاش کنید.", messageEn: "Request submission failed. Please try again." });
+  }
+});
+
+app.get("/api/object-requests/mine", async (req, res) => {
+  try {
+    const phone = sanitizeString(String(req.query.phone || ""), 40);
+    if (!phone) {
+      return res.status(400).json({ success: false, messageFa: "شماره موبایل ارسال نشده است.", messageEn: "Missing phone." });
+    }
+    const requests = await readObjectRequests();
+    const mine = requests.filter(r => r.requesterPhone === phone);
+    return res.json({ success: true, requests: mine, total: mine.length });
+  } catch (error) {
+    console.error("Failed to read own object requests:", error);
+    return res.status(500).json({ success: false, messageFa: "خطا در دریافت درخواست‌ها.", messageEn: "Failed to load requests." });
+  }
+});
+
+app.get("/api/admin/object-requests", async (_req, res) => {
+  try {
+    const requests = await readObjectRequests();
+    return res.json({ success: true, requests, total: requests.length });
+  } catch (error) {
+    console.error("Failed to read object requests for admin:", error);
+    return res.status(500).json({ success: false, messageFa: "خطا در دریافت درخواست‌ها.", messageEn: "Failed to load object requests." });
+  }
+});
+
+app.patch("/api/admin/object-requests/:id", async (req, res) => {
+  try {
+    const allowed = new Set(["new", "in_progress_contact", "in_production", "published", "rejected"]);
+    const id = sanitizeString(req.params.id, 120);
+    const status = sanitizeString(req.body?.status, 60);
+    const adminNote = sanitizeString(req.body?.adminNote, 1200);
+    if (!allowed.has(status)) {
+      return res.status(400).json({ success: false, messageFa: "وضعیت درخواست معتبر نیست.", messageEn: "Invalid request status." });
+    }
+    const requests = await readObjectRequests();
+    const idx = requests.findIndex(r => r.id === id);
+    if (idx === -1) {
+      return res.status(404).json({ success: false, messageFa: "درخواست پیدا نشد.", messageEn: "Request not found." });
+    }
+    requests[idx] = { ...requests[idx], status, adminNote, updatedAt: new Date().toISOString() };
+    await writeObjectRequests(requests);
+    return res.json({ success: true, request: requests[idx], messageFa: "وضعیت درخواست بروزرسانی شد.", messageEn: "Request status updated." });
+  } catch (error) {
+    console.error("Failed to update object request:", error);
+    return res.status(500).json({ success: false, messageFa: "خطا در بروزرسانی درخواست.", messageEn: "Failed to update request." });
+  }
+});
+
 // Vite middleware and asset serving
 async function startServer() {
   try {
