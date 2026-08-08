@@ -1,0 +1,12 @@
+import { readFileSync } from 'node:fs';
+import { CATALOG_API_BASE_PATH, CATALOG_API_ROUTES } from '../src/lib/catalog';
+const document = JSON.parse(readFileSync('docs/api/IranBIMhub_Catalog_API_v1.openapi.json', 'utf8'));
+const assert = (condition: boolean, message: string) => { if (!condition) throw new Error(message); };
+assert(document.openapi === '3.1.0', 'OpenAPI version must be 3.1.0.');
+assert(document.servers[0].url === CATALOG_API_BASE_PATH, 'OpenAPI server and front-end contract must use the same base path.');
+assert(document.paths['/catalog/products'], 'Public product-search endpoint is missing.');
+assert(document.paths['/catalog/products/{productId}/variants'], 'Variant endpoint is missing.');
+assert(document.paths['/catalog/products/{productId}/documents'], 'Document endpoint is missing.');
+assert(document.paths['/catalog/products/{productId}/bim-files'], 'BIM version endpoint is missing.');
+assert(CATALOG_API_ROUTES.products === '/api/v1/catalog/products', 'Front-end routes are not stable.');
+console.log('API contract checks passed: OpenAPI document and front-end route constants agree.');

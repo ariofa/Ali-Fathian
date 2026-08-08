@@ -14,7 +14,6 @@ import { Home, Layers, Building, Heart, User, ArrowUp, Folder, Package, MessageS
 
 // Import Views
 import { HomeView } from './components/views/HomeView';
-import { CategoryPageView } from './components/views/CategoryPageView';
 import { ObjectDetailView } from './components/views/ObjectDetailView';
 import { ManufacturerDashboard } from './components/views/ManufacturerDashboard';
 import { ModelerDashboard } from './components/views/ModelerDashboard';
@@ -29,11 +28,20 @@ import { AdminControlPanel } from './components/admin/AdminControlPanel';
 import { PrivacyPolicyView } from './components/views/PrivacyPolicyView';
 import { TermsOfServiceView } from './components/views/TermsOfServiceView';
 import { PaymentView } from './components/views/PaymentView';
+import { CatalogLibraryView } from './components/views/CatalogLibraryView';
+import { CatalogProductDetailView } from './components/views/CatalogProductDetailView';
+import { ProductDataCompletionPanel } from './components/views/ProductDataCompletionPanel';
+import { PUBLISHED_CATALOG_PRODUCTS, SAMPLE_CATALOG_PRODUCTS } from './lib/catalog';
 
 // Inner App with context
 const MainAppContent: React.FC = () => {
   const { language, t, isRtl } = useLanguage();
   const { triggerTransition } = useLoading();
+
+  // Library path is deliberately separate from the legacy filter state.
+  // It mirrors the stable two-level taxonomy URL: /library/:family/:subcategory.
+  const [libraryPath, setLibraryPath] = useState<{ categorySlug?: string; subcategorySlug?: string }>({});
+  const [catalogProductId, setCatalogProductId] = useState<string | null>(null);
 
   // Payment states
   const [paymentPlanId, setPaymentPlanId] = useState<string>('modeler-vip');
@@ -64,6 +72,32 @@ const MainAppContent: React.FC = () => {
       const path = window.location.pathname.replace(/^\//, '').split('/');
       const viewFromUrl = path[0] || 'home';
       const paramFromUrl = path[1] || '';
+      const secondParamFromUrl = path[2] || '';
+      if (viewFromUrl === 'library') {
+        // Product records have their own stable route. Preview is deliberately
+        // isolated from public records and is never linked from the library.
+        if ((paramFromUrl === 'product' || paramFromUrl === 'preview') && secondParamFromUrl) {
+          setCatalogProductId(secondParamFromUrl);
+          setCurrentView(paramFromUrl === 'preview' ? 'catalog-preview' : 'catalog-product');
+          return;
+        }
+        setLibraryPath({
+          categorySlug: paramFromUrl || undefined,
+          subcategorySlug: secondParamFromUrl || undefined,
+        });
+      }
+      if (viewFromUrl === 'catalog-completion-preview' && paramFromUrl) {
+        setCatalogProductId(paramFromUrl);
+        setCurrentView('catalog-completion-preview');
+        return;
+      }
+      // Legacy cleanup: /categories is replaced by the approved two-level /library route.
+      if (viewFromUrl === 'categories') {
+        window.history.replaceState({ view: 'library' }, '', '/library');
+        setLibraryPath({});
+        setCurrentView('library');
+        return;
+      }
       // Legacy cleanup: the old manufacturer onboarding page was removed.
       // Any old direct URL should land on the current manufacturer page.
       if (viewFromUrl === 'manufacturer-onboarding') {
@@ -84,7 +118,7 @@ const MainAppContent: React.FC = () => {
           customList.find(o => o && o.id === paramFromUrl);
         if (found) setActiveObject(found);
       }
-      if (viewFromUrl && (viewFromUrl === 'home' || viewFromUrl === 'admin-panel' || ['about','contact','categories','detail','brand','manufacturers','for-designers','for-manufacturers','manufacturer-dashboard','modeler-dashboard','learn','introduction','for-bim-modelers','privacy','terms','payment'].includes(viewFromUrl))) {
+      if (viewFromUrl && (viewFromUrl === 'home' || viewFromUrl === 'admin-panel' || ['about','contact','categories','library','detail','brand','manufacturers','for-designers','for-manufacturers','manufacturer-dashboard','modeler-dashboard','learn','introduction','for-bim-modelers','privacy','terms','payment'].includes(viewFromUrl))) {
         setCurrentView(viewFromUrl);
         if (viewFromUrl === 'brand' && paramFromUrl) {
           setActiveManufacturerId(paramFromUrl);
@@ -116,6 +150,11 @@ const MainAppContent: React.FC = () => {
   }, []);
 
   const navigateTo = (view: string, customTextFa?: string, customTextEn?: string, param?: string) => {
+    // The previous catalog route now resolves to the approved two-level library.
+    if (view === 'categories') {
+      view = 'library';
+      param = undefined;
+    }
     // Legacy cleanup: redirect removed manufacturer onboarding route to manufacturer page.
     if (view === 'manufacturer-onboarding') {
       view = 'for-manufacturers';
@@ -138,6 +177,20 @@ const MainAppContent: React.FC = () => {
       setCurrentView(view);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }, customTextFa || (isRtl ? 'در حال انتقال...' : 'Navigating...'), customTextEn || 'Navigating...', 500);
+  };
+
+  const navigateLibrary = (categorySlug?: string, subcategorySlug?: string) => {
+    const safeCategory = categorySlug?.trim();
+    const safeSubcategory = subcategorySlug?.trim();
+    const path = safeCategory
+      ? `/library/${safeCategory}${safeSubcategory ? `/${safeSubcategory}` : ''}`
+      : '/library';
+    window.history.pushState({ view: 'library', categorySlug: safeCategory, subcategorySlug: safeSubcategory }, '', path);
+    triggerTransition(() => {
+      setLibraryPath({ categorySlug: safeCategory, subcategorySlug: safeSubcategory });
+      setCurrentView('library');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, isRtl ? 'در حال باز کردن کتابخانهٔ محصولات...' : 'Opening product library...', 'Opening product library...', 350);
   };
 
   const handleDashboardTabNavigate = (view: string, tab: string) => {
@@ -460,11 +513,11 @@ const MainAppContent: React.FC = () => {
   };
 
   const handleHeaderSearch = (query: string) => {
-    triggerTransition(() => {
-      setFilterState(prev => ({ ...prev, search: query }));
-      setCurrentView('categories');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, isRtl ? 'در حال جستجوی کاتالوگ...' : 'Searching catalog...', 'Searching catalog...', 600);
+    // Product result search is intentionally introduced with the structured
+    // filter engine in phase three. Until then, category suggestions route to
+    // the real library and a free-text query must not surface legacy mock data.
+    setFilterState(prev => ({ ...prev, search: query }));
+    navigateLibrary();
   };
 
   const handlePublishNewObject = (newObj: BIMObject) => {
@@ -509,16 +562,39 @@ const MainAppContent: React.FC = () => {
           />
         );
       
+      case 'catalog-preview': {
+        const product = SAMPLE_CATALOG_PRODUCTS.find(item => item.id === catalogProductId);
+        return product ? <CatalogProductDetailView product={product} preview onBack={() => navigateLibrary('doors-windows-openings', 'windows')} onRequest={() => navigateTo('modeler-dashboard')} onViewCompletion={() => {
+          window.history.pushState({ view: 'catalog-completion-preview', productId: product.id }, '', `/catalog-completion-preview/${product.id}`);
+          setCatalogProductId(product.id);
+          setCurrentView('catalog-completion-preview');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }} /> : null;
+      }
+
+      case 'catalog-completion-preview': {
+        const product = SAMPLE_CATALOG_PRODUCTS.find(item => item.id === catalogProductId);
+        return product ? <ProductDataCompletionPanel product={product} preview onBack={() => {
+          window.history.pushState({ view: 'catalog-preview', productId: product.id }, '', `/library/preview/${product.id}`);
+          setCurrentView('catalog-preview');
+        }} /> : null;
+      }
+
+      case 'catalog-product': {
+        const product = PUBLISHED_CATALOG_PRODUCTS.find(item => item.id === catalogProductId);
+        return product ? <CatalogProductDetailView product={product} onBack={() => navigateLibrary()} onRequest={() => navigateTo('modeler-dashboard')} /> : (
+          <div className="max-w-xl mx-auto py-16 px-4 text-center"><h2 className="text-xl font-bold text-gray-800 dark:text-white">{isRtl ? 'محصول موردنظر پیدا نشد' : 'Product not found'}</h2><button onClick={() => navigateLibrary()} className="mt-4 bg-[#0F3D5E] text-white px-4 py-2 rounded-lg text-xs font-bold cursor-pointer">{isRtl ? 'بازگشت به کتابخانه' : 'Back to library'}</button></div>
+        );
+      }
+
       case 'categories':
+      case 'library':
         return (
-          <CategoryPageView
-            filterState={filterState}
-            onFilterChange={(updates) => setFilterState(prev => ({ ...prev, ...updates }))}
-            onSelectObject={handleSelectObject}
-            savedObjects={savedObjects}
-            onToggleSave={handleToggleSave}
-            onQuickDownload={handleQuickDownload}
-            onViewBrand={handleViewBrand}
+          <CatalogLibraryView
+            categorySlug={currentView === 'library' ? libraryPath.categorySlug : undefined}
+            subcategorySlug={currentView === 'library' ? libraryPath.subcategorySlug : undefined}
+            onNavigateLibrary={navigateLibrary}
+            onNavigate={navigateTo}
           />
         );
 
@@ -740,7 +816,14 @@ const MainAppContent: React.FC = () => {
       {/* Top Banner & Main Nav */}
       <Header
         currentView={currentView}
-        onNavigate={navigateTo}
+        onNavigate={(view, pathParam) => {
+          if (view === 'library') {
+            const [categorySlug, subcategorySlug] = (pathParam || '').split('/').filter(Boolean);
+            navigateLibrary(categorySlug, subcategorySlug);
+            return;
+          }
+          navigateTo(view);
+        }}
         userRole={userRole}
         onChangeRole={handleChangeRole}
         savedCount={savedObjects.length}

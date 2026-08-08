@@ -1,0 +1,758 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IranBIMhub Catalog API",
+    "version": "1.0.0",
+    "description": "Contract only; no backend endpoint is implemented by this front-end release."
+  },
+  "servers": [
+    {
+      "url": "/api/v1"
+    }
+  ],
+  "paths": {
+    "/catalog/categories": {
+      "get": {
+        "summary": "Approved two-level taxonomy",
+        "responses": {
+          "200": {
+            "description": "Categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/catalog/attributes": {
+      "get": {
+        "summary": "Attribute registry",
+        "responses": {
+          "200": {
+            "description": "Registry",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttributeListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/catalog/products": {
+      "get": {
+        "summary": "Published product search",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Published records only",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductPageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/catalog/products/{productId}": {
+      "get": {
+        "summary": "Published product detail",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ProductId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Brand-owned product update",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ProductId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductWriteInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated product",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/brands/{brandId}/products": {
+      "post": {
+        "summary": "Create product draft",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "brandId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductWriteInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Draft created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/catalog/products/{productId}/attribute-values": {
+      "put": {
+        "summary": "Replace product attribute values",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ProductId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/AttributeValue"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Values saved"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/catalog/products/{productId}/bim-files": {
+      "post": {
+        "summary": "Create immutable BIM file version",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ProductId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BimFileVersionInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "New BIM revision created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BimFileVersion"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Published BIM file must not be overwritten"
+          }
+        }
+      }
+    },
+    "/catalog/products/{productId}/review/submit": {
+      "post": {
+        "summary": "Submit product for review",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ProductId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Review record"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/catalog/products/{productId}/changes": {
+      "get": {
+        "summary": "Append-only product audit history",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ProductId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Change log"
+          }
+        }
+      }
+    },
+    "/catalog/products/{productId}/variants": {
+      "put": {
+        "summary": "Replace product variants",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ProductId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Variants saved"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/catalog/products/{productId}/documents": {
+      "post": {
+        "summary": "Attach product document after secure upload",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ProductId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "type",
+                  "title"
+                ],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "catalog",
+                      "datasheet",
+                      "installation_guide",
+                      "technical_drawing",
+                      "image"
+                    ]
+                  },
+                  "title": {
+                    "$ref": "#/components/schemas/LocalizedText"
+                  },
+                  "url": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "sourceId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Document attached"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/catalog/products/{productId}/review": {
+      "get": {
+        "summary": "Get product review state",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ProductId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Review record"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "parameters": {
+      "ProductId": {
+        "name": "productId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "responses": {
+      "NotFound": {
+        "description": "Not found"
+      },
+      "Forbidden": {
+        "description": "Brand ownership scope denied"
+      },
+      "ValidationError": {
+        "description": "Invalid metadata or source requirement"
+      }
+    },
+    "schemas": {
+      "LocalizedText": {
+        "type": "object",
+        "required": [
+          "fa",
+          "en"
+        ],
+        "properties": {
+          "fa": {
+            "type": "string"
+          },
+          "en": {
+            "type": "string"
+          }
+        }
+      },
+      "Category": {
+        "type": "object",
+        "required": [
+          "id",
+          "slug",
+          "level",
+          "label",
+          "childIds"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "level": {
+            "type": "integer",
+            "enum": [
+              1,
+              2
+            ]
+          },
+          "parentId": {
+            "type": "string"
+          },
+          "label": {
+            "$ref": "#/components/schemas/LocalizedText"
+          },
+          "childIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "AttributeValue": {
+        "type": "object",
+        "required": [
+          "attributeKey",
+          "applicability"
+        ],
+        "properties": {
+          "attributeKey": {
+            "type": "string"
+          },
+          "applicability": {
+            "type": "string",
+            "enum": [
+              "applicable",
+              "not_applicable",
+              "unknown"
+            ]
+          },
+          "value": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "min": {
+            "type": "number"
+          },
+          "max": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "sourceId": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ProductWriteInput": {
+        "type": "object",
+        "required": [
+          "title",
+          "shortDescription",
+          "categoryId",
+          "productionStatus",
+          "keywords",
+          "updatedAt"
+        ],
+        "properties": {
+          "title": {
+            "$ref": "#/components/schemas/LocalizedText"
+          },
+          "shortDescription": {
+            "$ref": "#/components/schemas/LocalizedText"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "family": {
+            "type": "string"
+          },
+          "modelNumber": {
+            "type": "string"
+          },
+          "productionStatus": {
+            "type": "string",
+            "enum": [
+              "active",
+              "made_to_order",
+              "discontinued",
+              "unknown"
+            ]
+          },
+          "keywords": {
+            "$ref": "#/components/schemas/LocalizedText"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "BimFileVersionInput": {
+        "type": "object",
+        "required": [
+          "format",
+          "availability",
+          "reviewStatus",
+          "version",
+          "checksumSha256",
+          "fileSizeBytes"
+        ],
+        "properties": {
+          "format": {
+            "type": "string",
+            "enum": [
+              "RFA",
+              "RVT",
+              "IFC",
+              "DWG",
+              "SKP",
+              "PDF",
+              "OTHER"
+            ]
+          },
+          "availability": {
+            "type": "string"
+          },
+          "reviewStatus": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+          },
+          "checksumSha256": {
+            "type": "string"
+          },
+          "fileSizeBytes": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "supersedesFileId": {
+            "type": "string"
+          },
+          "releaseNotes": {
+            "type": "string"
+          }
+        }
+      },
+      "BimFileVersion": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BimFileVersionInput"
+          },
+          {
+            "type": "object",
+            "required": [
+              "id",
+              "revision",
+              "uploadedAt"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "uploadedAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        ]
+      },
+      "Product": {
+        "type": "object",
+        "description": "See the accompanying Markdown contract for full nested shape and governance rules."
+      },
+      "ProductResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Product"
+          },
+          "meta": {
+            "type": "object"
+          }
+        }
+      },
+      "ProductPageResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              },
+              "page": {
+                "type": "integer"
+              },
+              "pageSize": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              }
+            }
+          },
+          "meta": {
+            "type": "object"
+          }
+        }
+      },
+      "CategoryListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Category"
+            }
+          },
+          "meta": {
+            "type": "object"
+          }
+        }
+      },
+      "AttributeListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "meta": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  }
+}

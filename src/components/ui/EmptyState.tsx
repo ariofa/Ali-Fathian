@@ -57,7 +57,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           <button
             type="button"
             onClick={onAction}
-            className="mt-1.5 px-5 py-2.5 rounded-xl bg-brand-accent hover:bg-brand-accent-strong text-white text-xs font-extrabold transition-all shadow-xs hover:shadow-md active:scale-97 cursor-pointer"
+            className="mt-1.5 px-5 py-2.5 rounded-xl bg-[#087F7A] hover:bg-[#064E4B] text-white text-xs font-extrabold transition-all shadow-xs hover:shadow-md active:scale-97 cursor-pointer"
           >
             {actionLabel}
           </button>

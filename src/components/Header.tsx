@@ -1,9 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from './LanguageContext';
 import { Logo } from './Logo';
-import { CATEGORIES, BIM_OBJECTS } from '../data';
-import { CategoryIcon } from './CategoryIcon';
-import { SplitPaneNavMenu } from './SplitPaneNavMenu';
+import { PRODUCT_CATEGORIES } from '../lib/catalog';
 import {
   Globe,
   User,
@@ -35,7 +33,7 @@ import { readInbox, unreadCount, markNotificationRead, markAllRead, subscribeInb
 
 interface HeaderProps {
   currentView: string;
-  onNavigate: (view: string) => void;
+  onNavigate: (view: string, pathParam?: string) => void;
   userRole: 'Modeler' | 'Manufacturer';
   onChangeRole: (role: 'Modeler' | 'Manufacturer') => void;
   savedCount: number;
@@ -47,6 +45,9 @@ interface HeaderProps {
   onToggleDark: () => void;
   onHeaderSearch: (query: string) => void;
 }
+
+const LIBRARY_MAIN_CATEGORIES = PRODUCT_CATEGORIES.filter((category) => category.level === 1);
+const getLibrarySubcategories = (parentId: string) => PRODUCT_CATEGORIES.filter((category) => category.parentId === parentId);
 
 export const Header: React.FC<HeaderProps> = ({
   currentView,
@@ -138,8 +139,8 @@ export const Header: React.FC<HeaderProps> = ({
 
   // Sync hovered category for Desktop Mega Menu
   useEffect(() => {
-    if (categoriesDropdownOpen && CATEGORIES.length > 0 && !hoveredCategoryId) {
-      setHoveredCategoryId(CATEGORIES[0].id);
+    if (categoriesDropdownOpen && LIBRARY_MAIN_CATEGORIES.length > 0 && !hoveredCategoryId) {
+      setHoveredCategoryId(LIBRARY_MAIN_CATEGORIES[0].id);
     }
   }, [categoriesDropdownOpen, hoveredCategoryId]);
 
@@ -335,72 +336,40 @@ export const Header: React.FC<HeaderProps> = ({
       subcategoryId?: string | null;
     }[] = [];
 
-    // 1. Match Categories and Subcategories
-    CATEGORIES.forEach(cat => {
-      const catName = isRtl ? cat.nameFa : cat.nameEn;
-      const otherCatName = isRtl ? cat.nameEn : cat.nameFa;
+    // 1. Match the approved two-level library taxonomy.
+    LIBRARY_MAIN_CATEGORIES.forEach(cat => {
+      const catName = isRtl ? cat.label.fa : cat.label.en;
+      const otherCatName = isRtl ? cat.label.en : cat.label.fa;
       if (catName.toLowerCase().includes(query) || otherCatName.toLowerCase().includes(query)) {
         matches.push({
           type: 'category',
           id: `cat-${cat.id}`,
           label: catName,
-          secondaryLabel: isRtl ? 'دسته‌بندی اصلی' : 'Main Category',
-          categoryId: cat.id,
+          secondaryLabel: isRtl ? 'خانوادهٔ اصلی محصول' : 'Main product family',
+          categoryId: cat.slug,
           subcategoryId: null
         });
       }
 
-      cat.subcategories.forEach(sub => {
-        const subName = isRtl ? sub.nameFa : sub.nameEn;
-        const otherSubName = isRtl ? sub.nameEn : sub.nameFa;
+      getLibrarySubcategories(cat.id).forEach(sub => {
+        const subName = isRtl ? sub.label.fa : sub.label.en;
+        const otherSubName = isRtl ? sub.label.en : sub.label.fa;
         if (subName.toLowerCase().includes(query) || otherSubName.toLowerCase().includes(query)) {
           matches.push({
             type: 'subcategory',
             id: `sub-${sub.id}`,
             label: subName,
             secondaryLabel: isRtl ? `در ${catName}` : `in ${catName}`,
-            categoryId: cat.id,
-            subcategoryId: sub.id
+            categoryId: cat.slug,
+            subcategoryId: sub.slug
           });
         }
       });
     });
 
-    // 2. Match BIM Objects (by title or tags)
-    const combinedObjects = (() => {
-      try {
-        const saved = localStorage.getItem('iranbimhub_custom_objects_v2');
-        const custom = saved ? JSON.parse(saved) : [];
-        const map = new Map<string, any>();
-        BIM_OBJECTS.forEach(obj => { if (obj && obj.id) map.set(obj.id, obj); });
-        custom.forEach((obj: any) => { if (obj && obj.id) map.set(obj.id, obj); });
-        return Array.from(map.values());
-      } catch {
-        return BIM_OBJECTS;
-      }
-    })();
-
-    combinedObjects.forEach(obj => {
-      const title = isRtl ? obj.titleFa : obj.titleEn;
-      const otherTitle = isRtl ? obj.titleEn : obj.titleFa;
-      const matchesTitle = title.toLowerCase().includes(query) || otherTitle.toLowerCase().includes(query);
-      const matchesTags = (obj.tagsFa && obj.tagsFa.some(t => t.toLowerCase().includes(query))) ||
-                          (obj.tagsEn && obj.tagsEn.some(t => t.toLowerCase().includes(query)));
-
-      if (matchesTitle || matchesTags) {
-        // Find category name
-        const cat = CATEGORIES.find(c => c.id === obj.category);
-        const catLabel = cat ? (isRtl ? cat.nameFa : cat.nameEn) : '';
-        matches.push({
-          type: 'object',
-          id: `obj-${obj.id}`,
-          label: title,
-          secondaryLabel: catLabel,
-          objectId: obj.id
-        });
-      }
-    });
-
+    // Product-result search is enabled only after real published product data
+    // is connected in phase three. For now, autocomplete stays limited to the
+    // approved taxonomy and never suggests legacy mock objects.
     return matches.slice(0, 8);
   };
 
@@ -410,11 +379,7 @@ export const Header: React.FC<HeaderProps> = ({
     if (searchQuery.trim()) {
       saveSearchQuery(searchQuery);
     }
-    if (suggestion.type === 'object') {
-      window.dispatchEvent(new CustomEvent('select-bim-object', { detail: { objectId: suggestion.objectId } }));
-    } else {
-      handleCategorySelect(suggestion.categoryId!, suggestion.subcategoryId);
-    }
+    handleCategorySelect(suggestion.categoryId!, suggestion.subcategoryId);
     setSearchQuery('');
     setShowAutocomplete(false);
     setMobileSearchOpen(false);
@@ -452,20 +417,9 @@ export const Header: React.FC<HeaderProps> = ({
     }
   };
 
-  const handleCategorySelect = (catId: string, subId: string | null = null, format: string | null = null) => {
+  const handleCategorySelect = (categorySlug: string, subcategorySlug: string | null = null) => {
     setCategoriesDropdownOpen(false);
-    onNavigate('categories');
-    onHeaderSearch(''); // clear query if we click category
-    setTimeout(() => {
-      const event = new CustomEvent('select-category-filter', {
-        detail: {
-          categoryId: catId,
-          subcategoryId: subId,
-          format: format
-        }
-      });
-      window.dispatchEvent(event);
-    }, 50);
+    onNavigate('library', subcategorySlug ? `${categorySlug}/${subcategorySlug}` : categorySlug);
   };
 
   // Safe dashboard tabs navigation dispatch
@@ -544,7 +498,7 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <input
                   type="text"
-                  placeholder={isRtl ? 'جستجو در آبجکت‌های بیم، دسته‌بندی‌ها یا برندها' : 'Search BIM objects, categories or brands'}
+                  placeholder={isRtl ? 'جستجو در دسته‌بندی‌های محصول' : 'Search product categories'}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={handleKeyDown}
@@ -1333,7 +1287,7 @@ export const Header: React.FC<HeaderProps> = ({
                 ref={mobileSearchInputRef}
                 id="header-search-input"
                 type="text"
-                placeholder={isRtl ? 'جستجو در آبجکت‌های بیم، دسته‌بندی‌ها یا برندها' : 'Search BIM objects, categories or brands'}
+                placeholder={isRtl ? 'جستجو در دسته‌بندی‌های محصول' : 'Search product categories'}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
@@ -1440,7 +1394,7 @@ export const Header: React.FC<HeaderProps> = ({
                   id="nav-categories"
                   type="button"
                   onClick={() => setCategoriesDropdownOpen((open) => !open)}
-                  className={`px-3 py-2 rounded-lg transition-colors cursor-pointer inline-flex items-center gap-1.5 ${categoriesDropdownOpen || currentView === 'categories' ? 'text-[#087F7A] bg-[#0FB9B1]/10 font-black' : 'text-gray-600 dark:text-gray-400 hover:text-[#087F7A] hover:bg-gray-50 dark:hover:bg-gray-800/40'}`}
+                  className={`px-3 py-2 rounded-lg transition-colors cursor-pointer inline-flex items-center gap-1.5 ${categoriesDropdownOpen || currentView === 'library' ? 'text-[#087F7A] bg-[#0FB9B1]/10 font-black' : 'text-gray-600 dark:text-gray-400 hover:text-[#087F7A] hover:bg-gray-50 dark:hover:bg-gray-800/40'}`}
                   aria-expanded={categoriesDropdownOpen}
                 >
                   <span>{isRtl ? 'دسته‌بندی محصولات' : 'Product categories'}</span>
@@ -1449,14 +1403,14 @@ export const Header: React.FC<HeaderProps> = ({
                 {categoriesDropdownOpen && (
                   <div ref={categoryPanelRef} className={`absolute ${isRtl ? 'right-0' : 'left-0'} top-full mt-2 z-[80] grid grid-cols-[175px_240px] overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xl animate-fadeIn`}>
                     <div className="border-e border-gray-100 dark:border-gray-800 bg-slate-50/70 dark:bg-slate-950/30 p-2">
-                      {CATEGORIES.map((category) => (
-                        <button key={category.id} type="button" onMouseEnter={() => setHoveredCategoryId(category.id)} onClick={() => handleCategorySelect(category.id)} className={`w-full rounded-xl px-3 py-2.5 text-start text-xs font-black transition-colors cursor-pointer ${hoveredCategoryId === category.id ? 'bg-[#0FB9B1]/12 text-[#087F7A]' : 'text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800'}`}>
-                          {isRtl ? category.nameFa : category.nameEn}
+                      {LIBRARY_MAIN_CATEGORIES.map((category) => (
+                        <button key={category.id} type="button" onMouseEnter={() => setHoveredCategoryId(category.id)} onClick={() => handleCategorySelect(category.slug)} className={`w-full rounded-xl px-3 py-2.5 text-start text-xs font-black transition-colors cursor-pointer ${hoveredCategoryId === category.id ? 'bg-[#0FB9B1]/12 text-[#087F7A]' : 'text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800'}`}>
+                          {isRtl ? category.label.fa : category.label.en}
                         </button>
                       ))}
                     </div>
                     <div className="p-3">
-                      {(() => { const active = CATEGORIES.find((category) => category.id === hoveredCategoryId) || CATEGORIES[0]; return active ? <><button type="button" onClick={() => handleCategorySelect(active.id)} className="w-full text-start rounded-xl border border-[#0FB9B1]/20 bg-[#0FB9B1]/5 px-3 py-2 text-xs font-black text-[#087F7A] hover:bg-[#0FB9B1]/10 cursor-pointer">{isRtl ? `همهٔ محصولات ${active.nameFa} ←` : `All ${active.nameEn} →`}</button><div className="mt-2 grid grid-cols-1 gap-1">{active.subcategories.map((sub) => <button key={sub.id} type="button" onClick={() => handleCategorySelect(active.id, sub.id)} className="rounded-lg px-3 py-2 text-start text-[11px] text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-[#087F7A] cursor-pointer">{isRtl ? sub.nameFa : sub.nameEn}</button>)}</div></> : null; })()}
+                      {(() => { const active = LIBRARY_MAIN_CATEGORIES.find((category) => category.id === hoveredCategoryId) || LIBRARY_MAIN_CATEGORIES[0]; const children = active ? getLibrarySubcategories(active.id) : []; return active ? <><button type="button" onClick={() => handleCategorySelect(active.slug)} className="w-full text-start rounded-xl border border-[#0FB9B1]/20 bg-[#0FB9B1]/5 px-3 py-2 text-xs font-black text-[#087F7A] hover:bg-[#0FB9B1]/10 cursor-pointer">{isRtl ? `مشاهدهٔ ${active.label.fa} ←` : `Browse ${active.label.en} →`}</button><div className="mt-2 grid grid-cols-1 gap-1 max-h-72 overflow-y-auto">{children.map((sub) => <button key={sub.id} type="button" onClick={() => handleCategorySelect(active.slug, sub.slug)} className="rounded-lg px-3 py-2 text-start text-[11px] text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-[#087F7A] cursor-pointer">{isRtl ? sub.label.fa : sub.label.en}</button>)}</div></> : null; })()}
                     </div>
                   </div>
                 )}
