@@ -12,7 +12,7 @@ import {
   Save
 } from 'lucide-react';
 import { OBJECT_REQUEST_STATUS, ObjectRequestItem, DISCIPLINE_OPTIONS } from '../dashboard/ObjectRequestForm';
-import { CATEGORIES } from '../../data';
+import { PRODUCT_CATEGORIES } from '../../lib/catalog';
 
 /**
  * Admin view — «درخواست‌های آبجکت معماران» (item 20 back-office queue)
@@ -75,9 +75,12 @@ export const ObjectRequestsAdminView: React.FC = () => {
 
   const filtered = statusFilter === 'all' ? requests : requests.filter(r => r.status === statusFilter);
   const faDate = (iso: string) => { try { return new Date(iso).toLocaleDateString('fa-IR'); } catch { return ''; } };
+  // Requests are stored with approved-taxonomy category ids; an id outside the
+  // current taxonomy falls back to the raw id only if nothing better exists.
   const categoryName = (id?: string) => {
-    const c = CATEGORIES.find(x => x.id === id);
-    return c ? (isRtl ? c.nameFa : c.nameEn) : '';
+    if (!id) return '';
+    const category = PRODUCT_CATEGORIES.find(c => c.id === id);
+    return category ? (isRtl ? category.label.fa : category.label.en) : id;
   };
   const disciplineName = (id?: string) => {
     const d = DISCIPLINE_OPTIONS.find(x => x.id === id);

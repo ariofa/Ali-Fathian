@@ -1,7 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from '../ui/toast';
 import { useLanguage } from '../LanguageContext';
-import { CATEGORIES } from '../../data';
+import { PRODUCT_CATEGORIES } from '../../lib/catalog';
+
+const REQUEST_L1_CATEGORIES = PRODUCT_CATEGORIES.filter(c => c.level === 1);
+const requestSubcategoriesOf = (familyId: string) => PRODUCT_CATEGORIES.filter(c => c.parentId === familyId);
+/** Taxonomy label for a stored request category id (empty when it is a legacy id). */
+const requestCategoryLabel = (categoryId: string | undefined, isRtl: boolean) => {
+  if (!categoryId) return '';
+  const category = PRODUCT_CATEGORIES.find(c => c.id === categoryId);
+  return category ? (isRtl ? category.label.fa : category.label.en) : '';
+};
 import { pushNotification } from '../../lib/notifications';
 import {
   PackagePlus,
@@ -85,7 +94,7 @@ export const ObjectRequestForm: React.FC<ObjectRequestFormProps> = ({ currentUse
   const [productName, setProductName] = useState('');
   const [detailLevel, setDetailLevel] = useState('LOD 300');
   const [discipline, setDiscipline] = useState('architecture');
-  const [categoryId, setCategoryId] = useState(CATEGORIES[0]?.id || '');
+  const [categoryId, setCategoryId] = useState(REQUEST_L1_CATEGORIES[0]?.id || '');
   const [subcategoryName, setSubcategoryName] = useState('');
   const [linkUrl, setLinkUrl] = useState('');
   const [photoName, setPhotoName] = useState('');
@@ -94,7 +103,7 @@ export const ObjectRequestForm: React.FC<ObjectRequestFormProps> = ({ currentUse
   const [submitting, setSubmitting] = useState(false);
   const [successRef, setSuccessRef] = useState<string | null>(null);
 
-  const selectedCategory = useMemo(() => CATEGORIES.find(c => c.id === categoryId), [categoryId]);
+  const selectedCategory = useMemo(() => REQUEST_L1_CATEGORIES.find(c => c.id === categoryId), [categoryId]);
 
   useEffect(() => {
     // Reset subcategory when the parent category changes
@@ -237,7 +246,7 @@ export const ObjectRequestForm: React.FC<ObjectRequestFormProps> = ({ currentUse
         <div className="space-y-1.5">
           <label className={labelCls}>{isRtl ? 'دسته‌بندی در سایت' : 'Site category'}</label>
           <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className={inputCls}>
-            {CATEGORIES.map(c => <option key={c.id} value={c.id}>{isRtl ? c.nameFa : c.nameEn}</option>)}
+            {REQUEST_L1_CATEGORIES.map(c => <option key={c.id} value={c.id}>{isRtl ? c.label.fa : c.label.en}</option>)}
           </select>
         </div>
 
@@ -245,8 +254,8 @@ export const ObjectRequestForm: React.FC<ObjectRequestFormProps> = ({ currentUse
           <label className={labelCls}>{isRtl ? 'زیردسته' : 'Subcategory'}</label>
           <select value={subcategoryName} onChange={(e) => setSubcategoryName(e.target.value)} className={inputCls}>
             <option value="">{isRtl ? 'انتخاب نشده' : 'Not selected'}</option>
-            {(selectedCategory?.subcategories || []).map(s => (
-              <option key={s.id} value={isRtl ? s.nameFa : s.nameEn}>{isRtl ? s.nameFa : s.nameEn}</option>
+            {requestSubcategoriesOf(selectedCategory?.id || '').map(s => (
+              <option key={s.id} value={isRtl ? s.label.fa : s.label.en}>{isRtl ? s.label.fa : s.label.en}</option>
             ))}
           </select>
         </div>
@@ -389,7 +398,7 @@ export const MyObjectRequestsList: React.FC<MyObjectRequestsListProps> = ({ phon
                     <span className="block text-[13px] font-black text-gray-800 dark:text-white truncate">{req.productName}</span>
                     <span className="block text-[11.5px] text-gray-400 mt-0.5 truncate">
                       {req.brandName}
-                      {req.subcategoryName ? ` • ${req.subcategoryName}` : ''}
+                      {(() => { const path = [requestCategoryLabel(req.categoryId, isRtl), req.subcategoryName].filter(Boolean).join(' › '); return path ? ` • ${path}` : ''; })()}
                     </span>
                   </div>
                   <span className={`text-[10.5px] font-black px-2.5 py-1 rounded-full border shrink-0 ${st.className}`}>

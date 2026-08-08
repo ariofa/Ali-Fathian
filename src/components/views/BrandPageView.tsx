@@ -41,6 +41,8 @@ import {
   Search
 } from 'lucide-react';
 import { BIMObjectCard } from '../BIMObjectCard';
+import { PRODUCT_CATEGORIES } from '../../lib/catalog';
+import { familyIdOfLibraryCategory, legacyObjectLibraryCategoryId } from '../../lib/catalog/legacyProductBridge';
 import { parseVideoEmbedUrl } from '../../lib/videoUtils';
 
 interface BrandPageViewProps {
@@ -135,6 +137,11 @@ const BRAND_EXTENSIONS: Record<string, {
   }
 };
 
+/** Approved taxonomy lookups shared by the brand catalog filter and the request modal.
+ *  All three surfaces (library / brand / requests) speak the same category ids. */
+const TAXONOMY_CATEGORY_BY_ID = new Map(PRODUCT_CATEGORIES.map(category => [category.id, category]));
+const BRAND_L1_CATEGORIES = PRODUCT_CATEGORIES.filter(category => category.level === 1);
+
 export const BrandPageView: React.FC<BrandPageViewProps> = ({
   manufacturer,
   onBack,
@@ -183,7 +190,7 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
     phone: '',
     company: '',
     objectName: '',
-    category: 'doors_windows',
+    category: BRAND_L1_CATEGORIES[0]?.id || 'doors-windows-openings',
     format: 'Revit',
     priority: 'Medium' as 'Low' | 'Medium' | 'High',
     description: ''
@@ -456,7 +463,7 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
         phone: '',
         company: '',
         objectName: '',
-        category: 'doors_windows',
+        category: BRAND_L1_CATEGORIES[0]?.id || 'doors-windows-openings',
         format: 'Revit',
         priority: 'Medium',
         description: ''
@@ -591,11 +598,14 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
   const [selectedFormat, setSelectedFormat] = useState('all');
 
   const availableSubcategories = React.useMemo(() => {
-    const subs = new Set<string>();
+    const subs = new Map<string, { fa: string; en: string }>();
     visibleManufacturerObjects.forEach(obj => {
-      if (obj.subcategory) subs.add(obj.subcategory);
+      if (!obj.subcategory && !obj.category) return;
+      const libraryId = legacyObjectLibraryCategoryId(obj as any);
+      const category = TAXONOMY_CATEGORY_BY_ID.get(libraryId);
+      if (category) subs.set(category.id, { fa: category.label.fa, en: category.label.en });
     });
-    return Array.from(subs);
+    return Array.from(subs.entries());
   }, [visibleManufacturerObjects]);
 
   const availableFormats = React.useMemo(() => {
@@ -615,7 +625,7 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
         desc.toLowerCase().includes(catalogSearchQuery.toLowerCase()) ||
         ((obj.specs && (obj.specs as any).model) || '').toLowerCase().includes(catalogSearchQuery.toLowerCase());
       
-      const matchesSub = selectedSubcategory === 'all' || obj.subcategory === selectedSubcategory;
+      const matchesSub = selectedSubcategory === 'all' || legacyObjectLibraryCategoryId(obj as any) === selectedSubcategory;
       const matchesFormat = selectedFormat === 'all' || obj.formats.includes(selectedFormat);
 
       return matchesSearch && matchesSub && matchesFormat;
@@ -1008,9 +1018,9 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
               onChange={e => setSelectedSubcategory(e.target.value)}
               className="w-full text-xs p-2.5 bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#26B6B6]"
             >
-              <option value="all">{isRtl ? 'همه دسته‌بندی‌ها' : 'All Subcategories'}</option>
-              {availableSubcategories.map(sub => (
-                <option key={sub} value={sub}>{sub}</option>
+              <option value="all">{isRtl ? 'همهٔ دسته‌بندی‌ها' : 'All Subcategories'}</option>
+              {availableSubcategories.map(([subId, subLabel]) => (
+                <option key={subId} value={subId}>{isRtl ? subLabel.fa : subLabel.en}</option>
               ))}
             </select>
           </div>
@@ -1815,11 +1825,9 @@ export const BrandPageView: React.FC<BrandPageViewProps> = ({
                       onChange={e => setObjectRequestForm({...objectRequestForm, category: e.target.value})}
                       className="w-full text-xs p-2.5 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500"
                     >
-                      <option value="doors_windows">{isRtl ? 'در و پنجره' : 'Doors & Windows'}</option>
-                      <option value="facade_structures">{isRtl ? 'سازه‌های نما' : 'Facade Structures'}</option>
-                      <option value="mep_hvac">{isRtl ? 'تاسیسات مکانیکی و سرمایش گرمایش' : 'MEP & HVAC'}</option>
-                      <option value="electrical_lighting">{isRtl ? 'تاسیسات الکتریکی و روشنایی' : 'Electrical & Lighting'}</option>
-                      <option value="finishes_materials">{isRtl ? 'مصالح و پوشش‌های نهایی' : 'Finishes & Materials'}</option>
+                      {BRAND_L1_CATEGORIES.map(cat => (
+                        <option key={cat.id} value={cat.id}>{isRtl ? cat.label.fa : cat.label.en}</option>
+                      ))}
                     </select>
                   </div>
                   <div className="space-y-1">

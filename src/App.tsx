@@ -383,14 +383,21 @@ const MainAppContent: React.FC = () => {
     return () => window.removeEventListener('select-category-filter', handleSelectCategoryFilter);
   }, []);
 
-  // Helper to get all combined & deduplicated BIM objects
+  // Helper to get all combined & deduplicated PUBLIC BIM objects.
+  // Publication discipline matches HomeView combinedObjects and the header
+  // menu counts: a manufacturer prototype only enters the public library when
+  // it is actually published/approved — drafts must not leak into browse,
+  // compare or deep-link resolution built from this list.
   const getAllBimObjects = (): BIMObject[] => {
     try {
       const saved = localStorage.getItem('iranbimhub_custom_objects_v2');
       const custom = saved ? JSON.parse(saved) : [];
       const map = new Map<string, BIMObject>();
       BIM_OBJECTS.forEach(obj => { if (obj && obj.id) map.set(obj.id, obj); });
-      custom.forEach((obj: BIMObject) => { if (obj && obj.id) map.set(obj.id, obj); });
+      custom.forEach((obj: BIMObject) => {
+        const isPublicObject = (obj as any)?.isPublic === true || (obj as any)?.status === 'Published' || (obj as any)?.evaluationStatus === 'approved';
+        if (obj && obj.id && isPublicObject) map.set(obj.id, obj);
+      });
       return Array.from(map.values());
     } catch {
       return BIM_OBJECTS;
@@ -584,6 +591,7 @@ const MainAppContent: React.FC = () => {
         return (
           <HomeView
             onNavigate={navigateTo}
+            onNavigateLibrary={navigateLibrary}
             onFilterChange={(updates) => setFilterState(prev => ({ ...prev, ...updates }))}
             onSelectObject={handleSelectObject}
             savedObjects={savedObjects}

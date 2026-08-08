@@ -13,4 +13,3 @@ export * from './apiContract';
 export * from './legacyFilterPresets';
 export * from './metadataExtensions';
 export * from './unifiedSearch';
-export * from './unifiedSearch';

@@ -1,5 +1,6 @@
 import type { BIMObject } from '../../types';
 import { PRODUCT_CATEGORIES } from './taxonomy';
+import { ATTRIBUTE_DEFINITION_BY_KEY, LEGACY_SPEC_TO_ATTRIBUTE_KEY } from './unifiedSearch';
 
 /**
  * Bridge between the objects the site already publishes (src/data.ts legacy
@@ -140,6 +141,15 @@ export const LEGACY_SPEC_LABELS: Record<string, { fa: string; en: string }> = {
 };
 
 export function legacySpecLabel(key: string): { fa: string; en: string } {
+  // 1) Canonical path first: the same registry labels that power the unified
+  //    search index and the library specialist filters, so the object download
+  //    page, search and browse share ONE wording for every metadata key.
+  //    (unifiedSearch imports this module too, so these bindings are only read
+  //    here at call time — after both modules finished evaluating.)
+  const canonicalKey = LEGACY_SPEC_TO_ATTRIBUTE_KEY[key] || key;
+  const definition = ATTRIBUTE_DEFINITION_BY_KEY.get(canonicalKey);
+  if (definition?.label) return { fa: definition.label.fa, en: definition.label.en };
+  // 2) Legacy dictionary for historic keys that have no governed definition.
   const known = LEGACY_SPEC_LABELS[key];
   if (known) return known;
   const fallbackEn = key.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());

@@ -234,7 +234,11 @@ export const CatalogLibraryView: React.FC<CatalogLibraryViewProps> = ({
         const facet = ensureFacet(attribute.key, definition?.label);
         attribute.values.forEach(value => {
           const text = String(value ?? '').trim();
-          if (text) facet.options.set(text, { fa: text, en: text });
+          // Never overwrite a preset/registry label with the raw stored value:
+          // when the actual value matches a governed option (e.g. "aluminum"
+          // → «آلومینیوم») the governed bilingual label must win so filters
+          // everywhere speak the same translated metadata wording.
+          if (text && !facet.options.has(text)) facet.options.set(text, { fa: text, en: text });
         });
       });
     });

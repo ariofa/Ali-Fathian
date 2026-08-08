@@ -18,7 +18,9 @@ import {
   Layers,
   Building2
 } from 'lucide-react';
-import { CATEGORIES, BIM_OBJECTS } from '../../data';
+import { BIM_OBJECTS } from '../../data';
+import { PRODUCT_CATEGORIES } from '../../lib/catalog';
+import { familyIdOfLibraryCategory, legacyObjectLibraryCategoryId } from '../../lib/catalog/legacyProductBridge';
 import { BIMObjectCard } from '../BIMObjectCard';
 import { ExpertInsightsSection } from '../ExpertInsightsSection';
 import { Breadcrumb } from '../Breadcrumb';
@@ -60,7 +62,12 @@ export const ForDesignersView: React.FC<ForDesignersViewProps> = ({
 
 
   // Filter sample categories for preview
-  const sampleCategories = CATEGORIES.slice(0, 4);
+  // The preview chips mirror the library taxonomy: only families that really
+  // contain objects appear, matched through the same mapper the browse page uses.
+  const sampleCategories = (() => {
+    const present = new Set(BIM_OBJECTS.map(o => familyIdOfLibraryCategory(legacyObjectLibraryCategoryId(o))));
+    return PRODUCT_CATEGORIES.filter(c => c.level === 1 && present.has(c.id));
+  })();
 
   // FAQ items for engineers
   const faqItems = [
@@ -267,7 +274,7 @@ export const ForDesignersView: React.FC<ForDesignersViewProps> = ({
                   {isRtl ? 'همه' : 'All'}
                 </button>
                 {sampleCategories.map(cat => {
-                  const name = isRtl ? cat.nameFa : cat.nameEn;
+                  const name = isRtl ? cat.label.fa : cat.label.en;
                   return (
                     <button
                       key={cat.id}
@@ -287,7 +294,7 @@ export const ForDesignersView: React.FC<ForDesignersViewProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {BIM_OBJECTS
                 .filter(obj => {
-                  const matchCat = previewCategory === 'all' || obj.category === previewCategory;
+                  const matchCat = previewCategory === 'all' || familyIdOfLibraryCategory(legacyObjectLibraryCategoryId(obj)) === previewCategory;
                   const title = isRtl ? obj.titleFa : obj.titleEn;
                   const matchSearch = !previewSearch || title.toLowerCase().includes(previewSearch.toLowerCase());
                   return matchCat && matchSearch;

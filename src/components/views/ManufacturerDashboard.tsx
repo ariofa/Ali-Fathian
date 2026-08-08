@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { EmptyState } from '../ui/EmptyState';
 import { toast } from '../ui/toast';
 import { useLanguage } from '../LanguageContext';
-import { CATEGORIES, MANUFACTURERS, BIM_OBJECTS } from '../../data';
+import { MANUFACTURERS, BIM_OBJECTS } from '../../data';
 import { BIMObject } from '../../types';
 import { ManufacturerAnalyticsView } from './ManufacturerAnalyticsView';
 import { BrandOwnershipVerificationPanel } from './BrandOwnershipVerificationPanel';
@@ -1419,7 +1419,13 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
           <div className="relative w-72 h-full bg-white dark:bg-gray-900 shadow-2xl flex flex-col z-10 p-5">
             <div className="flex items-center justify-between pb-4 border-b border-gray-100 dark:border-gray-800 mb-5">
               <div className="flex items-center gap-3">
-                <img src={brandInfo.logoUrl} alt="Logo" className="w-9 h-9 rounded object-cover" />
+                {brandInfo.logoUrl ? (
+                  <img src={brandInfo.logoUrl} alt="Logo" className="w-9 h-9 rounded object-cover" />
+                ) : (
+                  <div className="w-9 h-9 rounded bg-[#26B6B6]/10 text-[#26B6B6] flex items-center justify-center text-[11px] font-black shrink-0" aria-hidden="true">
+                    {(isRtl ? brandInfo.nameFa : brandInfo.nameEn).trim().slice(0, 2) || '…'}
+                  </div>
+                )}
                 <div>
                   <h4 className="text-xs font-bold text-gray-800 dark:text-white">{isRtl ? brandInfo.nameFa : brandInfo.nameEn}</h4>
                   <p className="text-[13px] text-gray-400">{isRtl ? 'پنل مدیریتی کارخانجات' : 'Enterprise Provider Node'}</p>
@@ -1457,7 +1463,13 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
         <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
           {!isSidebarCollapsed && (
             <div className="flex items-center gap-2.5">
-              <img src={brandInfo.logoUrl} alt="logo" className="w-7 h-7 rounded object-cover" />
+              {brandInfo.logoUrl ? (
+                <img src={brandInfo.logoUrl} alt="logo" className="w-7 h-7 rounded object-cover" />
+              ) : (
+                <div className="w-7 h-7 rounded bg-[#26B6B6]/10 text-[#26B6B6] flex items-center justify-center text-[10px] font-black shrink-0" aria-hidden="true">
+                  {(isRtl ? brandInfo.nameFa : brandInfo.nameEn).trim().slice(0, 2) || '…'}
+                </div>
+              )}
               <span className="font-black text-xs text-gray-800 dark:text-white uppercase tracking-wider">
                 {isRtl ? 'مدیریت برند' : 'Brand Admin'}
               </span>
@@ -2024,13 +2036,25 @@ export const ManufacturerDashboard: React.FC<ManufacturerDashboardProps> = ({
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <img 
-                      src={brandInfo.logoUrl} 
-                      alt="logo" 
-                      onClick={() => document.getElementById('logo-upload-input')?.click()}
-                      className="w-16 h-16 rounded-xl object-cover border border-gray-100 dark:border-gray-800 cursor-pointer hover:opacity-80 transition-opacity" 
-                      title={isRtl ? 'جهت تغییر لوگو کلیک کنید' : 'Click to change logo'}
-                    />
+                    {brandInfo.logoUrl ? (
+                      <img
+                        src={brandInfo.logoUrl}
+                        alt="logo"
+                        onClick={() => document.getElementById('logo-upload-input')?.click()}
+                        className="w-16 h-16 rounded-xl object-cover border border-gray-100 dark:border-gray-800 cursor-pointer hover:opacity-80 transition-opacity"
+                        title={isRtl ? 'جهت تغییر لوگو کلیک کنید' : 'Click to change logo'}
+                      />
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => document.getElementById('logo-upload-input')?.click()}
+                        className="w-16 h-16 rounded-xl border border-dashed border-[#26B6B6]/40 bg-[#26B6B6]/5 text-[#26B6B6] flex flex-col items-center justify-center gap-0.5 cursor-pointer hover:bg-[#26B6B6]/10 transition-colors text-[9px] font-bold leading-tight px-1 text-center"
+                        title={isRtl ? 'جهت بارگذاری لوگو کلیک کنید' : 'Click to upload a logo'}
+                      >
+                        <span className="text-base leading-none">+</span>
+                        <span>{isRtl ? 'بارگذاری لوگو' : 'Upload logo'}</span>
+                      </button>
+                    )}
                     <input 
                       type="file" 
                       id="logo-upload-input"

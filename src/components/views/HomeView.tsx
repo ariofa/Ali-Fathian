@@ -1,9 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../LanguageContext';
-import { CATEGORIES, MANUFACTURERS, BIM_OBJECTS, MOCK_REVIEWS } from '../../data';
+import { MANUFACTURERS, BIM_OBJECTS, MOCK_REVIEWS } from '../../data';
 import { BIMObject, FilterState } from '../../types';
 import { BIMObjectCard } from '../BIMObjectCard';
-import { CategoryIcon } from '../CategoryIcon';
+import { PRODUCT_CATEGORIES } from '../../lib/catalog';
+import { categoryIcon } from '../../lib/catalog/categoryIcons';
+
+/** The homepage browses the SAME approved two-level taxonomy as the header
+ *  mega menu and the library — never the historic 12-category list. */
+const HOME_LIBRARY_FAMILIES = PRODUCT_CATEGORIES.filter(category => category.level === 1);
 import { ARTICLES } from './LearnView';
 import { Logo } from '../Logo';
 import { HeroCarousel } from '../HeroCarousel';
@@ -103,6 +108,8 @@ const CountUp: React.FC<{ end: number; duration?: number; prefix?: string; suffi
 
 interface HomeViewProps {
   onNavigate: (view: string, customTextFa?: string, customTextEn?: string, param?: string) => void;
+  /** Taxonomy-aware navigation into the library (/library[/:family[/:sub]]). */
+  onNavigateLibrary?: (categorySlug?: string, subcategorySlug?: string) => void;
   onFilterChange: (updates: Partial<FilterState>) => void;
   onSelectObject: (obj: BIMObject) => void;
   savedObjects: string[];
@@ -115,6 +122,7 @@ interface HomeViewProps {
 
 export const HomeView: React.FC<HomeViewProps> = ({
   onNavigate,
+  onNavigateLibrary,
   onFilterChange,
   onSelectObject,
   savedObjects,
@@ -573,9 +581,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
       o.titleFa.toLowerCase().includes(searchQuery.toLowerCase()) || 
       o.titleEn.toLowerCase().includes(searchQuery.toLowerCase())
     ).slice(0, 3),
-    categories: CATEGORIES.filter(c => 
-      c.nameFa.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      c.nameEn.toLowerCase().includes(searchQuery.toLowerCase())
+    categories: HOME_LIBRARY_FAMILIES.filter(c =>
+      c.label.fa.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.label.en.toLowerCase().includes(searchQuery.toLowerCase())
     ).slice(0, 2),
     manufacturers: MANUFACTURERS.filter(m => 
       m.nameFa.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -585,19 +593,27 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onFilterChange({ 
-      search: searchQuery, 
+    // The query lands inside the library as its in-page search (unified
+    // metadata contract); the legacy category filter scheme no longer exists.
+    onFilterChange({
+      search: searchQuery,
       formats: selectedFormat !== 'All' ? [selectedFormat] : [],
       category: null,
       subcategory: null,
       specifics: {}
     });
-    onNavigate('categories');
+    onNavigateLibrary ? onNavigateLibrary() : onNavigate('library');
   };
 
-  const handleCategoryClick = (catId: string) => {
-    onFilterChange({ category: catId, subcategory: null, specifics: {} });
-    onNavigate('categories');
+  // Category chips and search suggestions speak the approved two-level
+  // taxonomy: they deep-link into the exact library family level with that
+  // level's filter context applied (synced with the header mega menu).
+  const handleCategoryClick = (familySlug: string) => {
+    if (onNavigateLibrary) {
+      onNavigateLibrary(familySlug);
+      return;
+    }
+    onNavigate('library');
   };
 
   const handleManufacturerClick = (mfgId: string) => {
@@ -605,7 +621,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       onViewBrand(mfgId);
     } else {
       onFilterChange({ manufacturers: [mfgId], category: null, subcategory: null, specifics: {} });
-      onNavigate('categories');
+      onNavigateLibrary ? onNavigateLibrary() : onNavigate('library');
     }
   };
 
@@ -916,12 +932,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
                            key={c.id}
                            type="button"
                            onClick={() => {
-                             handleCategoryClick(c.id);
+                             handleCategoryClick(c.slug);
                              setShowSuggestions(false);
                            }}
                            className="text-xs font-semibold text-[#26B6B6] bg-[#26B6B6]/5 hover:bg-[#26B6B6]/10 px-2.5 py-1 rounded transition-colors cursor-pointer"
                         >
-                           {isRtl ? c.nameFa : c.nameEn}
+                           {isRtl ? c.label.fa : c.label.en}
                         </button>
                       ))}
                     </div>
@@ -985,23 +1001,28 @@ export const HomeView: React.FC<HomeViewProps> = ({
             {isCategoriesExpanded ? (
               /* EXPANDED MULTI-ROW WRAPPING LAYOUT */
               <div className="flex flex-wrap gap-2 sm:gap-2.5 justify-center py-2.5 px-0.5 animate-fadeIn min-h-[120px]">
-                {CATEGORIES.map((cat) => (
-                  <div
-                    key={cat.id}
-                    onClick={(e) => handleCategoryItemClick(cat.id, e)}
-                    className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-800 hover:border-[#26B6B6]/50 hover:bg-gray-50 dark:hover:bg-gray-900 transition-all cursor-pointer shadow-[0_1px_3px_rgba(0,0,0,0.03)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.2)] group"
-                  >
-                    {/* Left icon */}
-                    <div className="w-6 h-6 rounded-full bg-[#26B6B6]/5 text-[#26B6B6] flex items-center justify-center shrink-0">
-                      <CategoryIcon iconName={cat.icon} className="w-3.5 h-3.5" />
-                    </div>
-                    
-                    {/* Middle title */}
-                    <span className="text-[11px] sm:text-xs font-extrabold text-gray-700 dark:text-gray-300 group-hover:text-[#26B6B6] transition-colors leading-none truncate max-w-[140px] sm:max-w-[180px]">
-                      {isRtl ? cat.nameFa : cat.nameEn}
-                    </span>
-                  </div>
-                ))}
+                {HOME_LIBRARY_FAMILIES.map((cat) => {
+                  const FamilyIcon = categoryIcon(cat.id);
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={(e) => handleCategoryItemClick(cat.slug, e)}
+                      title={isRtl ? `ورود به ${cat.label.fa} در کتابخانه` : `Open ${cat.label.en} in the library`}
+                      className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-800 hover:border-[#26B6B6]/50 hover:bg-gray-50 dark:hover:bg-gray-900 transition-all cursor-pointer shadow-[0_1px_3px_rgba(0,0,0,0.03)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.2)] group"
+                    >
+                      {/* Left icon */}
+                      <span className="w-6 h-6 rounded-full bg-[#26B6B6]/5 text-[#26B6B6] flex items-center justify-center shrink-0">
+                        <FamilyIcon className="w-3.5 h-3.5" />
+                      </span>
+
+                      {/* Middle title */}
+                      <span className="text-[11px] sm:text-xs font-extrabold text-gray-700 dark:text-gray-300 group-hover:text-[#26B6B6] transition-colors leading-none truncate max-w-[140px] sm:max-w-[180px]">
+                        {isRtl ? cat.label.fa : cat.label.en}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             ) : (
               /* COLLAPSED HORIZONTAL SCROLL LAYOUT */
@@ -1036,23 +1057,28 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   className="flex gap-2.5 overflow-x-auto py-2.5 px-0.5 scrollbar-none cursor-grab active:cursor-grabbing scroll-smooth"
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
-                  {CATEGORIES.map((cat) => (
-                    <div
-                      key={cat.id}
-                      onClick={(e) => handleCategoryItemClick(cat.id, e)}
-                      className="flex-shrink-0 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-800 hover:border-[#26B6B6]/50 transition-all cursor-pointer shadow-[0_1px_3px_rgba(0,0,0,0.03)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.2)] group"
-                    >
-                      {/* Left icon */}
-                      <div className="w-6 h-6 rounded-full bg-[#26B6B6]/5 text-[#26B6B6] flex items-center justify-center shrink-0">
-                        <CategoryIcon iconName={cat.icon} className="w-3.5 h-3.5" />
-                      </div>
-                      
-                      {/* Middle title */}
-                      <span className="text-[11px] sm:text-xs font-extrabold text-gray-700 dark:text-gray-300 group-hover:text-[#26B6B6] transition-colors leading-none truncate max-w-[120px] sm:max-w-[150px]">
-                        {isRtl ? cat.nameFa : cat.nameEn}
-                      </span>
-                    </div>
-                  ))}
+                  {HOME_LIBRARY_FAMILIES.map((cat) => {
+                    const FamilyIcon = categoryIcon(cat.id);
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={(e) => handleCategoryItemClick(cat.slug, e)}
+                        title={isRtl ? `ورود به ${cat.label.fa} در کتابخانه` : `Open ${cat.label.en} in the library`}
+                        className="flex-shrink-0 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-800 hover:border-[#26B6B6]/50 transition-all cursor-pointer shadow-[0_1px_3px_rgba(0,0,0,0.03)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.2)] group"
+                      >
+                        {/* Left icon */}
+                        <span className="w-6 h-6 rounded-full bg-[#26B6B6]/5 text-[#26B6B6] flex items-center justify-center shrink-0">
+                          <FamilyIcon className="w-3.5 h-3.5" />
+                        </span>
+
+                        {/* Middle title */}
+                        <span className="text-[11px] sm:text-xs font-extrabold text-gray-700 dark:text-gray-300 group-hover:text-[#26B6B6] transition-colors leading-none truncate max-w-[120px] sm:max-w-[150px]">
+                          {isRtl ? cat.label.fa : cat.label.en}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
