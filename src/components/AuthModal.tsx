@@ -30,12 +30,33 @@ interface AuthModalProps {
   authIntent?: 'download' | 'save' | 'generic';
 }
 
+// ---------- Iranian mobile helpers ----------
+// Convert Persian/Arabic digits to Latin so typed/inputted numbers validate uniformly.
+const toLatinDigits = (s: string): string =>
+  s
+    .replace(/[۰-۹]/g, d => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)))
+    .replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
+
+// Normalize to the canonical 09xxxxxxxxx form. Accepts 09..., 9..., +98..., and 0098...
+export const normalizeIranMobile = (raw: string): string => {
+  let s = toLatinDigits(raw).replace(/[\s\-()]/g, '');
+  if (s.startsWith('0098')) s = '0' + s.slice(4);
+  else if (s.startsWith('+98')) s = '0' + s.slice(3);
+  else if (s.startsWith('98') && s.length === 12) s = '0' + s.slice(2);
+  else if (s.startsWith('9') && s.length === 10) s = '0' + s; // tolerate a missing leading 0
+  return s;
+};
+
+// Iranian mobile numbers start with 09 and are 11 digits in total (09 + 9 digits).
+export const isValidIranMobile = (raw: string): boolean => /^09\d{9}$/.test(normalizeIranMobile(raw));
+
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess, onNavigate, authIntent = 'generic' }) => {
   const { t, isRtl, language, setLanguage } = useLanguage();
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
 
-  // Registration Multi-Step Wizard State
-  const [onboardingStep, setOnboardingStep] = useState<1 | 2 | 3 | 4>(1);
+  // Registration Multi-Step Wizard State (3 steps: type → expertise → details;
+  // the old review "step 4" merged into the single post-registration welcome page).
+  const [onboardingStep, setOnboardingStep] = useState<1 | 2 | 3>(1);
   const [regAccountType, setRegAccountType] = useState<'Modeler' | 'Manufacturer' | null>(null);
   
   // Professional disciplines (multi-select)
@@ -114,6 +135,32 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
     sessionStorage.removeItem('iranbimhub_register_role');
   }, [isOpen]);
 
+  // Web OTP API: where the browser supports it, the SMS code is read, filled
+  // and verified automatically. Unsupported browsers silently fall back to
+  // manual entry. (Placed before the isOpen early-return to keep hook order stable.)
+  useEffect(() => {
+    if (!isOpen || !regOtpSent || regOtpVerified) return;
+    const nav: any = navigator;
+    if (typeof window === 'undefined' || !('OTPCredential' in window) || !nav.credentials?.get) return;
+
+    const controller = new AbortController();
+    nav.credentials
+      .get({ otp: { transport: ['sms'] }, signal: controller.signal })
+      .then((otp: any) => {
+        const code = otp?.code ? toLatinDigits(String(otp.code)).trim() : '';
+        if (code) {
+          setRegOtpCode(code);
+          verifyOtpCode(code);
+        }
+      })
+      .catch(() => {
+        /* user dismissed or not available — manual entry remains */
+      });
+
+    return () => controller.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, regOtpSent, regOtpVerified]);
+
   if (!isOpen) return null;
 
   // Toggle multi-select expertise for Professional
@@ -130,11 +177,24 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
     setRegOtpVerified(false);
   };
 
+  const invalidPhoneToast = () =>
+    toast(isRtl
+      ? 'شماره موبایل معتبر نیست. شماره باید ۱۱ رقم و با ۰۹ شروع شود (مثال: 09123456789).'
+      : 'Invalid mobile number. It must be 11 digits starting with 09 (e.g., 09123456789).');
+
   const handleSendMockOtp = () => {
     if (!regPhone.trim()) {
       toast(isRtl ? 'ابتدا شماره موبایل را وارد کنید.' : 'Please enter your mobile number first.');
       return;
     }
+
+    if (!isValidIranMobile(regPhone)) {
+      invalidPhoneToast();
+      return;
+    }
+
+    // Normalize to 09xxxxxxxxx so the account always stores the canonical number.
+    setRegPhone(normalizeIranMobile(regPhone));
 
     // TODO: Replace this mock with backend endpoint POST /api/auth/send-otp connected to SMS provider.
     setRegOtpSent(true);
@@ -146,9 +206,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
     );
   };
 
-  const handleVerifyMockOtp = () => {
+  const verifyOtpCode = (code: string) => {
     // TODO: Replace this mock with backend endpoint POST /api/auth/verify-otp.
-    if (regOtpCode.trim() === '123456') {
+    if (toLatinDigits(code).trim() === '123456') {
       setRegOtpVerified(true);
       toast(isRtl ? 'شماره موبایل با موفقیت تأیید شد.' : 'Mobile number verified successfully.');
       return;
@@ -156,11 +216,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
     toast(isRtl ? 'کد تأیید نادرست است.' : 'Incorrect verification code.');
   };
 
+  const handleVerifyMockOtp = () => verifyOtpCode(regOtpCode);
+
   const handleRegisterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (onboardingStep < 3) {
       setOnboardingStep(3);
+      return;
+    }
+
+    if (!isValidIranMobile(regPhone)) {
+      invalidPhoneToast();
       return;
     }
 
@@ -206,8 +273,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
       return;
     }
 
-    // Advance to confirmation review step for BIM professionals.
-    setOnboardingStep(4);
+    // The review step and welcome screen were merged into ONE post-registration
+    // page, so BIM professionals also finalize right here.
+    handleFinalizeRegistration();
   };
 
   const handleFinalizeRegistration = () => {
@@ -244,7 +312,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
     const newUser = {
       name: regName,
       fullName: regName,
-      phone: regPhone,
+      phone: normalizeIranMobile(regPhone),
       email: regEmail || null,
       role: regAccountType, // Modeler or Manufacturer
       isPremium: regIsPremium,
@@ -274,7 +342,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
           : `${regName} draft brand profile. Public publishing is enabled after official document evaluation.`,
         website: `https://${regName.toLowerCase().replace(/\s+/g, '') || 'brand'}.ir`,
         email: regEmail || null,
-        phone: regPhone,
+        phone: normalizeIranMobile(regPhone),
         tier: regIsPremium ? 'VIP' : 'Free',
         companyType: regOrgType,
         brandOwnershipType: regOrgType,
@@ -326,11 +394,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
       return;
     }
 
+    if (!isValidIranMobile(loginPhone)) {
+      invalidPhoneToast();
+      return;
+    }
+    const normalizedLoginPhone = normalizeIranMobile(loginPhone);
+
     // Check if there's a stored user matching this session
     const storedUserStr = localStorage.getItem('iranbimhub_user');
     if (storedUserStr) {
       const storedUser = JSON.parse(storedUserStr);
-      if (storedUser.phone === loginPhone && storedUser.password === loginPassword) {
+      if (normalizeIranMobile(storedUser.phone || '') === normalizedLoginPhone && storedUser.password === loginPassword) {
         onLoginSuccess(storedUser);
         onClose();
         toast(isRtl ? `خوش آمدید، ورود موفقیت‌آمیز بود!` : `Welcome back, login successful!`);
@@ -342,7 +416,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
     const mockUser = {
       name: isRtl ? 'مهندس رضایی' : 'Eng. Rezaei',
       fullName: isRtl ? 'مهندس رضایی' : 'Eng. Rezaei',
-      phone: loginPhone,
+      phone: normalizedLoginPhone,
       email: 'rezaei@example.com',
       role: 'Modeler',
       isPremium: loginPhone.endsWith('9') || loginPhone.includes('99'),
@@ -459,8 +533,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
           <Logo className="h-9 justify-center" />
           <p className="text-xs text-gray-500 dark:text-gray-400">
             {isRtl 
-              ? 'ورود موبایل‌محور به کتابخانه آبجکت‌های BIM ایران‌بیم‌هاب' 
-              : 'Mobile-first access to IranBIMhub BIM object library'
+              ? 'یک قدم تا دانلود آبجکت‌های BIM واقعی محصولات ساختمان ایران' 
+              : 'One step away from real BIM objects of Iranian building products'
             }
           </p>
         </div>
@@ -529,13 +603,25 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
                 </p>
               </div>
 
-              {/* Identity recap chips */}
+              {/* Identity recap chips (merged from the former review step) */}
               <div className="bg-slate-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-2xl px-4 py-3.5 flex flex-wrap items-center justify-center gap-2 text-[10px] font-bold">
                 <span className="bg-[#26B6B6]/10 text-[#087F7A] dark:text-[#22D3EE] px-2.5 py-1 rounded-lg">
                   {welcomeUser.role === 'Manufacturer'
                     ? (isRtl ? 'حساب تولیدکننده / برند' : 'Manufacturer / Brand Account')
                     : (isRtl ? 'کاربر حرفه‌ای BIM' : 'BIM Professional')}
                 </span>
+                {welcomeUser.role === 'Manufacturer' && welcomeUser.brandOwnershipType && (
+                  <span className="bg-[#26B6B6]/10 text-[#087F7A] dark:text-[#22D3EE] px-2.5 py-1 rounded-lg">
+                    {isRtl
+                      ? (orgTypeOptions.find(o => o.id === welcomeUser.brandOwnershipType)?.labelFa || welcomeUser.brandOwnershipType)
+                      : welcomeUser.brandOwnershipType}
+                  </span>
+                )}
+                {welcomeUser.role !== 'Manufacturer' && regExpertise.length > 0 && regExpertise.map(exp => (
+                  <span key={exp} className="bg-[#26B6B6]/10 text-[#087F7A] dark:text-[#22D3EE] px-2.5 py-1 rounded-lg">
+                    {isRtl ? (expertiseOptions.find(o => o.id === exp)?.labelFa || exp) : exp}
+                  </span>
+                ))}
                 {welcomeUser.phone && (
                   <span className="bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 text-gray-600 dark:text-gray-300 px-2.5 py-1 rounded-lg font-mono" dir="ltr">
                     {welcomeUser.phone}
@@ -544,6 +630,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
                 {welcomeUser.email && (
                   <span className="bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 text-gray-600 dark:text-gray-300 px-2.5 py-1 rounded-lg" dir="ltr">
                     {welcomeUser.email}
+                  </span>
+                )}
+                {welcomeUser.role === 'Manufacturer' && welcomeUser.licenseFile && (
+                  <span className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 rounded-lg inline-flex items-center gap-1" dir="ltr">
+                    <Check className="w-3 h-3 stroke-[3]" />
+                    {welcomeUser.licenseFile}
                   </span>
                 )}
               </div>
@@ -576,6 +668,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
                 <input
                   type="tel"
                   required
+                  inputMode="tel"
+                  dir="ltr"
+                  autoComplete="tel-national"
                   placeholder={isRtl ? 'مثال: 09123456789' : 'e.g., 09123456789'}
                   value={loginPhone}
                   onChange={(e) => setLoginPhone(e.target.value)}
@@ -629,13 +724,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
           ) : (
             /* ================= REGISTER WIZARD ================= */
             <div className="space-y-6" id="register-wizard-container">
-              {/* Progress Indicator */}
+              {/* Progress Indicator — fully Persian in FA, fully English in EN */}
               <div className="flex items-center justify-between text-xs text-gray-400 pb-3 border-b border-gray-100 dark:border-gray-800">
                 <span className="font-bold text-[#26B6B6]">
-                  {isRtl ? `مرحله ${onboardingStep} از ۴` : `Step ${onboardingStep} of 4`}
+                  {isRtl
+                    ? `مرحله ${onboardingStep.toLocaleString('fa-IR')} از ${(3).toLocaleString('fa-IR')}`
+                    : `Step ${onboardingStep} of 3`}
                 </span>
                 <div className="flex gap-1">
-                  {[1, 2, 3, 4].map((step) => (
+                  {[1, 2, 3].map((step) => (
                     <div 
                       key={step} 
                       className={`h-1.5 rounded-full transition-all duration-300 ${
@@ -931,18 +1028,34 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
                       </label>
 
                       <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2">
-                        <input
-                          type="tel"
-                          required
-                          placeholder={isRtl ? 'مثال: 09123456789' : 'e.g., 09123456789'}
-                          value={regPhone}
-                          onChange={(e) => handleRegPhoneChange(e.target.value)}
-                          className="w-full text-xs p-3 border border-gray-200 dark:border-gray-800 dark:bg-gray-950 dark:text-white rounded-xl focus:ring-1 focus:ring-[#26B6B6] focus:outline-none font-semibold"
-                        />
+                        <div>
+                          <input
+                            type="tel"
+                            required
+                            inputMode="tel"
+                            dir="ltr"
+                            autoComplete="tel-national"
+                            placeholder={isRtl ? 'مثال: 09123456789' : 'e.g., 09123456789'}
+                            value={regPhone}
+                            onChange={(e) => handleRegPhoneChange(e.target.value)}
+                            className={`w-full text-xs p-3 border dark:bg-gray-950 dark:text-white rounded-xl focus:ring-1 focus:ring-[#26B6B6] focus:outline-none font-semibold ${
+                              regPhone.trim() && !isValidIranMobile(regPhone)
+                                ? 'border-rose-300 dark:border-rose-800'
+                                : 'border-gray-200 dark:border-gray-800'
+                            }`}
+                          />
+                          {regPhone.trim() !== '' && !isValidIranMobile(regPhone) && (
+                            <p className="mt-1 text-[10px] text-rose-500 font-bold" dir={isRtl ? 'rtl' : 'ltr'}>
+                              {isRtl
+                                ? 'شماره موبایل باید ۱۱ رقم و با ۰۹ شروع شود (مثال: 09123456789)'
+                                : 'Mobile number must be 11 digits starting with 09 (e.g., 09123456789)'}
+                            </p>
+                          )}
+                        </div>
                         <button
                           type="button"
                           onClick={handleSendMockOtp}
-                          className="px-4 py-3 rounded-xl bg-[#26B6B6]/10 hover:bg-[#26B6B6]/15 text-[#138f8f] dark:text-[#26B6B6] text-[10px] font-black transition-all cursor-pointer whitespace-nowrap"
+                          className="px-4 py-3 rounded-xl bg-[#26B6B6]/10 hover:bg-[#26B6B6]/15 text-[#138f8f] dark:text-[#26B6B6] text-[10px] font-black transition-all cursor-pointer whitespace-nowrap self-start"
                         >
                           {regOtpSent ? (isRtl ? 'ارسال مجدد' : 'Resend') : (isRtl ? 'ارسال کد' : 'Send Code')}
                         </button>
@@ -958,10 +1071,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
                               type="text"
                               inputMode="numeric"
                               maxLength={6}
+                              dir="ltr"
+                              autoComplete="one-time-code"
                               value={regOtpCode}
-                              onChange={(e) => setRegOtpCode(e.target.value)}
+                              onChange={(e) => setRegOtpCode(toLatinDigits(e.target.value))}
                               disabled={!regOtpSent || regOtpVerified}
-                              placeholder={isRtl ? 'کد آزمایشی: 123456' : 'Mock code: 123456'}
+                              placeholder={isRtl ? 'کد آزمایشی: ۱۲۳۴۵۶' : 'Mock code: 123456'}
                               className="mt-1 w-full text-xs p-3 border border-gray-200 dark:border-gray-800 dark:bg-gray-950 dark:text-white rounded-xl focus:ring-1 focus:ring-[#26B6B6] focus:outline-none disabled:opacity-60"
                             />
                           </div>
@@ -984,6 +1099,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
                             : 'For now, 123456 is a mock code. After buying an SMS panel, this will connect to real SMS delivery.'
                           }
                         </p>
+                        {regOtpSent && !regOtpVerified && (
+                          <p className="text-[9.5px] text-[#087F7A] dark:text-[#22D3EE] leading-relaxed font-bold">
+                            {isRtl
+                              ? 'در مرورگرهای پشتیبانی‌کننده، کد پیامک به‌صورت خودکار خوانده و تأیید می‌شود؛ در غیر این صورت کد را دستی وارد کنید.'
+                              : 'On supported browsers, the SMS code is read and verified automatically; otherwise enter it manually.'}
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -1132,122 +1254,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSu
                       className="bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-bold px-5 py-3 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer font-sans"
                       id="btn-step3-submit"
                     >
-                      <span>{regAccountType === 'Manufacturer' ? (isRtl ? 'تأیید شماره و ورود به پنل برند' : 'Verify & Enter Brand Panel') : (isRtl ? 'تایید و ادامه' : 'Confirm & Proceed')}</span>
+                      <span>{regAccountType === 'Manufacturer' ? (isRtl ? 'تأیید شماره و تکمیل ثبت‌نام برند' : 'Verify & Complete Brand Registration') : (isRtl ? 'تکمیل ثبت‌نام' : 'Complete Registration')}</span>
                       {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
                     </button>
                   </div>
                 </form>
               )}
 
-              {/* STEP 4: Confirmation & Routing Summary */}
-              {onboardingStep === 4 && (
-                <div className="space-y-5 text-center animate-fadeIn text-xs" id="wizard-step-4">
-                  <div className="w-14 h-14 bg-emerald-100 dark:bg-emerald-950/40 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-1 shadow-inner">
-                    <Check className="w-7 h-7 stroke-[3]" />
-                  </div>
-
-                  <div className="space-y-1">
-                    <h3 className="text-sm font-extrabold text-gray-800 dark:text-white">
-                      {isRtl ? 'خلاصه اطلاعات ثبت‌نام شما' : 'Verify Your Onboarding Choices'}
-                    </h3>
-                    <p className="text-[11px] text-gray-400">
-                      {isRtl 
-                        ? 'پیش از نهایی‌سازی، اطلاعات زیر را جهت مطابقت دقیق بررسی کنید' 
-                        : 'Review your configured categories and business credentials before launching.'
-                      }
-                    </p>
-                  </div>
-
-                  <div className="bg-slate-50 dark:bg-gray-950 rounded-2xl border border-gray-100 dark:border-gray-800/80 p-4 space-y-3.5 text-start leading-relaxed">
-                    <div className="flex justify-between items-center pb-2 border-b border-gray-100 dark:border-gray-800/50">
-                      <span className="font-bold text-gray-400 uppercase tracking-wide text-[10px]">
-                        {isRtl ? 'نوع حساب کاربری' : 'Account Type'}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <span className="font-extrabold text-[#26B6B6]">
-                          {regAccountType === 'Manufacturer' 
-                            ? (isRtl ? 'تولیدکننده / برند تجاری' : 'Manufacturer / Brand')
-                            : (isRtl ? 'کاربر حرفه‌ای BIM' : 'BIM Professional')
-                          }
-                        </span>
-                        <button 
-                          onClick={() => setOnboardingStep(1)}
-                          className="text-[#26B6B6] hover:underline font-bold text-[10px]"
-                        >
-                          {isRtl ? 'اصلاح' : 'Edit'}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between items-start pb-2 border-b border-gray-100 dark:border-gray-800/50">
-                      <span className="font-bold text-gray-400 uppercase tracking-wide text-[10px]">
-                        {regAccountType === 'Manufacturer' 
-                          ? (isRtl ? 'نقش شما نسبت به برند' : 'Relationship to Brand')
-                          : (isRtl ? 'حوزه‌های تخصصی' : 'Fields of Expertise')
-                        }
-                      </span>
-                      <div className="text-end space-y-1">
-                        <div className="flex flex-wrap gap-1 justify-end max-w-xs">
-                          {regAccountType === 'Manufacturer' ? (
-                            <span className="bg-[#26B6B6]/10 text-[#26B6B6] font-bold px-2.5 py-1 rounded-lg text-[10px]">
-                              {regOrgType}
-                            </span>
-                          ) : (
-                            regExpertise.map(exp => (
-                              <span key={exp} className="bg-[#26B6B6]/10 text-[#26B6B6] font-bold px-2.5 py-1 rounded-lg text-[10px]">
-                                {isRtl ? expertiseOptions.find(o => o.id === exp)?.labelFa : exp}
-                              </span>
-                            ))
-                          )}
-                        </div>
-                        <button 
-                          onClick={() => setOnboardingStep(2)}
-                          className="text-[#26B6B6] hover:underline font-bold text-[10px] block mt-1 ml-auto"
-                        >
-                          {isRtl ? 'اصلاح' : 'Edit'}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <span className="font-bold text-gray-400 uppercase tracking-wide text-[10px] block">
-                        {isRtl ? 'مشخصات هویتی' : 'Personal Specifications'}
-                      </span>
-                      <p className="text-gray-600 dark:text-gray-300 font-semibold">{isRtl ? 'نام:' : 'Name:'} <span className="text-gray-900 dark:text-white font-black">{regName}</span></p>
-                      <p className="text-gray-600 dark:text-gray-300 font-semibold">{isRtl ? 'همراه:' : 'Phone:'} <span className="font-mono">{regPhone}</span></p>
-                      {regEmail && <p className="text-gray-600 dark:text-gray-300 font-semibold">{isRtl ? 'ایمیل:' : 'Email:'} <span>{regEmail}</span></p>}
-                      {regAccountType === 'Manufacturer' && regLicenseName && (
-                        <p className="text-emerald-500 font-semibold flex items-center gap-1">
-                          <Check className="w-3.5 h-3.5 stroke-[3]" />
-                          <span>{isRtl ? `پروانه پیوست شد: ${regLicenseName}` : `License attached: ${regLicenseName}`}</span>
-                        </p>
-                      )}
-                      {regAccountType === 'Manufacturer' && (
-                        <div className="mt-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/25 border border-amber-100 dark:border-amber-900 text-amber-800 dark:text-amber-200 text-[10.5px] leading-relaxed">
-                          {isRtl
-                            ? 'پس از ورود به پنل برند، برای انتشار عمومی صفحه برند و محصولات باید روزنامه رسمی، شناسه ملی یا مدارک مالکیت/نمایندگی را تکمیل کنید. تا زمان تأیید واحد ارزیابی، صفحه برند به‌صورت پیش‌نویس خصوصی باقی می‌ماند.'
-                            : 'After entering the brand panel, public brand/product publishing requires official gazette, national ID, or ownership/representation documents. Until evaluation team approval, the brand page remains private draft.'
-                          }
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={handleFinalizeRegistration}
-                    className="w-full bg-[#26B6B6] hover:bg-[#1e9494] text-white py-3.5 rounded-2xl text-xs font-black transition-all hover:shadow-lg cursor-pointer uppercase tracking-wider flex items-center justify-center gap-2 font-sans"
-                    id="btn-onboarding-finalize"
-                  >
-                    <span>
-                      {regAccountType === 'Manufacturer'
-                        ? (isRtl ? 'ایجاد حساب برند و ورود به پنل تولیدکننده' : 'Create Brand Account & Enter Dashboard')
-                        : (isRtl ? 'تکمیل ثبت‌نام و ورود به پیشخوان طراحان' : 'Access Modeler Catalog & Enter Dashboard')
-                      }
-                    </span>
-                    {isRtl ? <ArrowLeft className="w-4 h-4 stroke-[2]" /> : <ArrowRight className="w-4 h-4 stroke-[2]" />}
-                  </button>
-                </div>
-              )}
             </div>
           )}
         </div>

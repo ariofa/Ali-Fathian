@@ -15,9 +15,6 @@ import {
   HelpCircle,
   ChevronDown,
   Loader2,
-  Mail,
-  MapPin,
-  MessageCircle,
   Package,
   Phone,
   Send,
@@ -36,13 +33,10 @@ interface ForManufacturersViewProps {
 type SubmitStatus = 'idle' | 'submitting' | 'success' | 'error';
 type HasBimFiles = 'yes' | 'no' | 'not-sure' | '';
 
-const CONTACT_PHONE_DISPLAY = '+98 939 168 6878';
-const CONTACT_PHONE_INTERNATIONAL = '989391686878';
-
-// Telegram does not provide a fully reliable public contact link by phone number alone.
-// For production, replace this with an official Telegram username/bot URL, e.g. https://t.me/IranBIMhubSupport
-const TELEGRAM_CONTACT_URL = `tg://resolve?phone=${CONTACT_PHONE_INTERNATIONAL}`;
-const WHATSAPP_CONTACT_URL = `https://wa.me/${CONTACT_PHONE_INTERNATIONAL}`;
+// NOTE: No personal/mobile contact number is exposed on this page anymore.
+// Catalog/initial-info handover happens through this form; the IranBIMhub team
+// calls the submitted number back to coordinate file transfer. (When official
+// Telegram/WhatsApp handles exist, channel buttons can return — config-driven.)
 
 const initialFormState = {
   companyName: '',
@@ -51,8 +45,6 @@ const initialFormState = {
   productCategory: '',
   hasBimFiles: '' as HasBimFiles,
   catalogUrl: '',
-  filesSentByTelegram: false,
-  filesSentByWhatsApp: false,
   email: '',
   websiteOrSocial: '',
   productCount: '',
@@ -72,14 +64,6 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
   const [errorMessage, setErrorMessage] = useState('');
   const [showOptionalDetails, setShowOptionalDetails] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-
-  const contactMessage = encodeURIComponent(
-    isRtl
-      ? 'سلام، برای معرفی محصول و تعیین مسیر همکاری در ایران‌بیم‌هاب پیام می‌دهم. می‌خواهم کاتالوگ یا اطلاعات اولیه محصولات را ارسال کنم.'
-      : 'Hello, I am contacting IranBIMhub to introduce a product and determine the right collaboration path. I would like to send initial product catalogs or information.'
-  );
-  const telegramUrl = `${TELEGRAM_CONTACT_URL}&text=${contactMessage}`;
-  const whatsappUrl = `${WHATSAPP_CONTACT_URL}?text=${contactMessage}`;
 
   const openManufacturerRegistration = () => {
     if (currentUser?.role === 'Manufacturer') {
@@ -741,13 +725,9 @@ export const ForManufacturersView: React.FC<ForManufacturersViewProps> = ({
                       <label className="space-y-2"><span className="text-sm font-black text-gray-700 dark:text-gray-300">{isRtl ? 'لینک کاتالوگ / دیتاشیت / صفحه محصول' : 'Catalog / Datasheet / Product Link'}</span><input name="catalogUrl" value={formData.catalogUrl} onChange={handleInputChange} className="w-full px-4 py-3 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-sm outline-none focus:border-[#26B6B6]" placeholder="https://..." dir="ltr" /></label>
                     </div>
 
-                    <div className="rounded-2xl bg-white dark:bg-gray-900 border border-[#26B6B6]/15 p-4 space-y-3">
-                      <div><h3 className="text-sm font-black text-gray-800 dark:text-white">{isRtl ? 'روش ارسال کاتالوگ یا اطلاعات اولیه (اختیاری)' : 'How you may share a catalog or initial information (optional)'}</h3><p className="mt-1 text-sm leading-7 text-gray-500 dark:text-gray-400">{isRtl ? 'تلگرام و واتساپ فقط برای ارسال کاتالوگ، دیتاشیت، تصویر محصول یا اطلاعات اولیه هستند؛ نه آپلود رسمی فایل BIM برای انتشار.' : 'Telegram and WhatsApp are for catalogs, datasheets, product images, or initial information—not official BIM file upload for publication.'}</p></div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <label className="flex items-center gap-2 text-sm font-bold text-gray-700 dark:text-gray-300 cursor-pointer border border-gray-100 dark:border-gray-800 rounded-2xl p-3"><input type="checkbox" name="filesSentByTelegram" checked={formData.filesSentByTelegram} onChange={handleCheckboxChange} className="w-4 h-4 accent-[#26B6B6]" />{isRtl ? 'اطلاعات اولیه را در تلگرام ارسال می‌کنم' : 'I will share initial information via Telegram'}</label>
-                        <label className="flex items-center gap-2 text-sm font-bold text-gray-700 dark:text-gray-300 cursor-pointer border border-gray-100 dark:border-gray-800 rounded-2xl p-3"><input type="checkbox" name="filesSentByWhatsApp" checked={formData.filesSentByWhatsApp} onChange={handleCheckboxChange} className="w-4 h-4 accent-[#26B6B6]" />{isRtl ? 'اطلاعات اولیه را در واتساپ ارسال می‌کنم' : 'I will share initial information via WhatsApp'}</label>
-                      </div>
-                      <div className="flex flex-col sm:flex-row gap-2"><a href={telegramUrl} className="px-4 py-2.5 rounded-xl bg-[#26B6B6] hover:bg-[#1e9494] text-white text-xs font-extrabold transition-all flex items-center justify-center gap-2"><Send className="w-4 h-4" />{isRtl ? 'ارسال در تلگرام' : 'Send via Telegram'}</a><a href={whatsappUrl} target="_blank" rel="noreferrer" className="px-4 py-2.5 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366]/15 text-[#128C7E] border border-[#25D366]/20 text-xs font-extrabold transition-all flex items-center justify-center gap-2"><MessageCircle className="w-4 h-4" />{isRtl ? 'ارسال در واتساپ' : 'Send via WhatsApp'}</a></div>
+                    <div className="rounded-2xl bg-white dark:bg-gray-900 border border-[#26B6B6]/15 p-4 space-y-2">
+                      <h3 className="text-sm font-black text-gray-800 dark:text-white">{isRtl ? 'ارسال کاتالوگ یا اطلاعات اولیه' : 'Sharing a catalog or initial information'}</h3>
+                      <p className="text-sm leading-7 text-gray-500 dark:text-gray-400">{isRtl ? 'همین فرم را ثبت کنید؛ تیم ایران‌بیم‌هاب از طریق شمارهٔ تماس ثبت‌شده با شما تماس می‌گیرد و دریافت کاتالوگ، دیتاشیت یا تصاویر محصول را هماهنگ می‌کند.' : 'Simply submit this form; the IranBIMhub team will call your submitted number and coordinate receiving catalogs, datasheets, or product images.'}</p>
                     </div>
                   </div>
                 )}
