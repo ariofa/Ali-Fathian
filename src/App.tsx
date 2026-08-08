@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { toast, ToastProvider } from './components/ui/toast';
 import { motion, AnimatePresence } from 'motion/react';
 import { LanguageProvider, useLanguage } from './components/LanguageContext';
@@ -520,6 +520,24 @@ const MainAppContent: React.FC = () => {
     navigateLibrary();
   };
 
+  // Object-request gate: submitting an object/product request requires a
+  // signed-in account. Guests get the auth modal first; after a successful
+  // login they land directly on the request tab of their dashboard.
+  const pendingObjectRequestAfterAuth = useRef(false);
+
+  const handleObjectRequest = () => {
+    if (!currentUser) {
+      pendingObjectRequestAfterAuth.current = true;
+      toast(isRtl
+        ? 'برای ثبت درخواست آبجکت ابتدا وارد حساب کاربری شوید یا ثبت‌نام کنید.'
+        : 'Please sign in or register to submit an object request.'
+      );
+      openAuthModal('generic');
+      return;
+    }
+    handleDashboardTabNavigate('modeler-dashboard', 'object-request');
+  };
+
   const handlePublishNewObject = (newObj: BIMObject) => {
     toast(isRtl 
       ? `محصول جدید «${newObj.titleFa}» با موفقیت در بازار منتشر شد!` 
@@ -564,7 +582,7 @@ const MainAppContent: React.FC = () => {
       
       case 'catalog-preview': {
         const product = SAMPLE_CATALOG_PRODUCTS.find(item => item.id === catalogProductId);
-        return product ? <CatalogProductDetailView product={product} preview onBack={() => navigateLibrary('doors-windows-openings', 'windows')} onRequest={() => navigateTo('modeler-dashboard')} onViewCompletion={() => {
+        return product ? <CatalogProductDetailView product={product} preview onBack={() => navigateLibrary('doors-windows-openings', 'windows')} onRequest={handleObjectRequest} onViewCompletion={() => {
           window.history.pushState({ view: 'catalog-completion-preview', productId: product.id }, '', `/catalog-completion-preview/${product.id}`);
           setCatalogProductId(product.id);
           setCurrentView('catalog-completion-preview');
@@ -582,7 +600,7 @@ const MainAppContent: React.FC = () => {
 
       case 'catalog-product': {
         const product = PUBLISHED_CATALOG_PRODUCTS.find(item => item.id === catalogProductId);
-        return product ? <CatalogProductDetailView product={product} onBack={() => navigateLibrary()} onRequest={() => navigateTo('modeler-dashboard')} /> : (
+        return product ? <CatalogProductDetailView product={product} onBack={() => navigateLibrary()} onRequest={handleObjectRequest} /> : (
           <div className="max-w-xl mx-auto py-16 px-4 text-center"><h2 className="text-xl font-bold text-gray-800 dark:text-white">{isRtl ? 'محصول موردنظر پیدا نشد' : 'Product not found'}</h2><button onClick={() => navigateLibrary()} className="mt-4 bg-[#0F3D5E] text-white px-4 py-2 rounded-lg text-xs font-bold cursor-pointer">{isRtl ? 'بازگشت به کتابخانه' : 'Back to library'}</button></div>
         );
       }
@@ -595,6 +613,21 @@ const MainAppContent: React.FC = () => {
             subcategorySlug={currentView === 'library' ? libraryPath.subcategorySlug : undefined}
             onNavigateLibrary={navigateLibrary}
             onNavigate={navigateTo}
+            objects={getAllBimObjects()}
+            manufacturers={MANUFACTURERS}
+            savedObjects={savedObjects}
+            onToggleSave={handleToggleSave}
+            onSelectObject={handleSelectObject}
+            onQuickDownload={handleQuickDownload}
+            onViewBrand={handleViewBrand}
+            onRequestObject={handleObjectRequest}
+            onSelectCatalogProduct={(product) => {
+              setCatalogProductId(product.id);
+              window.history.pushState({ view: 'catalog-product', productId: product.id }, '', `/library/product/${product.id}`);
+              setCurrentView('catalog-product');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            initialQuery={filterState.search}
           />
         );
 
@@ -1059,8 +1092,20 @@ const MainAppContent: React.FC = () => {
       {/* Unified Security Gate Auth Modal */}
       <AuthModal
         isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
+        onClose={() => {
+          pendingObjectRequestAfterAuth.current = false;
+          setIsAuthModalOpen(false);
+        }}
         onLoginSuccess={(user) => {
+          // Did the user open the gate from an object-request call-to-action?
+          // Then the request form is their landing destination after login.
+          const wantsObjectRequest = pendingObjectRequestAfterAuth.current;
+          pendingObjectRequestAfterAuth.current = false;
+          if (wantsObjectRequest) {
+            setTimeout(() => {
+              window.dispatchEvent(new CustomEvent('change-dashboard-tab', { detail: { tab: 'object-request' } }));
+            }, 1400);
+          }
           triggerTransition(() => {
             setCurrentUser(user);
             localStorage.setItem('iranbimhub_user_session', JSON.stringify(user));
@@ -1075,7 +1120,7 @@ const MainAppContent: React.FC = () => {
               setCurrentView(returnView && returnView.startsWith('manufacturer') ? returnView : 'manufacturer-dashboard');
             } else {
               setUserRole('Modeler');
-              setCurrentView(returnView && returnView !== 'admin-panel' ? returnView : 'modeler-dashboard');
+              setCurrentView(wantsObjectRequest ? 'modeler-dashboard' : (returnView && returnView !== 'admin-panel' ? returnView : 'modeler-dashboard'));
             }
           }, isRtl ? 'در حال ورود و دریافت فمیلی‌های اختصاصی شما...' : 'Logging in and preparing your custom workspace...', 'Logging in and preparing your custom workspace...', 800);
         }}

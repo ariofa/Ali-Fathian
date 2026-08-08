@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from './LanguageContext';
 import { Logo } from './Logo';
-import { PRODUCT_CATEGORIES } from '../lib/catalog';
+import { ATTRIBUTE_REGISTRY, CATEGORY_ATTRIBUTE_RULES, PRODUCT_CATEGORIES } from '../lib/catalog';
+import { specialistFilterHintsForCategory } from '../lib/catalog/legacyProductBridge';
+import { categoryIcon } from '../lib/catalog/categoryIcons';
 import {
   Globe,
   User,
@@ -10,6 +12,7 @@ import {
   Sun,
   Moon,
   ChevronDown,
+  ChevronLeft,
   ChevronRight,
   LogOut,
   X,
@@ -65,7 +68,6 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const { language, setLanguage, t, isRtl } = useLanguage();
   const [categoriesDropdownOpen, setCategoriesDropdownOpen] = useState(false);
-  const [expandedCategoryId, setExpandedCategoryId] = useState<string | null>(null);
   const [hoveredCategoryId, setHoveredCategoryId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
@@ -1182,6 +1184,20 @@ export const Header: React.FC<HeaderProps> = ({
               <nav className="p-2" aria-label={isRtl ? 'منوی اصلی موبایل' : 'Mobile primary navigation'}>
                 <button
                   type="button"
+                  onClick={() => handleMobileMenuNavigate('library')}
+                  className={`w-full flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black transition-colors cursor-pointer ${currentView === 'library' ? 'bg-[#0FB9B1]/10 text-[#087F7A]' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                >
+                  <span className="flex items-center gap-3">
+                    <Folder className="w-4 h-4 text-[#0FB9B1]" />
+                    <span>{isRtl ? 'دسته‌بندی محصولات' : 'Product categories'}</span>
+                  </span>
+                  {isRtl ? <ChevronLeft className="w-4 h-4 text-gray-300" /> : <ChevronRight className="w-4 h-4 text-gray-300" />}
+                </button>
+
+                <div className="my-2 border-t border-gray-100 dark:border-gray-800" />
+
+                <button
+                  type="button"
                   onClick={() => handleMobileMenuNavigate('about')}
                   className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-start text-xs font-black transition-colors cursor-pointer ${currentView === 'about' ? 'bg-[#0FB9B1]/10 text-[#087F7A]' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
                 >
@@ -1393,7 +1409,13 @@ export const Header: React.FC<HeaderProps> = ({
                 <button
                   id="nav-categories"
                   type="button"
-                  onClick={() => setCategoriesDropdownOpen((open) => !open)}
+                  onClick={() => {
+                    // Hover opens the mega menu; clicking the button itself enters
+                    // the unified product-library page (all categories, one screen).
+                    setCategoriesDropdownOpen(false);
+                    onNavigate('library');
+                  }}
+                  title={isRtl ? 'ورود به صفحهٔ دسته‌بندی محصولات — منو با نگه‌داشتن نشان‌گر باز می‌شود' : 'Open the product categories page — the menu opens on hover'}
                   className={`px-3 py-2 rounded-lg transition-colors cursor-pointer inline-flex items-center gap-1.5 ${categoriesDropdownOpen || currentView === 'library' ? 'text-[#087F7A] bg-[#0FB9B1]/10 font-black' : 'text-gray-600 dark:text-gray-400 hover:text-[#087F7A] hover:bg-gray-50 dark:hover:bg-gray-800/40'}`}
                   aria-expanded={categoriesDropdownOpen}
                 >
@@ -1401,16 +1423,109 @@ export const Header: React.FC<HeaderProps> = ({
                   <ChevronDown className={`w-4 h-4 transition-transform ${categoriesDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {categoriesDropdownOpen && (
-                  <div ref={categoryPanelRef} className={`absolute ${isRtl ? 'right-0' : 'left-0'} top-full mt-2 z-[80] grid grid-cols-[175px_240px] overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xl animate-fadeIn`}>
-                    <div className="border-e border-gray-100 dark:border-gray-800 bg-slate-50/70 dark:bg-slate-950/30 p-2">
-                      {LIBRARY_MAIN_CATEGORIES.map((category) => (
-                        <button key={category.id} type="button" onMouseEnter={() => setHoveredCategoryId(category.id)} onClick={() => handleCategorySelect(category.slug)} className={`w-full rounded-xl px-3 py-2.5 text-start text-xs font-black transition-colors cursor-pointer ${hoveredCategoryId === category.id ? 'bg-[#0FB9B1]/12 text-[#087F7A]' : 'text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800'}`}>
-                          {isRtl ? category.label.fa : category.label.en}
-                        </button>
-                      ))}
+                  <div ref={categoryPanelRef} className={`absolute ${isRtl ? 'right-0' : 'left-0'} top-full mt-2 z-[80] grid w-[min(680px,calc(100vw-3rem))] grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-[0_24px_60px_-12px_rgba(15,61,94,0.28)] animate-fadeIn`}>
+                    {/* Level 1 — main families: icon + title + subcategory count + forward arrow */}
+                    <div className="border-e border-gray-100 dark:border-gray-800 bg-slate-50/80 dark:bg-slate-950/40 p-2 max-h-[calc(100vh-190px)] overflow-y-auto overscroll-contain">
+                      <p className="px-2.5 pb-1.5 pt-1 text-[10px] font-black text-gray-400 dark:text-gray-500">
+                        {isRtl ? 'خانواده‌های اصلی محصول' : 'MAIN PRODUCT FAMILIES'}
+                      </p>
+                      {LIBRARY_MAIN_CATEGORIES.map((category) => {
+                        const Icon = categoryIcon(category.id);
+                        const childCount = getLibrarySubcategories(category.id).length;
+                        const isActive = hoveredCategoryId === category.id;
+                        return (
+                          <button
+                            key={category.id}
+                            type="button"
+                            onMouseEnter={() => setHoveredCategoryId(category.id)}
+                            onFocus={() => setHoveredCategoryId(category.id)}
+                            onClick={() => handleCategorySelect(category.slug)}
+                            title={isRtl ? `ورود به صفحهٔ ${category.label.fa}` : `Open ${category.label.en}`}
+                            className={`group flex w-full items-center gap-2.5 rounded-xl px-2 py-2 text-start transition-all cursor-pointer ${isActive ? 'bg-white dark:bg-gray-800 shadow-sm ring-1 ring-[#0FB9B1]/25' : 'hover:bg-white/70 dark:hover:bg-gray-800/60'}`}
+                          >
+                            <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${isActive ? 'bg-[#087F7A] text-white shadow-sm' : 'bg-white text-[#087F7A] ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700'}`}>
+                              <Icon className="h-4 w-4" />
+                            </span>
+                            <span className={`min-w-0 flex-1 truncate text-[11.5px] font-black ${isActive ? 'text-[#087F7A]' : 'text-gray-600 dark:text-gray-300'}`}>
+                              {isRtl ? category.label.fa : category.label.en}
+                            </span>
+                            {childCount > 0 && (
+                              <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-black ${isActive ? 'bg-[#0FB9B1]/15 text-[#087F7A]' : 'bg-gray-100 text-gray-400 dark:bg-gray-800'}`}>
+                                {childCount.toLocaleString(isRtl ? 'fa-IR' : 'en-US')}
+                              </span>
+                            )}
+                            {isRtl ? (
+                              <ChevronLeft className={`h-3.5 w-3.5 shrink-0 transition-all ${isActive ? 'text-[#087F7A] opacity-100' : 'text-gray-300 opacity-0 group-hover:opacity-100'}`} />
+                            ) : (
+                              <ChevronRight className={`h-3.5 w-3.5 shrink-0 transition-all ${isActive ? 'text-[#087F7A] opacity-100' : 'text-gray-300 opacity-0 group-hover:opacity-100'}`} />
+                            )}
+                          </button>
+                        );
+                      })}
                     </div>
-                    <div className="p-3">
-                      {(() => { const active = LIBRARY_MAIN_CATEGORIES.find((category) => category.id === hoveredCategoryId) || LIBRARY_MAIN_CATEGORIES[0]; const children = active ? getLibrarySubcategories(active.id) : []; return active ? <><button type="button" onClick={() => handleCategorySelect(active.slug)} className="w-full text-start rounded-xl border border-[#0FB9B1]/20 bg-[#0FB9B1]/5 px-3 py-2 text-xs font-black text-[#087F7A] hover:bg-[#0FB9B1]/10 cursor-pointer">{isRtl ? `مشاهدهٔ ${active.label.fa} ←` : `Browse ${active.label.en} →`}</button><div className="mt-2 grid grid-cols-1 gap-1 max-h-72 overflow-y-auto">{children.map((sub) => <button key={sub.id} type="button" onClick={() => handleCategorySelect(active.slug, sub.slug)} className="rounded-lg px-3 py-2 text-start text-[11px] text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-[#087F7A] cursor-pointer">{isRtl ? sub.label.fa : sub.label.en}</button>)}</div></> : null; })()}
+                    {/* Level 2 — natural height; inner scroll appears only if the frame truly cannot fit the list */}
+                    <div className="max-h-[calc(100vh-190px)] overflow-y-auto overscroll-contain p-3">
+                      {(() => {
+                        const active = LIBRARY_MAIN_CATEGORIES.find((category) => category.id === hoveredCategoryId) || LIBRARY_MAIN_CATEGORIES[0];
+                        const children = active ? getLibrarySubcategories(active.id) : [];
+                        if (!active) return null;
+                        const ActiveIcon = categoryIcon(active.id);
+                        return (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => handleCategorySelect(active.slug)}
+                              className="group flex w-full items-center gap-3 rounded-xl border border-[#0FB9B1]/25 bg-gradient-to-l from-[#0FB9B1]/12 to-[#0F3D5E]/5 px-3 py-2.5 text-start transition-colors hover:border-[#0FB9B1]/50 cursor-pointer"
+                            >
+                              <ActiveIcon className="h-5 w-5 shrink-0 text-[#087F7A]" />
+                              <span className="min-w-0 flex-1">
+                                <span className="block truncate text-xs font-black text-[#087F7A]">
+                                  {isRtl ? `مشاهدهٔ همهٔ ${active.label.fa}` : `Browse all ${active.label.en}`}
+                                </span>
+                                <span className="mt-0.5 block text-[10px] font-bold text-gray-400">
+                                  {isRtl ? `${children.length.toLocaleString('fa-IR')} زیرگروه تخصصی` : `${children.length} specialist subcategories`}
+                                </span>
+                              </span>
+                              {isRtl ? (
+                                <ChevronLeft className="h-4 w-4 shrink-0 text-[#087F7A] transition-transform group-hover:-translate-x-0.5" />
+                              ) : (
+                                <ChevronRight className="h-4 w-4 shrink-0 text-[#087F7A] transition-transform group-hover:translate-x-0.5" />
+                              )}
+                            </button>
+                            <div className="mt-1.5 grid grid-cols-1 gap-0.5">
+                              {children.map((sub) => {
+                                const hints = specialistFilterHintsForCategory(sub.id, CATEGORY_ATTRIBUTE_RULES, ATTRIBUTE_REGISTRY, 2);
+                                return (
+                                  <button
+                                    key={sub.id}
+                                    type="button"
+                                    onClick={() => handleCategorySelect(active.slug, sub.slug)}
+                                    className="group rounded-lg px-3 py-2 text-start transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/70 cursor-pointer"
+                                  >
+                                    <span className="flex items-center justify-between gap-2">
+                                      <span className="min-w-0 flex-1 truncate text-[11.5px] font-extrabold text-gray-600 transition-colors group-hover:text-[#087F7A] dark:text-gray-300">
+                                        {isRtl ? sub.label.fa : sub.label.en}
+                                      </span>
+                                      {isRtl ? (
+                                        <ChevronLeft className="h-3 w-3 shrink-0 text-gray-300 transition-colors group-hover:text-[#087F7A]" />
+                                      ) : (
+                                        <ChevronRight className="h-3 w-3 shrink-0 text-gray-300 transition-colors group-hover:text-[#087F7A]" />
+                                      )}
+                                    </span>
+                                    {hints.length > 0 && (
+                                      <span className="mt-0.5 block truncate text-[9.5px] font-bold text-gray-400 dark:text-gray-500">
+                                        {isRtl
+                                          ? `فیلتر تخصصی: ${hints.map((hint) => hint.labelFa).join('، ')}`
+                                          : `Specialist filters: ${hints.map((hint) => hint.labelEn).join(', ')}`}
+                                      </span>
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </>
+                        );
+                      })()}
                     </div>
                   </div>
                 )}

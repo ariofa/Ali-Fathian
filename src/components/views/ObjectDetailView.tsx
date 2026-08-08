@@ -26,7 +26,8 @@ import { BIM3DViewer } from '../BIM3DViewer';
 import { Breadcrumb, BreadcrumbItem } from '../Breadcrumb';
 import { CommentsSection } from '../CommentsSection';
 import { toast } from '../ui/toast';
-import { Share2, Link2, CheckCheck, Send } from 'lucide-react';
+import { Share2, Link2, CheckCheck, Send, Layers3 } from 'lucide-react';
+import { buildLegacyObjectMetadataGroups, StructuredMetadataAccordion } from '../catalog/StructuredMetadata';
 
 interface ObjectDetailViewProps {
   object: BIMObject;
@@ -206,6 +207,14 @@ export const ObjectDetailView: React.FC<ObjectDetailViewProps> = ({
   const activeSubcategoryObject = activeCategoryObject
     ? activeCategoryObject.subcategories.find(s => s.id === object.subcategory)
     : null;
+
+  // Controlled metadata display (download-page surface): grouped, collapsible,
+  // colour-coded sections built from the same contract that powers the library
+  // browse page, its specialist filters and the product pages.
+  const metadataGroups = useMemo(
+    () => buildLegacyObjectMetadataGroups(object, mName, isProfileTemplate, isRtl),
+    [object, mName, isProfileTemplate, isRtl],
+  );
 
   // Item 19 — share this object page (native share sheet when available,
   // otherwise copy the link to the clipboard and confirm with a toast).
@@ -498,80 +507,31 @@ export const ObjectDetailView: React.FC<ObjectDetailViewProps> = ({
             </p>
           </div>
 
-          {/* Parametric Specs Table */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-6 md:p-8 space-y-4 shadow-2xs">
-            <div className="flex justify-between items-center border-b border-gray-50 pb-3">
+          {/* Controlled structured metadata — grouped, collapsible, colour-coded;
+              linked to the same data contract as library search & filters */}
+          <div className="bg-white rounded-2xl border border-gray-100 p-6 md:p-8 space-y-4 shadow-2xs" id="structured-metadata">
+            <div className="flex flex-wrap justify-between items-center gap-2 border-b border-gray-50 pb-3">
               <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                <Info className="w-5 h-5 text-[#26B6B6]" />
-                <span>{t('specifications')}</span>
+                <Layers3 className="w-5 h-5 text-[#087F7A]" />
+                <span>{isRtl ? 'مشخصات و متادیتای ساختاریافته' : 'Specifications & structured metadata'}</span>
               </h2>
-              <span className="text-[10px] bg-gray-100 text-[#464E56] px-2 py-1 rounded font-bold font-mono">
-                {object.lod} Standard
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3.5 pt-2">
-              
-              {/* Shared Metadata attributes */}
-              <div className="flex justify-between items-center border-b border-gray-50 pb-2 text-xs">
-                <span className="text-gray-400 font-semibold">{isRtl ? 'تولیدکننده رسمی' : 'Manufacturer'}</span>
-                <span className="text-gray-700 font-bold">{mName}</span>
-              </div>
-
-              <div className="flex justify-between items-center border-b border-gray-50 pb-2 text-xs">
-                <span className="text-gray-400 font-semibold">{t('lod')}</span>
-                <span className="text-gray-700 font-mono font-bold">{object.lod}</span>
-              </div>
-
-              <div className="flex justify-between items-center border-b border-gray-50 pb-2 text-xs">
-                <span className="text-gray-400 font-semibold">{t('fileSize')}</span>
-                <span className="text-gray-700 font-mono font-bold">{object.fileSize}</span>
-              </div>
-
-              <div className="flex justify-between items-center border-b border-gray-50 pb-2 text-xs">
-                <span className="text-gray-400 font-semibold">{isRtl ? 'نوع کاربری محصول' : 'Product Category'}</span>
-                <span className="text-gray-700 font-bold">{object.category}</span>
-              </div>
-
-              <div className="flex justify-between items-center border-b border-gray-50 pb-2 text-xs">
-                <span className="text-gray-400 font-semibold">{t('certification')}</span>
-                <span className="text-gray-700 font-mono font-bold flex gap-1">
-                  {object.certification.map(c => (
-                    <span key={c} className="bg-gray-100 px-1.5 py-0.5 rounded text-[10px]">{c}</span>
-                  ))}
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] bg-[#087F7A]/10 text-[#087F7A] px-2 py-1 rounded font-bold">
+                  {isRtl ? 'مرتبط با جست‌وجو و فیلترهای کتابخانه' : 'Linked to library search & filters'}
+                </span>
+                <span className="text-[10px] bg-gray-100 text-[#464E56] px-2 py-1 rounded font-bold font-mono">
+                  {object.lod} Standard
                 </span>
               </div>
-
-              <div className="flex justify-between items-center border-b border-gray-50 pb-2 text-xs">
-                <span className="text-gray-400 font-semibold">{t('origin')}</span>
-                <span className="text-gray-700 font-bold">{object.isImported ? t('originImported') : t('originIran')}</span>
-              </div>
-
-              <div className="flex justify-between items-center border-b border-gray-50 pb-2 text-xs">
-                <span className="text-gray-400 font-semibold">{t('hasCutsheet')}</span>
-                <span className="text-gray-700 font-bold">{object.hasCutsheet ? t('yes') : t('no')}</span>
-              </div>
-
-              <div className="flex justify-between items-center border-b border-gray-50 pb-2 text-xs">
-                <span className="text-gray-400 font-semibold">{t('hasSample')}</span>
-                <span className="text-gray-700 font-bold">{object.hasSample ? t('yes') : t('no')}</span>
-              </div>
-
-              {/* Dynamic Category Specific attributes */}
-              {Object.entries(object.specs).map(([key, val]) => {
-                // Capitalize key
-                const formattedKey = key.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase());
-                return (
-                  <div key={key} className="flex justify-between items-center border-b border-gray-50 pb-2 text-xs">
-                    <span className="text-gray-400 font-semibold capitalize">{formattedKey}</span>
-                    <span className="text-[#26B6B6] font-bold">
-                      {typeof val === 'boolean' ? (val ? t('yes') : t('no')) : String(val)}
-                    </span>
-                  </div>
-                );
-              })}
-
             </div>
+
+            <StructuredMetadataAccordion groups={metadataGroups} />
+
+            <p className="text-[10.5px] text-gray-400 leading-6 border-t border-gray-50 pt-3">
+              {isRtl
+                ? 'این متادیتا با الگوی کتابخانهٔ ساختاریافتهٔ ایران‌بیم‌هاب یکی است؛ همان داده‌ای که در این صفحه می‌بینید، در جست‌وجو، فیلترهای تخصصی و صفحهٔ محصولات نیز استفاده می‌شود.'
+                : 'This metadata follows the IranBIMhub structured-library pattern — the very data shown here also powers search, specialist filters and the product pages.'}
+            </p>
           </div>
 
           {/* Item 14 — Discussions (architects comment; manufacturers & modelers reply; public after approval) */}
