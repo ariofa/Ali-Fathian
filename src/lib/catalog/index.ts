@@ -10,3 +10,7 @@ export * from './publishedCatalog';
 export * from './search';
 export * from './completion';
 export * from './apiContract';
+export * from './legacyFilterPresets';
+export * from './metadataExtensions';
+export * from './unifiedSearch';
+export * from './unifiedSearch';

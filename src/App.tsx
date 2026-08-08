@@ -193,6 +193,13 @@ const MainAppContent: React.FC = () => {
     }, isRtl ? 'در حال باز کردن کتابخانهٔ محصولات...' : 'Opening product library...', 'Opening product library...', 350);
   };
 
+  const openMobileCatalogFilters = () => {
+    // The mobile bottom-nav entry uses the same category-and-filter drawer as
+    // the library page. It never opens a separate taxonomy implementation.
+    navigateLibrary();
+    window.setTimeout(() => window.dispatchEvent(new CustomEvent('iranbimhub-open-library-filters')), 450);
+  };
+
   const handleDashboardTabNavigate = (view: string, tab: string) => {
     setActiveDashboardTab(tab);
     navigateTo(view);
@@ -920,9 +927,9 @@ const MainAppContent: React.FC = () => {
 
             {/* 2. BIM Catalog - کاتالوگ بیم */}
             <button
-              onClick={() => navigateTo('categories')}
+              onClick={openMobileCatalogFilters}
               className={`flex flex-col items-center justify-center flex-1 h-full py-1 rounded-xl transition-all cursor-pointer ${
-                currentView === 'categories'
+                currentView === 'library'
                   ? 'bg-[#26B6B6]/15 text-[#26B6B6] font-black border border-[#26B6B6]/30 dark:border-[#26B6B6]/40 shadow-2xs backdrop-blur-md'
                   : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
               }`}
@@ -977,9 +984,9 @@ const MainAppContent: React.FC = () => {
 
             {/* 2. BIM Catalog - کاتالوگ بیم */}
             <button
-              onClick={() => navigateTo('categories')}
+              onClick={openMobileCatalogFilters}
               className={`flex flex-col items-center justify-center flex-1 h-full py-1 rounded-xl transition-all cursor-pointer ${
-                currentView === 'categories'
+                currentView === 'library'
                   ? 'bg-[#26B6B6]/15 text-[#26B6B6] font-black border border-[#26B6B6]/30 dark:border-[#26B6B6]/40 shadow-2xs backdrop-blur-md'
                   : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
               }`}

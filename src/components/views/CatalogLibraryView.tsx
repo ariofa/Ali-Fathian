@@ -8,18 +8,22 @@ import { BIMObjectCard } from '../BIMObjectCard';
 import { MetadataChips, useCatalogDataLevel } from '../catalog/StructuredMetadata';
 import { useLanguage } from '../LanguageContext';
 import {
-  ATTRIBUTE_REGISTRY,
+  ALL_ATTRIBUTE_DEFINITIONS,
   BIM_AVAILABILITY_STATUSES,
   CATEGORY_ATTRIBUTE_RULES,
   PRODUCT_CATEGORIES,
   PUBLISHED_CATALOG_PRODUCTS,
+  entryAttributeValues,
+  legacyMainFilterPresetsForCategory,
+  legacyObjectToUnifiedSearchEntry,
+  normalizeSearchText,
+  productToUnifiedSearchEntry,
 } from '../../lib/catalog';
 import type { Product } from '../../lib/catalog';
 import {
   familyIdOfLibraryCategory,
   legacyObjectLibraryCategoryId,
   legacyObjectLibraryPathLabels,
-  legacySpecLabel,
   specialistFilterHintsForCategory,
 } from '../../lib/catalog/legacyProductBridge';
 import { categoryIcon } from '../../lib/catalog/categoryIcons';
@@ -57,23 +61,31 @@ interface BrowseFilters {
   query: string;
   brands: string[];
   formats: string[];
+  revitVersions: string[];
   lods: string[];
   origins: string[];
   certifications: string[];
+  hasCutsheet: boolean | null;
+  hasSample: boolean | null;
   specs: Record<string, string>;
 }
 
 const EMPTY_FILTERS: BrowseFilters = {
-  query: '', brands: [], formats: [], lods: [], origins: [], certifications: [], specs: {},
+  query: '', brands: [], formats: [], revitVersions: [], lods: [], origins: [], certifications: [], hasCutsheet: null, hasSample: null, specs: {},
 };
+
+// Kept from the previous main-branch filter UX. They are available choices,
+// not fabricated product counts; a choice simply returns no result when no
+// current object carries it.
+const MAIN_DOWNLOAD_FORMATS = ['Revit', 'ArchiCAD', 'SketchUp', 'IFC', 'Catalog (PDF)', 'AutoCAD'];
+const MAIN_REVIT_VERSIONS = ['2022', '2023', '2024', '2025', '2026'];
+const MAIN_LOD_LEVELS = ['LOD 100', 'LOD 200', 'LOD 300', 'LOD 350', 'LOD 400'];
+const MAIN_CERTIFICATIONS = ['INSO', 'ISO 9001', 'CE', 'BHRC'];
 
 type SortMode = 'default' | 'title' | 'lod';
 
 const l1Categories = PRODUCT_CATEGORIES.filter(category => category.level === 1);
 const childrenOf = (parentId: string) => PRODUCT_CATEGORIES.filter(category => category.parentId === parentId);
-
-const normalizeText = (value: string) =>
-  value.toLowerCase().replace(/[يى]/g, 'ی').replace(/ك/g, 'ک').replace(/[۰-۹]/g, d => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).trim();
 
 function toggle(list: string[], value: string): string[] {
   return list.includes(value) ? list.filter(item => item !== value) : [...list, value];
@@ -101,6 +113,15 @@ export const CatalogLibraryView: React.FC<CatalogLibraryViewProps> = ({
   const [sortMode, setSortMode] = useState<SortMode>('default');
   const [filtersDrawerOpen, setFiltersDrawerOpen] = useState(false);
 
+  // The mobile bottom navigation dispatches this event after navigating to the
+  // library, so its catalog button opens this exact drawer rather than a
+  // duplicate mobile category menu.
+  useEffect(() => {
+    const openFilters = () => setFiltersDrawerOpen(true);
+    window.addEventListener('iranbimhub-open-library-filters', openFilters);
+    return () => window.removeEventListener('iranbimhub-open-library-filters', openFilters);
+  }, []);
+
   // A new header search lands here as initialQuery; keep the in-page query in
   // sync even when the user is already on the library view (no remount).
   useEffect(() => {
@@ -127,10 +148,18 @@ export const CatalogLibraryView: React.FC<CatalogLibraryViewProps> = ({
 
   const manufacturerById = useMemo(() => new Map(manufacturers.map(m => [m.id, m])), [manufacturers]);
 
-  /** Every browsable object carrying its approved-taxonomy category id. */
+  /** Every legacy object is adapted once into the same searchable metadata shape as Product. */
   const mappedObjects = useMemo(
-    () => objects.map(object => ({ object, libraryCategoryId: legacyObjectLibraryCategoryId(object) })),
-    [objects],
+    () => objects.map(object => {
+      const entry = legacyObjectToUnifiedSearchEntry(object, manufacturerById.get(object.manufacturerId));
+      return { object, libraryCategoryId: entry.categoryId, entry };
+    }),
+    [objects, manufacturerById],
+  );
+
+  const catalogProductEntries = useMemo(
+    () => new Map(PUBLISHED_CATALOG_PRODUCTS.filter(product => !product.isSample && product.publicationStatus === 'published').map(product => [product.id, productToUnifiedSearchEntry(product)])),
+    [],
   );
 
   /** Real object counts per level-2 category (for the tree badges). */
@@ -161,82 +190,109 @@ export const CatalogLibraryView: React.FC<CatalogLibraryViewProps> = ({
     [selectedFamily, selectedSubcategory],
   );
 
-  /** Specialist spec facets with REAL values only (never invented options). */
+  // The same normalized metadata search contract applies to Product records,
+  // so a future API response cannot bypass filters that already work for BIMObject.
+  const filteredCatalogProducts = useMemo(() => {
+    const query = normalizeSearchText(filters.query || '');
+    return scopeCatalogProducts.filter(product => {
+      const entry = catalogProductEntries.get(product.id);
+      if (!entry) return false;
+      if (filters.brands.length && !filters.brands.includes(entry.manufacturerId)) return false;
+      if (filters.formats.length && !entry.formats.some(format => filters.formats.includes(format))) return false;
+      if (filters.revitVersions.length && !entry.revitVersions.some(version => filters.revitVersions.includes(version))) return false;
+      if (filters.hasCutsheet !== null && entry.hasCutsheet !== filters.hasCutsheet) return false;
+      if (filters.hasSample !== null && entry.hasSample !== filters.hasSample) return false;
+      if (filters.certifications.length && !entry.certifications.some(cert => filters.certifications.includes(cert))) return false;
+      for (const [key, selected] of Object.entries(filters.specs)) {
+        if (selected && !entryAttributeValues(entry, key).some(value => normalizeSearchText(value) === normalizeSearchText(selected))) return false;
+      }
+      return !query || entry.searchText.includes(query);
+    });
+  }, [scopeCatalogProducts, catalogProductEntries, filters]);
+
+  /**
+   * Specialist facets combine actual values with the richer filter presets
+   * imported from the previous main branch. Presets only define allowed filter
+   * choices; they never create objects, counts or false search results.
+   */
   const specFacets = useMemo(() => {
-    const byKey = new Map<string, Set<string>>();
-    scopeObjects.forEach(({ object }) => {
-      Object.entries(object.specs || {}).forEach(([key, raw]) => {
-        if (typeof raw === 'boolean') return;
-        const values = Array.isArray(raw) ? raw : [raw];
-        values.forEach(value => {
+    const byKey = new Map<string, { key: string; label: { fa: string; en: string }; options: Map<string, { fa: string; en: string }> }>();
+    const ensureFacet = (key: string, label = ALL_ATTRIBUTE_DEFINITIONS.find(item => item.key === key)?.label || { fa: key, en: key }) => {
+      if (!byKey.has(key)) byKey.set(key, { key, label, options: new Map() });
+      return byKey.get(key)!;
+    };
+    const presetCategoryId = selectedSubcategory?.id;
+    legacyMainFilterPresetsForCategory(presetCategoryId).forEach(preset => {
+      const facet = ensureFacet(preset.key, preset.label);
+      preset.options.forEach(option => facet.options.set(option.value, { fa: option.fa, en: option.en }));
+    });
+    scopeObjects.forEach(({ entry }) => {
+      entry.attributes.forEach(attribute => {
+        const definition = ALL_ATTRIBUTE_DEFINITIONS.find(item => item.key === attribute.key);
+        const facet = ensureFacet(attribute.key, definition?.label);
+        attribute.values.forEach(value => {
           const text = String(value ?? '').trim();
-          if (!text) return;
-          if (!byKey.has(key)) byKey.set(key, new Set());
-          byKey.get(key)!.add(text);
+          if (text) facet.options.set(text, { fa: text, en: text });
         });
       });
     });
-    return [...byKey.entries()]
-      .map(([key, values]) => ({ key, label: legacySpecLabel(key), options: [...values].sort() }))
+    return [...byKey.values()]
+      .map(facet => ({ ...facet, options: [...facet.options.entries()].map(([value, label]) => ({ value, label })) }))
       .filter(facet => facet.options.length > 0)
       .sort((a, b) => (isRtl ? a.label.fa : a.label.en).localeCompare(isRtl ? b.label.fa : b.label.en, isRtl ? 'fa' : 'en'));
-  }, [scopeObjects, isRtl]);
+  }, [scopeObjects, selectedSubcategory, isRtl]);
 
   /** What you WILL be able to filter by here (rules+registry hints, read-only). */
   const specialistHints = useMemo(
-    () => (selectedSubcategory ? specialistFilterHintsForCategory(selectedSubcategory.id, CATEGORY_ATTRIBUTE_RULES, ATTRIBUTE_REGISTRY, 4) : []),
+    () => (selectedSubcategory ? specialistFilterHintsForCategory(selectedSubcategory.id, CATEGORY_ATTRIBUTE_RULES, ALL_ATTRIBUTE_DEFINITIONS, 4) : []),
     [selectedSubcategory],
   );
 
   const filteredObjects = useMemo(() => {
-    const query = normalizeText(filters.query || '');
-    const matches = scopeObjects.filter(({ object }) => {
-      if (filters.brands.length && !filters.brands.includes(object.manufacturerId)) return false;
-      if (filters.formats.length && !object.formats.some(format => filters.formats.includes(format))) return false;
-      if (filters.lods.length && !filters.lods.includes(object.lod)) return false;
+    const query = normalizeSearchText(filters.query || '');
+    const matches = scopeObjects.filter(({ entry }) => {
+      if (filters.brands.length && !filters.brands.includes(entry.manufacturerId)) return false;
+      if (filters.formats.length && !entry.formats.some(format => filters.formats.includes(format))) return false;
+      if (filters.revitVersions.length && !entry.revitVersions.some(version => filters.revitVersions.includes(version))) return false;
+      if (filters.lods.length && (!entry.lod || !filters.lods.includes(entry.lod))) return false;
+      if (filters.hasCutsheet !== null && entry.hasCutsheet !== filters.hasCutsheet) return false;
+      if (filters.hasSample !== null && entry.hasSample !== filters.hasSample) return false;
       if (filters.origins.length) {
-        const origin = object.isImported ? 'imported' : 'iran';
+        const origin = entry.isImported ? 'imported' : 'iran';
         if (!filters.origins.includes(origin)) return false;
       }
-      if (filters.certifications.length && !object.certification.some(cert => filters.certifications.includes(cert))) return false;
+      if (filters.certifications.length && !entry.certifications.some(cert => filters.certifications.includes(cert))) return false;
       for (const [key, selected] of Object.entries(filters.specs)) {
         if (!selected) continue;
-        const raw = object.specs?.[key];
-        const values = Array.isArray(raw) ? raw.map(String) : raw === undefined ? [] : [String(raw)];
-        if (!values.includes(selected)) return false;
+        if (!entryAttributeValues(entry, key).some(value => normalizeSearchText(value) === normalizeSearchText(selected))) return false;
       }
-      if (query) {
-        const manufacturerName = manufacturerById.get(object.manufacturerId);
-        const haystack = normalizeText([
-          object.titleFa, object.titleEn, object.descriptionFa || '', object.descriptionEn || '',
-          manufacturerName?.nameFa || '', manufacturerName?.nameEn || '',
-          ...(object.tagsFa || []), ...(object.tagsEn || []),
-          ...Object.values(object.specs || {}).flatMap(value => Array.isArray(value) ? value.map(String) : [String(value)]),
-        ].join(' '));
-        if (!haystack.includes(query)) return false;
-      }
+      if (query && !entry.searchText.includes(query)) return false;
       return true;
     });
     const sorted = [...matches];
     if (sortMode === 'title') sorted.sort((a, b) => (isRtl ? a.object.titleFa : a.object.titleEn).localeCompare(isRtl ? b.object.titleFa : b.object.titleEn, isRtl ? 'fa' : 'en'));
     if (sortMode === 'lod') sorted.sort((a, b) => (parseInt(b.object.lod.replace(/\D/g, ''), 10) || 0) - (parseInt(a.object.lod.replace(/\D/g, ''), 10) || 0));
     return sorted;
-  }, [scopeObjects, filters, manufacturerById, sortMode, isRtl]);
+  }, [scopeObjects, filters, sortMode, isRtl]);
 
-  const allFormats = useMemo(() => [...new Set(objects.flatMap(object => object.formats))], [objects]);
-  const allLods = useMemo(() => [...new Set(objects.map(object => object.lod))], [objects]);
-  const allBrands = useMemo(
-    () => [...new Set(objects.map(object => object.manufacturerId))].flatMap(id => {
-      const manufacturer = manufacturerById.get(id);
-      return manufacturer ? [{ id, nameFa: manufacturer.nameFa, nameEn: manufacturer.nameEn }] : [];
-    }),
-    [objects, manufacturerById],
-  );
-  const allCertifications = useMemo(() => [...new Set(objects.flatMap(object => object.certification))], [objects]);
+  const allFormats = useMemo(() => [...new Set([...MAIN_DOWNLOAD_FORMATS, ...objects.flatMap(object => object.formats), ...scopeCatalogProducts.flatMap(product => product.bimFiles.map(file => file.format))])], [objects, scopeCatalogProducts]);
+  const allRevitVersions = useMemo(() => [...new Set([...MAIN_REVIT_VERSIONS, ...objects.flatMap(object => object.revitVersions || []), ...scopeCatalogProducts.flatMap(product => product.bimFiles.flatMap(file => file.softwareVersion ? [file.softwareVersion] : []))])].sort(), [objects, scopeCatalogProducts]);
+  const allLods = useMemo(() => [...new Set([...MAIN_LOD_LEVELS, ...objects.map(object => object.lod)])], [objects]);
+  const allBrands = useMemo(() => {
+    const brands = new Map<string, { id: string; nameFa: string; nameEn: string }>();
+    objects.forEach(object => {
+      const manufacturer = manufacturerById.get(object.manufacturerId);
+      if (manufacturer) brands.set(manufacturer.id, { id: manufacturer.id, nameFa: manufacturer.nameFa, nameEn: manufacturer.nameEn });
+    });
+    scopeCatalogProducts.forEach(product => brands.set(product.manufacturer.id, { id: product.manufacturer.id, nameFa: product.manufacturer.name.fa, nameEn: product.manufacturer.name.en }));
+    return [...brands.values()];
+  }, [objects, manufacturerById, scopeCatalogProducts]);
+  const allCertifications = useMemo(() => [...new Set([...MAIN_CERTIFICATIONS, ...objects.flatMap(object => object.certification)])], [objects]);
 
   const activeFilterCount =
-    filters.brands.length + filters.formats.length + filters.lods.length + filters.origins.length +
-    filters.certifications.length + Object.values(filters.specs).filter(Boolean).length + (filters.query.trim() ? 1 : 0);
+    filters.brands.length + filters.formats.length + filters.revitVersions.length + filters.lods.length + filters.origins.length +
+    filters.certifications.length + (filters.hasCutsheet !== null ? 1 : 0) + (filters.hasSample !== null ? 1 : 0) +
+    Object.values(filters.specs).filter(Boolean).length + (filters.query.trim() ? 1 : 0);
 
   const clearAllFilters = () => setFilters(previous => ({ ...EMPTY_FILTERS }));
   const Arrow = isRtl ? ArrowLeft : ArrowRight;
@@ -272,7 +328,6 @@ export const CatalogLibraryView: React.FC<CatalogLibraryViewProps> = ({
         <div className="p-2">
           {l1Categories.map(family => {
             const Icon = categoryIcon(family.id);
-            const familyCount = childrenOf(family.id).reduce((sum, child) => sum + (countsBySubcategory[child.id] || 0), 0);
             const isActiveFamily = selectedFamily?.id === family.id;
             const isExpanded = !!expandedFamilies[family.id];
             return (
@@ -281,12 +336,10 @@ export const CatalogLibraryView: React.FC<CatalogLibraryViewProps> = ({
                   <button
                     type="button"
                     onClick={() => onNavigateLibrary(family.slug)}
-                    className={`flex min-w-0 flex-1 items-center gap-2 px-2.5 py-2 text-start cursor-pointer ${isActiveFamily ? 'text-[#087F7A]' : 'text-slate-600 dark:text-slate-300'}`}
-                    title={isRtl ? family.label.fa : family.label.en}
+                    className={`flex min-w-0 flex-1 items-center gap-2.5 px-3 py-2.5 text-start cursor-pointer lg:gap-2 lg:px-2.5 lg:py-2 ${isActiveFamily ? 'text-[#087F7A]' : 'text-slate-600 dark:text-slate-300'}`}
                   >
-                    <Icon className={`h-4 w-4 shrink-0 ${isActiveFamily ? 'text-[#087F7A]' : 'text-slate-400'}`} />
-                    <span className="min-w-0 flex-1 truncate text-[11.5px] font-black">{isRtl ? family.label.fa : family.label.en}</span>
-                    {familyCount > 0 && <span className="shrink-0 rounded-full bg-slate-100 px-1.5 py-0.5 text-[9.5px] font-black text-slate-500 dark:bg-slate-800 dark:text-slate-400">{familyCount}</span>}
+                    <Icon className={`h-5 w-5 shrink-0 lg:h-4 lg:w-4 ${isActiveFamily ? 'text-[#087F7A]' : 'text-slate-400'}`} />
+                    <span className="min-w-0 flex-1 truncate text-[13px] font-black lg:text-[11.5px]">{isRtl ? family.label.fa : family.label.en}</span>
                   </button>
                   <button
                     type="button"
@@ -308,7 +361,7 @@ export const CatalogLibraryView: React.FC<CatalogLibraryViewProps> = ({
                           key={child.id}
                           type="button"
                           onClick={() => onNavigateLibrary(family.slug, child.slug)}
-                          className={`flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-start text-[11px] transition-colors cursor-pointer ${isActiveChild ? 'bg-[#087F7A]/10 font-black text-[#087F7A]' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-700'}`}
+                          className={`flex w-full items-center justify-between gap-2.5 rounded-lg px-3 py-2.5 text-start text-[12.5px] transition-colors cursor-pointer lg:gap-2 lg:px-2.5 lg:py-1.5 lg:text-[11px] ${isActiveChild ? 'bg-[#087F7A]/10 font-black text-[#087F7A]' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-700'}`}
                         >
                           <span className="min-w-0 flex-1 truncate">{isRtl ? child.label.fa : child.label.en}</span>
                           <span className="flex shrink-0 items-center gap-1">
@@ -364,6 +417,14 @@ export const CatalogLibraryView: React.FC<CatalogLibraryViewProps> = ({
             </FilterGroup>
           )}
 
+          {allRevitVersions.length > 0 && (
+            <FilterGroup title={isRtl ? 'نسخهٔ نرم‌افزار Revit' : 'Revit software version'}>
+              {allRevitVersions.map(version => (
+                <CheckRow key={version} label={`Revit ${version}`} mono checked={filters.revitVersions.includes(version)} onChange={() => setFilters(previous => ({ ...previous, revitVersions: toggle(previous.revitVersions, version) }))} />
+              ))}
+            </FilterGroup>
+          )}
+
           {allLods.length > 0 && (
             <FilterGroup title={isRtl ? 'سطح جزئیات (LOD)' : 'Level of detail'}>
               {allLods.map(lod => (
@@ -385,7 +446,12 @@ export const CatalogLibraryView: React.FC<CatalogLibraryViewProps> = ({
             </FilterGroup>
           )}
 
-          {/* Specialist filters — real values only, plus declared hints */}
+          <FilterGroup title={isRtl ? 'محتوای محصول' : 'Product content'}>
+            <CheckRow label={isRtl ? 'دارای دیتاشیت یا Cut-sheet' : 'Datasheet / cut-sheet available'} checked={filters.hasCutsheet === true} onChange={() => setFilters(previous => ({ ...previous, hasCutsheet: previous.hasCutsheet === true ? null : true }))} />
+            <CheckRow label={isRtl ? 'دارای نمونهٔ فیزیکی' : 'Physical sample available'} checked={filters.hasSample === true} onChange={() => setFilters(previous => ({ ...previous, hasSample: previous.hasSample === true ? null : true }))} />
+          </FilterGroup>
+
+          {/* Specialist filters — current object values plus the richer main-branch presets. */}
           <div className="border-t border-slate-100 pt-4 dark:border-slate-800">
             <h3 className="mb-2.5 flex items-center gap-1.5 text-[11.5px] font-black text-slate-700 dark:text-slate-200">
               <Sparkles className="h-3.5 w-3.5 text-[#B45309]" />
@@ -406,7 +472,7 @@ export const CatalogLibraryView: React.FC<CatalogLibraryViewProps> = ({
                       className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-xs text-slate-700 outline-none focus:border-[#0FB9B1] dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
                     >
                       <option value="">{isRtl ? 'همه' : 'All'}</option>
-                      {facet.options.map(option => <option key={option} value={option}>{option}</option>)}
+                      {facet.options.map(option => <option key={option.value} value={option.value}>{isRtl ? option.label.fa : option.label.en}</option>)}
                     </select>
                   </label>
                 ))}
@@ -457,7 +523,27 @@ export const CatalogLibraryView: React.FC<CatalogLibraryViewProps> = ({
       ? (isRtl ? selectedFamily.label.fa : selectedFamily.label.en)
       : (isRtl ? 'همهٔ محصولات و آبجکت‌ها' : 'All products and BIM objects');
 
-  const totalResults = filteredObjects.length + scopeCatalogProducts.length;
+  const totalResults = filteredObjects.length + filteredCatalogProducts.length;
+
+  // When a filtered/category path is empty, keep the user moving instead of
+  // ending the journey. Prefer the same level-2 category, then its family,
+  // then other available objects in the library. These are existing records,
+  // never generated recommendations or fabricated products.
+  const emptyRecommendations = useMemo(() => {
+    const unique = (items: typeof mappedObjects) => {
+      const seen = new Set<string>();
+      return items.filter(item => !seen.has(item.object.id) && seen.add(item.object.id)).slice(0, 3);
+    };
+    if (selectedSubcategory) {
+      const sameCategory = mappedObjects.filter(item => item.libraryCategoryId === selectedSubcategory.id);
+      if (sameCategory.length) return { kind: 'same' as const, items: unique(sameCategory) };
+    }
+    if (selectedFamily) {
+      const sameFamily = mappedObjects.filter(item => familyIdOfLibraryCategory(item.libraryCategoryId) === selectedFamily.id);
+      if (sameFamily.length) return { kind: 'family' as const, items: unique(sameFamily) };
+    }
+    return { kind: 'library' as const, items: unique(mappedObjects) };
+  }, [mappedObjects, selectedFamily, selectedSubcategory]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-9">
@@ -502,7 +588,7 @@ export const CatalogLibraryView: React.FC<CatalogLibraryViewProps> = ({
 
           {totalResults > 0 ? (
             <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {scopeCatalogProducts.map(product => (
+              {filteredCatalogProducts.map(product => (
                 <CatalogProductCard key={product.id} product={product} isRtl={isRtl} onClick={() => onSelectCatalogProduct(product)} />
               ))}
               {filteredObjects.map(({ object }) => {
@@ -547,6 +633,41 @@ export const CatalogLibraryView: React.FC<CatalogLibraryViewProps> = ({
                   {isRtl ? 'ثبت درخواست آبجکت جدید' : 'Request a new object'}
                 </button>
               </div>
+              {emptyRecommendations.items.length > 0 && (
+                <section className="mt-10 border-t border-slate-100 pt-7 dark:border-slate-800">
+                  <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
+                    <div>
+                      <h2 className="text-base font-black text-slate-800 dark:text-white">
+                        {emptyRecommendations.kind === 'same'
+                          ? (isRtl ? 'آبجکت‌های دیگر در همین دسته' : 'Other objects in this category')
+                          : emptyRecommendations.kind === 'family'
+                            ? (isRtl ? 'آبجکت‌های دیگر در همین خانواده' : 'Other objects in this product family')
+                            : (isRtl ? 'پیشنهادهای دیگر در کتابخانه' : 'Other library suggestions')}
+                      </h2>
+                      <p className="mt-1 text-[11px] leading-5 text-slate-500 dark:text-slate-400">
+                        {isRtl ? 'این موارد از رکوردهای موجود کتابخانه انتخاب شده‌اند.' : 'These suggestions are drawn from existing library records.'}
+                      </p>
+                    </div>
+                    <button type="button" onClick={() => onNavigateLibrary()} className="text-xs font-black text-[#087F7A] hover:underline cursor-pointer">
+                      {isRtl ? 'مشاهدهٔ همهٔ محصولات' : 'Browse all products'}
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                    {emptyRecommendations.items.map(({ object }) => (
+                      <div key={`suggestion-${object.id}`} className="rounded-2xl border border-gray-100 bg-white p-3 transition-colors hover:border-[#0FB9B1]/40 dark:border-slate-800 dark:bg-slate-900">
+                        <BIMObjectCard
+                          object={object}
+                          isSaved={savedObjects.includes(object.id)}
+                          onToggleSave={() => onToggleSave(object.id)}
+                          onClick={() => onSelectObject(object)}
+                          onQuickDownload={format => onQuickDownload(object, format)}
+                          onViewBrand={onViewBrand}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
             </div>
           )}
         </main>
@@ -556,7 +677,7 @@ export const CatalogLibraryView: React.FC<CatalogLibraryViewProps> = ({
       {filtersDrawerOpen && (
         <div className="fixed inset-0 z-[70] flex lg:hidden">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-xs" onClick={() => setFiltersDrawerOpen(false)} />
-          <div className="relative ms-auto flex h-full w-80 max-w-[85vw] flex-col bg-white shadow-2xl dark:bg-slate-900">
+          <div className={`absolute inset-y-0 ${isRtl ? 'right-0' : 'left-0'} flex h-full w-80 max-w-[85vw] flex-col bg-white shadow-2xl dark:bg-slate-900`}>
             <header className="flex items-center justify-between border-b border-slate-100 px-4 py-3.5 dark:border-slate-800">
               <span className="text-sm font-black text-slate-800 dark:text-white">{isRtl ? 'دسته‌ها و فیلترها' : 'Categories & filters'}</span>
               <button type="button" onClick={() => setFiltersDrawerOpen(false)} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 cursor-pointer">

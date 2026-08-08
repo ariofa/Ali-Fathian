@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from './LanguageContext';
 import { Logo } from './Logo';
-import { ATTRIBUTE_REGISTRY, CATEGORY_ATTRIBUTE_RULES, PRODUCT_CATEGORIES } from '../lib/catalog';
-import { specialistFilterHintsForCategory } from '../lib/catalog/legacyProductBridge';
+import { ATTRIBUTE_REGISTRY, CATEGORY_ATTRIBUTE_RULES, PRODUCT_CATEGORIES, PUBLISHED_CATALOG_PRODUCTS } from '../lib/catalog';
+import { BIM_OBJECTS } from '../data';
+import { legacyObjectLibraryCategoryId, specialistFilterHintsForCategory } from '../lib/catalog/legacyProductBridge';
 import { categoryIcon } from '../lib/catalog/categoryIcons';
 import {
   Globe,
@@ -79,6 +80,39 @@ export const Header: React.FC<HeaderProps> = ({
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const mobileSearchInputRef = useRef<HTMLInputElement>(null);
   const hoverTimeoutRef = useRef<any>(null);
+  // Recalculate category counts when a locally published object changes. The
+  // same approved taxonomy mapper is used by the library result page.
+  const [catalogObjectsVersion, setCatalogObjectsVersion] = useState(0);
+
+  useEffect(() => {
+    const refreshCounts = () => setCatalogObjectsVersion(version => version + 1);
+    window.addEventListener('iranbimhub_custom_objects_updated', refreshCounts);
+    return () => window.removeEventListener('iranbimhub_custom_objects_updated', refreshCounts);
+  }, []);
+
+  const libraryObjectCounts = React.useMemo(() => {
+    const allObjects = [...BIM_OBJECTS];
+    try {
+      const custom = JSON.parse(localStorage.getItem('iranbimhub_custom_objects_v2') || '[]');
+      if (Array.isArray(custom)) {
+        custom.forEach((object: any) => {
+          const isPublic = object?.isPublic === true || object?.status === 'Published' || object?.evaluationStatus === 'approved';
+          if (object?.id && isPublic && !allObjects.some(item => item.id === object.id)) allObjects.push(object);
+        });
+      }
+    } catch {
+      // A malformed local prototype record must never block category navigation.
+    }
+    const counts: Record<string, number> = {};
+    allObjects.forEach(object => {
+      const categoryId = legacyObjectLibraryCategoryId(object);
+      counts[categoryId] = (counts[categoryId] || 0) + 1;
+    });
+    PUBLISHED_CATALOG_PRODUCTS
+      .filter(product => !product.isSample && product.publicationStatus === 'published')
+      .forEach(product => { counts[product.categoryId] = (counts[product.categoryId] || 0) + 1; });
+    return counts;
+  }, [catalogObjectsVersion]);
 
   const handleMouseEnter = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -1415,7 +1449,6 @@ export const Header: React.FC<HeaderProps> = ({
                     setCategoriesDropdownOpen(false);
                     onNavigate('library');
                   }}
-                  title={isRtl ? 'ورود به صفحهٔ دسته‌بندی محصولات — منو با نگه‌داشتن نشان‌گر باز می‌شود' : 'Open the product categories page — the menu opens on hover'}
                   className={`px-3 py-2 rounded-lg transition-colors cursor-pointer inline-flex items-center gap-1.5 ${categoriesDropdownOpen || currentView === 'library' ? 'text-[#087F7A] bg-[#0FB9B1]/10 font-black' : 'text-gray-600 dark:text-gray-400 hover:text-[#087F7A] hover:bg-gray-50 dark:hover:bg-gray-800/40'}`}
                   aria-expanded={categoriesDropdownOpen}
                 >
@@ -1423,7 +1456,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <ChevronDown className={`w-4 h-4 transition-transform ${categoriesDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {categoriesDropdownOpen && (
-                  <div ref={categoryPanelRef} className={`absolute ${isRtl ? 'right-0' : 'left-0'} top-full mt-2 z-[80] grid w-[min(680px,calc(100vw-3rem))] grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-[0_24px_60px_-12px_rgba(15,61,94,0.28)] animate-fadeIn`}>
+                  <div ref={categoryPanelRef} className={`absolute ${isRtl ? 'right-0' : 'left-0'} top-full mt-2 z-[80] grid w-[min(780px,calc(100vw-3rem))] grid-cols-[250px_minmax(0,1fr)] overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-[0_24px_60px_-12px_rgba(15,61,94,0.28)] animate-fadeIn`}>
                     {/* Level 1 — main families: icon + title + subcategory count + forward arrow */}
                     <div className="border-e border-gray-100 dark:border-gray-800 bg-slate-50/80 dark:bg-slate-950/40 p-2 max-h-[calc(100vh-190px)] overflow-y-auto overscroll-contain">
                       <p className="px-2.5 pb-1.5 pt-1 text-[10px] font-black text-gray-400 dark:text-gray-500">
@@ -1431,7 +1464,6 @@ export const Header: React.FC<HeaderProps> = ({
                       </p>
                       {LIBRARY_MAIN_CATEGORIES.map((category) => {
                         const Icon = categoryIcon(category.id);
-                        const childCount = getLibrarySubcategories(category.id).length;
                         const isActive = hoveredCategoryId === category.id;
                         return (
                           <button
@@ -1440,7 +1472,6 @@ export const Header: React.FC<HeaderProps> = ({
                             onMouseEnter={() => setHoveredCategoryId(category.id)}
                             onFocus={() => setHoveredCategoryId(category.id)}
                             onClick={() => handleCategorySelect(category.slug)}
-                            title={isRtl ? `ورود به صفحهٔ ${category.label.fa}` : `Open ${category.label.en}`}
                             className={`group flex w-full items-center gap-2.5 rounded-xl px-2 py-2 text-start transition-all cursor-pointer ${isActive ? 'bg-white dark:bg-gray-800 shadow-sm ring-1 ring-[#0FB9B1]/25' : 'hover:bg-white/70 dark:hover:bg-gray-800/60'}`}
                           >
                             <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${isActive ? 'bg-[#087F7A] text-white shadow-sm' : 'bg-white text-[#087F7A] ring-1 ring-gray-200 dark:bg-gray-800 dark:ring-gray-700'}`}>
@@ -1449,22 +1480,17 @@ export const Header: React.FC<HeaderProps> = ({
                             <span className={`min-w-0 flex-1 truncate text-[11.5px] font-black ${isActive ? 'text-[#087F7A]' : 'text-gray-600 dark:text-gray-300'}`}>
                               {isRtl ? category.label.fa : category.label.en}
                             </span>
-                            {childCount > 0 && (
-                              <span className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-black ${isActive ? 'bg-[#0FB9B1]/15 text-[#087F7A]' : 'bg-gray-100 text-gray-400 dark:bg-gray-800'}`}>
-                                {childCount.toLocaleString(isRtl ? 'fa-IR' : 'en-US')}
-                              </span>
-                            )}
                             {isRtl ? (
-                              <ChevronLeft className={`h-3.5 w-3.5 shrink-0 transition-all ${isActive ? 'text-[#087F7A] opacity-100' : 'text-gray-300 opacity-0 group-hover:opacity-100'}`} />
+                              <ChevronLeft className={`h-3.5 w-3.5 shrink-0 transition-all ${isActive ? 'text-[#087F7A]' : 'text-slate-400 group-hover:text-[#087F7A]'}`} />
                             ) : (
-                              <ChevronRight className={`h-3.5 w-3.5 shrink-0 transition-all ${isActive ? 'text-[#087F7A] opacity-100' : 'text-gray-300 opacity-0 group-hover:opacity-100'}`} />
+                              <ChevronRight className={`h-3.5 w-3.5 shrink-0 transition-all ${isActive ? 'text-[#087F7A]' : 'text-slate-400 group-hover:text-[#087F7A]'}`} />
                             )}
                           </button>
                         );
                       })}
                     </div>
-                    {/* Level 2 — natural height; inner scroll appears only if the frame truly cannot fit the list */}
-                    <div className="max-h-[calc(100vh-190px)] overflow-y-auto overscroll-contain p-3">
+                    {/* Level 2 — two compact columns keep the full list visible on ordinary desktop heights. */}
+                    <div className="p-3">
                       {(() => {
                         const active = LIBRARY_MAIN_CATEGORIES.find((category) => category.id === hoveredCategoryId) || LIBRARY_MAIN_CATEGORIES[0];
                         const children = active ? getLibrarySubcategories(active.id) : [];
@@ -1492,9 +1518,10 @@ export const Header: React.FC<HeaderProps> = ({
                                 <ChevronRight className="h-4 w-4 shrink-0 text-[#087F7A] transition-transform group-hover:translate-x-0.5" />
                               )}
                             </button>
-                            <div className="mt-1.5 grid grid-cols-1 gap-0.5">
+                            <div className="mt-2 grid grid-cols-2 gap-1">
                               {children.map((sub) => {
                                 const hints = specialistFilterHintsForCategory(sub.id, CATEGORY_ATTRIBUTE_RULES, ATTRIBUTE_REGISTRY, 2);
+                                const objectCount = libraryObjectCounts[sub.id] || 0;
                                 return (
                                   <button
                                     key={sub.id}
@@ -1506,6 +1533,13 @@ export const Header: React.FC<HeaderProps> = ({
                                       <span className="min-w-0 flex-1 truncate text-[11.5px] font-extrabold text-gray-600 transition-colors group-hover:text-[#087F7A] dark:text-gray-300">
                                         {isRtl ? sub.label.fa : sub.label.en}
                                       </span>
+                                      {objectCount > 0 && (
+                                        <span
+                                          className="shrink-0 rounded-full bg-[#087F7A]/10 px-1.5 py-0.5 text-[9px] font-black text-[#087F7A]"
+                                        >
+                                          {objectCount.toLocaleString(isRtl ? 'fa-IR' : 'en-US')}
+                                        </span>
+                                      )}
                                       {isRtl ? (
                                         <ChevronLeft className="h-3 w-3 shrink-0 text-gray-300 transition-colors group-hover:text-[#087F7A]" />
                                       ) : (
